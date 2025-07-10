@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="assets/img/school-photo.png" alt=" Logo" width="200"/>
+</p>
+
+
 # Masunda Temporal Coordinate Navigator: Ultra-Precision Clock Engineering
 
 **In Memory of Mrs. Stella-Lorraine Masunda**  
