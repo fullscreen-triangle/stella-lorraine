@@ -1,0 +1,46 @@
+[build]
+rustflags = ["-C", "target-cpu=native"]
+jobs = 4
+
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld", "-C", "target-cpu=native"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "target-cpu=native"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "target-cpu=native"]
+
+[net]
+retry = 3
+timeout = 60
+
+[profile.dev]
+panic = "unwind"
+debug = true
+opt-level = 0
+overflow-checks = true
+
+[profile.release]
+panic = "abort"
+debug = false
+opt-level = 3
+lto = true
+codegen-units = 1
+overflow-checks = false
+strip = true
+
+[profile.bench]
+inherits = "release"
+debug = true
+
+[profile.test]
+debug = true
+opt-level = 1
+
+[registries.crates-io]
+protocol = "sparse"
+
+[unstable]
+future-incompat-report = true 

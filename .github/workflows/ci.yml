@@ -1,0 +1,185 @@
+name: Masunda Navigator CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        rust: [stable, beta]
+        exclude:
+          - os: windows-latest
+            rust: beta
+          - os: macos-latest
+            rust: beta
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: ${{ matrix.rust }}
+        components: rustfmt, clippy
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+
+    - name: Run clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings
+
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Run tests
+      run: cargo test --verbose
+
+    - name: Run integration tests
+      run: cargo test --test integration_test --verbose
+
+  precision-tests:
+    name: Precision Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+
+    - name: Run precision validation tests
+      run: cargo test --features high-precision -- precision --nocapture
+
+    - name: Test temporal navigation
+      run: cargo test test_temporal_coordinate_navigation -- --nocapture
+
+    - name: Test memorial framework
+      run: cargo test test_memorial_framework -- --nocapture
+
+    - name: Test predeterminism proof
+      run: cargo test test_predeterminism_proof -- --nocapture
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install cargo-audit
+      run: cargo install cargo-audit
+
+    - name: Install cargo-deny
+      run: cargo install cargo-deny
+
+    - name: Run security audit
+      run: cargo audit
+
+    - name: Run cargo-deny
+      run: cargo deny check
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Install tarpaulin
+      run: cargo install cargo-tarpaulin
+
+    - name: Generate coverage report
+      run: cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: cobertura.xml
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Build documentation
+      run: cargo doc --no-deps --all-features
+
+    - name: Deploy documentation
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./target/doc
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: masunda-navigator:test
+
+  memorial-validation:
+    name: Memorial Framework Validation
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Display memorial message
+      run: make memorial-message
+
+    - name: Validate memorial significance
+      run: cargo test test_memorial_message_display -- --nocapture
+
+    - name: Generate predeterminism proof
+      run: cargo test test_predeterminism_proof -- --nocapture
+
+    - name: Memorial framework integration
+      run: cargo test test_memorial_framework -- --nocapture 
