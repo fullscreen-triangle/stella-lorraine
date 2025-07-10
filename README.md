@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/img/school-photo.png" alt=" Logo" width="200"/>
+  <img src="assets/img/left-rabbit.png" alt=" Logo" width="200"/>
 </p>
 
 
