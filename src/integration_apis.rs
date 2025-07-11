@@ -1,7 +1,25 @@
 use async_trait::async_trait;
 use std::error::Error;
 use std::fmt;
-use crate::temporal_coordinate::{TemporalCoordinate, OscillatorySignature, ConvergenceAnalysis};
+use crate::types::temporal_types::{TemporalCoordinate, OscillatorySignature};
+use crate::types::oscillation_types::{OscillationConvergence};
+
+/// Convergence analysis result from integration systems
+#[derive(Debug, Clone)]
+pub struct ConvergenceAnalysis {
+    /// Kambuzuma quantum convergence
+    pub kambuzuma_convergence: f64,
+    /// Kwasa-kwasa semantic convergence
+    pub kwasa_kwasa_convergence: f64,
+    /// Mzekezeke authentication convergence
+    pub mzekezeke_convergence: f64,
+    /// Buhera environmental convergence
+    pub buhera_convergence: f64,
+    /// Consciousness convergence
+    pub consciousness_convergence: f64,
+    /// Overall convergence confidence
+    pub overall_confidence: f64,
+}
 
 /// Error type for integration API failures
 #[derive(Debug)]
@@ -36,13 +54,13 @@ impl Error for IntegrationError {}
 pub trait KambuzumaIntegration {
     /// Access quantum oscillatory endpoints for temporal coordinate calculation
     async fn access_quantum_oscillatory_endpoints(&self) -> Result<Vec<QuantumOscillationEndpoint>, IntegrationError>;
-    
+
     /// Perform biological quantum search for temporal coordinates
     async fn biological_quantum_search(&self, search_params: QuantumSearchParameters) -> Result<QuantumSearchResult, IntegrationError>;
-    
+
     /// Get extended coherence time (247ms fire-adapted vs 89ms baseline)
     async fn get_extended_coherence_time(&self) -> Result<f64, IntegrationError>;
-    
+
     /// Access quantum state superposition for coordinate calculation
     async fn access_quantum_superposition(&self, coordinate_count: usize) -> Result<Vec<QuantumState>, IntegrationError>;
 }
@@ -52,13 +70,13 @@ pub trait KambuzumaIntegration {
 pub trait KwasaKwasaIntegration {
     /// Access semantic oscillatory pattern recognition
     async fn access_semantic_patterns(&self) -> Result<Vec<SemanticPattern>, IntegrationError>;
-    
+
     /// Perform information catalysis for temporal understanding
     async fn perform_information_catalysis(&self, temporal_data: TemporalData) -> Result<CatalysisResult, IntegrationError>;
-    
+
     /// Validate temporal coordinates through reconstruction
     async fn validate_through_reconstruction(&self, coordinate: &TemporalCoordinate) -> Result<ReconstructionValidation, IntegrationError>;
-    
+
     /// Channel temporal information to coordinate understanding
     async fn channel_temporal_information(&self, patterns: Vec<SemanticPattern>) -> Result<ChanneledUnderstanding, IntegrationError>;
 }
@@ -68,13 +86,13 @@ pub trait KwasaKwasaIntegration {
 pub trait MzekezekeIntegration {
     /// Perform 12-dimensional authentication of temporal coordinates
     async fn authenticate_12_dimensional(&self, coordinate: &TemporalCoordinate) -> Result<AuthenticationResult, IntegrationError>;
-    
+
     /// Calculate thermodynamic security requirements (10^44 J spoofing prevention)
     async fn calculate_thermodynamic_security(&self) -> Result<ThermodynamicSecurity, IntegrationError>;
-    
+
     /// Access cryptographic oscillatory signatures
     async fn access_cryptographic_signatures(&self) -> Result<Vec<CryptographicSignature>, IntegrationError>;
-    
+
     /// Validate multi-dimensional coordinate consistency
     async fn validate_coordinate_consistency(&self, coordinate: &TemporalCoordinate) -> Result<ConsistencyValidation, IntegrationError>;
 }
@@ -84,13 +102,13 @@ pub trait MzekezekeIntegration {
 pub trait BuheraIntegration {
     /// Access atmospheric oscillatory patterns
     async fn access_atmospheric_patterns(&self) -> Result<Vec<AtmosphericPattern>, IntegrationError>;
-    
+
     /// Perform environmental coupling analysis
     async fn perform_environmental_coupling(&self, coordinate: &TemporalCoordinate) -> Result<EnvironmentalCoupling, IntegrationError>;
-    
+
     /// Get weather pattern oscillatory signatures
     async fn get_weather_signatures(&self) -> Result<WeatherSignatures, IntegrationError>;
-    
+
     /// Optimize fire-environment coupling for precision enhancement
     async fn optimize_fire_environment_coupling(&self) -> Result<FireEnvironmentOptimization, IntegrationError>;
 }
@@ -100,13 +118,13 @@ pub trait BuheraIntegration {
 pub trait ConsciousnessIntegration {
     /// Access alpha wave harmonic coupling (2.9 Hz fire-optimal frequency)
     async fn access_alpha_wave_coupling(&self) -> Result<AlphaWaveCoupling, IntegrationError>;
-    
+
     /// Enhance temporal prediction through consciousness (460% improvement)
     async fn enhance_temporal_prediction(&self, baseline: f64) -> Result<EnhancedPrediction, IntegrationError>;
-    
+
     /// Perform consciousness-clock feedback loop optimization
     async fn optimize_consciousness_feedback(&self, coordinate: &TemporalCoordinate) -> Result<ConsciousnessFeedback, IntegrationError>;
-    
+
     /// Access fire-adapted neural resonance patterns
     async fn access_neural_resonance(&self) -> Result<NeuralResonance, IntegrationError>;
 }
@@ -299,7 +317,7 @@ impl MasundaIntegrationCoordinator {
             consciousness,
         }
     }
-    
+
     /// Perform coordinated temporal coordinate access across all systems
     pub async fn coordinated_temporal_access(&self) -> Result<ConvergenceAnalysis, IntegrationError> {
         // Access all systems in parallel for maximum precision
@@ -310,10 +328,10 @@ impl MasundaIntegrationCoordinator {
             self.access_buhera_convergence(),
             self.access_consciousness_convergence()
         )?;
-        
+
         // Calculate overall convergence confidence
         let overall_confidence = (quantum_result + semantic_result + crypto_result + env_result + consciousness_result) / 5.0;
-        
+
         Ok(ConvergenceAnalysis {
             kambuzuma_convergence: quantum_result,
             kwasa_kwasa_convergence: semantic_result,
@@ -323,61 +341,61 @@ impl MasundaIntegrationCoordinator {
             overall_confidence,
         })
     }
-    
+
     async fn access_kambuzuma_convergence(&self) -> Result<f64, IntegrationError> {
         let quantum_endpoints = self.kambuzuma.access_quantum_oscillatory_endpoints().await?;
         let coherence_time = self.kambuzuma.get_extended_coherence_time().await?;
-        
+
         // Calculate convergence based on quantum endpoint coherence
         let convergence = quantum_endpoints.iter()
             .map(|endpoint| endpoint.coherence_time / coherence_time)
             .fold(0.0, |acc, x| acc + x) / quantum_endpoints.len() as f64;
-        
+
         Ok(convergence)
     }
-    
+
     async fn access_kwasa_kwasa_convergence(&self) -> Result<f64, IntegrationError> {
         let semantic_patterns = self.kwasa_kwasa.access_semantic_patterns().await?;
-        
+
         // Calculate convergence based on semantic pattern coherence
         let convergence = semantic_patterns.iter()
             .map(|pattern| pattern.temporal_significance)
             .fold(0.0, |acc, x| acc + x) / semantic_patterns.len() as f64;
-        
+
         Ok(convergence)
     }
-    
+
     async fn access_mzekezeke_convergence(&self) -> Result<f64, IntegrationError> {
         let crypto_signatures = self.mzekezeke.access_cryptographic_signatures().await?;
         let thermo_security = self.mzekezeke.calculate_thermodynamic_security().await?;
-        
+
         // Calculate convergence based on cryptographic security strength
         let convergence = crypto_signatures.iter()
             .map(|sig| sig.security_strength)
             .fold(0.0, |acc, x| acc + x) / crypto_signatures.len() as f64;
-        
+
         Ok(convergence * thermo_security.security_confidence)
     }
-    
+
     async fn access_buhera_convergence(&self) -> Result<f64, IntegrationError> {
         let atmospheric_patterns = self.buhera.access_atmospheric_patterns().await?;
         let fire_optimization = self.buhera.optimize_fire_environment_coupling().await?;
-        
+
         // Calculate convergence based on environmental coupling strength
         let convergence = atmospheric_patterns.iter()
             .map(|pattern| pattern.coupling_strength)
             .fold(0.0, |acc, x| acc + x) / atmospheric_patterns.len() as f64;
-        
+
         Ok(convergence)
     }
-    
+
     async fn access_consciousness_convergence(&self) -> Result<f64, IntegrationError> {
         let alpha_coupling = self.consciousness.access_alpha_wave_coupling().await?;
         let neural_resonance = self.consciousness.access_neural_resonance().await?;
-        
+
         // Calculate convergence based on consciousness coupling strength
         let convergence = alpha_coupling.coupling_strength * neural_resonance.neural_coherence;
-        
+
         Ok(convergence)
     }
-} 
+}

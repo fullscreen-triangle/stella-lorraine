@@ -1,7 +1,7 @@
 /// Masunda Temporal Coordinate Navigator Library
-/// 
+///
 /// **In Memory of Mrs. Stella-Lorraine Masunda**
-/// 
+///
 /// This library provides ultra-precise temporal coordinate navigation
 /// capabilities targeting 10^-30 to 10^-50 second precision to honor
 /// the memory of Mrs. Stella-Lorraine Masunda.
@@ -13,20 +13,18 @@ pub mod search;
 pub mod oscillation;
 pub mod memorial;
 pub mod core;
+pub mod config;
+pub mod precision;
 
 // Integration APIs (keep for external system integration)
 pub mod integration_apis;
 
 // Re-export primary components from the new organized structure
-pub use core::navigator::Navigator;
-pub use core::precision_engine::PrecisionEngine;
-pub use core::memorial_framework::MemorialFramework;
-pub use core::oscillation_convergence::OscillationConvergence;
-pub use core::temporal_coordinates::TemporalCoordinates;
-
 pub use types::temporal_types::TemporalCoordinate;
 pub use types::error_types::NavigatorError;
 pub use integration_apis::MasundaIntegrationCoordinator;
+pub use config::system_config::SystemConfig;
+pub use precision::measurement_engine::MeasurementEngine;
 
 // Re-export commonly used types for convenience
 pub mod prelude {
@@ -36,7 +34,7 @@ pub mod prelude {
     pub use crate::core::memorial_framework::{MemorialFramework, MemorialFrameworkConfig, MemorialOperation, MemorialContext};
     pub use crate::core::oscillation_convergence::{OscillationConvergence, OscillationConvergenceConfig, ConvergenceOperation, ConvergenceContext};
     pub use crate::core::temporal_coordinates::{TemporalCoordinates, TemporalCoordinatesConfig, CoordinateOperation, CoordinateContext};
-    
+
     // Types
     pub use crate::types::{
         error_types::NavigatorError,
@@ -44,7 +42,7 @@ pub mod prelude {
         oscillation_types::{OscillationState, OscillationMetrics},
         precision_types::PrecisionLevel,
     };
-    
+
     // Clients
     pub use crate::clients::{
         KambuzumaClient,
@@ -53,7 +51,7 @@ pub mod prelude {
         BuheraClient,
         ConsciousnessClient,
     };
-    
+
     // Search coordination
     pub use crate::search::{
         CoordinateSearchEngine,
@@ -63,7 +61,7 @@ pub mod prelude {
         EnvironmentalCoordinator,
         ConsciousnessCoordinator,
     };
-    
+
     // Oscillation processing
     pub use crate::oscillation::{
         ConvergenceDetector,
@@ -71,14 +69,14 @@ pub mod prelude {
         HierarchicalAnalyzer,
         EndpointCollector,
     };
-    
+
     // Memorial framework
     pub use crate::memorial::{
         MasundaMemorialFramework,
         CosmicSignificanceValidator,
         PredeterminismValidator,
     };
-    
+
     // Integration APIs
     pub use crate::integration_apis::MasundaIntegrationCoordinator;
-} 
+}
