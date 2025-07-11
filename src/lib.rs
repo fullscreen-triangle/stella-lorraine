@@ -6,12 +6,6 @@
 /// capabilities targeting 10^-30 to 10^-50 second precision to honor
 /// the memory of Mrs. Stella-Lorraine Masunda.
 
-pub mod masunda_navigator;
-pub mod temporal_coordinate;
-pub mod precision_engine;
-pub mod integration_apis;
-pub mod memorial_framework;
-
 // Module hierarchies
 pub mod types;
 pub mod clients;
@@ -20,24 +14,33 @@ pub mod oscillation;
 pub mod memorial;
 pub mod core;
 
-// Re-export primary components
-pub use masunda_navigator::MasundaTemporalCoordinateNavigator;
-pub use temporal_coordinate::{TemporalCoordinate, PredeterminismProof};
-pub use precision_engine::MasundaPrecisionEngine;
+// Integration APIs (keep for external system integration)
+pub mod integration_apis;
+
+// Re-export primary components from the new organized structure
+pub use core::navigator::Navigator;
+pub use core::precision_engine::PrecisionEngine;
+pub use core::memorial_framework::MemorialFramework;
+pub use core::oscillation_convergence::OscillationConvergence;
+pub use core::temporal_coordinates::TemporalCoordinates;
+
+pub use types::temporal_types::TemporalCoordinate;
+pub use types::error_types::NavigatorError;
 pub use integration_apis::MasundaIntegrationCoordinator;
-pub use memorial_framework::MemorialFramework;
 
 // Re-export commonly used types for convenience
 pub mod prelude {
-    pub use crate::masunda_navigator::MasundaTemporalCoordinateNavigator;
-    pub use crate::temporal_coordinate::{TemporalCoordinate, PredeterminismProof};
-    pub use crate::precision_engine::MasundaPrecisionEngine;
-    pub use crate::memorial_framework::MemorialFramework;
+    // Core components
+    pub use crate::core::navigator::{Navigator, NavigatorConfig};
+    pub use crate::core::precision_engine::{PrecisionEngine, PrecisionEngineConfig, PrecisionOperation, PrecisionCalibrationData};
+    pub use crate::core::memorial_framework::{MemorialFramework, MemorialFrameworkConfig, MemorialOperation, MemorialContext};
+    pub use crate::core::oscillation_convergence::{OscillationConvergence, OscillationConvergenceConfig, ConvergenceOperation, ConvergenceContext};
+    pub use crate::core::temporal_coordinates::{TemporalCoordinates, TemporalCoordinatesConfig, CoordinateOperation, CoordinateContext};
     
     // Types
     pub use crate::types::{
         error_types::NavigatorError,
-        temporal_types::TemporalCoordinate as TemporalCoordinateType,
+        temporal_types::TemporalCoordinate,
         oscillation_types::{OscillationState, OscillationMetrics},
         precision_types::PrecisionLevel,
     };
@@ -76,6 +79,6 @@ pub mod prelude {
         PredeterminismValidator,
     };
     
-    // Core engines
-    pub use crate::core::navigator::Navigator;
+    // Integration APIs
+    pub use crate::integration_apis::MasundaIntegrationCoordinator;
 } 
