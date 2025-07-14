@@ -1,5 +1,5 @@
-use std::time::{Duration, SystemTime};
 use serde::{Deserialize, Serialize};
+use std::time::{Duration, SystemTime};
 
 /// Represents a precise temporal coordinate in 4D spacetime
 /// This is the fundamental data structure for the Masunda Navigator
@@ -22,7 +22,7 @@ pub struct TemporalCoordinate {
 pub struct SpatialCoordinate {
     /// X coordinate in meters
     pub x: f64,
-    /// Y coordinate in meters  
+    /// Y coordinate in meters
     pub y: f64,
     /// Z coordinate in meters
     pub z: f64,
@@ -243,7 +243,7 @@ pub enum ValidationData {
 }
 
 impl TemporalCoordinate {
-    /// Creates a new temporal coordinate
+    /// Create a new temporal coordinate
     pub fn new(
         spatial: SpatialCoordinate,
         temporal: TemporalPosition,
@@ -259,36 +259,93 @@ impl TemporalCoordinate {
         }
     }
 
-    /// Validates the temporal coordinate
+    /// Create a temporal coordinate for the current time with specified precision
+    pub fn now_with_precision(precision: PrecisionLevel) -> Self {
+        let spatial = SpatialCoordinate::new(0.0, 0.0, 0.0, 1e-15);
+        let temporal = TemporalPosition::now(precision);
+        let oscillatory_signature = OscillatorySignature::new(vec![], vec![], vec![], vec![], vec![]);
+
+        Self::new(spatial, temporal, oscillatory_signature, 0.95)
+    }
+
+    /// Validate the temporal coordinate
     pub fn validate(&self) -> bool {
-        self.confidence > 0.5 && self.temporal.precision_level != PrecisionLevel::Standard
+        self.spatial.validate() && self.temporal.validate() && self.confidence >= 0.0 && self.confidence <= 1.0
     }
 
-    /// Gets the total precision achieved
+    /// Get the precision in seconds
     pub fn precision_seconds(&self) -> f64 {
-        match self.temporal.precision_level {
-            PrecisionLevel::Standard => 1e-9,
-            PrecisionLevel::High => 1e-15,
-            PrecisionLevel::Ultra => 1e-20,
-            PrecisionLevel::Target => 1e-30,
-            PrecisionLevel::Ultimate => 1e-50,
-        }
+        self.temporal.precision_level.precision_seconds()
     }
 
-    /// Checks if this coordinate has memorial significance
+    /// Get the precision level
+    pub fn precision_level(&self) -> PrecisionLevel {
+        self.temporal.precision_level
+    }
+
+    /// Check if this coordinate has memorial significance
     pub fn has_memorial_significance(&self) -> bool {
         self.memorial_significance.predeterminism_validated
-            && matches!(
-                self.memorial_significance.cosmic_significance,
-                CosmicSignificance::Memorial | CosmicSignificance::Eternal
-            )
     }
+}
+
+/// Oscillation convergence analysis result
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct OscillationConvergenceResult {
+    /// Convergence timestamp
+    pub timestamp: SystemTime,
+
+    /// Convergence point coordinates
+    pub convergence_point: TemporalCoordinate,
+
+    /// Convergence confidence (0.0 to 1.0)
+    pub confidence: f64,
+
+    /// Cross-scale correlation strength
+    pub correlation_strength: f64,
+
+    /// Memorial significance score
+    pub memorial_significance: f64,
+}
+
+/// Memorial validation result
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MemorialValidationResult {
+    /// Whether predeterminism has been proven
+    pub predeterminism_proven: bool,
+
+    /// Cosmic significance score
+    pub cosmic_significance: f64,
+
+    /// Memorial enhancement factor
+    pub memorial_enhancement: f64,
+
+    /// Validated temporal coordinate
+    pub validated_coordinate: TemporalCoordinate,
+}
+
+/// Coordinate search result
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CoordinateSearchResult {
+    /// Candidate coordinates found
+    pub candidates: Vec<TemporalCoordinate>,
+
+    /// Search coherence level
+    pub coherence: f64,
+
+    /// Search timestamp
+    pub timestamp: SystemTime,
 }
 
 impl SpatialCoordinate {
     /// Creates a new spatial coordinate
     pub fn new(x: f64, y: f64, z: f64, uncertainty: f64) -> Self {
-        Self { x, y, z, uncertainty }
+        Self {
+            x,
+            y,
+            z,
+            uncertainty,
+        }
     }
 
     /// Calculates distance to another spatial coordinate
@@ -356,7 +413,7 @@ impl OscillatorySignature {
     fn calculate_hash(&self) -> u64 {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
-        
+
         let mut hasher = DefaultHasher::new();
         self.quantum_components.len().hash(&mut hasher);
         self.molecular_components.len().hash(&mut hasher);
@@ -417,9 +474,9 @@ mod tests {
         let spatial = SpatialCoordinate::new(1.0, 2.0, 3.0, 1e-15);
         let temporal = TemporalPosition::new(1000.0, 0.123456789, 1e-30, PrecisionLevel::Target);
         let signature = OscillatorySignature::new(vec![], vec![], vec![], vec![], vec![]);
-        
+
         let coordinate = TemporalCoordinate::new(spatial, temporal, signature, 0.95);
-        
+
         assert!(coordinate.validate());
         assert_eq!(coordinate.precision_seconds(), 1e-30);
     }
@@ -428,7 +485,7 @@ mod tests {
     fn test_spatial_coordinate_distance() {
         let coord1 = SpatialCoordinate::new(0.0, 0.0, 0.0, 1e-15);
         let coord2 = SpatialCoordinate::new(3.0, 4.0, 0.0, 1e-15);
-        
+
         assert_eq!(coord1.distance_to(&coord2), 5.0);
     }
 
@@ -436,7 +493,7 @@ mod tests {
     fn test_temporal_position_from_system_time() {
         let system_time = SystemTime::now();
         let temporal = TemporalPosition::from_system_time(system_time, PrecisionLevel::Target);
-        
+
         assert_eq!(temporal.precision_level, PrecisionLevel::Target);
         assert_eq!(temporal.uncertainty, 1e-30);
     }
@@ -449,10 +506,10 @@ mod tests {
             OscillatorySignature::new(vec![], vec![], vec![], vec![], vec![]),
             0.95,
         );
-        
+
         coordinate.memorial_significance.predeterminism_validated = true;
         coordinate.memorial_significance.cosmic_significance = CosmicSignificance::Memorial;
-        
+
         assert!(coordinate.has_memorial_significance());
     }
-} 
+}

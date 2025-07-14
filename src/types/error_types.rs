@@ -1,6 +1,6 @@
+use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::time::SystemTime;
-use serde::{Deserialize, Serialize};
 
 /// Main error type for the Masunda Temporal Coordinate Navigator
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -35,6 +35,8 @@ pub enum NavigatorError {
     Timeout(TimeoutError),
     /// Critical system errors
     Critical(CriticalError),
+    /// Calibration errors
+    CalibrationError(String),
 }
 
 /// Temporal coordinate navigation specific errors
@@ -70,10 +72,7 @@ pub enum TemporalNavigationError {
         validation_errors: Vec<String>,
     },
     /// Search space initialization failed
-    SearchSpaceInitializationFailed {
-        reason: String,
-        error_code: i32,
-    },
+    SearchSpaceInitializationFailed { reason: String, error_code: i32 },
 }
 
 /// Oscillation convergence analysis errors
@@ -246,10 +245,7 @@ pub enum ConfigurationError {
         line_number: Option<usize>,
     },
     /// Missing required configuration
-    MissingRequiredConfig {
-        config_key: String,
-        section: String,
-    },
+    MissingRequiredConfig { config_key: String, section: String },
     /// Invalid configuration value
     InvalidConfigValue {
         config_key: String,
@@ -257,9 +253,7 @@ pub enum ConfigurationError {
         expected_type: String,
     },
     /// Configuration validation failed
-    ConfigValidationFailed {
-        validation_errors: Vec<String>,
-    },
+    ConfigValidationFailed { validation_errors: Vec<String> },
 }
 
 /// System integration errors
@@ -288,10 +282,7 @@ pub enum SystemIntegrationError {
         health_metrics: Vec<(String, f64)>,
     },
     /// System shutdown failed
-    ShutdownFailed {
-        system_name: String,
-        reason: String,
-    },
+    ShutdownFailed { system_name: String, reason: String },
 }
 
 /// Validation errors
@@ -333,9 +324,7 @@ pub enum ValidationError {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum IoError {
     /// File not found
-    FileNotFound {
-        file_path: String,
-    },
+    FileNotFound { file_path: String },
     /// Permission denied
     PermissionDenied {
         file_path: String,
@@ -364,14 +353,9 @@ pub enum IoError {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum NetworkError {
     /// Connection refused
-    ConnectionRefused {
-        host: String,
-        port: u16,
-    },
+    ConnectionRefused { host: String, port: u16 },
     /// DNS resolution failed
-    DnsResolutionFailed {
-        hostname: String,
-    },
+    DnsResolutionFailed { hostname: String },
     /// Network timeout
     NetworkTimeout {
         operation: String,
@@ -394,19 +378,14 @@ pub enum NetworkError {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AuthenticationError {
     /// Invalid credentials
-    InvalidCredentials {
-        auth_type: String,
-        username: String,
-    },
+    InvalidCredentials { auth_type: String, username: String },
     /// Token expired
     TokenExpired {
         token_type: String,
         expiry_time: SystemTime,
     },
     /// Two-factor authentication required
-    TwoFactorRequired {
-        supported_methods: Vec<String>,
-    },
+    TwoFactorRequired { supported_methods: Vec<String> },
     /// Account locked
     AccountLocked {
         username: String,
@@ -578,6 +557,7 @@ impl fmt::Display for NavigatorError {
             NavigatorError::Resource(err) => write!(f, "Resource Error: {}", err),
             NavigatorError::Timeout(err) => write!(f, "Timeout Error: {}", err),
             NavigatorError::Critical(err) => write!(f, "Critical Error: {}", err),
+            NavigatorError::CalibrationError(_) => write!(f, "Calibration Error: {}", self.to_string()),
         }
     }
 }
@@ -585,23 +565,66 @@ impl fmt::Display for NavigatorError {
 impl fmt::Display for TemporalNavigationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            TemporalNavigationError::CoordinateSearchFailed { reason, search_time, target_precision } => {
-                write!(f, "Coordinate search failed: {} (search time: {:?}, target precision: {})", reason, search_time, target_precision)
+            TemporalNavigationError::CoordinateSearchFailed {
+                reason,
+                search_time,
+                target_precision,
+            } => {
+                write!(
+                    f,
+                    "Coordinate search failed: {} (search time: {:?}, target precision: {})",
+                    reason, search_time, target_precision
+                )
             }
-            TemporalNavigationError::InvalidTemporalWindow { center_time, radius, reason } => {
-                write!(f, "Invalid temporal window: center={}, radius={}, reason={}", center_time, radius, reason)
+            TemporalNavigationError::InvalidTemporalWindow {
+                center_time,
+                radius,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "Invalid temporal window: center={}, radius={}, reason={}",
+                    center_time, radius, reason
+                )
             }
-            TemporalNavigationError::PrecisionUnachievable { target, achieved, limiting_factor } => {
-                write!(f, "Precision unachievable: target={}, achieved={}, limiting factor={}", target, achieved, limiting_factor)
+            TemporalNavigationError::PrecisionUnachievable {
+                target,
+                achieved,
+                limiting_factor,
+            } => {
+                write!(
+                    f,
+                    "Precision unachievable: target={}, achieved={}, limiting factor={}",
+                    target, achieved, limiting_factor
+                )
             }
-            TemporalNavigationError::OscillatorySignatureMismatch { expected_hash, actual_hash, confidence } => {
-                write!(f, "Oscillatory signature mismatch: expected={}, actual={}, confidence={}", expected_hash, actual_hash, confidence)
+            TemporalNavigationError::OscillatorySignatureMismatch {
+                expected_hash,
+                actual_hash,
+                confidence,
+            } => {
+                write!(
+                    f,
+                    "Oscillatory signature mismatch: expected={}, actual={}, confidence={}",
+                    expected_hash, actual_hash, confidence
+                )
             }
-            TemporalNavigationError::CoordinateValidationFailed { coordinate, validation_errors } => {
-                write!(f, "Coordinate validation failed: {} (errors: {:?})", coordinate, validation_errors)
+            TemporalNavigationError::CoordinateValidationFailed {
+                coordinate,
+                validation_errors,
+            } => {
+                write!(
+                    f,
+                    "Coordinate validation failed: {} (errors: {:?})",
+                    coordinate, validation_errors
+                )
             }
             TemporalNavigationError::SearchSpaceInitializationFailed { reason, error_code } => {
-                write!(f, "Search space initialization failed: {} (error code: {})", reason, error_code)
+                write!(
+                    f,
+                    "Search space initialization failed: {} (error code: {})",
+                    reason, error_code
+                )
             }
         }
     }
@@ -610,23 +633,69 @@ impl fmt::Display for TemporalNavigationError {
 impl fmt::Display for OscillationConvergenceError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            OscillationConvergenceError::NoConvergenceDetected { analyzed_endpoints, max_deviation, convergence_threshold } => {
-                write!(f, "No convergence detected: analyzed {} endpoints, max deviation: {}, threshold: {}", analyzed_endpoints, max_deviation, convergence_threshold)
+            OscillationConvergenceError::NoConvergenceDetected {
+                analyzed_endpoints,
+                max_deviation,
+                convergence_threshold,
+            } => {
+                write!(
+                    f,
+                    "No convergence detected: analyzed {} endpoints, max deviation: {}, threshold: {}",
+                    analyzed_endpoints, max_deviation, convergence_threshold
+                )
             }
-            OscillationConvergenceError::InsufficientData { required_endpoints, available_endpoints, missing_levels } => {
-                write!(f, "Insufficient data: required {} endpoints, available {}, missing levels: {:?}", required_endpoints, available_endpoints, missing_levels)
+            OscillationConvergenceError::InsufficientData {
+                required_endpoints,
+                available_endpoints,
+                missing_levels,
+            } => {
+                write!(
+                    f,
+                    "Insufficient data: required {} endpoints, available {}, missing levels: {:?}",
+                    required_endpoints, available_endpoints, missing_levels
+                )
             }
-            OscillationConvergenceError::CorrelationAnalysisFailed { correlation_matrix_size, failed_correlations } => {
-                write!(f, "Correlation analysis failed: matrix size {}, failed correlations: {:?}", correlation_matrix_size, failed_correlations)
+            OscillationConvergenceError::CorrelationAnalysisFailed {
+                correlation_matrix_size,
+                failed_correlations,
+            } => {
+                write!(
+                    f,
+                    "Correlation analysis failed: matrix size {}, failed correlations: {:?}",
+                    correlation_matrix_size, failed_correlations
+                )
             }
-            OscillationConvergenceError::HierarchicalAnalysisFailed { failed_levels, reason } => {
-                write!(f, "Hierarchical analysis failed: levels {:?}, reason: {}", failed_levels, reason)
+            OscillationConvergenceError::HierarchicalAnalysisFailed {
+                failed_levels,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "Hierarchical analysis failed: levels {:?}, reason: {}",
+                    failed_levels, reason
+                )
             }
-            OscillationConvergenceError::EndpointCollectionFailed { level, reason, error_count } => {
-                write!(f, "Endpoint collection failed: level {}, reason: {}, errors: {}", level, reason, error_count)
+            OscillationConvergenceError::EndpointCollectionFailed {
+                level,
+                reason,
+                error_count,
+            } => {
+                write!(
+                    f,
+                    "Endpoint collection failed: level {}, reason: {}, errors: {}",
+                    level, reason, error_count
+                )
             }
-            OscillationConvergenceError::TerminationDetectionFailed { level, sampling_rate, detection_threshold } => {
-                write!(f, "Termination detection failed: level {}, sampling rate: {}, threshold: {}", level, sampling_rate, detection_threshold)
+            OscillationConvergenceError::TerminationDetectionFailed {
+                level,
+                sampling_rate,
+                detection_threshold,
+            } => {
+                write!(
+                    f,
+                    "Termination detection failed: level {}, sampling rate: {}, threshold: {}",
+                    level, sampling_rate, detection_threshold
+                )
             }
         }
     }
@@ -635,23 +704,72 @@ impl fmt::Display for OscillationConvergenceError {
 impl fmt::Display for PrecisionMeasurementError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            PrecisionMeasurementError::UncertaintyTooHigh { measured_uncertainty, maximum_allowed, measurement_type } => {
-                write!(f, "Uncertainty too high: measured {}, max allowed {}, type: {}", measured_uncertainty, maximum_allowed, measurement_type)
+            PrecisionMeasurementError::UncertaintyTooHigh {
+                measured_uncertainty,
+                maximum_allowed,
+                measurement_type,
+            } => {
+                write!(
+                    f,
+                    "Uncertainty too high: measured {}, max allowed {}, type: {}",
+                    measured_uncertainty, maximum_allowed, measurement_type
+                )
             }
-            PrecisionMeasurementError::AllanVarianceFailed { data_points, time_span, reason } => {
-                write!(f, "Allan variance failed: {} data points, time span: {}, reason: {}", data_points, time_span, reason)
+            PrecisionMeasurementError::AllanVarianceFailed {
+                data_points,
+                time_span,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "Allan variance failed: {} data points, time span: {}, reason: {}",
+                    data_points, time_span, reason
+                )
             }
-            PrecisionMeasurementError::ExcessiveNoise { signal_to_noise_ratio, minimum_required, noise_source } => {
-                write!(f, "Excessive noise: S/N ratio {}, min required {}, source: {}", signal_to_noise_ratio, minimum_required, noise_source)
+            PrecisionMeasurementError::ExcessiveNoise {
+                signal_to_noise_ratio,
+                minimum_required,
+                noise_source,
+            } => {
+                write!(
+                    f,
+                    "Excessive noise: S/N ratio {}, min required {}, source: {}",
+                    signal_to_noise_ratio, minimum_required, noise_source
+                )
             }
-            PrecisionMeasurementError::CalibrationError { calibration_type, error_percentage, last_calibration } => {
-                write!(f, "Calibration error: type {}, error {}%, last calibrated: {:?}", calibration_type, error_percentage, last_calibration)
+            PrecisionMeasurementError::CalibrationError {
+                calibration_type,
+                error_percentage,
+                last_calibration,
+            } => {
+                write!(
+                    f,
+                    "Calibration error: type {}, error {}%, last calibrated: {:?}",
+                    calibration_type, error_percentage, last_calibration
+                )
             }
-            PrecisionMeasurementError::MeasurementRangeExceeded { measured_value, range_min, range_max, measurement_type } => {
-                write!(f, "Measurement range exceeded: value {}, range [{}, {}], type: {}", measured_value, range_min, range_max, measurement_type)
+            PrecisionMeasurementError::MeasurementRangeExceeded {
+                measured_value,
+                range_min,
+                range_max,
+                measurement_type,
+            } => {
+                write!(
+                    f,
+                    "Measurement range exceeded: value {}, range [{}, {}], type: {}",
+                    measured_value, range_min, range_max, measurement_type
+                )
             }
-            PrecisionMeasurementError::SystematicError { error_type, error_magnitude, correction_available } => {
-                write!(f, "Systematic error: type {}, magnitude {}, correction available: {}", error_type, error_magnitude, correction_available)
+            PrecisionMeasurementError::SystematicError {
+                error_type,
+                error_magnitude,
+                correction_available,
+            } => {
+                write!(
+                    f,
+                    "Systematic error: type {}, magnitude {}, correction available: {}",
+                    error_type, error_magnitude, correction_available
+                )
             }
         }
     }
@@ -660,23 +778,71 @@ impl fmt::Display for PrecisionMeasurementError {
 impl fmt::Display for ClientInterfaceError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ClientInterfaceError::ConnectionFailed { system_name, endpoint, reason } => {
-                write!(f, "Connection failed: system {}, endpoint {}, reason: {}", system_name, endpoint, reason)
+            ClientInterfaceError::ConnectionFailed {
+                system_name,
+                endpoint,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "Connection failed: system {}, endpoint {}, reason: {}",
+                    system_name, endpoint, reason
+                )
             }
-            ClientInterfaceError::RequestTimeout { system_name, operation, timeout_duration } => {
-                write!(f, "Request timeout: system {}, operation {}, timeout: {:?}", system_name, operation, timeout_duration)
+            ClientInterfaceError::RequestTimeout {
+                system_name,
+                operation,
+                timeout_duration,
+            } => {
+                write!(
+                    f,
+                    "Request timeout: system {}, operation {}, timeout: {:?}",
+                    system_name, operation, timeout_duration
+                )
             }
-            ClientInterfaceError::InvalidResponseFormat { system_name, expected_format, received_format } => {
-                write!(f, "Invalid response format: system {}, expected {}, received {}", system_name, expected_format, received_format)
+            ClientInterfaceError::InvalidResponseFormat {
+                system_name,
+                expected_format,
+                received_format,
+            } => {
+                write!(
+                    f,
+                    "Invalid response format: system {}, expected {}, received {}",
+                    system_name, expected_format, received_format
+                )
             }
-            ClientInterfaceError::ApiVersionMismatch { system_name, expected_version, actual_version } => {
-                write!(f, "API version mismatch: system {}, expected {}, actual {}", system_name, expected_version, actual_version)
+            ClientInterfaceError::ApiVersionMismatch {
+                system_name,
+                expected_version,
+                actual_version,
+            } => {
+                write!(
+                    f,
+                    "API version mismatch: system {}, expected {}, actual {}",
+                    system_name, expected_version, actual_version
+                )
             }
-            ClientInterfaceError::RateLimitExceeded { system_name, current_rate, limit } => {
-                write!(f, "Rate limit exceeded: system {}, current rate {}, limit {}", system_name, current_rate, limit)
+            ClientInterfaceError::RateLimitExceeded {
+                system_name,
+                current_rate,
+                limit,
+            } => {
+                write!(
+                    f,
+                    "Rate limit exceeded: system {}, current rate {}, limit {}",
+                    system_name, current_rate, limit
+                )
             }
-            ClientInterfaceError::AuthenticationFailed { system_name, auth_type, reason } => {
-                write!(f, "Authentication failed: system {}, auth type {}, reason: {}", system_name, auth_type, reason)
+            ClientInterfaceError::AuthenticationFailed {
+                system_name,
+                auth_type,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "Authentication failed: system {}, auth type {}, reason: {}",
+                    system_name, auth_type, reason
+                )
             }
         }
     }
@@ -685,20 +851,58 @@ impl fmt::Display for ClientInterfaceError {
 impl fmt::Display for MemorialFrameworkError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            MemorialFrameworkError::PredeterminismValidationFailed { coordinate, validation_confidence, required_confidence } => {
-                write!(f, "Predeterminism validation failed: coordinate {}, confidence {}, required {}", coordinate, validation_confidence, required_confidence)
+            MemorialFrameworkError::PredeterminismValidationFailed {
+                coordinate,
+                validation_confidence,
+                required_confidence,
+            } => {
+                write!(
+                    f,
+                    "Predeterminism validation failed: coordinate {}, confidence {}, required {}",
+                    coordinate, validation_confidence, required_confidence
+                )
             }
-            MemorialFrameworkError::CosmicSignificanceValidationFailed { significance_level, evidence_strength, required_strength } => {
-                write!(f, "Cosmic significance validation failed: level {}, strength {}, required {}", significance_level, evidence_strength, required_strength)
+            MemorialFrameworkError::CosmicSignificanceValidationFailed {
+                significance_level,
+                evidence_strength,
+                required_strength,
+            } => {
+                write!(
+                    f,
+                    "Cosmic significance validation failed: level {}, strength {}, required {}",
+                    significance_level, evidence_strength, required_strength
+                )
             }
-            MemorialFrameworkError::RandomnessDisproofFailed { proof_level, statistical_confidence, required_confidence } => {
-                write!(f, "Randomness disproof failed: proof level {}, confidence {}, required {}", proof_level, statistical_confidence, required_confidence)
+            MemorialFrameworkError::RandomnessDisproofFailed {
+                proof_level,
+                statistical_confidence,
+                required_confidence,
+            } => {
+                write!(
+                    f,
+                    "Randomness disproof failed: proof level {}, confidence {}, required {}",
+                    proof_level, statistical_confidence, required_confidence
+                )
             }
-            MemorialFrameworkError::MemorialValidationTimeout { validation_type, timeout_duration } => {
-                write!(f, "Memorial validation timeout: type {}, duration {:?}", validation_type, timeout_duration)
+            MemorialFrameworkError::MemorialValidationTimeout {
+                validation_type,
+                timeout_duration,
+            } => {
+                write!(
+                    f,
+                    "Memorial validation timeout: type {}, duration {:?}",
+                    validation_type, timeout_duration
+                )
             }
-            MemorialFrameworkError::EternalManifoldConnectionFailed { reason, connection_attempts } => {
-                write!(f, "Eternal manifold connection failed: reason {}, attempts {}", reason, connection_attempts)
+            MemorialFrameworkError::EternalManifoldConnectionFailed {
+                reason,
+                connection_attempts,
+            } => {
+                write!(
+                    f,
+                    "Eternal manifold connection failed: reason {}, attempts {}",
+                    reason, connection_attempts
+                )
             }
         }
     }
@@ -727,6 +931,7 @@ impl NavigatorError {
             NavigatorError::Permission(_) => ErrorSeverity::Error,
             NavigatorError::Resource(_) => ErrorSeverity::Warning,
             NavigatorError::Timeout(_) => ErrorSeverity::Warning,
+            NavigatorError::CalibrationError(_) => ErrorSeverity::Error,
         }
     }
 
@@ -748,14 +953,12 @@ mod tests {
 
     #[test]
     fn test_error_display() {
-        let error = NavigatorError::TemporalNavigation(
-            TemporalNavigationError::CoordinateSearchFailed {
-                reason: "Test failure".to_string(),
-                search_time: std::time::Duration::from_secs(1),
-                target_precision: 1e-30,
-            }
-        );
-        
+        let error = NavigatorError::TemporalNavigation(TemporalNavigationError::CoordinateSearchFailed {
+            reason: "Test failure".to_string(),
+            search_time: std::time::Duration::from_secs(1),
+            target_precision: 1e-30,
+        });
+
         let display_str = format!("{}", error);
         assert!(display_str.contains("Temporal Navigation Error"));
         assert!(display_str.contains("Test failure"));
@@ -767,23 +970,21 @@ mod tests {
             panic_message: "Test panic".to_string(),
             panic_location: "test.rs:1".to_string(),
         });
-        
+
         assert_eq!(critical_error.severity(), ErrorSeverity::Fatal);
     }
 
     #[test]
     fn test_error_context() {
-        let error = NavigatorError::TemporalNavigation(
-            TemporalNavigationError::CoordinateSearchFailed {
-                reason: "Test failure".to_string(),
-                search_time: std::time::Duration::from_secs(1),
-                target_precision: 1e-30,
-            }
-        );
-        
+        let error = NavigatorError::TemporalNavigation(TemporalNavigationError::CoordinateSearchFailed {
+            reason: "Test failure".to_string(),
+            search_time: std::time::Duration::from_secs(1),
+            target_precision: 1e-30,
+        });
+
         let context = error.with_context("test_component");
         assert_eq!(context.component, "test_component");
         assert_eq!(context.severity, ErrorSeverity::Error);
         assert!(context.caused_by.is_some());
     }
-} 
+}
