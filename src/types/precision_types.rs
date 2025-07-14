@@ -1,6 +1,40 @@
-use std::time::{Duration, SystemTime};
+use crate::types::temporal_types::{PrecisionLevel, TemporalPosition};
 use serde::{Deserialize, Serialize};
-use crate::types::temporal_types::{TemporalPosition, PrecisionLevel};
+use std::time::{Duration, SystemTime};
+
+/// Precision levels for temporal measurements
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum PrecisionLevel {
+    /// Standard precision (10^-9 seconds)
+    Standard,
+    /// High precision (10^-15 seconds)
+    High,
+    /// Ultra precision (10^-20 seconds)
+    Ultra,
+    /// Ultra-precise precision (10^-30 seconds)
+    UltraPrecise,
+    /// Target precision (10^-30 seconds)
+    Target,
+    /// Quantum-precise precision (10^-50 seconds)
+    QuantumPrecise,
+    /// Ultimate precision (10^-50 seconds)
+    Ultimate,
+}
+
+impl PrecisionLevel {
+    /// Convert precision level to seconds
+    pub fn precision_seconds(&self) -> f64 {
+        match self {
+            PrecisionLevel::Standard => 1e-9,
+            PrecisionLevel::High => 1e-15,
+            PrecisionLevel::Ultra => 1e-20,
+            PrecisionLevel::UltraPrecise => 1e-30,
+            PrecisionLevel::Target => 1e-30,
+            PrecisionLevel::QuantumPrecise => 1e-50,
+            PrecisionLevel::Ultimate => 1e-50,
+        }
+    }
+}
 
 /// Precision measurement configuration
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -481,7 +515,7 @@ impl PrecisionMeasurementConfig {
         Self {
             target_precision: PrecisionLevel::Ultimate,
             measurement_duration: Duration::from_secs(600), // 10 minutes
-            sampling_rate: 1e9, // 1 GHz
+            sampling_rate: 1e9,                             // 1 GHz
             measurement_cycles: 1000,
             noise_reduction: NoiseReductionConfig::ultra_precision(),
             calibration: CalibrationConfig::ultra_precision(),
@@ -534,7 +568,7 @@ impl CalibrationConfig {
     /// Creates default calibration configuration
     pub fn default() -> Self {
         Self {
-            reference_frequency: 10e6, // 10 MHz
+            reference_frequency: 10e6,                       // 10 MHz
             calibration_interval: Duration::from_secs(3600), // 1 hour
             accuracy_requirement: 1e-12,
             temperature_calibration: true,
@@ -546,7 +580,7 @@ impl CalibrationConfig {
     /// Creates ultra-precision calibration configuration
     pub fn ultra_precision() -> Self {
         Self {
-            reference_frequency: 10e6, // 10 MHz
+            reference_frequency: 10e6,                      // 10 MHz
             calibration_interval: Duration::from_secs(600), // 10 minutes
             accuracy_requirement: 1e-15,
             temperature_calibration: true,
@@ -595,8 +629,8 @@ impl TemperatureCompensation {
     pub fn ultra_precision() -> Self {
         Self {
             enabled: true,
-            temperature_coefficient: 1e-9, // 1 ppb/°C
-            reference_temperature: 20.0,   // 20°C
+            temperature_coefficient: 1e-9,  // 1 ppb/°C
+            reference_temperature: 20.0,    // 20°C
             temperature_uncertainty: 0.001, // 1 mK
         }
     }
@@ -607,7 +641,7 @@ impl PressureCompensation {
     pub fn default() -> Self {
         Self {
             enabled: true,
-            pressure_coefficient: 1e-11, // 10 ppb/Pa
+            pressure_coefficient: 1e-11,  // 10 ppb/Pa
             reference_pressure: 101325.0, // 1 atm
             pressure_uncertainty: 10.0,   // 10 Pa
         }
@@ -617,7 +651,7 @@ impl PressureCompensation {
     pub fn ultra_precision() -> Self {
         Self {
             enabled: true,
-            pressure_coefficient: 1e-12, // 1 ppb/Pa
+            pressure_coefficient: 1e-12,  // 1 ppb/Pa
             reference_pressure: 101325.0, // 1 atm
             pressure_uncertainty: 0.1,    // 0.1 Pa
         }
@@ -673,9 +707,9 @@ impl VibrationCompensation {
     pub fn default() -> Self {
         Self {
             enabled: true,
-            vibration_sensitivity: 1e-6, // 1 ppm/(m/s²)
+            vibration_sensitivity: 1e-6,    // 1 ppm/(m/s²)
             frequency_range: (1.0, 1000.0), // 1 Hz to 1 kHz
-            vibration_uncertainty: 1e-3, // 1 mm/s²
+            vibration_uncertainty: 1e-3,    // 1 mm/s²
         }
     }
 
@@ -683,9 +717,9 @@ impl VibrationCompensation {
     pub fn ultra_precision() -> Self {
         Self {
             enabled: true,
-            vibration_sensitivity: 1e-9, // 1 ppb/(m/s²)
+            vibration_sensitivity: 1e-9,     // 1 ppb/(m/s²)
             frequency_range: (0.1, 10000.0), // 0.1 Hz to 10 kHz
-            vibration_uncertainty: 1e-6, // 1 µm/s²
+            vibration_uncertainty: 1e-6,     // 1 µm/s²
         }
     }
 }
@@ -749,4 +783,4 @@ mod tests {
         assert_eq!(NoiseType::WhiteFrequency.allan_variance_slope(), 0.0);
         assert_eq!(NoiseType::RandomWalkFrequency.allan_variance_slope(), 1.0);
     }
-} 
+}
