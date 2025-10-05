@@ -5,8 +5,12 @@ Comprehensive comparison of stella-lorraine against standard timing systems
 """
 
 import json
+import sqlite3
 import time
 import statistics
+from dataclasses import dataclass
+
+import ntplib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -691,7 +695,7 @@ def main():
     console.print("[bold green]Stella-Lorraine Precision Timing Benchmark Suite[/bold green]")
 
     # Initialize benchmark
-    benchmark = PrecisionTimingBenchmark()
+    benchmark = ComprehensivePrecisionBenchmark()
 
     # Run comprehensive benchmark
     results = benchmark.run_comprehensive_benchmark()
