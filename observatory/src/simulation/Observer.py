@@ -1,0 +1,1 @@
+# this should implement the Observer/block class, with ALL its properties, methods, functions, helpers, everything. The properties of the observer should be mutable and the class can be instatiated multiple times with different configurations (network of observers)
