@@ -1,0 +1,297 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "observatory"
+version = "1.0.0"
+description = "Advanced Precision Measurement & Categorical Alignment Framework"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Kundai Farai Sachikonye", email = "kundai.sachikonye@tum.de" },
+]
+maintainers = [
+    { name = "Kundai Farai Sachikonye", email = "kundai.sachikonye@tum.de" },
+]
+keywords = [
+    "precision-measurement",
+    "strategic-disagreement-validation",
+    "categorical-alignment",
+    "s-entropy-framework",
+    "wave-simulation",
+    "atomic-clocks",
+    "observer-networks",
+    "transcendent-coordination",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: System :: Networking :: Time Synchronization",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.8.0",
+    "matplotlib>=3.5.0",
+    "pandas>=1.4.0",
+    "rich>=12.0.0",
+    "statsmodels>=0.13.0",
+    "scikit-learn>=1.1.0",
+    "pytz>=2022.1",
+    "python-dateutil>=2.8.0",
+    "requests>=2.28.0",
+    "aiohttp>=3.8.0",
+    "psutil>=5.9.0",
+    "skyfield>=1.42",
+    "pynmea2>=1.19.0",
+    "pyserial>=3.5",
+    "ntplib>=0.4.0",
+    "sqlite-utils>=3.26.0",
+    "h5py>=3.7.0",
+    "sympy>=1.10",
+    "pywavelets>=1.3.0",
+    "numba>=0.56.0",
+    "cryptography>=37.0.0",
+    "pydantic>=1.9.0",
+    "PyYAML>=6.0",
+    "joblib>=1.2.0",
+    "seaborn>=0.11.0",
+    "plotly>=5.9.0",
+    "geopy>=2.2.0",
+    "arrow>=1.2.0",
+    "orjson>=3.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=0.971",
+    "sphinx>=5.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+]
+quantum = ["qiskit>=0.39.0"]
+ml = ["torch>=1.12.0", "tensorflow>=2.9.0"]
+gpu = ["cupy>=11.0.0"]
+advanced-signal = ["librosa>=0.9.0", "obspy>=1.3.0"]
+web = ["fastapi>=0.78.0", "uvicorn>=0.18.0"]
+all = ["observatory[dev,quantum,ml,gpu,advanced-signal,web]"]
+
+[project.urls]
+Homepage = "https://github.com/kundai-sachikonye/observatory"
+Documentation = "https://observatory.readthedocs.io/"
+Repository = "https://github.com/kundai-sachikonye/observatory.git"
+"Bug Tracker" = "https://github.com/kundai-sachikonye/observatory/issues"
+Changelog = "https://github.com/kundai-sachikonye/observatory/blob/main/CHANGELOG.md"
+
+[project.scripts]
+observatory-demo = "observatory.comprehensive_wave_simulation_demo:main"
+observatory-validate = "observatory.precision.validation:main"
+observatory-experiment = "observatory.experiment:main"
+
+[project.gui-scripts]
+observatory-gui = "observatory.gui.main:main"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["observatory*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"observatory" = ["data/**/*", "config/**/*", "docs/**/*"]
+
+# Black code formatting
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# isort import sorting
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["observatory"]
+
+# MyPy type checking
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "ntplib.*",
+    "pynmea2.*",
+    "skyfield.*",
+    "obspy.*",
+    "librosa.*",
+    "qiskit.*",
+]
+ignore_missing_imports = true
+
+# Pytest configuration
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = ["tests", "observatory"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "precision: marks tests requiring high precision hardware",
+    "network: marks tests requiring network access",
+    "gpu: marks tests requiring GPU hardware",
+]
+filterwarnings = ["error", "ignore::UserWarning", "ignore::DeprecationWarning"]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["observatory"]
+omit = ["*/tests/*", "*/test_*", "setup.py", "*/site-packages/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+# Flake8 linting
+[tool.flake8]
+max-line-length = 88
+select = ["E", "W", "F"]
+ignore = [
+    "E203", # whitespace before ':'
+    "E501", # line too long
+    "W503", # line break before binary operator
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".tox",
+    ".mypy_cache",
+    ".pytest_cache",
+]
+
+# Bandit security linting
+[tool.bandit]
+exclude_dirs = ["tests", "build", "dist"]
+skips = ["B101", "B601"]
+
+# Performance profiling
+[tool.profile]
+sort_by = "cumulative"
+lines_to_print = 20
+strip_dirs = true
+
+# Documentation
+[tool.sphinx]
+source-dir = "docs"
+build-dir = "docs/_build"
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+]
+
+# Version management
+[tool.bumpversion]
+current_version = "1.0.0"
+commit = true
+tag = true
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "observatory/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+# Docker configuration
+[tool.docker]
+image-name = "observatory"
+tag = "latest"
+build-args = ["PYTHON_VERSION=3.9"]
+
+# Package metadata for PyPI
+[project.entry-points."observatory.plugins"]
+signal_processing = "observatory.signal"
+precision_validation = "observatory.precision"
+wave_simulation = "observatory.simulation"
+s_entropy_framework = "observatory.oscillatory"
+recursive_enhancement = "observatory.recursion"
+
+# Development and CI/CD configuration
+[tool.tox]
+env_list = ["py38", "py39", "py310", "py311"]
+deps = ["pytest", "pytest-cov"]
+commands = ["pytest {posargs}"]
+
+[tool.pre-commit]
+repos = [
+    { repo = "https://github.com/psf/black", rev = "22.3.0", hooks = [
+        { id = "black" },
+    ] },
+    { repo = "https://github.com/pycqa/isort", rev = "5.10.1", hooks = [
+        { id = "isort" },
+    ] },
+    { repo = "https://github.com/pycqa/flake8", rev = "4.0.1", hooks = [
+        { id = "flake8" },
+    ] },
+    { repo = "https://github.com/pre-commit/mirrors-mypy", rev = "v0.971", hooks = [
+        { id = "mypy" },
+    ] },
+]

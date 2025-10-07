@@ -1,0 +1,1 @@
+# This module is supposed to run an experiment. All experiments are managed here. This file is the "orchestrator",that is, it ensures the correct application of methods and the correct flow of the experiment towards the "goal". It should be a Bayesian Network  with nodes that are updated  towards optimising a tangible "goal".
