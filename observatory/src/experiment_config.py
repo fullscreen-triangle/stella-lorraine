@@ -42,8 +42,8 @@ class OptimizationGoal(Enum):
 class TemporalPrecisionConfig:
     """Configuration for temporal precision experiments"""
     target_precision_ns: float = 0.1  # Sub-nanosecond target
-    sampling_rate_hz: int = 1000000    # 1 MHz sampling
-    measurement_duration_s: float = 10.0
+    sampling_rate_hz: int = 1000000000    # 1 MHz sampling
+    measurement_duration_s: float = 30.0
     reference_clock_source: str = "atomic"
     oscillatory_coupling_enabled: bool = True
     multi_scale_frequencies: List[float] = field(default_factory=lambda: [1e3, 1e6, 1e9, 1e12])
@@ -55,7 +55,7 @@ class TemporalPrecisionConfig:
 class OscillatoryAnalysisConfig:
     """Configuration for oscillatory framework analysis"""
     frequency_range_hz: Tuple[float, float] = (1e-3, 1e15)  # Cosmic to quantum
-    oscillator_count: int = 1000
+    oscillator_count: int = 10000
     coupling_strength: float = 0.5
     convergence_threshold: float = 1e-9
     max_iterations: int = 10000
@@ -92,7 +92,7 @@ class MemorialFrameworkConfig:
 @dataclass
 class BayesianNetworkConfig:
     """Configuration for Bayesian Network orchestrator"""
-    node_count: int = 50
+    node_count: int = 100
     prior_distribution: str = "uniform"
     posterior_update_method: str = "variational_inference"
     convergence_criteria: float = 1e-6
