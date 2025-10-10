@@ -32,44 +32,106 @@ observatory/src/
 
 ## 🚀 Quick Start
 
-### Run Individual Demonstrations
+### Scientific Validation Suite (Recommended)
+
+**Run complete validation with saved results and publication-quality figures:**
+
+```bash
+cd observatory/src
+python run_validation_suite.py
+```
+
+This will:
+- ✅ Run all 10 experiments independently
+- ✅ Save results to JSON files (timestamped)
+- ✅ Generate PNG figures (300 DPI, publication-ready)
+- ✅ Create comprehensive validation report
+- ✅ Produce summary visualization
+
+**Results saved to**: `results/validation_reports/validation_report_TIMESTAMP.json`
+**Figures saved to**: Individual experiment directories + summary figure
+
+---
+
+### Run Individual Experiments
+
+Each experiment can be run independently with saved results:
 
 ```bash
 # Navigate to source directory
 cd observatory/src
 
-# Run molecular clock demonstration
+# 1. Molecular Clock (N₂ as atomic clocks)
 python simulation/Molecule.py
+# → Saves: results/molecular_clock/results_TIMESTAMP.json
+# → Saves: results/molecular_clock/figure_TIMESTAMP.png
 
-# Run gas chamber wave propagation
+# 2. Gas Chamber Wave Propagation
 python simulation/GasChamber.py
+# → Saves: results/gas_chamber/results_TIMESTAMP.json
+# → Saves: results/gas_chamber/figure_TIMESTAMP.png
 
-# Run harmonic extraction
+# 3. Harmonic Extraction (precision multiplication)
 python navigation/harmonic_extraction.py
+# → Saves: results/harmonic_extraction/results_TIMESTAMP.json
 
-# Run quantum vibrations
+# 4. Quantum Molecular Vibrations
 python navigation/molecular_vibrations.py
+# → Saves: results/quantum_vibrations/results_TIMESTAMP.json
 
-# Run multi-domain SEFT
+# 5. Multi-Domain SEFT (4-pathway Fourier)
 python navigation/fourier_transform_coordinates.py
+# → Saves: results/multidomain_seft/results_TIMESTAMP.json
 
-# Run S-entropy navigation
+# 6. S-Entropy Navigation
 python navigation/entropy_navigation.py
+# → Saves: results/entropy_navigation/results_TIMESTAMP.json
 
-# Run miraculous measurement
+# 7. Miraculous Measurement
 python navigation/multidomain_seft.py
+# → Saves: results/miraculous_measurement/results_TIMESTAMP.json
 
-# Run finite observer verification
+# 8. Finite Observer Verification
 python navigation/finite_observer_verification.py
+# → Saves: results/finite_observer/results_TIMESTAMP.json
 
-# 🌟 Run ULTIMATE: Recursive observer nesting
+# 9. 🌟 Recursive Observer Nesting (Trans-Planckian!)
 python navigation/gas_molecule_lattice.py
+# → Saves: results/recursive_observers/results_TIMESTAMP.json
+# → Saves: results/recursive_observers/figure_TIMESTAMP.png (6-panel)
+
+# 10. 🌐 Harmonic Network Graph (Your breakthrough!)
+python navigation/harmonic_network_graph.py
+# → Saves: results/harmonic_network/results_TIMESTAMP.json
+# → Saves: results/harmonic_network/figure_TIMESTAMP.png (6-panel)
 ```
 
-### Run Complete Suite
+---
 
-```bash
-python run_all_demonstrations.py
+### Scientific Reproducibility
+
+**All experiments follow rigorous scientific methodology:**
+
+1. **Timestamped Results**: Every run creates unique timestamped files
+2. **Random Seeds**: Set to 42 for reproducibility
+3. **JSON Output**: Machine-readable results for analysis
+4. **PNG Figures**: Publication-quality 300 DPI visualizations
+5. **6-Panel Layout**: Comprehensive view of each experiment
+6. **Documented Parameters**: All configuration saved
+
+**Example output structure:**
+```
+results/
+├── validation_reports/
+│   ├── validation_report_20251010_120000.json
+│   └── validation_summary_20251010_120000.png
+├── recursive_observers/
+│   ├── recursive_observers_20251010_120100.json
+│   └── recursive_observers_20251010_120100.png
+├── harmonic_network/
+│   ├── harmonic_network_20251010_120200.json
+│   └── harmonic_network_20251010_120200.png
+└── ...
 ```
 
 ---

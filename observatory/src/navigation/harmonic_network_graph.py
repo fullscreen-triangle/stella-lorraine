@@ -408,15 +408,30 @@ class HarmonicNetworkGraph:
         }
 
 
-def demonstrate_harmonic_network():
-    """Demonstrate harmonic network graph navigation"""
+def main():
+    """
+    Main experimental function for harmonic network graph analysis
+    Saves results and generates publication-quality visualizations
+    """
+    import os
+    import json
+    import matplotlib.pyplot as plt
+    from datetime import datetime
+
+    # Setup
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    results_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'harmonic_network')
+    os.makedirs(results_dir, exist_ok=True)
 
     print("=" * 70)
-    print("   HARMONIC NETWORK GRAPH NAVIGATION")
-    print("   From Tree Structure → Graph Structure via Harmonic Convergence")
+    print("   EXPERIMENT: HARMONIC NETWORK GRAPH NAVIGATION")
+    print("   Tree → Graph Transformation via Harmonic Convergence")
     print("=" * 70)
+    print(f"\n   Timestamp: {timestamp}")
+    print(f"   Results directory: {results_dir}")
 
     # Build network
+    print(f"\n[1/4] Building harmonic network graph...")
     network = HarmonicNetworkGraph(frequency_tolerance=1e11)  # 100 GHz tolerance
 
     stats = network.build_from_recursive_observations(

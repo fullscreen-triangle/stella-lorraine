@@ -30,31 +30,29 @@ from rich.live import Live
 import sys
 import os
 
+from src import create_mimo_signal_amplification_system, create_precise_clock_api_system, \
+    create_satellite_temporal_gps_system, create_signal_fusion_system, create_temporal_information_system, \
+    create_infinite_complexity_wave, WaveComplexity, ObserverType, InteractionMode, create_observer_network, \
+    create_wave_propagation_orchestrator, create_transcendent_observer, ObservationStrategy, FusionAlgorithm
+from src.oscillatory.semantic_distance import SemanticDistanceAmplifier
+from src.signal import TimeSignal, SignalType
+from src.simulation import create_strategic_disagreement_validator, MeasurementSystem, DisagreementType
+
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import simulation components
-from observatory.src.simulation.Wave import create_infinite_complexity_wave, WaveComplexity
-from observatory.src.simulation.Observer import create_observer_network, ObserverType, InteractionMode
-from observatory.src.simulation.Propagation import create_wave_propagation_orchestrator
-from observatory.src.simulation.Alignment import create_strategic_disagreement_validator, MeasurementSystem, DisagreementType
-from observatory.src.simulation.Transcendent import create_transcendent_observer, ObservationStrategy
 
-# Import S-Entropy modules
-from observatory.src.oscillatory.ambigous_compression import SemanticDistanceAmplifier
-from observatory.src.oscillatory.empty_dictionary import NavigationAlgorithm, HierarchicalOscillatorySystem
-from observatory.src.oscillatory.observer_oscillation_hierarchy import TranscendentObserver as S_TranscendentObserver
-from observatory.src.oscillatory.semantic_distance import SemanticDistanceCalculator
-from observatory.src.oscillatory.time_sequencing import PrecisionAmplifier
-
-# Import signal processing
-from observatory.src.signal.mimo_signal_amplification import create_mimo_signal_amplification_system
-from observatory.src.signal.precise_clock_apis import create_precise_clock_api_system
-from observatory.src.signal.satellite_temporal_gps import create_satellite_temporal_gps_system
-from observatory.src.signal.signal_fusion import create_signal_fusion_system
-from observatory.src.signal.temporal_information_architecture import create_temporal_information_system
 
 console = Console()
+
+
+class PrecisionAmplifier:
+    pass
+
+
+class SemanticDistanceCalculator:
+    pass
 
 
 class ComprehensiveWaveSimulationDemo:
@@ -586,7 +584,7 @@ Ready to witness the physical proof of categorical alignment theory!
             progress.update(sig_task, description="Demonstrating signal fusion...")
 
             # Create test signals from different sources
-            from observatory.src.signal.signal_fusion import TimeSignal, SignalType, FusionAlgorithm
+
 
             test_signals = [
                 TimeSignal("atomic_1", SignalType.ATOMIC_CLOCK, time.time(), 1e-15, 0.99, 1e-6, 0.0, 0.95, time.time()),

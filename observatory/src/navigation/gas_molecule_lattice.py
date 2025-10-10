@@ -311,14 +311,30 @@ class RecursiveObserverLattice:
         }
 
 
-def demonstrate_recursive_precision():
-    """Demonstration of recursive observer nesting achieving trans-Planckian precision"""
+def main():
+    """
+    Main experimental function for recursive observer nesting
+    Saves results and generates publication-quality visualizations
+    """
+    import os
+    import json
+    import matplotlib.pyplot as plt
+    from datetime import datetime
+
+    # Setup
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    results_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'recursive_observers')
+    os.makedirs(results_dir, exist_ok=True)
 
     print("=" * 70)
-    print("   RECURSIVE OBSERVER NESTING: TRANS-PLANCKIAN PRECISION")
+    print("   EXPERIMENT: RECURSIVE OBSERVER NESTING")
+    print("   Trans-Planckian Precision Through Fractal Observation")
     print("=" * 70)
+    print(f"\n   Timestamp: {timestamp}")
+    print(f"   Results directory: {results_dir}")
 
     # Create molecular lattice
+    print(f"\n[1/5] Initializing molecular lattice...")
     lattice = RecursiveObserverLattice(n_molecules=1000, chamber_size=1e-3)
 
     print(f"\n📊 System Configuration:")
@@ -327,18 +343,22 @@ def demonstrate_recursive_precision():
     print(f"   Coherence time: {lattice.coherence_time*1e15:.0f} fs")
     print(f"   Chamber size: {lattice.chamber_size*1e3:.1f} mm cube")
 
-    # Test recursive observation
+    # Recursive observation experiment
+    print(f"\n[2/5] Running recursive observation experiment...")
     recursion_results = lattice.recursive_observe(recursion_depth=5, sample_size=50)
 
     # Transcendent multi-path observation
+    print(f"\n[3/5] Performing transcendent multi-path observation...")
     transcendent_results = lattice.transcendent_observe_all_paths(max_depth=3)
 
-    print(f"\n" + "=" * 70)
-    print(f"   ULTIMATE PRECISION ACHIEVEMENT")
-    print(f"=" * 70)
-
+    # Analysis
+    print(f"\n[4/5] Analyzing results...")
     final_precision = recursion_results['precision_cascade'][-1]
     planck_analysis = lattice.calculate_precision_vs_planck(final_precision)
+
+    print(f"\n" + "=" * 70)
+    print(f"   RESULTS")
+    print(f"=" * 70)
 
     print(f"\n   Final Precision: {final_precision:.2e} seconds")
     print(f"   Planck Time:     {planck_analysis['planck_time']:.2e} seconds")
@@ -353,11 +373,162 @@ def demonstrate_recursive_precision():
     print(f"   - Resolved frequencies: {transcendent_results['resolved_frequencies']:,}")
     print(f"   - FFT time: {transcendent_results['fft_time']*1e6:.1f} μs")
 
-    print(f"\n✨ MOLECULES AS NATURE'S ULTIMATE CLOCKS ✨")
-    print(f"   Using only N2 gas and LED light to measure spacetime itself!")
+    # Save results
+    print(f"\n[5/5] Saving results and generating visualizations...")
 
-    return lattice, recursion_results, transcendent_results
+    # Prepare results for JSON (remove non-serializable items)
+    results_to_save = {
+        'timestamp': timestamp,
+        'experiment': 'recursive_observer_nesting',
+        'configuration': {
+            'n_molecules': lattice.n_molecules,
+            'base_frequency_Hz': float(lattice.base_frequency / (2*np.pi)),
+            'coherence_time_fs': float(lattice.coherence_time * 1e15),
+            'chamber_size_mm': float(lattice.chamber_size * 1e3)
+        },
+        'recursion_results': {
+            'levels': recursion_results['recursion_levels'],
+            'precision_cascade_s': [float(p) for p in recursion_results['precision_cascade']],
+            'active_observers': recursion_results['active_observers'],
+            'observation_paths': recursion_results['observation_paths']
+        },
+        'transcendent_results': {
+            'observation_paths': int(transcendent_results['observation_paths']),
+            'resolved_frequencies': int(transcendent_results['resolved_frequencies']),
+            'frequency_resolution_Hz': float(transcendent_results['frequency_resolution']),
+            'ultimate_precision_s': float(transcendent_results['ultimate_precision']),
+            'fft_time_us': float(transcendent_results['fft_time'] * 1e6)
+        },
+        'planck_analysis': {
+            'precision_s': float(final_precision),
+            'planck_time_s': float(planck_analysis['planck_time']),
+            'ratio': float(planck_analysis['ratio']),
+            'status': planck_analysis['status'],
+            'orders_below_planck': float(planck_analysis['orders_below_planck'])
+        }
+    }
+
+    # Save JSON
+    results_file = os.path.join(results_dir, f'recursive_observers_{timestamp}.json')
+    with open(results_file, 'w') as f:
+        json.dump(results_to_save, f, indent=2)
+    print(f"   ✓ Results saved: {results_file}")
+
+    # Generate visualizations
+    fig = plt.figure(figsize=(16, 12))
+
+    # Panel 1: Precision cascade
+    ax1 = plt.subplot(2, 3, 1)
+    levels = recursion_results['recursion_levels']
+    precisions = [p*1e21 for p in recursion_results['precision_cascade'][:-2]]  # Convert to zs
+    ax1.semilogy(levels[:-2], precisions, 'o-', linewidth=2, markersize=8, color='#2E86AB')
+    ax1.axhline(y=54, color='red', linestyle='--', label='Planck time (54 zs)')
+    ax1.set_xlabel('Recursion Level', fontsize=12)
+    ax1.set_ylabel('Precision (zeptoseconds)', fontsize=12)
+    ax1.set_title('Precision Cascade Through Recursive Levels', fontsize=14, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
+    ax1.legend()
+
+    # Panel 2: Active observers
+    ax2 = plt.subplot(2, 3, 2)
+    observers = [np.log10(o) for o in recursion_results['active_observers']]
+    ax2.bar(levels, observers, color='#A23B72', alpha=0.7)
+    ax2.set_xlabel('Recursion Level', fontsize=12)
+    ax2.set_ylabel('log₁₀(Active Observers)', fontsize=12)
+    ax2.set_title('Observer Count Growth', fontsize=14, fontweight='bold')
+    ax2.grid(True, alpha=0.3, axis='y')
+
+    # Panel 3: Observation paths
+    ax3 = plt.subplot(2, 3, 3)
+    paths = [np.log10(p) for p in recursion_results['observation_paths']]
+    ax3.plot(levels, paths, 's-', linewidth=2, markersize=8, color='#F18F01')
+    ax3.set_xlabel('Recursion Level', fontsize=12)
+    ax3.set_ylabel('log₁₀(Observation Paths)', fontsize=12)
+    ax3.set_title('Observation Path Explosion', fontsize=14, fontweight='bold')
+    ax3.grid(True, alpha=0.3)
+
+    # Panel 4: Planck comparison
+    ax4 = plt.subplot(2, 3, 4)
+    planck_time = 5.4e-44
+    comparison_data = {
+        'Hardware\nClock': 1e-9,
+        'Stella v1': 1e-12,
+        'N₂\nFundamental': 14.1e-15,
+        'Harmonic\n(n=150)': 94e-18,
+        'SEFT\n4-pathway': 47e-21,
+        'Recursive\nLevel 5': final_precision,
+        'Planck\nTime': planck_time
+    }
+    bars = ax4.barh(list(comparison_data.keys()),
+                    [np.log10(v) for v in comparison_data.values()],
+                    color=['#06A77D']*6 + ['#D62828'])
+    ax4.set_xlabel('log₁₀(Time / seconds)', fontsize=12)
+    ax4.set_title('Precision Comparison', fontsize=14, fontweight='bold')
+    ax4.grid(True, alpha=0.3, axis='x')
+    ax4.axvline(x=np.log10(planck_time), color='red', linestyle='--', alpha=0.5)
+
+    # Panel 5: FFT spectrum (transcendent observation)
+    ax5 = plt.subplot(2, 3, 5)
+    fft_result = transcendent_results['fft_result']
+    freqs = np.fft.fftfreq(len(fft_result), 1/(2*7.1e13/100))
+    magnitude = np.abs(fft_result)
+
+    # Plot positive frequencies only
+    pos_mask = freqs > 0
+    ax5.semilogy(freqs[pos_mask][:1000]*1e-12, magnitude[pos_mask][:1000],
+                color='#C73E1D', linewidth=0.5)
+    ax5.set_xlabel('Frequency (THz)', fontsize=12)
+    ax5.set_ylabel('FFT Magnitude', fontsize=12)
+    ax5.set_title('Transcendent Observer FFT Spectrum', fontsize=14, fontweight='bold')
+    ax5.grid(True, alpha=0.3)
+
+    # Panel 6: Summary statistics
+    ax6 = plt.subplot(2, 3, 6)
+    ax6.axis('off')
+
+    summary_text = f"""
+    RECURSIVE OBSERVER NESTING
+    Trans-Planckian Precision Achievement
+
+    Configuration:
+    • Molecules: {lattice.n_molecules:,}
+    • Base freq: {lattice.base_frequency/(2*np.pi):.2e} Hz
+    • Coherence: {lattice.coherence_time*1e15:.0f} fs
+
+    Results:
+    • Final precision: {final_precision:.2e} s
+    • Orders below Planck: {planck_analysis['orders_below_planck']:.1f}
+    • Total paths: {transcendent_results['observation_paths']:,}
+    • Resolved freqs: {transcendent_results['resolved_frequencies']:,}
+
+    Performance:
+    • FFT time: {transcendent_results['fft_time']*1e6:.1f} μs
+    • Enhancement: {1e-9/final_precision:.2e}×
+
+    Status: {planck_analysis['status']}
+    """
+
+    ax6.text(0.1, 0.5, summary_text, transform=ax6.transAxes,
+            fontsize=11, verticalalignment='center', fontfamily='monospace',
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.3))
+
+    plt.suptitle('Recursive Observer Nesting Experiment',
+                fontsize=16, fontweight='bold', y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+    # Save figure
+    figure_file = os.path.join(results_dir, f'recursive_observers_{timestamp}.png')
+    plt.savefig(figure_file, dpi=300, bbox_inches='tight')
+    print(f"   ✓ Figure saved: {figure_file}")
+
+    plt.show()
+
+    print(f"\n✨ Experiment complete!")
+    print(f"   Results: {results_file}")
+    print(f"   Figure:  {figure_file}")
+
+    return lattice, results_to_save, figure_file
 
 
 if __name__ == "__main__":
-    lattice, results, trans_results = demonstrate_recursive_precision()
+    lattice, results, figure = main()
