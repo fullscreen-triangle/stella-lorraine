@@ -542,7 +542,7 @@ class TranscendentObserver:
         elif self.attention_focus in self.observer_utilities:
             current_utility = self.observer_utilities[self.attention_focus].overall_utility
 
-            if best_utility > current_utility + self.attention_switching_threshold:
+            if current_utility  > self.attention_switching_threshold:
                 # Switch to higher utility observer
                 self.attention_focus = best_observer_id
                 return TranscendentDecision.OBSERVE

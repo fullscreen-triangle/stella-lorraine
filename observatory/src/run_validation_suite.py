@@ -102,37 +102,80 @@ class ValidationSuite:
         self.experiment_results = []
 
     def run_experiment(self, experiment: dict) -> dict:
-        """Run a single experiment and collect results"""
+        """Run a single experiment as subprocess"""
         print(f"\n{'='*70}")
         print(f"   RUNNING: {experiment['name']}")
         print(f"   {experiment['description']}")
         print(f"{'='*70}")
 
         try:
-            # Import and run the experiment
+            # Convert module path to file path
             module_parts = experiment['module'].split('.')
-            if len(module_parts) == 2:
-                package, module = module_parts
-                exec(f"from {package} import {module}")
+            script_path = os.path.join(self.base_dir, *module_parts) + '.py'
 
-                # Run main function
-                if hasattr(eval(module), 'main'):
-                    result = eval(f"{module}.main()")
+            if not os.path.exists(script_path):
+                print(f"   ⚠️  Script not found: {script_path}")
+                return {
+                    'name': experiment['name'],
+                    'status': 'skipped',
+                    'results': {},
+                    'error': f'Script not found: {script_path}'
+                }
 
-                    return {
-                        'name': experiment['name'],
-                        'status': 'success',
-                        'results': result if isinstance(result, dict) else {},
-                        'error': None
-                    }
+            # Run as subprocess
+            result = subprocess.run(
+                [sys.executable, script_path],
+                cwd=self.base_dir,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
+            )
 
+            if result.returncode == 0:
+                print(f"   ✓ Complete")
+
+                # Try to find the most recent result file
+                results_dir = os.path.join(self.results_dir, experiment['results_subdir'])
+                result_data = {}
+
+                if os.path.exists(results_dir):
+                    json_files = [f for f in os.listdir(results_dir) if f.endswith('.json')]
+                    if json_files:
+                        latest_file = max(json_files)
+                        try:
+                            with open(os.path.join(results_dir, latest_file)) as f:
+                                result_data = json.load(f)
+                        except:
+                            pass
+
+                return {
+                    'name': experiment['name'],
+                    'status': 'success',
+                    'results': result_data,
+                    'error': None,
+                    'stdout': result.stdout[-500:] if len(result.stdout) > 500 else result.stdout  # Last 500 chars
+                }
+            else:
+                print(f"   ✗ Failed with return code {result.returncode}")
+                if result.stderr:
+                    print(f"   Error: {result.stderr[:200]}")
+
+                return {
+                    'name': experiment['name'],
+                    'status': 'failed',
+                    'results': {},
+                    'error': result.stderr[:500] if result.stderr else f'Return code {result.returncode}',
+                    'stdout': result.stdout[-500:] if len(result.stdout) > 500 else result.stdout
+                }
+
+        except subprocess.TimeoutExpired:
+            print(f"   ✗ Timeout after 5 minutes")
             return {
                 'name': experiment['name'],
-                'status': 'skipped',
+                'status': 'failed',
                 'results': {},
-                'error': 'Module structure not compatible'
+                'error': 'Timeout after 5 minutes'
             }
-
         except Exception as e:
             print(f"   ⚠️  Error: {e}")
             return {

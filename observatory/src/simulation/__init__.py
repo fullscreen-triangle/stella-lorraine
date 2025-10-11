@@ -20,7 +20,6 @@ from .Wave import (
     WaveComplexity,
     RealitySlot,
     InfiniteSignalGenerator,
-    ThermodynamicState,
     create_infinite_complexity_wave
 )
 
@@ -41,6 +40,7 @@ from .Propagation import (
     PropagationMode,
     WavePropagationField,
     VirtualProcessorState,
+    ThermodynamicState,
     ConstrainedSignal,
     create_wave_propagation_orchestrator
 )

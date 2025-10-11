@@ -12,6 +12,7 @@ Implementation Architecture:
 - Precision-by-Difference Calculator
 - Preemptive State Generator
 """
+import math
 
 import numpy as np
 import time

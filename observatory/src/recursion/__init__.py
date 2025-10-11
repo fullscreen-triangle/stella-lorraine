@@ -18,8 +18,7 @@ from .dual_function import (
     MoleculeType,
     ProcessorCapacity,
     OscillatorProperties,
-    DualFunctionMetrics,
-    create_dual_function_network
+
 )
 
 # Import processing loop components
@@ -29,8 +28,7 @@ from .processing_loop import (
     VirtualProcessor,
     EnhancementFactors,
     PrecisionMetric,
-    RecursiveEnhancementResult,
-    create_precision_enhancer
+
 )
 
 # Import network extension components
@@ -40,8 +38,6 @@ from .network_extension import (
     MolecularGasType,
     AtmosphericComposition,
     MolecularHarvestingParameters,
-    NetworkExtensionResult,
-    create_atmospheric_network
 )
 
 # Import virtual processor acceleration components
@@ -54,8 +50,7 @@ from .virtual_processor_acceleration import (
     ComputationPriority,
     TemporalCoordinate,
     VirtualComputation,
-    ComputationResult,
-    create_virtual_processor_system
+    ComputationResult
 )
 
 def create_integrated_recursion_system():

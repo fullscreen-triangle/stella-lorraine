@@ -72,7 +72,6 @@ from .temporal_information_architecture import (
     TemporalOperation,
     TemporalDataType,
     TemporalStorageUnit,
-    InfiniteSignalGenerator,
     TemporalQuery,
     create_temporal_information_system
 )
