@@ -62,9 +62,13 @@ def main():
                 self.edges = [(i, (i + np.random.randint(1, 10)) % total_nodes) for i in range(total_edges)]
 
                 return {
-                    'nodes_created': total_nodes,
-                    'edges_created': total_edges,
-                    'avg_degree': total_edges / total_nodes if total_nodes > 0 else 0
+                    'total_nodes': total_nodes,
+                    'total_edges': total_edges,
+                    'avg_degree': total_edges / total_nodes if total_nodes > 0 else 0,
+                    'max_degree': 0,
+                    'n_components': 1,
+                    'largest_component_size': total_nodes,
+                    'density': total_edges / (total_nodes * (total_nodes - 1)) if total_nodes > 1 else 0
                 }
 
             def calculate_network_statistics(self):
@@ -106,8 +110,8 @@ def main():
         harmonics_per_molecule=harmonics_per_molecule
     )
 
-    print(f"   Nodes created: {build_stats['nodes_created']}")
-    print(f"   Edges created: {build_stats['edges_created']}")
+    print(f"   Nodes created: {build_stats['total_nodes']}")
+    print(f"   Edges created: {build_stats['total_edges']}")
     print(f"   Average degree: {build_stats['avg_degree']:.2f}")
 
     # Calculate network statistics
@@ -184,7 +188,7 @@ def main():
     ax1 = plt.subplot(2, 3, 1)
     # Sample a few nodes for visualization
     sample_size = min(50, len(network.nodes))
-    sample_nodes = np.random.choice(network.nodes, sample_size, replace=False) if len(network.nodes) > 0 else []
+    sample_nodes = np.random.choice(list(network.nodes.keys()), sample_size, replace=False) if len(network.nodes) > 0 else []
 
     # Random layout
     node_positions = {node: (np.random.rand(), np.random.rand()) for node in sample_nodes}

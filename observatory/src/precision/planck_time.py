@@ -66,7 +66,7 @@ def main():
                 return {
                     'recursion_levels': list(range(recursion_depth + 1)),
                     'precision_cascade': precision_cascade,
-                    'observer_counts': observer_counts,
+                    'active_observers': observer_counts,
                     'observation_paths': observation_paths
                 }
 
@@ -97,7 +97,7 @@ def main():
     )
 
     precision_cascade = recursion_results['precision_cascade']
-    observer_counts = recursion_results['observer_counts']
+    observer_counts = recursion_results['active_observers']
 
     print(f"   Levels computed: {len(recursion_results['recursion_levels'])}")
     print(f"   Total observers at final level: {observer_counts[-1]:.2e}")
@@ -183,11 +183,27 @@ def main():
 
     # Panel 4: Precision vs Planck comparison
     ax4 = plt.subplot(2, 3, 4)
-    comparison = ['Zeptosecond\nBaseline', 'Level 5', 'Level 10', 'Level 15', 'Level 20', 'Final\nLevel 22', 'Planck\nTime']
-    comparison_values = [47e-21, precision_cascade[5], precision_cascade[10],
-                        precision_cascade[15], precision_cascade[20],
-                        achieved_precision, planck_time]
-    colors = ['#3498DB']*6 + ['#FF0000']
+
+    # Build comparison dynamically based on available data
+    comparison = ['Zeptosecond\nBaseline']
+    comparison_values = [47e-21]
+
+    # Add intermediate levels if available
+    check_levels = [5, 10, 15, 20]
+    for lvl in check_levels:
+        if lvl < len(precision_cascade):
+            comparison.append(f'Level {lvl}')
+            comparison_values.append(precision_cascade[lvl])
+
+    # Add final level
+    comparison.append(f'Final\nLevel {len(precision_cascade)-1}')
+    comparison_values.append(achieved_precision)
+
+    # Add Planck time
+    comparison.append('Planck\nTime')
+    comparison_values.append(planck_time)
+
+    colors = ['#3498DB']*(len(comparison)-1) + ['#FF0000']
     ax4.barh(comparison, comparison_values, color=colors, alpha=0.7, edgecolor='black')
     ax4.set_xscale('log')
     ax4.set_xlabel('Precision (s)', fontsize=12)

@@ -166,7 +166,7 @@ def main():
     ax2 = plt.subplot(2, 3, 2)
     cascade = extractor.precision_cascade(max_harmonic=100, sub_harmonic_resolution=sub_harmonic_resolution)
     cascade_harmonics = [c['harmonic'] for c in cascade]
-    cascade_precisions = [c['precision']*1e18 for c in cascade]
+    cascade_precisions = [c['harmonic']*1e18 for c in cascade]
     ax2.semilogy(cascade_harmonics, cascade_precisions, 'o-', linewidth=2, markersize=8, color='#E74C3C')
     ax2.axhline(94, color='green', linestyle='--', label='Target: 94 as')
     ax2.set_xlabel('Harmonic Number', fontsize=12)

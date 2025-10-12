@@ -19,7 +19,7 @@ All methods assist in reducing time taken to read time with statistical validati
 import numpy as np
 import time
 import math
-from typing import List, Dict, Tuple, Optional, Any, Union
+from typing import List, Dict, Tuple, Optional, Any, Union, Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict
