@@ -289,6 +289,48 @@ def demonstrate_miraculous_navigation():
     print(f"   S-entropy decouples NAVIGATION (instant) from PRECISION (zs)!")
     print(f"   Intermediate states can be miraculous - only final observable matters!")
 
+    # Save results
+    import os
+    import json
+    from datetime import datetime
+
+    results_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'finite_observer')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    results_to_save = {
+        'timestamp': timestamp,
+        'experiment': 'finite_observer_verification',
+        'true_frequency_Hz': float(simulator.true_frequency),
+        'traditional': {
+            'total_time_s': float(trad['total_time']),
+            'precision_s': float(trad['precision']),
+            'measured_frequency_Hz': float(trad['measured_frequency']),
+            'relative_error': float(trad['relative_error'])
+        },
+        'miraculous': {
+            'navigation_time_s': float(mirac['navigation_time']),
+            'total_time_s': float(mirac['total_time']),
+            'precision_s': float(mirac['precision']),
+            'measured_frequency_Hz': float(mirac['measured_frequency']),
+            'relative_error': float(mirac['relative_error'])
+        },
+        'comparison': {
+            'speed_advantage': float(comparison['speed_advantage']),
+            'precision_advantage': float(comparison['precision_advantage']),
+            'traditional_avg_time_s': float(comparison['traditional']['avg_time']),
+            'miraculous_avg_time_s': float(comparison['miraculous']['avg_time']),
+            'traditional_avg_error': float(comparison['traditional']['avg_error']),
+            'miraculous_avg_error': float(comparison['miraculous']['avg_error'])
+        }
+    }
+
+    results_file = os.path.join(results_dir, f'finite_observer_{timestamp}.json')
+    with open(results_file, 'w') as f:
+        json.dump(results_to_save, f, indent=2)
+
+    print(f"\n💾 Results saved: {results_file}")
+
     return simulator, trad, mirac, comparison
 
 

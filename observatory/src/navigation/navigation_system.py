@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Navigation Module Test Script
-==============================
+Navigation Module Test Script - Transcendent Observer BMD
+===========================================================
 Tests ALL components in the navigation module independently.
+The BMD (Biological Maxwell Demon) operates at the transcendent observer level.
 
 Components tested:
 - entropy_navigation
@@ -15,13 +16,33 @@ Components tested:
 - led_excitation
 - molecular_vibrations
 - multidomain_seft
+- bmd_equivalence (NEW)
 """
 
 import numpy as np
 import json
 import os
 from datetime import datetime
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
+
+# JSON serialization helper for numpy types
+def convert_to_serializable(obj):
+    """Convert numpy types to native Python types for JSON serialization"""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, (np.bool_, bool)):
+        return bool(obj)
+    elif isinstance(obj, dict):
+        return {k: convert_to_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [convert_to_serializable(i) for i in obj]
+    return obj
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -42,7 +63,7 @@ results = {
 }
 
 # Test 1: Entropy Navigation
-print("\n[1/10] Testing: entropy_navigation.py")
+print("\n[1/11] Testing: entropy_navigation.py")
 try:
     from entropy_navigation import SEntropyNavigator
 
@@ -77,7 +98,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 2: Finite Observer Verification
-print("\n[2/10] Testing: finite_observer_verification.py")
+print("\n[2/11] Testing: finite_observer_verification.py")
 try:
     from finite_observer_verification import FiniteObserverSimulator
 
@@ -113,7 +134,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 3: Fourier Transform Coordinates
-print("\n[3/10] Testing: fourier_transform_coordinates.py")
+print("\n[3/11] Testing: fourier_transform_coordinates.py")
 try:
     from fourier_transform_coordinates import MultiDomainSEFT, SEFTParameters
 
@@ -156,7 +177,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 4: Gas Molecule Lattice
-print("\n[4/10] Testing: gas_molecule_lattice.py")
+print("\n[4/11] Testing: gas_molecule_lattice.py")
 try:
     from gas_molecule_lattice import RecursiveObserverLattice, MolecularObserver
 
@@ -192,7 +213,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 5: Harmonic Extraction
-print("\n[5/10] Testing: harmonic_extraction.py")
+print("\n[5/11] Testing: harmonic_extraction.py")
 try:
     from harmonic_extraction import HarmonicExtractor
 
@@ -237,7 +258,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 6: Harmonic Network Graph
-print("\n[6/10] Testing: harmonic_network_graph.py")
+print("\n[6/11] Testing: harmonic_network_graph.py")
 try:
     from harmonic_network_graph import HarmonicNetworkGraph, HarmonicNode
 
@@ -280,7 +301,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 7: Molecular Vibrations
-print("\n[7/10] Testing: molecular_vibrations.py")
+print("\n[7/11] Testing: molecular_vibrations.py")
 try:
     from molecular_vibrations import QuantumVibrationalAnalyzer
 
@@ -321,7 +342,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 8: Multidomain SEFT
-print("\n[8/10] Testing: multidomain_seft.py")
+print("\n[8/11] Testing: multidomain_seft.py")
 try:
     from multidomain_seft import MiraculousMeasurementSystem
 
@@ -360,7 +381,7 @@ except Exception as e:
     print(f"   ✗ Error: {e}")
 
 # Test 9: LED Excitation (if standalone functions exist)
-print("\n[9/10] Testing: led_excitation.py")
+print("\n[9/11] Testing: led_excitation.py")
 try:
     from led_excitation import LEDSpectroscopySystem
 
@@ -392,8 +413,42 @@ except Exception as e:
     })
     print(f"   ✗ Error: {e}")
 
-# Test 10: Hardware Clock Integration
-print("\n[10/10] Testing: hardware_clock_integration.py")
+# Test 10: BMD Equivalence
+print("\n[10/11] Testing: bmd_equivalence.py")
+try:
+    from bmd_equivalence import BMDEquivalenceValidator
+
+    validator = BMDEquivalenceValidator()
+
+    # Generate test signal
+    signal, time_points = validator.generate_test_signal(n_samples=1024, frequency=7.1e13)
+
+    # Validate BMD equivalence
+    bmd_results = validator.validate_bmd_equivalence(signal, n_iterations=30)
+
+    results['components_tested'].append({
+        'component': 'bmd_equivalence',
+        'status': 'success',
+        'tests': {
+            'equivalence_achieved': bool(bmd_results['equivalence_achieved']),
+            'mean_final_variance': float(bmd_results['convergence_analysis']['mean_final_variance']),
+            'relative_spread': float(bmd_results['convergence_analysis']['relative_spread']),
+            'f_statistic': float(bmd_results['statistical_tests']['f_statistic']),
+            'p_value': float(bmd_results['statistical_tests']['p_value'])
+        }
+    })
+    print("   ✓ BMDEquivalenceValidator working")
+
+except Exception as e:
+    results['components_tested'].append({
+        'component': 'bmd_equivalence',
+        'status': 'failed',
+        'error': str(e)
+    })
+    print(f"   ✗ Error: {e}")
+
+# Test 11: Hardware Clock Integration
+print("\n[11/11] Testing: hardware_clock_integration.py")
 try:
     from hardware_clock_integration import HardwareClockSync
 
@@ -422,10 +477,11 @@ except Exception as e:
     })
     print(f"   ✗ Error: {e}")
 
-# Save results
+# Save results (convert all numpy types to Python types)
 results_file = os.path.join(results_dir, f'navigation_test_{timestamp}.json')
+results_serializable = convert_to_serializable(results)
 with open(results_file, 'w') as f:
-    json.dump(results, f, indent=2)
+    json.dump(results_serializable, f, indent=2)
 
 # Generate summary figure
 fig = plt.figure(figsize=(16, 10))

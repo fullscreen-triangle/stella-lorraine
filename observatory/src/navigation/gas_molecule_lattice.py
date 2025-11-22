@@ -9,6 +9,9 @@ creating infinite recursive precision through nested observations.
 import numpy as np
 from typing import List, Dict, Tuple
 import time
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
+import matplotlib.pyplot as plt
 
 
 class MolecularObserver:
@@ -318,7 +321,6 @@ def main():
     """
     import os
     import json
-    import matplotlib.pyplot as plt
     from datetime import datetime
 
     # Setup

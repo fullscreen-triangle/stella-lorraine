@@ -222,6 +222,9 @@ class MiraculousMeasurementSystem:
 
 def demonstrate_miraculous_measurement():
     """Demonstrate miraculous measurement achieving zeptosecond precision"""
+    import os
+    import json
+    from datetime import datetime
 
     print("=" * 70)
     print("   MIRACULOUS MEASUREMENT VIA S-ENTROPY NAVIGATION")
@@ -302,6 +305,34 @@ def demonstrate_miraculous_measurement():
     print(f"   - Measurement time: INSTANTANEOUS (0 seconds)")
     print(f"   - Precision: ZEPTOSECOND (47 zs)")
     print(f"=" * 70)
+
+    # Save results
+    results_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'multidomain_seft')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    results_to_save = {
+        'timestamp': timestamp,
+        'experiment': 'miraculous_measurement',
+        'true_frequency_Hz': float(result['true_frequency']),
+        'initial_estimate_Hz': float(result['initial_estimate']),
+        'measured_frequency_Hz': float(result['measured_frequency']),
+        'temporal_precision_zs': float(result['temporal_precision'] * 1e21),
+        'measurement_time_s': float(result['measurement_time']),
+        'gap_analysis': {
+            'absolute_gap_Hz': float(result['gap_analysis']['absolute_gap']),
+            'relative_gap_percent': float(result['gap_analysis']['relative_gap'] * 100),
+            'acceptable': bool(result['gap_analysis']['acceptable'])
+        },
+        'miraculous_path_length': len(result['miraculous_path']),
+        'miraculous_states': sum(1 for s in result['miraculous_path'] if s['miraculous'])
+    }
+
+    results_file = os.path.join(results_dir, f'miraculous_measurement_{timestamp}.json')
+    with open(results_file, 'w') as f:
+        json.dump(results_to_save, f, indent=2)
+
+    print(f"\n💾 Results saved: {results_file}")
 
     return system, result
 

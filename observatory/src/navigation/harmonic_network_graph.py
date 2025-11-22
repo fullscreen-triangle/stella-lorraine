@@ -415,6 +415,8 @@ def main():
     """
     import os
     import json
+    import matplotlib
+    matplotlib.use('Agg')  # Use non-interactive backend
     import matplotlib.pyplot as plt
     from datetime import datetime
 
@@ -526,4 +528,4 @@ def main():
 
 
 if __name__ == "__main__":
-    network, stats, paths, enhancement = demonstrate_harmonic_network()
+    network, stats, paths, enhancement = main()

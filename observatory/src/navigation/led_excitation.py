@@ -6,6 +6,8 @@ LED Spectroscopy Integration
 
 import os
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
 import json
 
@@ -113,7 +115,7 @@ class LEDSpectroscopySystem:
             'wavelengths': wavelengths.tolist(),
             'intensities': intensities.tolist(),
             'peak_intensity': max(intensities),
-            'integrated_intensity': np.trapz(intensities, wavelengths)
+            'integrated_intensity': np.trapezoid(intensities, wavelengths)
         }
 
     def calculate_detection_efficiency(self, emission_spectrum):
@@ -169,13 +171,14 @@ def load_datasets():
 
     # Find the correct base directory
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    base_dir = os.path.join(current_dir, '..', '..')  # Go up to gonfanolier root
+
+    # First try local smarts directory
+    smarts_dir = os.path.join(current_dir, 'smarts')
 
     files = {
-        'agrafiotis': os.path.join(base_dir, 'public', 'agrafiotis-smarts-tar', 'agrafiotis.smarts'),
-        'ahmed': os.path.join(base_dir, 'public', 'ahmed-smarts-tar', 'ahmed.smarts'),
-        'hann': os.path.join(base_dir, 'public', 'hann-smarts-tar', 'hann.smarts'),
-        'walters': os.path.join(base_dir, 'public', 'walters-smarts-tar', 'walters.smarts')
+        'agrafiotis': os.path.join(smarts_dir, 'agrafiotis.smarts'),
+        'ahmed': os.path.join(smarts_dir, 'ahmed.smarts'),
+        'hann': os.path.join(smarts_dir, 'hann.smarts')
     }
 
     for name, filepath in files.items():
@@ -266,11 +269,15 @@ def main():
     led_counts = list(led_usage.values())
     colors = ['blue', 'green', 'red']
 
-    axes[0].pie(led_counts, labels=led_colors, colors=colors, autopct='%1.1f%%', alpha=0.7)
+    wedges, texts, autotexts = axes[0].pie(led_counts, labels=led_colors, colors=colors, autopct='%1.1f%%')
+    for w in wedges:
+        w.set_alpha(0.7)
     axes[0].set_title('Optimal LED Distribution')
 
     # Intensity distribution
-    axes[1].hist(intensities, bins=15, alpha=0.7, color='orange')
+    n, bins, patches = axes[1].hist(intensities, bins=15, color='orange')
+    for patch in patches:
+        patch.set_alpha(0.7)
     axes[1].axvline(avg_intensity, color='red', linestyle='--', label=f'Mean: {avg_intensity:.3f}')
     axes[1].set_xlabel('Fluorescence Intensity')
     axes[1].set_ylabel('Count')
@@ -294,8 +301,10 @@ def main():
     os.makedirs(results_dir, exist_ok=True)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(results_dir, 'led_spectroscopy.png'), dpi=300)
-    plt.show()
+    figure_file = os.path.join(results_dir, 'led_spectroscopy.png')
+    plt.savefig(figure_file, dpi=300)
+    plt.close()
+    print(f"\n💾 Visualization saved: {figure_file}")
 
     # Save results
     summary_results = {

@@ -266,6 +266,45 @@ def demonstrate_entropy_navigation():
     print(f"\n   This enables global viability: explore ALL configurations rapidly")
     print(f"   while maintaining perfect temporal coordination!")
 
+    # Save results
+    import os
+    import json
+    from datetime import datetime
+
+    results_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'entropy_navigation')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    results_to_save = {
+        'timestamp': timestamp,
+        'experiment': 'entropy_navigation',
+        'temporal_precision_zs': float(navigator.precision * 1e21),
+        'physical_navigation': {
+            'steps': phys_nav['steps'],
+            'navigation_velocity': float(phys_nav['navigation_velocity']),
+            'temporal_precision_zs': float(phys_nav['temporal_precision'] * 1e21),
+            'all_states_physical': True
+        },
+        'miraculous_navigation': {
+            'steps': mirac_nav['steps'],
+            'miraculous_states': mirac_nav['miraculous_states'],
+            'navigation_velocity': 'infinite',
+            'temporal_precision_zs': float(mirac_nav['temporal_precision'] * 1e21),
+            'final_state_viable': mirac_nav['final_state_viable']
+        },
+        'decoupling_demonstration': {
+            'scenarios': decoupling['scenarios'],
+            'key_insight': decoupling['key_insight'],
+            'decoupling_principle': decoupling['decoupling']
+        }
+    }
+
+    results_file = os.path.join(results_dir, f'entropy_navigation_{timestamp}.json')
+    with open(results_file, 'w') as f:
+        json.dump(results_to_save, f, indent=2)
+
+    print(f"\n💾 Results saved: {results_file}")
+
     return navigator, phys_nav, mirac_nav
 
 

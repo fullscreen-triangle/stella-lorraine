@@ -259,6 +259,53 @@ def demonstrate_multidomain_seft():
     print(f"   Enhanced:  {enhanced_precision*1e21:.0f} zs")
     print(f"   Enhancement: {results['total_enhancement']:.0f}× → ZEPTOSECOND REGIME!")
 
+    # Save results
+    import os
+    import json
+    from datetime import datetime
+
+    results_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'fourier_transform')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    results_to_save = {
+        'timestamp': timestamp,
+        'experiment': 'multidomain_seft',
+        'true_frequency_Hz': float(true_frequency),
+        'consensus_frequency_Hz': float(results['consensus_frequency']),
+        'relative_error_percent': float(error),
+        'baseline_precision_as': float(baseline_precision * 1e18),
+        'enhanced_precision_zs': float(enhanced_precision * 1e21),
+        'total_enhancement': float(results['total_enhancement']),
+        'pathways': {
+            'standard_time': {
+                'frequency_Hz': float(results['pathways']['standard_time']['frequency']),
+                'precision_fs': float(results['pathways']['standard_time']['precision_fs'])
+            },
+            'entropy': {
+                'frequency_Hz': float(results['pathways']['entropy']['frequency']),
+                'precision_fs': float(results['pathways']['entropy']['precision_fs']),
+                'enhancement': float(results['pathways']['entropy']['enhancement'])
+            },
+            'convergence': {
+                'frequency_Hz': float(results['pathways']['convergence']['frequency']),
+                'precision_fs': float(results['pathways']['convergence']['precision_fs']),
+                'enhancement': float(results['pathways']['convergence']['enhancement'])
+            },
+            'information': {
+                'frequency_Hz': float(results['pathways']['information']['frequency']),
+                'precision_fs': float(results['pathways']['information']['precision_fs']),
+                'enhancement': float(results['pathways']['information']['enhancement'])
+            }
+        }
+    }
+
+    results_file = os.path.join(results_dir, f'multidomain_seft_{timestamp}.json')
+    with open(results_file, 'w') as f:
+        json.dump(results_to_save, f, indent=2)
+
+    print(f"\n💾 Results saved: {results_file}")
+
     return seft, results
 
 

@@ -18,6 +18,8 @@ import numpy as np
 import json
 import os
 from datetime import datetime
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 np.random.seed(42)

@@ -197,6 +197,9 @@ class QuantumVibrationalAnalyzer:
 
 def demonstrate_quantum_vibrations():
     """Demonstrate quantum vibrational analysis"""
+    import os
+    import json
+    from datetime import datetime
 
     print("=" * 70)
     print("   QUANTUM MOLECULAR VIBRATIONS")
@@ -267,6 +270,38 @@ def demonstrate_quantum_vibrations():
             print(f"   v={v}: {final_populations[v]*100:.2f}%")
 
     print(f"\n✨ Quantum coherence maintained at {analyzer.coherence_time*1e15:.0f} fs!")
+
+    # Save results
+    results_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'results', 'molecular_vibrations')
+    os.makedirs(results_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    results_to_save = {
+        'timestamp': timestamp,
+        'experiment': 'quantum_molecular_vibrations',
+        'frequency_Hz': float(analyzer.frequency),
+        'coherence_time_fs': float(analyzer.coherence_time * 1e15),
+        'heisenberg_linewidth_Hz': float(linewidth),
+        'temporal_precision_fs': float(precision * 1e15),
+        'energy_levels_J': [float(E) for E in energies],
+        'led_enhancement': {
+            'base_coherence_fs': float(led_props['base_coherence_time'] * 1e15),
+            'enhanced_coherence_fs': float(led_props['enhanced_coherence_time'] * 1e15),
+            'enhancement_factor': float(led_props['enhancement_factor']),
+            'natural_precision_fs': float(led_props['natural_precision'] * 1e15),
+            'enhanced_precision_fs': float(led_props['enhanced_precision'] * 1e15),
+            'precision_improvement': float(led_props['precision_improvement'])
+        },
+        'thermal_population': {
+            f'v={i}': float(pop) for i, pop in enumerate(populations[:3])
+        }
+    }
+
+    results_file = os.path.join(results_dir, f'quantum_vibrations_{timestamp}.json')
+    with open(results_file, 'w') as f:
+        json.dump(results_to_save, f, indent=2)
+
+    print(f"\n💾 Results saved: {results_file}")
 
     return analyzer, led_props
 
