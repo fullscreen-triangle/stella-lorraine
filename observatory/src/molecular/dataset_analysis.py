@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print(f"  Coherence: {qv_data[0]['coherence_time_fs']:.0f} fs")
 
     # 2. Strategic Disagreement
-    with open('strategic_disagreement_20251013_043210.json', 'r') as f:
+    with open('public/strategic_disagreement_20251013_043210.json', 'r') as f:
         sd_data = json.load(f)
 
     print(f"\n✓ Loaded strategic disagreement data")
@@ -45,8 +45,8 @@ if __name__ == "__main__":
 
     # 3. Clock Run Analysis
     cr_files = [
-        'clock_run_data_20251013_002009_analysis_20251105_145556.json',
-        'clock_run_data_20251013_002009_analysis_20251105_151133.json'
+        'public/clock_run_data_20251013_002009_analysis_20251105_145556.json',
+        'public/clock_run_data_20251013_002009_analysis_20251105_151133.json'
     ]
 
     cr_data = []
@@ -59,8 +59,8 @@ if __name__ == "__main__":
 
     # 4. Stella Experiments
     stella_files = [
-        'stella_experiment_20251008_081846_20251008_081846_results.json',
-        'stella_experiment_20251008_202536_20251008_202536_results.json'
+        'public/stella_experiment_20251008_081846_20251008_081846_results.json',
+        'public/stella_experiment_20251008_202536_20251008_202536_results.json'
     ]
 
     stella_data = []
@@ -73,14 +73,14 @@ if __name__ == "__main__":
     print(f"  Evening: {stella_data[1]['timestamp']}")
 
     # 5. Recursive Observers
-    with open('recursive_observers_20251105_115928.json', 'r') as f:
+    with open('public/recursive_observers_20251105_115928.json', 'r') as f:
         ro_data = json.load(f)
 
     print(f"\n✓ Loaded recursive observers data")
     print(f"  Timestamp: {ro_data['timestamp']}")
 
     # 6. Zeptosecond Enhancement
-    with open('zeptosecond_enhancement_20251013_043210.json', 'r') as f:
+    with open('public/zeptosecond_enhancement_20251013_043210.json', 'r') as f:
         ze_data = json.load(f)
 
     print(f"\n✓ Loaded zeptosecond enhancement data")

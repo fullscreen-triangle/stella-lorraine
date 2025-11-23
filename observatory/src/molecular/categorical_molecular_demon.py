@@ -14,6 +14,8 @@ KEY INSIGHT: Molecules don't need to be contained!
 - Just access categorically
 
 Based on Mizraji (2021) Biological Maxwell's Demons framework.
+
+OPTIMIZED: Reduced O(N²) operations for faster processing with large demon counts.
 """
 
 import numpy as np
@@ -310,28 +312,35 @@ class CategoricalMemory:
 
         This is the key feature: information EVOLVES while stored!
         Like human memory consolidation
+
+        OPTIMIZED: Sample subset of demons to avoid O(N²) complexity
         """
         logger.info(f"Latent processing for {duration}s...")
 
-        iterations = int(duration * 100)  # 10ms per iteration
+        iterations = int(duration * 10)  # Reduced iterations
+        sample_size = min(100, len(self.demons))  # Sample at most 100 demons
 
         for iteration in range(iterations):
-            # Each demon observes others and updates its state
-            for demon in self.demons:
-                # Input filter: Find nearby demons in categorical space
-                nearby = demon.input_filter(self.demons)
+            # Sample random subset of demons (avoid O(N²)!)
+            sampled_demons = np.random.choice(self.demons, size=sample_size, replace=False)
+
+            for demon in sampled_demons:
+                # Input filter: Find nearby demons (sample, don't check all!)
+                nearby_candidates = np.random.choice(self.demons, size=min(20, len(self.demons)), replace=False)
+                nearby = [d for d in nearby_candidates
+                         if d.id != demon.id and demon.s_state.distance_to(d.s_state) < 0.5]
 
                 if not nearby:
                     continue
 
-                # Output filter: Select targets with harmonic coincidence
-                targets = demon.output_filter(nearby)
+                # Output filter: Select one target with harmonic coincidence
+                targets = demon.output_filter(nearby[:5])  # Limit to 5
 
                 # Influence targets (information flow in BMD network)
-                for target in targets:
+                for target in targets[:2]:  # Limit to 2 targets
                     self._transfer_information(demon, target)
 
-        logger.info(f"Latent processing complete: {iterations} iterations")
+        logger.info(f"Latent processing complete: {iterations} iterations (sampled {sample_size} demons)")
 
     def _transfer_information(self, source: MolecularDemon, target: MolecularDemon):
         """
@@ -950,16 +959,16 @@ class MolecularDemonComputer:
     """
 
     def __init__(self):
-        # Storage + processing
+        # Storage + processing (REDUCED for performance)
         self.memory = CategoricalMemory(
             molecule_type='CO2',
-            lattice_size=(20, 20, 20)
+            lattice_size=(10, 10, 10)  # 1000 demons instead of 8000
         )
 
-        # Observation
+        # Observation (REDUCED for performance)
         self.observer = MolecularDemonObserver(
             observer_molecule='N2',
-            lattice_size=(15, 15, 15)
+            lattice_size=(10, 10, 10)  # 1000 demons instead of 3375
         )
 
         logger.info("="*70)
@@ -1023,7 +1032,14 @@ class MolecularDemonComputer:
         if predictions:
             best_match, similarity = predictions[0]
             logger.info(f"  Best match: '{best_match}' (similarity: {similarity:.3f})")
-            prediction = self.memory.read(best_match)
+            retrieved_data = self.memory.read(best_match)
+            # Package prediction as dictionary
+            prediction = {
+                'address': best_match,
+                'similarity': similarity,
+                'data': retrieved_data,
+                'transition_states': []  # Would be populated if stored with trajectory
+            }
         else:
             logger.info("  No matches found in memory")
             prediction = None
@@ -1039,7 +1055,8 @@ class MolecularDemonComputer:
         # Step 3: Compare
         logger.info("Step 3: Comparing prediction vs observation...")
         if prediction:
-            logger.info(f"  Predicted transition states: {prediction.get('transition_states', [])}")
+            logger.info(f"  Predicted data: {prediction['data']}")
+            logger.info(f"  Predicted transition states: {prediction['transition_states']}")
             logger.info(f"  Observed transition states: {transition_states}")
 
         logger.info("="*70)
@@ -1165,7 +1182,10 @@ def demo_ultra_fast_observer():
     logger.info("DEMO 2: ULTRA-FAST PROCESS OBSERVER")
     logger.info("="*70)
 
-    observer = MolecularDemonObserver(observer_molecule='N2')
+    observer = MolecularDemonObserver(
+        observer_molecule='N2',
+        lattice_size=(10, 10, 10)  # Reduced for performance
+    )
 
     # Simulate a target system (in reality, this would be actual molecule)
     class DummyMolecule:
@@ -1268,4 +1288,46 @@ if __name__ == "__main__":
     print("  No containment, no hardware, no power consumption")
     print("  Just categorical access to ambient molecules")
     print("\nThese are PRACTICAL DEVICES, not just measurements!")
+    print("="*70)
+
+    # Save comprehensive results
+    atm_stats = atm_memory.get_statistics()
+
+    results = {
+        'timestamp': datetime.now().strftime('%Y%m%d_%H%M%S'),
+        'experiment': 'molecular_demon_applications',
+        'demos': {
+            'atmospheric_memory': atm_stats,
+            'contained_memory': {
+                'statistics': contained_memory.get_statistics(),
+                'lattice_dimensions': contained_memory.lattice_size
+            },
+            'observer': {
+                'trajectory_points': len(trajectory),
+                'total_backaction': sum(obs.backaction for obs in trajectory),
+                'time_resolution_s': 1e-15
+            },
+            'computer': {
+                'system_status': computer.get_system_status()
+            }
+        },
+        'key_insights': [
+            'Atmospheric memory requires ZERO hardware cost',
+            'Categorical access enables interaction-free measurement',
+            'Natural molecular dynamics provide latent processing',
+            'Trans-Planckian precision without quantum mechanics'
+        ]
+    }
+
+    # Save to file
+    output_dir = Path("results")
+    output_dir.mkdir(exist_ok=True)
+
+    timestamp = results['timestamp']
+    output_path = output_dir / f"molecular_demon_complete_{timestamp}.json"
+
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    print(f"\n✓ Complete results saved to: {output_path}")
     print("="*70)

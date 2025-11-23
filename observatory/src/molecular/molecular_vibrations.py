@@ -11,10 +11,10 @@ if __name__ == "__main__":
 
     # Load all JSON files
     files = [
-        'quantum_vibrations_20251105_122244.json',
-        'quantum_vibrations_20251105_122801.json',
-        'quantum_vibrations_20251105_124305.json',
-        'quantum_vibrations_20251105_151729.json'
+        'public/quantum_vibrations_20251105_122244.json',
+        'public/quantum_vibrations_20251105_122801.json',
+        'public/quantum_vibrations_20251105_124305.json',
+        'public/quantum_vibrations_20251105_151729.json'
     ]
 
 

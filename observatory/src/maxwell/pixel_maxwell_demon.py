@@ -373,7 +373,7 @@ class PixelMaxwellDemon:
         Returns:
             (consistency_score, evidence_dict)
         """
-        from .virtual_detectors import VirtualDetectorFactory
+        from virtual_detectors import VirtualDetectorFactory
 
         consistent_count = 0
         total_count = len(detector_types)

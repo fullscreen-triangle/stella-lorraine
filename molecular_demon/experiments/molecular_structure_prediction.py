@@ -17,10 +17,11 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Tuple
 
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+# Add observatory/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'observatory' / 'src'))
 
-from core.molecular_network import HarmonicNetworkGraph, MolecularOscillator
-from core.categorical_state import SEntropyCalculator
+from maxwell.harmonic_coincidence import MolecularHarmonicNetwork
+from maxwell.pixel_maxwell_demon import SEntropyCoordinates
 
 # Real molecular bond frequencies (cm^-1) - GROUND TRUTH for validation
 BOND_FREQUENCIES = {

@@ -134,7 +134,7 @@ def validate_harmonic_networks():
     logger.info(f"  Network density: {summary['network_density']:.3f}")
 
     # Find resonances
-    if network.num_coincidences > 0:
+    if summary['num_coincidences'] > 0:
         resonances = network.find_molecular_resonances('O2', 'N2')
         logger.info(f"  O₂-N₂ resonances: {len(resonances)}")
 

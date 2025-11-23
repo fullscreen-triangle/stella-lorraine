@@ -22,10 +22,10 @@ from datetime import datetime
 
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
-from core.molecular_network import HarmonicNetworkGraph, MolecularOscillator
-from core.bmd_decomposition import BMDHierarchy
-from core.reflectance_cascade import MolecularDemonReflectanceCascade
-from core.categorical_state import SEntropyCalculator
+from molecular_network import HarmonicNetworkGraph, MolecularOscillator
+from bmd_decomposition import BMDHierarchy
+from reflectance_cascade import MolecularDemonReflectanceCascade
+from categorical_state import SEntropyCalculator
 
 # Molecular vibrational frequencies (cm^-1) for common modes
 MOLECULAR_VIBRATIONS = {
@@ -94,13 +94,13 @@ def wavenumber_to_hz(wavenumber_cm_inv: float) -> float:
     c = 2.99792458e10  # Speed of light in cm/s
     return wavenumber_cm_inv * c
 
-def create_multi_molecule_ensemble(molecules: dict, max_harmonics: int = 100) -> list:
+def create_multi_molecule_ensemble(molecules: dict, max_harmonics: int = 10) -> list:
     """
     Create oscillator ensemble from multiple molecules
 
     Args:
         molecules: Dictionary of molecular vibrational data
-        max_harmonics: Number of harmonics to generate per mode
+        max_harmonics: Number of harmonics to generate per mode (reduced for performance)
 
     Returns:
         List of MolecularOscillator objects
@@ -324,7 +324,7 @@ def main():
         molecules=MOLECULAR_VIBRATIONS,
         bmd_depth=14,  # Higher for more molecular modes
         n_reflections=10,
-        max_harmonics=100,  # Reduced for computational efficiency
+        max_harmonics=10,  # REDUCED: 10 is plenty for demo, 150 was causing 720B operations!
         coincidence_threshold_hz=1e10  # 10 GHz threshold
     )
 

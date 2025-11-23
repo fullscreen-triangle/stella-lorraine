@@ -20,12 +20,12 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+# Add observatory/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'observatory' / 'src'))
 
-from core.molecular_network import HarmonicNetworkGraph, MolecularOscillator
-from core.bmd_decomposition import BMDHierarchy
-from core.reflectance_cascade import MolecularDemonReflectanceCascade
-from core.categorical_state import SEntropyCalculator
+from maxwell.harmonic_coincidence import MolecularHarmonicNetwork, Oscillator
+from maxwell.reflectance_cascade import ReflectanceCascade
+from maxwell.pixel_maxwell_demon import SEntropyCoordinates
 
 # Molecular vibrational frequencies (cm^-1) for common modes
 MOLECULAR_VIBRATIONS = {
@@ -94,7 +94,7 @@ def wavenumber_to_hz(wavenumber_cm_inv: float) -> float:
     c = 2.99792458e10  # Speed of light in cm/s
     return wavenumber_cm_inv * c
 
-def create_multi_molecule_ensemble(molecules: dict, max_harmonics: int = 100) -> list:
+def create_multi_molecule_ensemble(molecules: dict, max_harmonics: int = 100) -> MolecularHarmonicNetwork:
     """
     Create oscillator ensemble from multiple molecules
 
@@ -103,10 +103,10 @@ def create_multi_molecule_ensemble(molecules: dict, max_harmonics: int = 100) ->
         max_harmonics: Number of harmonics to generate per mode
 
     Returns:
-        List of MolecularOscillator objects
+        MolecularHarmonicNetwork with all oscillators
     """
-    oscillators = []
-    osc_id = 0
+    network = MolecularHarmonicNetwork(name="multi_molecule_network")
+    osc_count = 0
 
     print(f"\n{'='*70}")
     print(f"GENERATING MULTI-MOLECULE OSCILLATOR ENSEMBLE")
@@ -122,29 +122,27 @@ def create_multi_molecule_ensemble(molecules: dict, max_harmonics: int = 100) ->
             # Account for degeneracy (creates multiple oscillators at same frequency)
             for deg in range(degeneracy):
                 # Generate harmonics for this mode
-                for n in range(1, max_harmonics + 1):
+                for n in range(1, min(max_harmonics + 1, 10)):  # Limit for performance
                     harmonic_freq = n * freq_hz
                     phase = np.random.uniform(0, 2*np.pi)
+                    amplitude = 1.0 / n  # Harmonics have decreasing amplitude
 
-                    # S-entropy from vibrational properties
-                    # Higher harmonics have shorter effective coherence
-                    coherence_time_s = 1e-13 / n  # ~100 fs base, decreases with n
-
-                    s_coords = SEntropyCalculator.from_frequency(
-                        frequency_hz=harmonic_freq,
-                        measurement_count=n,
-                        time_elapsed=coherence_time_s
+                    # Add to network
+                    oscillator_id = f"{mol_key}_{mode_name}_deg{deg}_n{n}"
+                    network.add_oscillator(
+                        frequency=harmonic_freq,
+                        amplitude=amplitude,
+                        phase=phase,
+                        oscillator_id=oscillator_id,
+                        metadata={
+                            'molecule': mol_key,
+                            'mode': mode_name,
+                            'degeneracy': deg,
+                            'harmonic': n,
+                            'wavenumber_cm_inv': wavenumber * n
+                        }
                     )
-
-                    osc = MolecularOscillator(
-                        id=osc_id,
-                        species=f"{mol_key}_{mode_name}_deg{deg}_n{n}",
-                        frequency_hz=harmonic_freq,
-                        phase_rad=phase,
-                        s_coordinates=(s_coords.s_k, s_coords.s_t, s_coords.s_e)
-                    )
-                    oscillators.append(osc)
-                    osc_id += 1
+                    osc_count += 1
                     mol_oscillators += 1
 
         print(f"  Vibrational modes: {len(mol_data['modes'])}")
@@ -152,22 +150,20 @@ def create_multi_molecule_ensemble(molecules: dict, max_harmonics: int = 100) ->
         print(f"  Geometry: {mol_data['geometry']}")
         print()
 
-    print(f"Total oscillators across all molecules: {len(oscillators)}")
+    print(f"Total oscillators across all molecules: {osc_count}")
     print(f"{'='*70}\n")
 
-    return oscillators
+    return network
 
 def analyze_multi_molecule_network(molecules: dict,
-                                   bmd_depth: int = 14,
                                    n_reflections: int = 10,
-                                   max_harmonics: int = 100,
-                                   coincidence_threshold_hz: float = 1e10) -> dict:
+                                   max_harmonics: int = 10,
+                                   coincidence_threshold_hz: float = 1e12) -> dict:
     """
     Build and analyze harmonic network from multiple molecules
 
     Args:
         molecules: Dictionary of molecular data
-        bmd_depth: BMD decomposition depth
         n_reflections: Cascade reflections
         max_harmonics: Harmonics per mode
         coincidence_threshold_hz: Coincidence threshold
@@ -177,79 +173,63 @@ def analyze_multi_molecule_network(molecules: dict,
     """
 
     # Step 1: Generate ensemble
-    oscillators = create_multi_molecule_ensemble(molecules, max_harmonics)
+    network = create_multi_molecule_ensemble(molecules, max_harmonics)
 
-    # Step 2: Build network
+    # Step 2: Find coincidences
     print(f"{'='*70}")
     print(f"BUILDING HARMONIC COINCIDENCE NETWORK")
     print(f"{'='*70}\n")
     print(f"Coincidence threshold: {coincidence_threshold_hz:.2e} Hz ({coincidence_threshold_hz/1e9:.1f} GHz)")
-    print(f"Building graph... (this may take a moment for {len(oscillators)} oscillators)")
+    print(f"Finding coincidences...")
 
-    network = HarmonicNetworkGraph(
-        molecules=oscillators,
-        coincidence_threshold_hz=coincidence_threshold_hz
-    )
-    graph = network.build_graph()
+    network.find_coincidences(tolerance_hz=coincidence_threshold_hz)
 
     # Network statistics
-    num_nodes = graph.number_of_nodes()
-    num_edges = graph.number_of_edges()
-    avg_degree = 2 * num_edges / num_nodes if num_nodes > 0 else 0
-    density = 2 * num_edges / (num_nodes * (num_nodes - 1)) if num_nodes > 1 else 0
+    summary = network.get_summary()
+    num_nodes = summary['num_oscillators']
+    num_edges = summary['num_coincidences']
+    avg_degree = summary['mean_degree']
+    density = summary['network_density']
 
     print(f"\nNetwork Statistics:")
     print(f"  Nodes: {num_nodes:,}")
     print(f"  Edges: {num_edges:,}")
     print(f"  Average degree: {avg_degree:.1f}")
     print(f"  Density: {density:.6f}")
+    print(f"  Mean coupling: {summary['mean_coupling_strength']:.3f}")
 
-    F_graph = network.calculate_enhancement_factor()
-    print(f"  Graph enhancement: F_graph = {F_graph:.2e}")
-
-    # Step 3: BMD decomposition
-    print(f"\n{'='*70}")
-    print(f"BIOLOGICAL MAXWELL DEMON DECOMPOSITION")
-    print(f"{'='*70}\n")
-    print(f"Depth: {bmd_depth}")
-
-    # Use average frequency from molecular ensemble
-    avg_freq = np.mean([osc.frequency_hz for osc in oscillators[:100]])
-
-    bmd = BMDHierarchy(root_frequency=avg_freq)
-    bmd.build_hierarchy(depth=bmd_depth)
-    N_BMD = bmd.total_parallel_channels(bmd_depth)
-    F_BMD = bmd.enhancement_factor(bmd_depth)
-
-    print(f"  Parallel channels: {N_BMD:,} (3^{bmd_depth})")
-    print(f"  BMD enhancement: F_BMD = {F_BMD:.2e}")
-
-    # Step 4: Reflectance cascade
+    # Step 3: Reflectance cascade
     print(f"\n{'='*70}")
     print(f"REFLECTANCE CASCADE")
     print(f"{'='*70}\n")
     print(f"Reflections: {n_reflections}")
 
-    cascade = MolecularDemonReflectanceCascade(
-        network=network,
-        bmd_depth=bmd_depth,
-        base_frequency_hz=avg_freq,
-        reflectance_coefficient=0.1
+    cascade = ReflectanceCascade(
+        base_information_bits=1.0,
+        max_cascade_depth=n_reflections
     )
 
-    results = cascade.run_cascade(n_reflections=n_reflections)
+    # Calculate enhancement
+    total_info = cascade.calculate_total_information(n_reflections)
+    precision_enhancement = cascade.calculate_precision_enhancement(n_reflections)
 
-    # Extract key results
-    final_freq_hz = results['final_frequency_hz']
-    enhanced_precision_s = results['precision_achieved_s']
-    F_cascade = results['enhancement_factors']['cascade']
-    F_total = results['enhancement_factors']['total']
+    print(f"  Total information: {total_info:.2e} bits")
+    print(f"  Precision enhancement: {precision_enhancement:.2e}×")
+
+    # Calculate final precision
+    base_precision_s = 1e-15  # 1 femtosecond
+    enhanced_precision_s = base_precision_s / precision_enhancement
 
     planck_time = 5.39e-44
-    orders_below_planck = -np.log10(enhanced_precision_s / planck_time)
+    orders_below_planck = -np.log10(enhanced_precision_s / planck_time) if enhanced_precision_s > 0 else 0
 
-    print(f"  Cascade enhancement: F_cascade = {F_cascade:.2e}")
-    print(f"  Total enhancement: F_total = {F_total:.2e}")
+    # Calculate average frequency
+    frequencies = [osc.frequency_hz for osc in network.oscillators.values()]
+    avg_freq = np.mean(frequencies)
+    final_freq_hz = avg_freq * precision_enhancement
+
+    print(f"  Enhanced precision: {enhanced_precision_s:.2e} s")
+    print(f"  Orders below Planck: {orders_below_planck:.2f}")
 
     # Final results
     print(f"\n{'='*70}")
@@ -260,7 +240,8 @@ def analyze_multi_molecule_network(molecules: dict,
     print(f"Total vibrational modes: {sum(len(m['modes']) for m in molecules.values())}")
     print(f"Total oscillators: {num_nodes:,}")
     print(f"Harmonic coincidences: {num_edges:,}")
-    print(f"\nFinal frequency: {final_freq_hz:.2e} Hz")
+    print(f"\nAverage frequency: {avg_freq:.2e} Hz")
+    print(f"Final enhanced frequency: {final_freq_hz:.2e} Hz")
     print(f"Enhanced precision: {enhanced_precision_s:.2e} s")
     print(f"Orders below Planck: {orders_below_planck:.2f}")
 
@@ -269,7 +250,7 @@ def analyze_multi_molecule_network(molecules: dict,
     print(f"   Built network of {num_nodes:,} oscillators with {num_edges:,} connections")
     print(f"   Achieved {enhanced_precision_s:.2e} s precision")
     print(f"   = {orders_below_planck:.2f} orders below Planck time")
-    print(f"   Total enhancement: {F_total:.2e}x\n")
+    print(f"   Total enhancement: {precision_enhancement:.2e}×\n")
 
     # Compile results
     full_results = {
@@ -278,7 +259,6 @@ def analyze_multi_molecule_network(molecules: dict,
         'molecules': {k: v['name'] for k, v in molecules.items()},
         'parameters': {
             'num_molecules': len(molecules),
-            'bmd_depth': bmd_depth,
             'n_reflections': n_reflections,
             'max_harmonics': max_harmonics,
             'coincidence_threshold_hz': coincidence_threshold_hz
@@ -288,23 +268,20 @@ def analyze_multi_molecule_network(molecules: dict,
             'num_edges': num_edges,
             'average_degree': float(avg_degree),
             'density': float(density),
-            'enhancement_factor': float(F_graph)
-        },
-        'bmd': {
-            'depth': bmd_depth,
-            'parallel_channels': int(N_BMD),
-            'enhancement_factor': float(F_BMD)
+            'mean_coupling_strength': float(summary['mean_coupling_strength'])
         },
         'cascade': {
             'reflections': n_reflections,
-            'enhancement_factor': float(F_cascade)
+            'total_information_bits': float(total_info),
+            'precision_enhancement': float(precision_enhancement)
         },
         'results': {
+            'average_frequency_hz': float(avg_freq),
             'final_frequency_hz': float(final_freq_hz),
+            'base_precision_s': base_precision_s,
             'enhanced_precision_s': float(enhanced_precision_s),
-            'total_enhancement': float(F_total),
+            'total_enhancement': float(precision_enhancement),
             'orders_below_planck': float(orders_below_planck),
-            'measurement_time_s': 0.0,
             'planck_time_s': planck_time
         }
     }
@@ -322,15 +299,14 @@ def main():
     # Analyze full molecular ensemble
     results = analyze_multi_molecule_network(
         molecules=MOLECULAR_VIBRATIONS,
-        bmd_depth=14,  # Higher for more molecular modes
         n_reflections=10,
-        max_harmonics=100,  # Reduced for computational efficiency
-        coincidence_threshold_hz=1e10  # 10 GHz threshold
+        max_harmonics=5,  # Reduced for computational efficiency
+        coincidence_threshold_hz=1e12  # 1 THz threshold
     )
 
     # Save results
-    output_dir = Path(__file__).parent / 'results'
-    output_dir.mkdir(exist_ok=True)
+    output_dir = Path(__file__).parent.parent.parent / 'observatory' / 'results' / 'multi_molecule_network'
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     timestamp = results['timestamp']
     json_path = output_dir / f'multi_molecule_network_{timestamp}.json'

@@ -39,7 +39,7 @@ class Surface:
 
     def __post_init__(self):
         # Categorical state
-        from .pixel_maxwell_demon import SEntropyCoordinates
+        from pixel_maxwell_demon import SEntropyCoordinates
         self.s_state = SEntropyCoordinates.from_physical_state(
             self.center,
             energy=self.reflectivity
@@ -56,7 +56,7 @@ class CategoricalScene:
         self.surfaces: List[Surface] = []
 
         # Lighting
-        from .categorical_light_sources import LightingEnvironment
+        from categorical_light_sources import LightingEnvironment
         self.lighting = LightingEnvironment(name=f"{name}_lighting")
 
         # Camera
@@ -79,7 +79,7 @@ class CategoricalScene:
         reflectivity: float = 0.0
     ):
         """Convenience: Add spherical surface"""
-        from .categorical_light_sources import Color
+        from categorical_light_sources import Color
         surface = Surface(
             center=center,
             normal=np.array([0, 1, 0]),  # Will be computed per-point
@@ -92,7 +92,7 @@ class CategoricalScene:
 
     def create_demo_scene(self):
         """Create demo scene with multiple surfaces and lights"""
-        from .categorical_light_sources import Color, CategoricalPointLight
+        from categorical_light_sources import Color, CategoricalPointLight
 
         # Ground plane (large disk)
         self.add_sphere(
@@ -182,8 +182,8 @@ class CategoricalRenderer3D:
 
         Returns RGB image array
         """
-        from .pixel_maxwell_demon import PixelMaxwellDemon, SEntropyCoordinates
-        from .categorical_light_sources import Color
+        from pixel_maxwell_demon import PixelMaxwellDemon, SEntropyCoordinates
+        from categorical_light_sources import Color
 
         logger.info(f"Rendering scene '{scene.name}' ({self.width}×{self.height})...")
         start_time = time.time()
@@ -297,7 +297,7 @@ class CategoricalRenderer3D:
         """
         Calculate lighting using categorical light observation
         """
-        from .categorical_light_sources import Color
+        from categorical_light_sources import Color
 
         # Get total illumination from lighting environment
         total_info, total_color = scene.lighting.calculate_total_illumination_at_s_state(
@@ -343,13 +343,13 @@ class CategoricalRenderer3D:
 
         Each cascade level ADDS information (not loses energy!)
         """
-        from .categorical_light_sources import Color
+        from categorical_light_sources import Color
 
         # Create reflected demon (simple mirror for now)
         # In full implementation, would compute proper reflection vector
         reflected_pos = surface.center + (surface.center - demon.position) * 0.5
 
-        from .pixel_maxwell_demon import PixelMaxwellDemon
+        from pixel_maxwell_demon import PixelMaxwellDemon
         reflected_demon = PixelMaxwellDemon(
             position=reflected_pos,
             pixel_id=f"{demon.pixel_id}_refl{cascade_depth}"

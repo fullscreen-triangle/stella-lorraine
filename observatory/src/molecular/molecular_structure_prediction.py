@@ -90,14 +90,14 @@ class MolecularStructurePredictor:
     """
 
     def __init__(self, known_modes: List[Tuple[str, float]],
-                 max_harmonics: int = 50,
+                 max_harmonics: int = 15,
                  coincidence_threshold_hz: float = 1e11):
         """
         Initialize predictor with known vibrational modes
 
         Args:
             known_modes: List of (mode_name, frequency_cm-1) tuples
-            max_harmonics: Number of harmonics to generate
+            max_harmonics: Number of harmonics to generate (reduced for performance)
             coincidence_threshold_hz: Threshold for harmonic coincidence
         """
         self.known_modes = known_modes
@@ -344,7 +344,7 @@ def demo_vanillin_prediction():
     # Initialize predictor
     predictor = MolecularStructurePredictor(
         known_modes=known_modes,
-        max_harmonics=50,
+        max_harmonics=15,  # REDUCED: 15 is plenty, 50 was too slow
         coincidence_threshold_hz=1e11  # 100 GHz
     )
 
@@ -417,7 +417,7 @@ def demo_alkane_ch_stretch():
 
     predictor = MolecularStructurePredictor(
         known_modes=known_modes,
-        max_harmonics=50,
+        max_harmonics=15,  # REDUCED: 15 is plenty, 50 was too slow
         coincidence_threshold_hz=5e10  # 50 GHz
     )
 

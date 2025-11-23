@@ -143,7 +143,7 @@ class LiveCellMicroscope:
         )
 
         # Pixel demon grid
-        from .pixel_maxwell_demon import PixelDemonGrid
+        from pixel_maxwell_demon import PixelDemonGrid
         self.pixel_grid = PixelDemonGrid(
             shape=self.grid_shape[:2],  # 2D for now
             physical_extent=field_of_view_m[:2],
@@ -229,7 +229,7 @@ class LiveCellMicroscope:
             # Simple proximity-based hypotheses
             # (In full implementation, would use sophisticated spatial models)
 
-            from .pixel_maxwell_demon import Hypothesis
+            from pixel_maxwell_demon import Hypothesis
 
             hypotheses = []
 
@@ -389,8 +389,8 @@ def demonstrate_ambiguous_signal_resolution():
     logger.info("\nScenario: Mass spec shows peak at m/z = 44")
     logger.info("Possible molecules: CO₂, N₂O, C₂H₄O (acetaldehyde), C₃H₈ fragment")
 
-    from .pixel_maxwell_demon import PixelMaxwellDemon, MolecularDemon, SEntropyCoordinates, Hypothesis
-    from .virtual_detectors import ConsilienceEngine
+    from pixel_maxwell_demon import PixelMaxwellDemon, MolecularDemon, SEntropyCoordinates, Hypothesis
+    from virtual_detectors import ConsilienceEngine
 
     # Create pixel demon at location of signal
     demon = PixelMaxwellDemon(

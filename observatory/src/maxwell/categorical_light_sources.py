@@ -118,7 +118,7 @@ class CategoricalLight:
         self.light_id = light_id or f"light_{id(self)}"
 
         # Categorical state
-        from .pixel_maxwell_demon import SEntropyCoordinates
+        from pixel_maxwell_demon import SEntropyCoordinates
         self.s_state = SEntropyCoordinates.from_physical_state(
             position,
             energy=intensity

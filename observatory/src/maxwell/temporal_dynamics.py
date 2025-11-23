@@ -17,7 +17,7 @@ Date: 2024
 
 import numpy as np
 from dataclasses import dataclass
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ class TransPlanckianClock:
         self.name = name
 
         # Cascade for precision enhancement
-        from .reflectance_cascade import ReflectanceCascade
+        from reflectance_cascade import ReflectanceCascade
         self.cascade = ReflectanceCascade(
             base_information_bits=1.0,
             max_cascade_depth=50

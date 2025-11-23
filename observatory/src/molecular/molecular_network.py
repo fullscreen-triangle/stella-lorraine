@@ -116,11 +116,19 @@ class HarmonicNetworkGraph:
         pair_count = 0
         edge_count = 0
 
+        logger.info(f"Checking {total_pairs:,} molecule pairs for coincidences...")
+        logger.info(f"Progress will be logged every 1000 pairs...")
+
         for i, mol_i in enumerate(self.molecules):
             harmonics_i = mol_i.harmonics(max_n=self.max_harmonics)
 
             for j, mol_j in enumerate(self.molecules[i+1:], start=i+1):
                 pair_count += 1
+
+                # Log progress periodically
+                if pair_count % 1000 == 0:
+                    progress_pct = 100 * pair_count / total_pairs
+                    logger.info(f"  Progress: {pair_count:,}/{total_pairs:,} pairs ({progress_pct:.1f}%)")
 
                 if progress_callback and pair_count % 10000 == 0:
                     progress_callback(pair_count, total_pairs)

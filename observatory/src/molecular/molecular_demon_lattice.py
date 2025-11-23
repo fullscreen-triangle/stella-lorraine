@@ -20,7 +20,6 @@ Connection to papers:
 - Interferometry: Virtual observation at categorical moments
 """
 
-import sys
 import json
 import numpy as np
 from pathlib import Path
@@ -28,10 +27,14 @@ from datetime import datetime
 from typing import List, Dict, Tuple
 from dataclasses import dataclass, field
 
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+# No imports needed - use simple S-entropy calculation inline
 
-from categorical_state import SCategory, SEntropyCalculator
-from bmd_decomposition import MaxwellDemon, BMDHierarchy
+@dataclass
+class SCategory:
+    """Simple S-entropy categorical coordinates"""
+    s_k: float  # Knowledge entropy
+    s_t: float  # Temporal entropy
+    s_e: float  # Evolution entropy
 
 @dataclass
 class MolecularDemon:
@@ -159,11 +162,12 @@ class MolecularDemonLattice:
                     phase_offset = 2 * np.pi * (i + j + k) / (nx + ny + nz)
                     measurement_count = demon_id + 1
 
-                    s_category = SEntropyCalculator.from_frequency(
-                        frequency_hz=avg_freq,
-                        measurement_count=measurement_count,
-                        time_elapsed=1e-13 * (1 + 0.1 * np.sin(phase_offset))
-                    )
+                    # Simple S-entropy calculation
+                    s_k = np.log(avg_freq) / np.log(1e15)  # Normalized to THz
+                    s_t = (measurement_count % 100) / 100.0  # Temporal
+                    s_e = 0.5 + 0.1 * np.sin(phase_offset)  # Evolution
+
+                    s_category = SCategory(s_k=s_k, s_t=s_t, s_e=s_e)
 
                     demon = MolecularDemon(
                         id=demon_id,

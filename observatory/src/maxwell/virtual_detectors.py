@@ -15,7 +15,7 @@ Date: 2024
 
 import numpy as np
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
 import logging
 

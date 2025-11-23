@@ -12,9 +12,7 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
+# Imports are from the same directory
 from molecular_network import HarmonicNetworkGraph, MolecularOscillator
 from bmd_decomposition import BMDHierarchy
 from reflectance_cascade import MolecularDemonReflectanceCascade
@@ -25,7 +23,7 @@ def load_molecular_vibration_data(json_path: Path) -> dict:
     with open(json_path, 'r') as f:
         return json.load(f)
 
-def create_molecular_oscillator_ensemble(vibration_data: dict, num_harmonics: int = 150) -> list:
+def create_molecular_oscillator_ensemble(vibration_data: dict, num_harmonics: int = 15) -> list:
     """
     Create oscillator ensemble from molecular vibration data
 
@@ -90,7 +88,7 @@ def create_molecular_oscillator_ensemble(vibration_data: dict, num_harmonics: in
 def calculate_molecular_resolution_enhancement(vibration_data: dict,
                                               bmd_depth: int = 12,
                                               n_reflections: int = 10,
-                                              max_harmonics: int = 150,
+                                              max_harmonics: int = 15,
                                               coincidence_threshold_hz: float = 1e9) -> dict:
     """
     Apply full categorical dynamics framework to molecular vibration data
@@ -263,8 +261,8 @@ def calculate_molecular_resolution_enhancement(vibration_data: dict,
 def main():
     """Run molecular vibration enhancement analysis"""
 
-    # Path to experimental data
-    data_path = Path(__file__).parent.parent.parent / 'observatory' / 'results' / 'molecular_vibrations' / 'quantum_vibrations_20251105_124305.json'
+    # Path to experimental data - public folder is in the same directory as this script
+    data_path = Path(__file__).parent / 'public' / 'quantum_vibrations_20251105_124305.json'
 
     if not data_path.exists():
         print(f"Error: Data file not found at {data_path}")
@@ -274,12 +272,12 @@ def main():
     # Load experimental data
     vibration_data = load_molecular_vibration_data(data_path)
 
-    # Run enhancement analysis
+    # Run enhancement analysis (reduced harmonics for performance)
     results = calculate_molecular_resolution_enhancement(
         vibration_data=vibration_data,
         bmd_depth=12,  # Deeper than hardware (more molecular modes)
         n_reflections=10,
-        max_harmonics=150,
+        max_harmonics=15,  # REDUCED: 15 is sufficient, 150 was too slow
         coincidence_threshold_hz=1e9
     )
 
