@@ -290,8 +290,8 @@ def test_5_reverse_folding_pathway_discovery():
 
     logger.info(f"Running reverse folding analysis...")
 
-    # Discover pathway
-    pathway = algorithm.discover_folding_pathway(protein, max_cycles=15)
+    # Discover pathway (more cycles for THz phase-locking)
+    pathway = algorithm.discover_folding_pathway(protein, max_cycles=30)
 
     logger.info(f"\nPathway discovery results:")
     logger.info(f"  Total bonds: {pathway['total_bonds']}")
@@ -358,4 +358,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

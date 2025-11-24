@@ -67,12 +67,14 @@ class GroELResonanceChamber:
         self.time_in_cycle = 0.0
 
         # Cavity properties
-        self.cavity_base_frequency = GROEL_BASE_HZ  # Base frequency (1 Hz)
+        self.cavity_base_frequency = GROEL_BASE_HZ  # ATP cycle frequency (1 Hz)
+        self.cavity_vibrational_base = O2_MASTER_CLOCK_HZ  # Cavity coupled to O₂ master clock (10 THz)
         self.cavity_volume = 85000.0  # Angstrom^3 (approximate)
 
         # Frequency modulation during cycle (from papers)
-        # GroEL samples frequency space through ATP cycle
-        self.frequency_harmonics = [1, 2, 3, 4, 5, 7, 10, 13]  # Fibonacci-like series
+        # ATP cycle modulates which vibrational harmonics are active
+        # These harmonics span the range of H-bond frequencies (1-10× O₂ clock)
+        self.frequency_harmonics = [0.5, 0.7, 1.0, 1.3, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]  # multiples of O₂ clock
 
         # Phase-locking tracking
         self.protein_history: List[Dict] = []  # History of protein states per cycle
@@ -80,6 +82,8 @@ class GroELResonanceChamber:
         self.best_stability: float = 0.0
 
         logger.info(f"Initialized GroELResonanceChamber at T={temperature}K")
+        logger.info(f"  ATP cycle frequency: {self.cavity_base_frequency} Hz")
+        logger.info(f"  Cavity vibrational base: {self.cavity_vibrational_base:.2e} Hz")
         logger.info(f"  Cycle duration: {self.cycle_duration}s")
         logger.info(f"  Cavity volume: {self.cavity_volume} Ų")
 
@@ -113,10 +117,11 @@ class GroELResonanceChamber:
             volume_factor = 1.0  # Baseline
             freq_multiplier = 1.0  # Base frequency
 
-        # Calculate cavity frequency (samples harmonic series)
+        # Calculate cavity frequency (samples harmonic series of vibrational modes)
+        # ATP cycle selects which harmonic, phase within cycle modulates it
         harmonic_idx = self.current_cycle % len(self.frequency_harmonics)
         harmonic = self.frequency_harmonics[harmonic_idx]
-        cavity_freq = self.cavity_base_frequency * harmonic * freq_multiplier
+        cavity_freq = self.cavity_vibrational_base * harmonic * freq_multiplier
 
         # Cavity phase evolves continuously
         cavity_phase = (2 * np.pi * cavity_freq * self.time_in_cycle) % (2 * np.pi)

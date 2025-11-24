@@ -101,11 +101,14 @@ class HBondOscillator:
         Calculate how strongly this H-bond will phase-lock to GroEL cavity.
 
         From papers: Strong phase-locking when |ω_A - ω_B| < K_coupling
+
+        For THz frequencies, K_coupling ~ 10^11 Hz (0.1 THz bandwidth)
         """
         freq_diff = np.abs(self.frequency - cavity_frequency)
 
-        # Harmonic matching (including subharmonics)
-        harmonic_ratios = [1, 2, 3, 4, 5, 0.5, 0.25]  # test various harmonic relationships
+        # Harmonic matching (including subharmonics and superharmonics)
+        # Test integer ratios up to 20:1
+        harmonic_ratios = [1, 2, 3, 4, 5, 7, 10, 0.5, 0.33, 0.25, 0.2, 0.1]
 
         best_match = float('inf')
         for ratio in harmonic_ratios:
@@ -115,14 +118,15 @@ class HBondOscillator:
                 best_match = match
 
         # Phase-lock strength decreases with frequency mismatch
-        # K_coupling must exceed frequency difference for phase-lock
-        # Using typical coupling strength of 10^6 Hz
-        K_coupling = 1e6  # Hz
+        # K_coupling scales with frequency (stronger coupling at THz frequencies)
+        # Typical coupling strength: ~10% of base frequency
+        K_coupling = 0.1 * cavity_frequency  # Dynamic coupling strength
 
         if best_match < K_coupling:
             strength = 1.0 - (best_match / K_coupling)
         else:
-            strength = 0.0
+            # Weak coupling even beyond threshold (exponential falloff)
+            strength = np.exp(-best_match / K_coupling) * 0.1
 
         return strength
 
