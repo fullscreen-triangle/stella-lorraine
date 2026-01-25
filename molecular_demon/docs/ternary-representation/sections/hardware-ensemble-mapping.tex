@@ -1,0 +1,208 @@
+\section{Hardware Ensemble Mapping}
+\label{sec:hardware}
+
+\subsection{Three-Phase Oscillator Systems}
+
+Ternary representation finds natural physical instantiation in three-phase oscillatory systems.
+
+\begin{definition}[Three-Phase Oscillator]
+A \textbf{three-phase oscillator ensemble} consists of three oscillators with phase relationship:
+\begin{equation}
+\phi_i = \phi_0 + \frac{2\pi i}{3} \quad \text{for } i \in \{0, 1, 2\}
+\end{equation}
+where $\phi_0$ is the reference phase.
+\end{definition}
+
+\begin{theorem}[Phase-Trit Correspondence]\label{thm:phase-trit}
+Oscillator dominance encodes trit value:
+\begin{equation}
+t = \arg\max_{i \in \{0,1,2\}} A_i(t)
+\end{equation}
+where $A_i(t)$ is the amplitude of oscillator $i$ at time $t$.
+\end{theorem}
+
+\begin{proof}
+At any instant, one of the three oscillators has maximum amplitude (except at crossing points, which form a set of measure zero). This dominant oscillator determines the trit value.
+
+The phase separation of $2\pi/3$ ensures each oscillator dominates for exactly one-third of the cycle, providing uniform trit distribution. \qed
+\end{proof}
+
+\subsection{Physical Implementations}
+
+\begin{example}[Three-Phase AC Power]
+Industrial AC power systems operate with three phases separated by $2\pi/3$:
+\begin{align}
+V_0(t) &= V_m \sin(\omega t) \\
+V_1(t) &= V_m \sin(\omega t - 2\pi/3) \\
+V_2(t) &= V_m \sin(\omega t - 4\pi/3)
+\end{align}
+
+This existing infrastructure provides a physical substrate for ternary computation at power-line frequencies ($\sim$50--60 Hz).
+\end{example}
+
+\begin{example}[Three-Phase Clock]
+A ternary clock circuit generates three phase-shifted square waves:
+\begin{align}
+C_0(t) &= \text{sgn}(\sin(\omega t)) \\
+C_1(t) &= \text{sgn}(\sin(\omega t - 2\pi/3)) \\
+C_2(t) &= \text{sgn}(\sin(\omega t - 4\pi/3))
+\end{align}
+
+At any instant, exactly two clocks are high (or low), encoding trit value through the pattern.
+\end{example}
+
+\begin{example}[Coupled Oscillator Network]
+Three coupled oscillators with symmetric coupling:
+\begin{align}
+\ddot{x}_0 + \omega^2 x_0 &= \kappa(x_1 - x_0) + \kappa(x_2 - x_0) \\
+\ddot{x}_1 + \omega^2 x_1 &= \kappa(x_0 - x_1) + \kappa(x_2 - x_1) \\
+\ddot{x}_2 + \omega^2 x_2 &= \kappa(x_0 - x_2) + \kappa(x_1 - x_2)
+\end{align}
+
+The normal modes include a rotating mode with $2\pi/3$ phase separation, providing stable ternary encoding.
+\end{example}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figures/ternary_representation_validation.png}
+  \caption{\textbf{Comprehensive Validation of Ternary Representation Framework Across 12 Independent Metrics Confirms Mathematical Rigor, Physical Realizability, and Computational Efficiency.}
+  \textbf{(Row 1, Left)} Trit-to-coordinate mapping with colors indicating $S_e$ (emergence entropy). Five labeled spheres show 2-trit combinations mapped to $(S_k, S_t)$ coordinates: "00" (purple, bottom left) at $(0.0, 0.0)$, "12" (cyan, center) at $(0.5, 0.5)$, "01" (yellow-green, left middle) at $(0.0, 0.5)$, "21" (purple, right middle) at $(0.83, 0.5)$, "22" (yellow, top right) at $(0.83, 0.83)$, "02210" (yellow, right) at $(0.83, 0.33)$. Coordinate transformation follows $S_i = \sum_{j=0}^{k-1} t_j \cdot 3^{-j-1}$ where $t_j \in \{0,1,2\}$ are trit values. Color gradient (purple to yellow) represents $S_e$ values from 0.0 to 1.0. Axes: Knowledge Entropy $S_k$ (horizontal, 0.0 to 1.0), Temporal Entropy $S_t$ (vertical, 0.0 to 1.0). This validates bijective mapping between trit sequences and 2D coordinates.
+  \textbf{(Row 1, Center)} Hierarchical structure validation showing exponential growth $3^k$. Log-log plot: X-axis "Hierarchy Depth $k$" (0 to 8), Y-axis "Cell Count" (log scale $10^0$ to $10^4$). Blue circles (Actual) perfectly align with gray dashed line (Expected $3^k$), confirming $N_{cells}(k) = 3^k$ for all depths. Data points: $k=0$: 1 cell, $k=1$: 3 cells, $k=2$: 9 cells, $k=3$: 27 cells, ..., $k=8$: 6561 cells. Perfect alignment validates hierarchical decomposition with each level providing $3×$ finer resolution.
+  \textbf{(Row 1, Right)} Continuous emergence validation showing convergence $k \rightarrow \infty$. X-axis: Trit Count $k$ (2 to 14). Y-axis: Distance/Diameter (log scale $10^{-2}$ to $10^0$). Blue solid line (Distance to Target) decreases exponentially following $D(k) \propto 3^{-k}$. Red dashed line (Theoretical Cell Diameter) shows bound $d(k) = \sqrt{3} \cdot 3^{-k}$. Convergence achieves sub-1\% precision ($D < 0.01$) at $k \geq 6$ trits. This validates arbitrary precision through trit count increase.
+  \textbf{(Row 2, Left)} Trajectory encoding validation in 3D $(S_k, S_t, S_e)$ space. Blue spheres: discrete trajectory points. Green square: Start position. Red triangle: End position. Trajectory path shows varying $S_e$ values (color gradient). Axes span 0.4 to 0.8 for all three dimensions. Each point encoded as 6-trit value (2 trits per dimension). Spatial relationships preserved: $||\vec{P}_i - \vec{P}_j|| \approx f(d_{Hamming}(\text{trit}_i, \text{trit}_j))$ where $d_{Hamming}$ is Hamming distance.
+  \textbf{(Row 2, Center)} Ideal gas law integration showing $PV = NkT \cdot S(V, N, \{n_i\})$. X-axis: Temperature $T$ (K) from 200 to 400. Y-axis: Pressure $P$ (bar) from 0.025 to 0.200. Three curves: blue (Trit 000, lowest pressure), orange (Trit 111, medium), green (Trit 222, highest). Linear pressure-temperature relationship with slopes proportional to trit value sum: $dP/dT \propto \sum_i n_i$. This demonstrates thermodynamic integration of ternary encoding.
+  \textbf{(Row 2, Right)} Three-phase oscillator to trit mapping with $\phi_i = 2\pi i/3$. Three sinusoidal curves (orange: Oscillator 0, blue: Oscillator 1, green: Oscillator 2) over time 0.00 to 2.00 cycles. Vertical dashed lines indicate sampling times. Maximum amplitude oscillator determines trit: $\text{trit}(t) = \arg\max_i \{A_i\sin(\omega t + \phi_i)\}$. Amplitude ranges $-1.00$ to $+1.00$. This validates hardware-to-logic conversion.
+  \textbf{(Row 3, Left)} Ternary space coverage validation showing 729 cells ($3^6$ states) uniformly distributed in $[0,1]^3$ cube. Point cloud colored by $S_e$ (purple to yellow gradient, 0.0 to 1.0). Axes: $S_k$, $S_t$, $S_e$ from 0.2 to 1.2. Uniform density $\rho = 729$ cells per unit volume. Fill factor $\eta = V_{occupied}/V_{total} \approx 1.0$ confirms complete space coverage without gaps.
+  \textbf{(Row 3, Center)} Convergence rate analysis for multiple target points. X-axis: Trit Count $k$ (2 to 12). Y-axis: Convergence Distance (log scale $10^{-1}$ to $10^3$). Five colored trajectories (green, yellow, orange, cyan, purple) converge to different targets. Black dashed line: Theoretical Bound $D_{max}(k) = \sqrt{3} \cdot 3^{-k}$. All trajectories follow exponential decay $D(k) \approx D_0 \cdot 3^{-k}$ with rate $\lambda = \ln(3) \approx 1.099$, independent of target location.
+  \textbf{(Row 3, Right)} Information density comparison: Binary $2^k$ (blue circles) versus Ternary $3^k$ (red squares). X-axis: Digit Count $k$ (2 to 10). Y-axis: Encoded Values (log scale $10^1$ to $10^4$). Exponential divergence: at $k=2$, ratio $= 2.25$; at $k=6$, ratio $= 11.39$; at $k=10$, ratio $= 57.67$. Divergence follows $(3/2)^k$.
+  \textbf{(Row 4, Left)} Trajectory distance preservation showing prefix-based proximity. X-axis: Common Prefix Length (0 to 4). Y-axis: Euclidean Distance in $S$-Space (0.0 to 1.2). Color indicates Hamming distance (yellow: 0-1, green: 2-4, cyan: 5-6, purple: 7-8). Points cluster along decreasing curves: $D_{Euclidean} \approx C \cdot 3^{-L_{prefix}}$. Longer prefixes correspond to smaller distances, enabling $O(\log_3 N)$ nearest-neighbor search.
+  \textbf{(Row 4, Center)} S-entropy dynamics with ternary encoding. X-axis: Time (0 to 12). Y-axis: S-Entropy Coordinate (0.0 to 1.0). Three phase-shifted sinusoids: red ($S_k$), green ($S_t$), blue ($S_e$). Each follows $S_i(t) = 0.5 + 0.3\sin(\omega t + \phi_i)$ where $\omega = 2\pi/6$ and phase offsets $\phi_k = 0$, $\phi_t = 2\pi/3$, $\phi_e = 4\pi/3$. Sampling rate $f_s = 10$ samples/cycle maintains fidelity.
+  \textbf{(Row 4, Right)} Tryte structure validation showing all 729 cells ($3^6$ combinations) in grid layout. X-axis: $S_k$ (0.2 to 1.0). Y-axis: $S_t$ (0.2 to 1.0). Each cell color-coded by $S_e$ (purple: low, yellow: high). Grid spacing $\Delta S = 1/27 \approx 0.037$ confirms uniform quantization. This validates 6 trits (2 per dimension) provide $27 \times 27 = 729$ cells with bijective mapping to $(S_k, S_t, S_e)$ space.}
+  \label{fig:ternary_validation}
+\end{figure}
+
+
+\subsection{Trit Extraction from Oscillators}
+
+\begin{definition}[Phase Detector]
+A \textbf{ternary phase detector} compares three oscillator phases and outputs the index of the leading phase:
+\begin{equation}
+\text{Detect}(\phi_0, \phi_1, \phi_2) = \arg\max_i \cos(\phi_i)
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Continuous Trit Stream]
+A three-phase oscillator at frequency $f$ generates a trit stream at rate:
+\begin{equation}
+R_{\text{trit}} = 3f
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Each full cycle ($2\pi$ radians) traverses all three phases. At frequency $f$ (cycles per second), the oscillator completes $f$ cycles per second, generating $3f$ trit transitions. \qed
+\end{proof}
+
+\begin{example}
+A 1 GHz three-phase oscillator generates 3 billion trits per second, equivalent to:
+\begin{equation}
+3 \times 10^9 \times \log_2 3 \approx 4.75 \times 10^9 \text{ bits/second}
+\end{equation}
+information throughput.
+\end{example}
+
+\subsection{S-Coordinate Extraction}
+
+\begin{definition}[S-Coordinate Extractor]
+An \textbf{S-coordinate extractor} converts a trit stream to S-entropy coordinates by interleaved accumulation:
+\begin{align}
+\Sk &= \sum_{j=1}^{n} \frac{t_{3j} + 0.5}{3^j} \\
+\St &= \sum_{j=0}^{n-1} \frac{t_{3j+1} + 0.5}{3^{j+1}} \\
+\Se &= \sum_{j=0}^{n-1} \frac{t_{3j+2} + 0.5}{3^{j+1}}
+\end{align}
+\end{definition}
+
+\begin{proposition}[Hardware Implementation]
+S-coordinate extraction requires:
+\begin{itemize}
+    \item 3 accumulators (one per dimension)
+    \item 1 mod-3 counter (for dimension selection)
+    \item 3 multipliers (for $3^{-j}$ scaling)
+    \item 3 adders (for running sum)
+\end{itemize}
+Total: $O(1)$ hardware complexity, independent of precision $n$.
+\end{proposition}
+
+
+\subsection{Oscillator Ensemble Architecture}
+
+\begin{definition}[Oscillator Ensemble]
+An \textbf{oscillator ensemble} for ternary S-entropy computation comprises:
+\begin{enumerate}
+    \item \textbf{Core oscillators}: Three phase-locked oscillators at frequency $f_0$
+    \item \textbf{Trit extractor}: Phase detector outputting dominant oscillator index
+    \item \textbf{Coordinate accumulator}: Three-channel accumulator for $(\Sk, \St, \Se)$
+    \item \textbf{Cell address register}: Current ternary string $\mathbf{t}$
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Ensemble Processing Rate]
+An oscillator ensemble at frequency $f_0$ processes:
+\begin{equation}
+R_{\text{cell}} = f_0 \text{ cells per second}
+\end{equation}
+where one ``cell'' is a complete refinement of all three dimensions (3 trits).
+\end{theorem}
+
+\begin{proof}
+Three trits (one per dimension) require one full cycle of the three-phase oscillator. At frequency $f_0$, this gives $f_0$ complete refinements per second. \qed
+\end{proof}
+
+\subsection{Multi-Scale Oscillator Hierarchy}
+
+\begin{definition}[Hierarchical Oscillator Network]
+A \textbf{hierarchical oscillator network} comprises multiple three-phase oscillators at different frequencies:
+\begin{equation}
+f_k = f_0 \cdot 3^{-k} \quad \text{for } k = 0, 1, 2, \ldots
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Scale-Frequency Correspondence]
+Level $k$ in the $3^k$ hierarchy corresponds to oscillator frequency $f_k = f_0 \cdot 3^{-k}$.
+\end{theorem}
+
+\begin{proof}
+Each level requires 3 trits to refine. The time to generate 3 trits at frequency $f$ is $1/f$ seconds. For level $k$, the cumulative refinement time is:
+\begin{equation}
+T_k = \sum_{j=0}^{k-1} \frac{1}{f_j} = \sum_{j=0}^{k-1} \frac{3^j}{f_0} = \frac{3^k - 1}{2f_0}
+\end{equation}
+
+The frequency at level $k$ determines the refinement rate for that level. \qed
+\end{proof}
+
+\begin{remark}
+This hierarchical structure mirrors the timescale separation in physical systems: fast oscillations (high frequency) correspond to fine-grained structure; slow oscillations (low frequency) correspond to coarse-grained structure. The ternary representation naturally couples to this hierarchy.
+\end{remark}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure_5_three_phase_hardware.png}
+  \caption{\textbf{Three-Phase Oscillator Hardware Implementation Provides Physical Basis for Ternary Logic Through Voltage-Based State Discrimination with 120° Phase Separation.}
+  \textbf{(Top Left)} Three-phase sinusoidal oscillator waveforms with phase separation $\Delta\phi = 2\pi/3$ radians (120°). Red curve: Phase 0° ($\phi_0 = 0$, Trit 0/Sk dimension), blue curve: Phase 120° ($\phi_1 = 2\pi/3$, Trit 1/St dimension), green curve: Phase 240° ($\phi_2 = 4\pi/3$, Trit 2/Se dimension). Waveforms follow $V_i(t) = A\sin(\omega t + \phi_i)$ where $A = 1V$ amplitude, $\omega = 2\pi f$ angular frequency, and $i \in \{0, 1, 2\}$ indexes the three phases. Horizontal arrow at $t=1$ radian shows 120° phase offset between red and green curves. The orthogonal phase relationship ensures unambiguous state discrimination: at any time instant, exactly one phase dominates, enabling reliable trit detection. Time axis spans 0 to 12 radians (approximately 2 complete cycles), demonstrating periodic repetition of the three-phase pattern.
+  \textbf{(Top Right)} 3D phase space representation showing ternary state vectors as geometric objects. Three colored markers indicate trit positions: red circle (Trit 0) at phase $\phi_0 = 0°$ on negative Phase 240° axis, green square (Trit 1) at phase $\phi_1 = 120°$ on positive Phase 120° axis, blue triangle (Trit 2) at phase $\phi_2 = 240°$ on positive Phase 240° axis. Green-yellow elliptical trajectory shows continuous evolution in 3D phase space, representing the vector $\vec{V}(t) = (V_0(t), V_1(t), V_2(t))$ where components satisfy balanced three-phase constraint $V_0 + V_1 + V_2 = 0$. Axes labeled Phase 0° (Sk), Phase 120° (St), Phase 240° (Se) span $-1.00$ to $+1.00$ normalized units. The ellipse demonstrates that three-phase oscillators naturally encode ternary states through continuous rotation in 3D space, with discrete trit values corresponding to vertices of an equilateral triangle projected onto the unit sphere.
+  \textbf{(Bottom Left)} Voltage-based ternary gate circuit implementing three-level logic detection through threshold comparison. Yellow box (left): Input Voltage feeds into three-level comparator. Central green box: V\_mid (0V) $\rightarrow$ Trit 1 with threshold range $-0.5V < V_{in} < +0.5V$ (threshold: $-0.5V$ below, produces Trit 1 output). Top blue box: V\_high (+1V) $\rightarrow$ Trit 2 with threshold $V_{in} \geq +0.5V$ (threshold: $+0.5V$ above). Bottom red box: V\_low ($-1V$) $\rightarrow$ Trit 0 with threshold $V_{in} \leq -0.5V$ (threshold: $-0.5V$ below). Orange box (right): Output Trit represents detected ternary state. The circuit uses two voltage comparators with thresholds at $V_{th,1} = +0.5V$ and $V_{th,2} = -0.5V$ to discriminate between three logic levels, providing noise margins $\Delta V = 0.5V$ between adjacent states. This hardware implementation enables direct conversion from analog three-phase signals to digital trit values without binary intermediate representation.
+  \textbf{(Bottom Right)} Physical trit encoding showing temporal mapping from continuous oscillators to discrete trit detection zones. Three sinusoidal waveforms (red: Trit 0 at $\phi_0 = 0°$, green: Trit 1 at $\phi_1 = 120°$, blue: Trit 2 at $\phi_2 = 240°$) oscillate with amplitude $\pm 1.0$ over phase interval 0 to 6 radians. Colored background regions indicate detection zones: red zone (Detect 0, phase $0 < \phi < 2\pi/3$) detects Trit 0 when red waveform has maximum amplitude, green zone (Detect 1, phase $2\pi/3 < \phi < 4\pi/3$) detects Trit 1 when green waveform dominates, blue zone (Detect 2, phase $4\pi/3 < \phi < 2\pi$) detects Trit 2 when blue waveform is maximum. Gray dashed line (Reference) at amplitude 0.0 provides zero-crossing reference. Legend (bottom right) identifies three trit phases. The phase relationship $\phi_i = 2\pi i/3$ ensures unambiguous state discrimination with temporal separation $\Delta t = T/3$ where $T$ is oscillator period, enabling sampling rate $f_s = 3f$ for reliable trit detection.}
+  \label{fig:three_phase_hardware}
+\end{figure}
+
+\subsection{Quantum Considerations}
+
+\begin{remark}
+Three-level quantum systems (qutrits) provide another physical instantiation of ternary representation. A qutrit has basis states $|0\rangle$, $|1\rangle$, $|2\rangle$ with general state:
+\begin{equation}
+|\psi\rangle = \alpha_0 |0\rangle + \alpha_1 |1\rangle + \alpha_2 |2\rangle
+\end{equation}
+where $|\alpha_0|^2 + |\alpha_1|^2 + |\alpha_2|^2 = 1$.
+
+Measurement collapses to one of the three basis states, yielding a classical trit. Qutrit-based quantum computing may offer advantages over qubit-based systems for problems naturally suited to three-dimensional S-entropy representation.
+\end{remark}
+

@@ -1,0 +1,331 @@
+\section{Completeness of Coupling Structures}
+\label{sec:completeness}
+
+Having constructed explicit minimal coupling structures for each partition coordinate in Section~\ref{sec:explicit_coupling}, we now establish their \emph{completeness}: the four coupling structures $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ are both necessary and sufficient for extracting all information about partition elements. The main results are: (i) the elementary measurements generate the full measurement algebra (Theorem~\ref{thm:measurement_algebra}), (ii) the four coupling structures form a minimal complete set (Theorem~\ref{thm:completeness}), and (iii) any derived measurement can be constructed from elementary structures via composition and classical post-processing (Theorem~\ref{thm:derived_construction}). These results establish that the spectroscopic toolkit developed in previous sections is mathematically complete—no additional coupling structures are needed for the full characterisation of bounded measure-preserving systems.
+
+\subsection{Measurement Algebra}
+
+We begin by formalizing the space of all possible measurements and its algebraic structure.
+
+\begin{definition}[Measurement Operator]
+\label{def:measurement_operator}
+A \emph{measurement operator} on partition $\partition$ is a measurable function $\mathcal{M}: \partition \to \Reals$ assigning a real-valued outcome to each partition element. Equivalently, $\mathcal{M} \in L^\infty(\partition, \mu)$ is a bounded measurable function. The space of all measurement operators is denoted $\mathfrak{M}(\partition)$, or simply $\mathfrak{M}$ when the partition is clear from context.
+\end{definition}
+
+\begin{remark}
+The restriction to bounded functions ensures that measurement outcomes are physically realisable (no infinite values). For partitions with finite cardinality $|\partition| < \infty$, all functions are automatically bounded, so $\mathfrak{M} = \Reals^\partition$ (the space of all real-valued functions on $\partition$).
+\end{remark}
+
+\begin{definition}[Elementary Measurements]
+\label{def:elementary_measurements}
+The \emph{elementary measurements} are the four coordinate projection operators:
+\begin{align}
+\mathcal{M}_n: \partition &\to \{1, 2, 3, \ldots\}, & (n, \ell, m, s) &\mapsto n, \\
+\mathcal{M}_\ell: \partition &\to \{0, 1, 2, \ldots\}, & (n, \ell, m, s) &\mapsto \ell, \\
+\mathcal{M}_m: \partition &\to \Integers, & (n, \ell, m, s) &\mapsto m, \\
+\mathcal{M}_s: \partition &\to \{-\tfrac{1}{2}, +\tfrac{1}{2}\}, & (n, \ell, m, s) &\mapsto s.
+\end{align}
+These extract the depth, angular complexity, orientation, and chirality coordinates respectively.
+\end{definition}
+
+\begin{definition}[Measurement Algebra Operations]
+\label{def:measurement_composition}
+The measurement space $\mathfrak{M}$ is equipped with the following operations. For $\mathcal{M}_1, \mathcal{M}_2 \in \mathfrak{M}$ and $\alpha, \beta \in \Reals$:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item \emph{Linear combination}: $(\alpha \mathcal{M}_1 + \beta \mathcal{M}_2)(x) = \alpha \mathcal{M}_1(x) + \beta \mathcal{M}_2(x)$,
+    \item \emph{Pointwise product}: $(\mathcal{M}_1 \cdot \mathcal{M}_2)(x) = \mathcal{M}_1(x) \cdot \mathcal{M}_2(x)$,
+    \item \emph{Function composition}: For measurable $f: \Reals \to \Reals$, $(f \circ \mathcal{M})(x) = f(\mathcal{M}(x))$.
+\end{enumerate}
+These operations make $\mathfrak{M}$ a commutative algebra over $\Reals$.
+\end{definition}
+
+\begin{theorem}[Measurement Algebra Generation]
+\label{thm:measurement_algebra}
+The elementary measurements $\{\mathcal{M}_n, \mathcal{M}_\ell, \mathcal{M}_m, \mathcal{M}_s\}$ generate the full measurement algebra $\mathfrak{M}(\partition)$ under pointwise operations. That is, every measurement $\mathcal{M} \in \mathfrak{M}$ can be expressed as a function of the elementary measurements:
+\begin{equation}
+\mathcal{M}(n, \ell, m, s) = F(\mathcal{M}_n, \mathcal{M}_\ell, \mathcal{M}_m, \mathcal{M}_s) = F(n, \ell, m, s),
+\end{equation}
+for some function $F: \Integers^+ \times \Integers^+ \times \Integers \times \{-\tfrac{1}{2}, +\tfrac{1}{2}\} \to \Reals$.
+\end{theorem}
+
+\begin{proof}
+Since partition elements are uniquely labelled by coordinates $(n, \ell, m, s)$ (Theorem~\ref{thm:partition_structure}), any function $\mathcal{M}: \partition \to \Reals$ can be viewed as a function $F: \{(n, \ell, m, s)\} \to \Reals$ on the coordinate space.
+
+For finite partitions (which is the case for any physically realisable system with finite resolution), we can express $F$ explicitly using Lagrange interpolation. Any function on a finite discrete set can be written as:
+\begin{equation}
+F(n, \ell, m, s) = \sum_{(n', \ell', m', s') \in \partition} F(n', \ell', m', s') \cdot \chi_{(n', \ell', m', s')}(n, \ell, m, s),
+\end{equation}
+where $\chi_{(n', \ell', m', s')}$ is the indicator function:
+\begin{equation}
+\chi_{(n', \ell', m', s')}(n, \ell, m, s) = \begin{cases}
+1 & \text{if } (n, \ell, m, s) = (n', \ell', m', s'), \\
+0 & \text{otherwise}.
+\end{cases}
+\end{equation}
+
+The indicator function can be constructed as a product of single-coordinate indicators:
+\begin{equation}
+\chi_{(n', \ell', m', s')}(n, \ell, m, s) = \chi_{n'}(n) \cdot \chi_{\ell'}(\ell) \cdot \chi_{m'}(m) \cdot \chi_{s'}(s).
+\end{equation}
+
+Each single-coordinate indicator is a polynomial. For example, for coordinate $n$ taking values in a finite set $\{n_1, n_2, \ldots, n_K\}$:
+\begin{equation}
+\chi_{n_i}(n) = \prod_{j \neq i} \frac{n - n_j}{n_i - n_j}.
+\end{equation}
+This is the Lagrange interpolation basis polynomial: it equals 1 when $n = n_i$ and 0 when $n = n_j$ for $j \neq i$.
+
+Since $n, \ell, m, s$ are extracted by the elementary measurements $\mathcal{M}_n, \mathcal{M}_\ell, \mathcal{M}_m, \mathcal{M}_s$, we can write:
+\begin{equation}
+\chi_{n'}(\mathcal{M}_n) = \prod_{j \neq i} \frac{\mathcal{M}_n - n_j}{n_i - n_j},
+\end{equation}
+and similarly for $\ell, m, s$. Hence:
+\begin{equation}
+\mathcal{M} = \sum_{(n', \ell', m', s')} F(n', \ell', m', s') \cdot \chi_{n'}(\mathcal{M}_n) \cdot \chi_{\ell'}(\mathcal{M}_\ell) \cdot \chi_{m'}(\mathcal{M}_m) \cdot \chi_{s'}(\mathcal{M}_s),
+\end{equation}
+expressing $\mathcal{M}$ as a polynomial in the elementary measurements.
+\end{proof}
+
+\begin{corollary}[Polynomial Representation]
+\label{cor:polynomial_representation}
+Every measurement operator $\mathcal{M} \in \mathfrak{M}$ can be represented as a polynomial in the elementary measurements:
+\begin{equation}
+\mathcal{M} = \sum_{i,j,k,\ell} c_{ijk\ell} \, \mathcal{M}_n^i \, \mathcal{M}_\ell^j \, \mathcal{M}_m^k \, \mathcal{M}_s^\ell,
+\end{equation}
+where the sum is finite (bounded by the partition cardinality) and $c_{ijk\ell} \in \Reals$ are coefficients.
+\end{corollary}
+
+\subsection{Completeness of Elementary Coupling Structures}
+
+Having established that elementary measurements generate the full measurement algebra, we now prove that the corresponding coupling structures form a complete measurement set.
+
+\begin{definition}[Complete Measurement Set]
+\label{def:complete_set}
+A set of measurements $\{\mathcal{M}_i\}_{i=1}^k$ is \emph{complete} (or forms a \emph{complete set of commuting observables}, CSCO) if their joint values uniquely determine the partition element:
+\begin{equation}
+\forall x, y \in \partition: \quad [\mathcal{M}_i(x) = \mathcal{M}_i(y) \, \forall i] \implies x = y.
+\end{equation}
+Equivalently, the map $x \mapsto (\mathcal{M}_1(x), \ldots, \mathcal{M}_k(x))$ is injective.
+\end{definition}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/multi_modal_detector_analysis.png}
+\caption{Multi-modal detector analysis with electromagnetic spectrum mapping and performance characterization. \textbf{Top three rows:} Radar plots showing performance metrics (signal strength, speed, consistency, precision, reliability) for eight detector types—thermometer, barometer, hygrometer, IR spectrometer, Raman spectrometer, mass spectrometer, photodiode, and interferometer. Each detector shows characteristic trade-offs: IR spectrometer and Raman spectrometer achieve high signal (0.75--1.0) with good consistency, while thermometer and barometer show lower precision. \textbf{Middle row:} EM spectrum mapping showing operational wavelength ranges—thermometer operates in mid-IR, barometer and hygrometer are not EM-based (mechanical/chemical), IR spectrometer covers near-IR to mid-IR (marked in red), and hygrometer shows no EM signature. \textbf{Bottom row:} (Left) Detector comparison showing normalized signal, time, and noise across all eight detectors, with IR spectrometer and Raman spectrometer showing optimal signal-to-noise. (Center-left) Measurement times ranging from 5--40 seconds, with photodiode fastest (5s) and mass spectrometer slowest (35s). (Center-right) Revolutionary advantage demonstrating that the categorical approach requires only 1--5 samples versus traditional methods requiring 40 samples (8--40× reduction, labeled ``Savings''). (Right) Cross-image consistency matrix showing correlation coefficients 1.00--1.08 across five repeated measurements (Img 1--5) for all detectors, confirming reproducibility. This multi-modal analysis demonstrates that categorical dynamics enables unified measurement across diverse detector types with dramatically reduced sample requirements and maintained consistency (Theorem~\ref{thm:multimodal_convergence}).}
+\label{fig:multimodal_detectors}
+\end{figure}
+
+\begin{theorem}[Completeness of Elementary Structures]
+\label{thm:completeness}
+The elementary coupling structures $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ form a complete measurement set. That is, the four elementary measurements $\{\mathcal{M}_n, \mathcal{M}_\ell, \mathcal{M}_m, \mathcal{M}_s\}$ uniquely determine the partition element.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:partition_structure}, partition elements are uniquely labeled by the coordinate quadruple $(n, \ell, m, s)$ with:
+\begin{itemize}[noitemsep]
+    \item $n \in \{1, 2, 3, \ldots\}$ (depth),
+    \item $\ell \in \{0, 1, \ldots, n-1\}$ (angular complexity),
+    \item $m \in \{-\ell, -\ell+1, \ldots, \ell\}$ (orientation),
+    \item $s \in \{-\tfrac{1}{2}, +\tfrac{1}{2}\}$ (chirality).
+\end{itemize}
+
+The labeling is bijective: distinct partition elements have distinct coordinate quadruples, and every allowed quadruple corresponds to a partition element.
+
+Each coupling structure $\mathcal{I}_\xi$ extracts the corresponding coordinate $\xi$ by construction (Theorem~\ref{thm:instrument_necessity}). Hence, knowledge of all four measurement outcomes $(\mathcal{M}_n(x), \mathcal{M}_\ell(x), \mathcal{M}_m(x), \mathcal{M}_s(x))$ uniquely determines $x$.
+
+Formally: if $(\mathcal{M}_n(x), \mathcal{M}_\ell(x), \mathcal{M}_m(x), \mathcal{M}_s(x)) = (\mathcal{M}_n(y), \mathcal{M}_\ell(y), \mathcal{M}_m(y), \mathcal{M}_s(y))$, then $(n(x), \ell(x), m(x), s(x)) = (n(y), \ell(y), m(y), s(y))$, which by bijectivity of the coordinate labeling implies $x = y$.
+\end{proof}
+
+\begin{corollary}[Minimal Complete Set]
+\label{cor:minimal_complete}
+The set $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ is a \emph{minimal} complete set: no proper subset is complete.
+\end{corollary}
+
+\begin{proof}
+We prove that removing any single coupling structure leaves the set incomplete.
+
+\textbf{Removing $\mathcal{I}_n$:} Consider two partition elements $x = (n, \ell, m, s)$ and $y = (n', \ell, m, s)$ with $n \neq n'$ but identical $\ell, m, s$. These exist whenever $n' > n \geq \ell + 1$ (so that $\ell < n' - 1$, allowing $\ell$ at depth $n'$). Then $\{\mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ cannot distinguish $x$ from $y$.
+
+\textbf{Removing $\mathcal{I}_\ell$:} Consider $x = (n, \ell, m, s)$ and $y = (n, \ell', m, s)$ with $\ell \neq \ell'$ but both $\ell, \ell' \leq n-1$. Then $\{\mathcal{I}_n, \mathcal{I}_m, \mathcal{I}_s\}$ cannot distinguish them.
+
+\textbf{Removing $\mathcal{I}_m$:} Consider $x = (n, \ell, m, s)$ and $y = (n, \ell, m', s)$ with $m \neq m'$ but both $|m|, |m'| \leq \ell$. Then $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_s\}$ cannot distinguish them.
+
+\textbf{Removing $\mathcal{I}_s$:} Consider $x = (n, \ell, m, +\tfrac{1}{2})$ and $y = (n, \ell, m, -\tfrac{1}{2})$. Then $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m\}$ cannot distinguish them.
+
+In each case, the reduced set fails to be complete. Hence all four structures are necessary.
+\end{proof}
+
+\begin{corollary}[Information Content]
+\label{cor:information_content}
+The four elementary measurements extract exactly $\log_2 |\partition|$ bits of information, which is the maximum possible for a partition of cardinality $|\partition|$.
+\end{corollary}
+
+\begin{proof}
+A complete measurement set uniquely identifies one of $|\partition|$ partition elements, requiring $\log_2 |\partition|$ bits. By Theorem~\ref{thm:completeness}, the four measurements achieve this bound.
+\end{proof}
+
+\subsection{Composition and Derived Measurements}
+
+We now formalize how elementary coupling structures can be combined to construct more complex measurements.
+
+\begin{definition}[Sequential Composition]
+\label{def:sequential_composition}
+For coupling structures $\mathcal{I}_1$ extracting measurement $\mathcal{M}_1$ and $\mathcal{I}_2$ extracting measurement $\mathcal{M}_2$, the \emph{sequential composition} $\mathcal{I}_1 \circ \mathcal{I}_2$ first applies $\mathcal{I}_2$ to extract $\mathcal{M}_2(x)$, then applies $\mathcal{I}_1$ conditioned on the outcome. This implements conditional measurement.
+\end{definition}
+
+\begin{definition}[Parallel Composition]
+\label{def:parallel_composition}
+The \emph{parallel composition} $\mathcal{I}_1 \parallel \mathcal{I}_2$ applies both coupling structures simultaneously, extracting the pair $(\mathcal{M}_1(x), \mathcal{M}_2(x))$. This is equivalent to the tensor product $\mathcal{I}_1 \otimes \mathcal{I}_2$ (Definition~\ref{def:tensor_product}).
+\end{definition}
+
+\begin{definition}[Classical Post-Processing]
+\label{def:post_processing}
+Given measurement outcomes $\{m_i\}$ from coupling structures $\{\mathcal{I}_i\}$, \emph{classical post-processing} applies a function $f: \Reals^k \to \Reals$ to compute a derived quantity:
+\begin{equation}
+\mathcal{M}_{\text{derived}}(x) = f(\mathcal{M}_1(x), \ldots, \mathcal{M}_k(x)).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Derived Measurement Construction]
+\label{thm:derived_construction}
+Any measurement $\mathcal{M} \in \mathfrak{M}$ can be constructed from elementary coupling structures $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ through:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item Parallel composition (to extract multiple coordinates simultaneously),
+    \item Classical post-processing (to compute functions of extracted coordinates).
+\end{enumerate}
+Sequential composition is not required for measurements on a single partition element (but is needed for multi-step protocols).
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:measurement_algebra}, any measurement $\mathcal{M}$ is a function of elementary measurements:
+\begin{equation}
+\mathcal{M}(x) = F(\mathcal{M}_n(x), \mathcal{M}_\ell(x), \mathcal{M}_m(x), \mathcal{M}_s(x)).
+\end{equation}
+
+The construction proceeds as follows:
+\begin{enumerate}[label=\textbf{Step \arabic*:}, leftmargin=*]
+    \item \textbf{Parallel extraction.} Apply the parallel composition $\mathcal{I}_n \parallel \mathcal{I}_\ell \parallel \mathcal{I}_m \parallel \mathcal{I}_s$ to extract all four coordinates simultaneously (Theorem~\ref{thm:independent_extraction}). This yields the quadruple $(n, \ell, m, s)$.
+    
+    \item \textbf{Classical computation.} Compute $\mathcal{M}(x) = F(n, \ell, m, s)$ using classical arithmetic operations (addition, multiplication, etc.). This is classical post-processing—no further quantum coupling is needed.
+\end{enumerate}
+
+Examples:
+\begin{itemize}[noitemsep]
+    \item \emph{Total angular momentum}: $\mathcal{M}_J = \sqrt{\mathcal{M}_\ell(\mathcal{M}_\ell + 1)} = \sqrt{\ell(\ell+1)}$ (post-process $\ell$),
+    \item \emph{Energy}: $\mathcal{M}_E = \omega_0 \mathcal{M}_n^{-3} + \omega_0 \beta \mathcal{M}_\ell(\mathcal{M}_\ell + 1) + \cdots$ (post-process all coordinates),
+    \item \emph{Parity}: $\mathcal{M}_P = (-1)^{\mathcal{M}_\ell}$ (post-process $\ell$).
+\end{itemize}
+
+All such derived measurements are constructible from elementary structures without introducing new coupling mechanisms.
+\end{proof}
+
+\begin{corollary}[Closure of Measurement Set]
+\label{cor:closure}
+The set of measurements constructible from $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ via composition and post-processing equals the full measurement algebra $\mathfrak{M}$.
+\end{corollary}
+
+\subsection{Transition Measurements}
+
+Beyond static coordinate measurements, we can also measure transition rates between partition elements.
+
+\begin{definition}[Transition Coupling]
+\label{def:transition_coupling}
+A \emph{transition coupling} $\mathcal{I}_{P \to P'}$ measures the transition rate from partition element $P$ to element $P'$. It is characterized by the transition frequency $\omega_{P \to P'} = |\mathcal{E}(P') - \mathcal{E}(P)|/\hbar$ and the transition matrix element $\langle P' | \hat{H}_{\text{int}} | P \rangle$.
+\end{definition}
+
+\begin{theorem}[Transition Coupling from Elementary Structures]
+\label{thm:transition_construction}
+Any transition coupling $\mathcal{I}_{P \to P'}$ with $P = (n, \ell, m, s)$ and $P' = (n', \ell', m', s')$ satisfying the selection rules (Theorem~\ref{thm:selection_rules}) can be realized using one of the elementary coupling structures $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ tuned to the appropriate transition frequency.
+\end{theorem}
+
+\begin{proof}
+The transition frequency $\omega_{P \to P'}$ determines which elementary structure is appropriate:
+\begin{itemize}[noitemsep]
+    \item If $\Delta n \neq 0$ dominates, use $\mathcal{I}_n$ tuned to $\omega_{P \to P'} \in \Omega_n$,
+    \item If $\Delta \ell = \pm 1$ dominates, use $\mathcal{I}_\ell$ tuned to $\omega_{P \to P'} \in \Omega_\ell$,
+    \item If $\Delta m = 0, \pm 1$ dominates, use $\mathcal{I}_m$ tuned to $\omega_{P \to P'} \in \Omega_m$,
+    \item If $\Delta s \neq 0$ (rare, requires spin-flip), use $\mathcal{I}_s$ tuned to $\omega_{P \to P'} \in \Omega_s$.
+\end{itemize}
+
+By regime separation (Proposition~\ref{prop:regime_separation}), the transition frequency lies predominantly in one regime, determining the appropriate coupling structure. The transition rate is given by Fermi's golden rule:
+\begin{equation}
+W_{P \to P'} = \frac{2\pi}{\hbar} \left|\langle P' | \hat{H}_{\text{int}} | P \rangle\right|^2 \rho(\omega_{P \to P'}),
+\end{equation}
+where $\hat{H}_{\text{int}}$ is the interaction Hamiltonian of the chosen coupling structure, and $\rho(\omega)$ is the density of states (Lorentzian with width $\Gamma$, Theorem~\ref{thm:resonance_enhancement}).
+\end{proof}
+
+\begin{corollary}[Spectroscopic Completeness]
+\label{cor:spectroscopic_completeness_full}
+The four elementary coupling structures are sufficient to measure:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item All partition coordinates (static properties),
+    \item All allowed transitions between partition elements (dynamic properties).
+\end{enumerate}
+No additional coupling mechanisms are required for complete spectroscopic characterization.
+\end{corollary}
+
+\subsection{Information-Theoretic Bounds}
+
+We conclude by establishing information-theoretic bounds on measurement efficiency.
+
+\begin{definition}[Measurement Entropy]
+\label{def:measurement_entropy}
+For a measurement $\mathcal{M}$ with a discrete outcome set $\{m_1, m_2, \ldots, m_K\}$ and probability distribution $\{p_1, p_2, \ldots, p_K\}$ (where $p_i = \mu(\{x \in \partition : \mathcal{M}(x) = m_i\})$), the \emph{measurement entropy} (Shannon entropy) is:
+\begin{equation}
+H(\mathcal{M}) = -\sum_{i=1}^K p_i \log_2 p_i \quad \text{(bits)}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Complete Measurement Entropy Bound]
+\label{thm:complete_entropy}
+For a complete measurement set $\{\mathcal{M}_1, \ldots, \mathcal{M}_k\}$ on partition $\partition$ with uniform distribution $\mu$, the total entropy satisfies:
+\begin{equation}
+H(\mathcal{M}_1, \ldots, \mathcal{M}_k) = \log_2 |\partition|,
+\end{equation}
+where $H(\mathcal{M}_1, \ldots, \mathcal{M}_k)$ is the joint entropy. For non-uniform distributions:
+\begin{equation}
+H(\mathcal{M}_1, \ldots, \mathcal{M}_k) \leq \log_2 |\partition|,
+\end{equation}
+with equality for uniform distribution (maximum entropy).
+\end{theorem}
+
+\begin{proof}
+A complete measurement set uniquely identifies partition elements, so the joint measurement outcome is in one-to-one correspondence with the partition elements. Hence:
+\begin{equation}
+H(\mathcal{M}_1, \ldots, \mathcal{M}_k) = H(\partition) = -\sum_{x \in \partition} \mu(x) \log_2 \mu(x).
+\end{equation}
+
+For uniform distribution $\mu(x) = 1/|\partition|$ for all $x$:
+\begin{equation}
+H(\partition) = -\sum_{x \in \partition} \frac{1}{|\partition|} \log_2 \frac{1}{|\partition|} = \log_2 |\partition|.
+\end{equation}
+
+For non-uniform distributions, entropy is maximised by the uniform distribution (by the principle of maximum entropy), so $H(\partition) \leq \log_2 |\partition|$.
+\end{proof}
+
+\begin{corollary}[Minimum Measurement Resources]
+\label{cor:min_resources}
+Identifying a partition element from a set of $|\partition|$ elements requires extracting at least $\log_2 |\partition|$ bits of information. The elementary coupling structures $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ achieve this bound.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:complete_entropy}, complete identification requires $\log_2 |\partition|$ bits. By Theorem~\ref{thm:completeness}, the four elementary structures provide complete identification; hence, they extract at least $\log_2 |\partition|$ bits. Since they form a minimal complete set (Corollary~\ref{cor:minimal_complete}), they extract exactly this amount—no redundancy.
+\end{proof}
+
+\begin{corollary}[Partition Cardinality and Measurement Complexity]
+\label{cor:partition_cardinality}
+For a partition with maximum depth $N$, the cardinality is $|\partition| = \sum_{n=1}^N 2n^2 = \frac{2N(N+1)(2N+1)}{6}$ (Corollary~\ref{cor:cumulative_capacity}). Hence, complete identification requires:
+\begin{equation}
+\log_2 |\partition| = \log_2 \left[\frac{N(N+1)(2N+1)}{3}\right] \approx \log_2(N^3/3) \approx 3\log_2 N - 1.58 \quad \text{bits}.
+\end{equation}
+For $N = 10$ (typical atomic systems), this is approximately 8.3 bits.
+\end{corollary}
+
+This completes the theory of completeness. We have established that the four elementary coupling structures $\{\mathcal{I}_n, \mathcal{I}_\ell, \mathcal{I}_m, \mathcal{I}_s\}$ are:
+\begin{enumerate}[label=(\alph*), noitemsep]
+    \item \emph{Sufficient}: they generate the full measurement algebra (Theorem~\ref{thm:measurement_algebra}),
+    \item \emph{Complete}: they uniquely identify partition elements (Theorem~\ref{thm:completeness}),
+    \item \emph{Minimal}: no proper subset is complete (Corollary~\ref{cor:minimal_complete}),
+    \item \emph{Information-optimal}: they extract exactly the minimum required information (Corollary~\ref{cor:min_resources}).
+\end{enumerate}
+
+This establishes the mathematical completeness of the spectroscopic framework developed in Sections~\ref{sec:instrument_necessity}--\ref{sec:explicit_coupling}.

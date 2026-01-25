@@ -1,0 +1,157 @@
+\section{Categorical Mechanics}
+
+\subsection{Motivation}
+
+Physical space is parameterized by coordinates $(x, y, z, t)$. We propose an orthogonal coordinate system for information: \emph{categorical state space} with coordinates $(S_k, S_t, S_e)$ representing knowledge entropy, temporal entropy, and evolutionary entropy.
+
+\begin{definition}[S-Entropy Coordinates]
+The categorical state of a system is characterized by three dimensionless coordinates:
+\begin{align}
+S_k &\in [0, 1]: \quad \text{Knowledge entropy (information content)} \\
+S_t &\in [0, 1]: \quad \text{Temporal entropy (time-evolution uncertainty)} \\
+S_e &\in [0, 1]: \quad \text{Evolutionary entropy (state transition potential)}
+\end{align}
+\end{definition}
+
+\begin{remark}
+These coordinates are \emph{orthogonal} to physical space: a point at $(x, y, z)$ has a categorical state $(S_k, S_t, S_e)$ that is independent of the physical coordinates. Two systems at the same physical location can have different categorical states.
+\end{remark}
+
+\subsection{Physical Basis}
+
+For a molecular ensemble at position $\mathbf{r}$, the categorical coordinates are derived from microscopic properties:
+
+\begin{definition}[Knowledge Entropy from Molecular Density]
+\begin{equation}
+S_k = 1 - \exp\left(-\frac{\rho(\mathbf{r})}{\rho_{\text{ref}}}\right)
+\end{equation}
+where $\rho(\mathbf{r})$ is the information density (bits/m³) and $\rho_{\text{ref}}$ is a reference scale.
+\end{definition}
+
+The information density is computed from molecular vibrational frequencies:
+
+\begin{equation}
+\rho(\mathbf{r}) = \sum_i n_i(\mathbf{r}) \log_2(f_i / f_{\text{ref}})
+\end{equation}
+
+where $n_i(\mathbf{r})$ is the number density of molecule type $i$ with vibrational frequency $f_i$.
+
+\begin{definition}[Temporal Entropy from Phase Coherence]
+\begin{equation}
+S_t = 1 - \left|\frac{1}{N}\sum_{j=1}^{N} e^{i\phi_j}\right|
+\end{equation}
+where $\phi_j$ are the oscillator phases.
+\end{definition}
+
+This measures the phase coherence of molecular oscillators. $S_t = 0$ indicates perfect phase synchronisation; $S_t = 1$ indicates complete decoherence.
+
+\begin{definition}[Evolutionary Entropy from Frequency Variance]
+\begin{equation}
+S_e = \sqrt{\frac{\text{Var}(f_i)}{\langle f \rangle^2}}
+\end{equation}
+the coefficient of variation of vibrational frequencies.
+\end{definition}
+
+\subsection{Categorical Distance}
+
+Points in categorical space have a metric:
+
+\begin{definition}[Categorical Distance]
+\begin{equation}
+d_S(\mathbf{S}_1, \mathbf{S}_2) = \sqrt{(S_{k,1} - S_{k,2})^2 + (S_{t,1} - S_{t,2})^2 + (S_{e,1} - S_{e,2})^2}
+\end{equation}
+\end{definition}
+
+This distance is independent of physical distance. Two molecules at opposite ends of a container can have zero categorical distance if they share the same $(S_k, S_t, S_e)$ state.
+
+\subsection{Oscillator-Processor Duality}
+
+\begin{theorem}[Equivalence of Oscillation and Computation]
+Every oscillator with frequency $f$ performs computation at rate $R = f \log_2(f/f_{\text{ref}})$ bits/second.
+\end{theorem}
+
+\begin{proof}
+An oscillator at frequency $f$ completes $f$ cycles per second. Each cycle samples the state space with a resolution of $\Delta\phi = 2\pi/N$, where $N$ is the number of distinguishable phase states. For thermal oscillators, $N \propto f/k_B T$. The information processed per cycle is $\log_2(N) \propto \log_2(f)$, giving $R = f\log_2(f/f_{\text{ref}})$.
+\end{proof}
+
+This establishes molecular vibrations as computational processes in categorical space, not merely as physical oscillations.
+
+
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=\textwidth]{figures/figure_3_temporal_dynamics.png}
+        \caption{\textbf{Temporal dynamics and observable face switching.}
+        (\textbf{A}) Synchronized dual evolution (Test 3): Front face $S_k$ coordinate
+        (solid blue) and back face $S_k$ coordinate (solid orange) evolve under
+        categorical dynamics over 0.5 seconds. Dashed lines show corresponding
+        $S_\tau$ (temporal) coordinates. Green dashed line at $t = 0.5$ s indicates
+        moment when conjugate relationship $S_k^{\text{back}} = -S_k^{\text{front}}$
+        is verified (error $< 10^{-10}$). Both faces evolve synchronously while
+        maintaining conjugate constraint.
+        (\textbf{B}) Categorical separation conservation: Distance between conjugate
+        states remains constant at 2.683 throughout evolution (red dashed line shows mean).
+        Initial transient ($t < 0.05$ s) reflects numerical stabilization; thereafter
+        separation is conserved to machine precision, confirming that conjugate
+        relationship is preserved under temporal evolution.
+        (\textbf{C}) Automatic face switching (Test 4): Observable face alternates
+        between front (blue) and back (orange) at 5.0 Hz. Red circles mark switching
+        events. Stacked bars show cumulative switch count. System maintains
+        complementarity: only one face is directly accessible at any instant,
+        while conjugate face must be derived via transformation. Total switches
+        in 1.0 s: 5 complete cycles, demonstrating precise temporal control of
+        observable state.}
+        \label{fig:temporal_dynamics}
+        \end{figure}
+
+\subsection{Zero-Backaction Queries}
+
+\begin{theorem}[Categorical Query Theorem]
+A query for the categorical state $(S_k, S_t, S_e)$ at position $\mathbf{r}$ transfers zero momentum to the system.
+\end{theorem}
+
+\begin{proof}
+The categorical state is computed from the statistical properties of the ensemble:
+\begin{equation}
+\mathbf{S}(\mathbf{r}) = F[\{n_i(\mathbf{r}), f_i, \phi_i\}]
+\end{equation}
+where $F$ is a functional of densities, frequencies, and phases. No individual molecule is measured; only ensemble averages are accessed. Therefore, no momentum transfer occurs to any constituent particle.
+\end{proof}
+
+This is the foundation for trans-Planckian observation: by querying categorical coordinates rather than physical coordinates, we circumvent the Heisenberg uncertainty principle, which applies only to conjugate physical observables $(x, p)$ or $(E, t)$.
+
+\subsection{Categorical Dynamics}
+
+The time evolution of categorical coordinates follows:
+
+\begin{equation}
+\frac{dS_k}{dt} = -\alpha_k S_k + \beta_k \sum_i \frac{dn_i}{dt} \log_2(f_i)
+\end{equation}
+
+\begin{equation}
+\frac{dS_t}{dt} = -\alpha_t(1 - S_t) + \beta_t \sum_i \omega_i \sin(\phi_i)
+\end{equation}
+
+\begin{equation}
+\frac{dS_e}{dt} = -\alpha_e S_e + \beta_e \frac{d}{dt}\text{Var}(f_i)
+\end{equation}
+
+where $\alpha_i, \beta_i$ are system-dependent coupling constants. These equations describe how information flows in categorical space.
+
+\subsection{Comparison to Physical Dynamics}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Property} & \textbf{Physical Space} & \textbf{Categorical Space} \\
+\hline
+Coordinates & $(x, y, z, t)$ & $(S_k, S_t, S_e)$ \\
+Metric & Euclidean/Minkowski & Categorical distance \\
+Observable & Position, momentum & Information, coherence \\
+Uncertainty & $\Delta x \Delta p \geq \hbar/2$ & No conjugate constraint \\
+Backaction & Momentum transfer & Zero (query-based) \\
+Speed limit & $c$ (speed of light) & No speed limit \\
+\hline
+\end{tabular}
+\end{center}
+
+The absence of a speed limit in categorical space enables instantaneous queries: asking "what is $S_k$ here?" does not propagate at finite speed because no physical signal is sent.

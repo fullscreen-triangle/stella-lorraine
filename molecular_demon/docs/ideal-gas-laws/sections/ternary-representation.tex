@@ -1,0 +1,262 @@
+\section{Ternary Representation: Natural Encoding of Triple Equivalence}
+\label{sec:ternary}
+
+\subsection{The Dimensional Limitation of Binary}
+
+Contemporary computing rests on binary representation: every datum reduces to sequences of bits, each encoding one of two states ($\{0, 1\}$). While extraordinarily successful, this foundation embeds a structural limitation: binary digits naturally encode \textit{one-dimensional} information. A bit answers ``left or right?'' along a single axis.
+
+The $2^k$ hierarchy—2 values for 1 bit, 4 for 2 bits, 256 for 8 bits—reflects this one-dimensional nature. To represent three-dimensional position requires three separate binary coordinates with explicit transformations between coordinate systems.
+
+\textbf{Example:} To specify a point in three-dimensional space using binary, one must provide three separate binary numbers $(x, y, z)$, each encoding the position along one axis. The three-dimensional structure is not intrinsic to the representation but is imposed externally.
+
+\subsection{Ternary as Natural Three-Dimensional Encoding}
+
+The S-entropy coordinate space $\mathcal{S} = [0,1]^3$ (Definition~\ref{def:s_entropy_space}) has three dimensions:
+\begin{align}
+S_k &\in [0,1] \quad \text{(knowledge entropy)} \\
+S_t &\in [0,1] \quad \text{(temporal entropy)} \\
+S_e &\in [0,1] \quad \text{(evolution entropy)}
+\end{align}
+
+Ternary (base-3) representation naturally encodes this three-dimensional structure:
+
+\begin{theorem}[Trit-Coordinate Correspondence]
+\label{thm:trit_coordinate}
+A ternary digit (trit) $t \in \{0, 1, 2\}$ maps directly to S-entropy dimensions:
+\begin{align}
+t = 0 &\quad \Leftrightarrow \quad \text{refinement along } S_k \text{ (knowledge)} \\
+t = 1 &\quad \Leftrightarrow \quad \text{refinement along } S_t \text{ (temporal)} \\
+t = 2 &\quad \Leftrightarrow \quad \text{refinement along } S_e \text{ (evolution)}
+\end{align}
+A $k$-trit string $(t_1 t_2 \cdots t_k)$ addresses exactly one cell in the $3^k$ hierarchical partition of $\mathcal{S}$.
+\end{theorem}
+
+\textbf{Proof sketch:} At depth $k$, each dimension is subdivided into $3^k$ intervals. A sequence of $k$ trits specifies one subdivision along each dimension in order, uniquely identifying a cell.
+
+The $3^k$ hierarchy—3 values for 1 trit, 27 for 3 trits, and 729 for 6 trits—matches the three-dimensional structure of the triple equivalence framework.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_ternary_computation_1.png}
+\caption{\textbf{Ternary Representation for Gas Dynamics: S-Entropy Compression.} 
+\textbf{Top Left - Full phase space (200 molecules):} Three-dimensional scatter plot showing 200 molecules in unit cube [0, 1]$^3$. Colored spheres (purple to yellow gradient): molecular positions. Each molecule has 18 dimensions (3 position + 3 velocity coordinates $\times$ 1 molecule = 6D, but showing 200 molecules gives 1200D total phase space). Visualization shows 3D projection of high-dimensional phase space.
+\textbf{Top Center - S-entropy compression:} Three-dimensional scatter plot showing same 200 molecules compressed to 3D S-entropy coordinates. Axes: $S_k$ (knowledge, range 0.0-2.0), $S_t$ (time, range 0-2), $S_e$ (evolution, range 1.5-5.0). Colored spheres (purple to yellow): each point represents one molecule's compressed state. Text annotation: ``Each point = 1 molecule, 18 dims $\to$ 3 dims.'' Compression achieves $>$6-fold dimensional reduction (18D $\to$ 3D) while preserving thermodynamic information.
+\textbf{Top Right - Ternary addresses ($3^k$ hierarchy):} Heat map showing ternary address encoding. Horizontal axis: trit position/depth (0-10). Vertical axis: molecule index (0-50). Color coding: blue (trit value 0, oscillatory perspective), yellow (trit value 1, categorical perspective), red (trit value 2, partition perspective). Each row is one molecule's 12-trit address. Balanced color distribution indicates equal usage of all three perspectives.
+\textbf{Middle Left - Sliding window spectrometer:} Three traces showing mean S-coordinates versus window position (0-30): yellow ($S_k$, knowledge), cyan ($S_t$, time), red ($S_e$, evolution). Vertical axis: mean S-coordinate (1.0-3.0). All three traces fluctuate around means ($S_k \approx 1.5$, $S_t \approx 2.0$, $S_e \approx 1.8$) with correlated variations. Window slides through ensemble capturing local S-entropy statistics—this is the spectrometer measuring categorical structure.
+\textbf{Middle Center - $3^k$ ternary address tree:} Three-dimensional tree structure showing hierarchical phase space organization. Axes: Oscillatory (0), Categorical (1), Partition (2) (all range 0.00-1.75). Red and blue spheres: occupied cells at different depths ($k = 3$ gives 27 cells, $k = 4$ gives 81 cells). Tree branches show natural $3^k$ discretization of phase space.}
+\label{fig:ternary_representation_1}
+\end{figure}
+
+\subsection{The Triple Equivalence as Ternary Logic}
+
+The fundamental identity of this paper is:
+\begin{equation}
+\text{Oscillation} \equiv \text{Category} \equiv \text{Partition}
+\end{equation}
+
+maps naturally to ternary representation:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccc}
+\hline
+\textbf{Trit Value} & \textbf{Perspective} & \textbf{S-Coordinate} \\
+\hline
+0 & Oscillatory & $S_k$ (knowledge) \\
+1 & Categorical & $S_t$ (temporal) \\
+2 & Partition & $S_e$ (evolution) \\
+\hline
+\end{tabular}
+\caption{Correspondence between trit values, physical perspectives, and S-entropy coordinates.}
+\label{tab:trit_correspondence}
+\end{table}
+
+Each trit in a ternary address specifies which perspective was used to refine understanding at that step. A ternary string encodes not just a location but the sequence of conceptual refinements that led there.
+
+\textbf{Example:} The ternary string $012$ means:
+\begin{enumerate}
+\item First refinement: oscillatory perspective (trit 0) $\to$ refine $S_k$
+\item Second refinement: categorical perspective (trit 1) $\to$ refine $S_t$
+\item Third refinement: partition perspective (trit 2) $\to$ refine $S_e$
+\end{enumerate}
+
+This sequence uniquely identifies one of $3^3 = 27$ cells in the depth-3 hierarchy.
+
+\subsection{Trajectory Encoding}
+
+Ternary strings encode trajectories, not merely positions:
+
+\begin{theorem}[Trajectory-Position Duality]
+\label{thm:trajectory_position_duality}
+A ternary string $(t_1 t_2 \cdots t_k)$ specifies both:
+\begin{enumerate}
+\item \textbf{Position:} The cell in the $3^k$ hierarchy
+\item \textbf{Trajectory:} The sequence of refinements that led to it
+\end{enumerate}
+The address IS the path.
+\end{theorem}
+
+\textbf{Proof:} Each trit $t_i$ specifies a refinement operation along one S-coordinate. The sequence $(t_1, t_2, \ldots, t_k)$ is both:
+\begin{itemize}
+\item A trajectory through the hierarchy (refinement sequence)
+\item A position in the final $3^k$ partition (cell identifier)
+\end{itemize}
+These are identical by construction. \qed
+
+\textbf{Physical interpretation:} This eliminates the data-instruction distinction. The sequence of trits that addresses a datum also specifies the computation that locates it. In categorical memory (Section~\ref{sec:categorical_memory}), accessing data and computing with data become the same operation.
+
+\subsection{Continuous Emergence}
+
+The discrete ternary hierarchy converges to the continuous S-entropy space:
+
+\begin{theorem}[Continuous Emergence]
+\label{thm:continuous_emergence}
+As $k \to \infty$, the discrete $3^k$ cell structure converges to the continuous space $[0,1]^3$:
+\begin{equation}
+\lim_{k \to \infty} \text{Cell}(t_1, t_2, \ldots, t_k) = \mathbf{S} \in [0,1]^3
+\end{equation}
+An infinite ternary expansion specifies a unique point in the continuum.
+\end{theorem}
+
+\textbf{Proof:} Each trit $t_i \in \{0, 1, 2\}$ refines the position along one dimension by a factor of 3. After $k$ refinements, the position is determined to a precision of $3^{-k}$. As $k \to \infty$, precision becomes infinite, specifying a unique point. \qed
+
+\textbf{Physical interpretation:} This bridges discrete (categorical) and continuous (oscillatory) descriptions. The discreteness of categories and the continuity of oscillations are not contradictory but complementary—they are finite and infinite limits of the same ternary structure.
+
+\subsection{Ternary Operations}
+
+Traditional Boolean operations (AND, OR, NOT) operate on one-dimensional binary strings. Ternary operations act on three-dimensional structures directly:
+
+\begin{definition}[Ternary Operations]
+\label{def:ternary_operations}
+
+\textbf{1. Projection:} Extract one S-coordinate from a ternary string
+\begin{equation}
+\text{Proj}_i(t_1 t_2 \cdots t_k) = \{t_j : t_j = i, \, j = 1, \ldots, k\}
+\end{equation}
+This isolates all refinements along dimension $i$.
+
+\textbf{2. Completion:} Determine the categorical closure of a partial trajectory
+\begin{equation}
+\text{Complete}(t_1 \cdots t_j) = t_1 \cdots t_j \cdot t_{j+1} \cdots t_k
+\end{equation}
+where $t_{j+1} \cdots t_k$ are predicted by trajectory dynamics (Section~\ref{sec:trajectory}).
+
+\textbf{3. Composition:} Concatenate trajectories
+\begin{equation}
+(t_1 \cdots t_j) \circ (t'_1 \cdots t'_m) = t_1 \cdots t_j t'_1 \cdots t'_m
+\end{equation}
+This extends a trajectory by appending additional refinements.
+\end{definition}
+
+\textbf{Example of completion:} Given the partial trajectory $01$, the completion operation predicts the most likely next trit based on trajectory statistics. If the system typically follows the pattern $01 \to 012$, then:
+\begin{equation}
+\text{Complete}(01) = 012
+\end{equation}
+
+\subsection{Hardware Instantiation}
+
+Ternary logic is instantiated naturally in three-phase oscillators:
+
+\begin{proposition}[Three-Phase Mapping]
+\label{prop:three_phase}
+Three oscillators with phases $\phi_0 = 0$, $\phi_1 = 2\pi/3$, $\phi_2 = 4\pi/3$ encode trits through phase relationships:
+\begin{equation}
+\text{trit} = i \quad \Leftrightarrow \quad \text{oscillator } i \text{ leads at measurement time}
+\end{equation}
+\end{proposition}
+
+\textbf{Physical implementation:} Three-phase AC power systems, ubiquitous in industrial and residential power distribution, already implement this structure. At any instant, one of the three phases has maximum voltage—this determines the trit value.
+
+Hardware oscillators in computers (Section~\ref{sec:categorical_memory}) provide the substrate for ternary logic without requiring new physical principles.
+
+\subsection{Comparison: Binary vs. Ternary}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\hline
+\textbf{Property} & \textbf{Binary} & \textbf{Ternary} \\
+\hline
+Base & 2 & 3 \\
+Natural dimension & 1D & 3D \\
+Hierarchy depth $k$ & $2^k$ cells & $3^k$ cells \\
+6-digit capacity & $2^6 = 64$ & $3^6 = 729$ \\
+Position encoding & Requires 3 coords & Intrinsic \\
+Trajectory encoding & Separate structure & Same as position \\
+Continuous limit & Approximation & Exact convergence \\
+Triple equivalence & Not represented & Natural encoding \\
+\hline
+\end{tabular}
+\caption{Comparison of binary and ternary representation systems.}
+\label{tab:binary_ternary}
+\end{table}
+
+\textbf{Information density:} Ternary representation is more information-dense. A 6-trit ``tryte'' encodes $3^6 = 729$ values versus $2^6 = 64$ for a 6-bit byte—an 11-fold increase.
+
+\textbf{Radix economy:} The radix economy $r \cdot \ln r$ measures efficiency. For binary: $2 \ln 2 \approx 1.39$. For ternary: $3 \ln 3 \approx 3.30$. Ternary is less efficient per digit but more efficient per unit of information due to higher capacity.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_ternary_computation_2.png}
+\caption{\textbf{Ternary Computation as Gas Dynamics: Oscillator = Processor.} 
+\textbf{(Top Left)} Ternary computation trajectories in S-entropy space. Each colored line represents one molecule's trajectory through $(S_k, S_t, S_e)$ coordinates. Yellow sphere: starting configuration (near origin). Trajectories explore bounded phase space $[0, 0.3]^3$. Axes: $S_k$ (knowledge), $S_t$ (categorical), $S_e$ (evolution).
+\textbf{(Top Center)} Ensemble equilibration showing computation converging to thermalization. Three traces show mean S-coordinates versus computation step: blue ($S_k$, categorical), orange ($S_t$, oscillatory), green ($S_e$, partition). All three converge to equilibrium values ($\sim$0.25) after $\sim$40 steps, demonstrating equivalence of computational and thermodynamic equilibration. Horizontal axis: computation step (0-140). Vertical axis: mean S-coordinate (0-0.30).
+\textbf{(Top Right)} Ternary operations in S-space. Three colored arrows show primitive operations: blue (Op 0: Oscillate, refine $S_k$), green (Op 1: Categorize, refine $S_t$), red (Op 2: Partition, refine $S_e$). Operations act directly on three-dimensional structure. Axes: $S_k$, $S_t$, $S_e$ in range [0, 1.0].
+\textbf{(Bottom Left)} Thermodynamics from ternary computation. Two traces versus computation step: red (temperature $T$ in kelvin, left axis, range 180-280 K), blue (pressure $P$ in bar, right axis, range 0.50-0.75 bar). Both quantities computed directly from ternary trajectory statistics. Temperature and pressure equilibrate after $\sim$40 steps. Horizontal axis: computation step (0-140).
+\textbf{(Bottom Center)} Trit state evolution for single molecule (12-trit register). Heat map shows trit values over time: blue (trit 0, oscillatory), white (trit 1, categorical), red (trit 2, partition). Horizontal axis: computation step (0-100). Vertical axis: trit position in 12-trit register (0-10). Pattern shows balanced exploration of all three perspectives.
+\textbf{(Bottom Right)} Computation = Gas Dynamics identity. Text box summarizes correspondence: ternary operations map to thermodynamic processes, computational state maps to gas state (12-trit register $\leftrightarrow$ molecular microstate), computation complete maps to equilibrium (Poincaré recurrence $\leftrightarrow$ Maxwell distribution), and fundamental identity that oscillator equals processor.}
+\label{fig:ternary_computation}
+\end{figure}
+
+\subsection{Implications for Gas Laws}
+
+The ternary representation framework strengthens the gas law reformulation:
+
+\begin{enumerate}
+\item \textbf{Phase space structure:} The $3^k$ hierarchy IS the natural discretization of phase space $\mathcal{S} = [0,1]^3$
+
+\item \textbf{Entropy counting:} The information content of a $k$-trit string is:
+\begin{equation}
+S = k_B \ln(3^k) = k_B k \ln 3
+\end{equation}
+This matches the categorical entropy for $M = k$ categories with $n = 3$ states each.
+
+\item \textbf{Temperature:} The rate of trit generation corresponds to $dM/dt$ (Equation~\ref{eq:categorical_temperature}):
+\begin{equation}
+T = \frac{\hbar}{k_B} \frac{dk}{dt}
+\end{equation}
+
+\item \textbf{Pressure:} Trit density in address space corresponds to $\partial M/\partial V$:
+\begin{equation}
+P = k_B T \left(\frac{\partial k}{\partial V}\right)_{T,N}
+\end{equation}
+\end{enumerate}
+
+The triple equivalence is not merely conceptual but computational: every ternary operation implements the equivalence between oscillatory, categorical, and partition perspectives.
+
+\subsection{Summary: Ternary as Triple Equivalence}
+
+Ternary representation is the natural encoding of the triple equivalence:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{p{5cm}p{7cm}}
+\hline
+\textbf{Ternary Structure} & \textbf{Physical Interpretation} \\
+\hline
+Three trit values $\{0, 1, 2\}$ & Three perspectives (oscillatory, categorical, partition) \\[0.2cm]
+$3^k$ hierarchy & $3^k$ phase space cells in S-entropy space \\[0.2cm]
+Trajectory = Address & Path through phase space = Position in phase space \\[0.2cm]
+Continuous emergence & Discrete-continuous bridge (categories $\leftrightarrow$ oscillations) \\[0.2cm]
+Trit operations & Direct manipulation of three-dimensional structure \\
+\hline
+\end{tabular}
+\caption{Correspondence between ternary structure and physical interpretation.}
+\label{tab:ternary_summary}
+\end{table}
+
+\textbf{Fundamental insight:} The choice of number base is not merely notational but structural. Binary constrains computation to one-dimensional primitives; ternary provides three-dimensional primitives matching the dimensionality of S-entropy space.
+
+The gas laws, derived from bounded oscillatory dynamics in three-dimensional phase space, find their natural computational form in ternary representation. The triple equivalence---oscillation $\equiv$ category $\equiv$ partition---is encoded in the structure of ternary arithmetic itself.
+
+This suggests a broader principle: \textit{The mathematical structure of physical laws should match the computational structure used to represent them.} Ternary representation is not merely convenient for the triple equivalence framework---it is the native language in which the framework expresses itself.

@@ -1,0 +1,208 @@
+\section{Continuous-to-Discrete Temporal Decomposition}
+\label{sec:temporal}
+
+We analyse the thermodynamics of partitioning continuous processes into discrete elements. The key result is that infinite partition of continuous motion generates infinite entropy, rendering the ``instantaneous state'' an artifact of partition rather than a physical reality.
+
+\subsection{Continuous Motion and Temporal Partition}
+
+\begin{definition}[Continuous Motion]
+\label{def:continuous_motion}
+A \emph{continuous motion} is a trajectory $\mathbf{x}(t)$ that varies smoothly over a time interval $[t_0, t_f]$:
+\begin{equation}
+    \mathbf{x}: [t_0, t_f] \to \mathbb{R}^d, \quad \mathbf{x} \in C^1([t_0, t_f])
+\end{equation}
+The velocity is well-defined at each point: $\mathbf{v}(t) = d\mathbf{x}/dt$.
+\end{definition}
+
+\begin{definition}[Temporal Partition]
+\label{def:temporal_partition}
+A \emph{temporal partition} of interval $[t_0, t_f]$ into $N$ subintervals is:
+\begin{equation}
+    \{[t_0, t_1], [t_1, t_2], \ldots, [t_{N-1}, t_N]\}
+\end{equation}
+where $t_i = t_0 + i \cdot \Delta t$ and $\Delta t = (t_f - t_0)/N$.
+\end{definition}
+
+\begin{definition}[Instantaneous State]
+\label{def:instant}
+An \emph{instantaneous state} at time $t_i$ is the configuration $(\mathbf{x}(t_i), \mathbf{v}(t_i))$ obtained by evaluating the trajectory at a single instant.
+\end{definition}
+
+\subsection{Entropy of Temporal Partition}
+
+\begin{theorem}[Temporal Partition Entropy]
+\label{thm:temporal_entropy}
+Partitioning continuous motion into $N$ temporal segments generates entropy:
+\begin{equation}
+    \Delta S_{\text{temporal}} = \kB (N-1) H_{\text{boundary}}
+\end{equation}
+where $H_{\text{boundary}}$ is the entropy of each temporal boundary.
+\end{theorem}
+
+\begin{proof}
+A temporal partition into $N$ segments creates $N-1$ internal boundaries. Each boundary separates ``before $t_i$'' from ``after $t_i$.''
+
+At each boundary, the trajectory is evaluated to determine the instantaneous state. This evaluation has finite precision—the position $\mathbf{x}(t_i)$ and velocity $\mathbf{v}(t_i)$ can only be determined to within measurement uncertainty. The Shannon entropy of this uncertainty is $H_{\text{boundary}}$.
+
+With $N-1$ independent boundaries:
+\begin{equation}
+    \Delta S_{\text{temporal}} = \kB (N-1) H_{\text{boundary}}
+\end{equation}
+\end{proof}
+
+\begin{corollary}[Infinite Partition Generates Infinite Entropy]
+\label{cor:infinite_entropy}
+As the number of temporal partitions approaches infinity:
+\begin{equation}
+    \lim_{N \to \infty} \Delta S_{\text{temporal}} = \lim_{N \to \infty} \kB (N-1) H_{\text{boundary}} = \infty
+\end{equation}
+Infinitely fine temporal partition destroys all information about the original motion.
+\end{corollary}
+
+\subsection{Motion as Undetermined Residue}
+
+\begin{theorem}[Motion Resides in Residue]
+\label{thm:motion_residue}
+When continuous motion is partitioned into instantaneous states, the \emph{motion itself} (the continuous change) becomes undetermined residue.
+\end{theorem}
+
+\begin{proof}
+Consider a trajectory $\mathbf{x}(t)$ on $[t_0, t_f]$ with velocity $\mathbf{v}(t) \neq 0$. Partition the interval into $N$ instants $\{t_0, t_1, \ldots, t_N\}$.
+
+At each instant $t_i$, record the instantaneous state:
+\begin{equation}
+    \mathbf{s}_i = (\mathbf{x}(t_i), \mathbf{v}(t_i))
+\end{equation}
+
+The collection $\{\mathbf{s}_0, \mathbf{s}_1, \ldots, \mathbf{s}_N\}$ describes positions and velocities at discrete instants. But this collection does not contain the \emph{motion}—the continuous process of changing position.
+
+Motion exists \emph{between} instants: it is the process $\mathbf{x}(t_{i}) \to \mathbf{x}(t_{i+1})$ that occurs in the interval $(t_i, t_{i+1})$. This process is not captured by the instantaneous states $\mathbf{s}_i$ and $\mathbf{s}_{i+1}$—it resides in the undetermined residue of the temporal partition.
+
+As $N \to \infty$ and $\Delta t \to 0$, each interval $(t_i, t_{i+1})$ shrinks, but the number of intervals grows. The motion becomes distributed across infinitely many infinitesimal residues—it becomes entirely undetermined.
+\end{proof}
+
+\subsection{The Stillness of Instantaneous States}
+
+\begin{theorem}[Instantaneous States Are Still]
+\label{thm:instantaneous_still}
+At any instant $t_i$, the system occupies exactly its position $\mathbf{x}(t_i)$. There is no motion \emph{at} an instant—motion requires duration.
+\end{theorem}
+
+\begin{proof}
+Motion is defined as change of position over time: $\mathbf{v} = d\mathbf{x}/dt$. This derivative is a limit:
+\begin{equation}
+    \mathbf{v}(t) = \lim_{\Delta t \to 0} \frac{\mathbf{x}(t + \Delta t) - \mathbf{x}(t)}{\Delta t}
+\end{equation}
+
+At a single instant (with $\Delta t = 0$), the quotient is undefined—there is no duration over which to measure change. The velocity $\mathbf{v}(t)$ exists as a limit, not as an instantaneous property.
+
+At instant $t_i$, the system is at position $\mathbf{x}(t_i)$. It is not ``moving'' at that instant—it simply \emph{is} at that position. Motion exists only in the transition between positions, which requires positive duration.
+\end{proof}
+
+\begin{corollary}[Stillnesses Cannot Compose to Motion]
+\label{cor:stillnesses}
+If each instantaneous state is ``still'' (not moving), then composing instantaneous states cannot produce motion:
+\begin{equation}
+    \text{Compose}(\{\text{still}_0, \text{still}_1, \ldots, \text{still}_N\}) \not\supset \text{motion}
+\end{equation}
+Motion cannot be recovered from its temporal partition.
+\end{corollary}
+
+\subsection{Thermodynamic Analysis of Temporal Decomposition}
+
+\begin{theorem}[Entropy of Motion Loss]
+\label{thm:motion_entropy}
+The entropy cost of temporal partition of continuous motion is:
+\begin{equation}
+    \Delta S_{\text{motion}} = \kB \ln\left(\frac{W_{\text{continuous}}}{W_{\text{discrete}}}\right)
+\end{equation}
+where $W_{\text{continuous}}$ is the number of continuous trajectories and $W_{\text{discrete}}$ is the number of discrete state sequences.
+\end{theorem}
+
+\begin{proof}
+A continuous trajectory $\mathbf{x}(t)$ on $[t_0, t_f]$ is specified by initial conditions plus the requirement of continuity. The space of continuous trajectories has cardinality $W_{\text{continuous}}$.
+
+A sequence of $N$ discrete states $\{\mathbf{s}_0, \ldots, \mathbf{s}_N\}$ is specified by $N+1$ independent position-velocity pairs. The space of such sequences has cardinality $W_{\text{discrete}} = (\text{phase space volume})^{N+1}$.
+
+In general, $W_{\text{discrete}} > W_{\text{continuous}}$ because discrete sequences need not be consistent with any continuous trajectory—the states can ``jump'' between arbitrary positions.
+
+The entropy increase is:
+\begin{equation}
+    \Delta S = \kB \ln W_{\text{discrete}} - \kB \ln W_{\text{continuous}} = \kB \ln\left(\frac{W_{\text{discrete}}}{W_{\text{continuous}}}\right) > 0
+\end{equation}
+
+This entropy is the cost of destroying the continuity constraint—the ``motion'' that connects successive positions.
+\end{proof}
+
+\subsection{The Dichotomy Problem}
+
+Consider an object that must traverse distance $L$ in finite time. The traditional analysis proceeds:
+\begin{enumerate}
+    \item To travel $L$, first travel $L/2$
+    \item To travel $L/2$, first travel $L/4$
+    \item Continue indefinitely: must complete infinitely many sub-journeys
+    \item Conclusion: motion is impossible
+\end{enumerate}
+
+\begin{theorem}[Thermodynamic Resolution of Dichotomy]
+\label{thm:dichotomy}
+The dichotomy analysis generates infinite entropy by infinite partition. The ``impossibility'' is not a feature of motion but an artifact of the partition process.
+\end{theorem}
+
+\begin{proof}
+Each subdivision of the journey is a partition operation. Subdividing into $N$ sub-journeys generates entropy:
+\begin{equation}
+    \Delta S_N = \kB (N-1) H_{\text{boundary}}
+\end{equation}
+
+As $N \to \infty$:
+\begin{equation}
+    \Delta S_\infty = \lim_{N \to \infty} \kB (N-1) H_{\text{boundary}} = \infty
+\end{equation}
+
+Infinite partition generates infinite entropy, completely destroying the information content of the original motion. The ``infinitely many sub-journeys'' do not exist in the physical motion—they are created by the partition process.
+
+The physical motion completes in finite time because it was never partitioned. The ``impossibility'' arises only when we attempt to decompose continuous motion into infinitely many discrete segments.
+\end{proof}
+
+\subsection{The Arrow Paradox}
+
+Consider an arrow in flight. At any instant, the arrow occupies exactly one position. If it is at a position, it is not moving. If it is not moving at any instant, when does it move?
+
+\begin{theorem}[Thermodynamic Resolution of Arrow Paradox]
+\label{thm:arrow}
+The arrow paradox arises from confusing the ontological status of instantaneous states. Motion is not composed of instantaneous stillnesses—rather, stillness is derived from motion by temporal partition.
+\end{theorem}
+
+\begin{proof}
+The arrow's motion $\mathbf{x}(t)$ exists as a continuous process on the interval $[t_0, t_f]$. This is the primary reality.
+
+Temporal partition extracts instantaneous states $\{\mathbf{x}(t_i)\}$. At each such state, the arrow ``occupies exactly its length''—it is in a definite position. This is not ``motion'' but a derived snapshot.
+
+The paradox asks: ``How do stillnesses compose to motion?'' The thermodynamic answer: they don't. Motion is not composed of stillnesses. Motion is primary; stillnesses are derived by partition.
+
+The motion itself is lost to undetermined residue during temporal partition. It exists \emph{between} the snapshots, in the transition from $\mathbf{x}(t_i)$ to $\mathbf{x}(t_{i+1})$. This transition is not captured by the snapshots—it is the undetermined residue of the partition.
+
+The arrow moves because motion exists first. Asking ``when does it move?'' presupposes that motion is composed of instants, which reverses the true ontological order.
+\end{proof}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/zeno_paradox_panel.png}
+\caption{\textbf{Infinite Subdivision of Bounded Continuous Intervals.} \textbf{(A)} Spatial interval dichotomy: recursive halving creates exponentially many sub-intervals, each partition adding entropy. \textbf{(B)} Hardware-measured entropy divergence: as partition depth $M \to \infty$, cumulative entropy $S \to \infty$—infinite partition generates infinite entropy, completely destroying the continuous motion information. \textbf{(C)} Continuous property dissipation: motion is a property of the continuous whole; partition extracts discrete ``positions'' that are individually static; motion itself becomes undetermined residue. \textbf{(D)} Arrow paradox: continuous trajectory (solid line) vs. discrete instantaneous samples (dots); at each instant, no duration exists over which to define velocity. \textbf{(E)} Thermodynamic resolution: infinite partition generates infinite entropy; motion is primary, stillness is derived; composing stillnesses cannot recover motion. \textbf{(F)} Connection to Zeno's paradoxes: both Dichotomy and Arrow dissolve when we recognize that continuous motion exists first, and partition (not composition) creates discrete states.}
+\label{fig:zeno_paradox}
+\end{figure*}
+
+\subsection{Resolution of Traditional Puzzles}
+
+\begin{remark}[Historical Note]
+The analysis above provides the thermodynamic structure underlying Zeno's paradoxes of motion—the Dichotomy and the Arrow. These paradoxes dissolve when the ontological direction is corrected:
+\begin{itemize}
+    \item Motion is not composed of stillnesses (infinite still instants cannot compose to motion)
+    \item Stillness is derived from motion by temporal partition
+    \item Motion itself becomes undetermined residue during partition
+    \item Infinite partition generates infinite entropy, destroying all motion information
+\end{itemize}
+The ``paradoxes'' are not paradoxes of motion but paradoxes of partition—demonstrations that infinite subdivision destroys continuous structure.
+\end{remark}
+

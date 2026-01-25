@@ -1,0 +1,279 @@
+%==============================================================================
+\section{Viscous Transport}
+\label{sec:viscous}
+%==============================================================================
+
+\subsection{Molecular Collision Partition Dynamics}
+
+In fluids, momentum transport occurs through molecular collisions. When adjacent fluid layers move at different velocities, molecules crossing between layers carry momentum, producing a shear stress proportional to the velocity gradient \citep{batchelor1967,landau1987}. Unlike electrical transport, where charge is conserved but individual electron identity is lost through replacement, viscous transport involves direct momentum transfer through molecular motion.
+
+\begin{definition}[Molecular Collision Partition]
+\label{def:molecular_collision}
+A \emph{molecular collision partition operation} occurs when two molecules interact, exchanging momentum and creating a categorical distinction between pre-collision and post-collision states. The collision time $\tau_c$ serves as the partition lag.
+\end{definition}
+
+During a collision, the molecular velocities are undetermined for duration $\tau_c$. Each molecule is neither in its initial velocity state $\mathbf{v}_i$ nor in its final velocity state $\mathbf{v}_f$ but in a superposition. This undetermined residue generates entropy, which manifests macroscopically as viscous dissipation.
+
+For viscous transport, the carriers are molecules with mass $m$ and number density $n$. The normalization factor from the universal transport formula is $\mathcal{N} = 1$ (dimensionless) for dynamic viscosity in standard SI units (Pa$\cdot$s = kg/(m$\cdot$s)), giving:
+
+\begin{theorem}[Dynamic Viscosity]
+\label{thm:viscosity}
+The dynamic viscosity of a fluid is:
+\begin{equation}
+\mu = \sum_{i,j} \tau_{c,ij} g_{ij},
+\label{eq:viscosity_partition}
+\end{equation}
+where the sum is over molecular pairs, $\tau_{c,ij}$ is the collision partition lag, and $g_{ij}$ is the molecular coupling strength.
+\end{theorem}
+
+\begin{proof}
+From the universal transport formula~\eqref{eq:universal_transport} with $\Xi = \mu$ and $\mathcal{N} = 1$, the result follows directly. The normalization $\mathcal{N} = 1$ arises from dimensional analysis: shear stress $\tau = \mu \, \partial v/\partial y$ has units Pa = kg/(m$\cdot$s$^2$), velocity gradient $\partial v/\partial y$ has units s$^{-1}$, so viscosity $\mu = \tau/(\partial v/\partial y)$ has units Pa$\cdot$s = kg/(m$\cdot$s). The partition lag $\tau_c$ has units s, and the coupling strength $g$ has units kg/(m$\cdot$s$^2$), giving $\mu = \tau_c g$ with units kg/(m$\cdot$s). \qed
+\end{proof}
+
+\subsection{Kinetic Theory Connection}
+
+For a dilute gas, kinetic theory provides an explicit expression for viscosity \citep{chapman1970}. The Chapman-Enskog theory gives:
+\begin{equation}
+\mu = \frac{5}{16} \frac{\sqrt{m k_B T \pi}}{\sigma},
+\label{eq:chapman_enskog}
+\end{equation}
+where $\sigma$ is the collision cross-section. For hard-sphere molecules, this simplifies to:
+\begin{equation}
+\mu = \frac{1}{3} n m \bar{v} \lambda,
+\label{eq:viscosity_kinetic}
+\end{equation}
+where $\bar{v} = \sqrt{8k_B T/\pi m}$ is the mean molecular speed and $\lambda = 1/(n\sigma)$ is the mean free path.
+
+The collision time (partition lag) is:
+\begin{equation}
+\tau_c = \frac{\lambda}{\bar{v}} = \frac{1}{n\sigma\bar{v}} = \frac{1}{n\sigma} \sqrt{\frac{\pi m}{8 k_B T}}.
+\label{eq:tau_collision}
+\end{equation}
+
+The coupling strength is determined by dimensional analysis. Since $\mu = \tau_c g$ and $\mu$ has units kg/(m$\cdot$s), while $\tau_c$ has units s, the coupling $g$ must have units kg/(m$\cdot$s$^2$). From kinetic theory:
+\begin{equation}
+g = \frac{\mu}{\tau_c} = \frac{(1/3) n m \bar{v} \lambda}{\lambda/\bar{v}} = \frac{1}{3} n m \bar{v}^2 = \frac{1}{3} n m \cdot \frac{8 k_B T}{\pi m} = \frac{8 n k_B T}{3\pi}.
+\label{eq:coupling_viscosity}
+\end{equation}
+
+This coupling strength represents the momentum flux per unit area due to thermal motion, which is the kinetic pressure $P_{\text{kin}} = nk_B T$ times a geometric factor.
+
+Substituting back:
+\begin{equation}
+\mu = \tau_c \cdot g = \frac{1}{n\sigma} \sqrt{\frac{\pi m}{8 k_B T}} \cdot \frac{8 n k_B T}{3\pi} = \frac{1}{3\sigma} \sqrt{\frac{8 m k_B T}{\pi}}.
+\label{eq:viscosity_derived}
+\end{equation}
+
+This reproduces the Chapman-Enskog result for hard-sphere molecules, confirming the partition framework's consistency with kinetic theory.
+
+\subsection{Temperature Dependence}
+
+The temperature dependence of viscosity differs dramatically between gases and liquids, reflecting different underlying partition mechanisms.
+
+\subsubsection{Gas Viscosity}
+
+For gases, viscosity \textit{increases} with temperature:
+\begin{equation}
+\mu_{\text{gas}}(T) \propto \sqrt{T}.
+\label{eq:viscosity_gas_T}
+\end{equation}
+
+This arises because the mean molecular speed increases as $\bar{v} \propto \sqrt{T}$, while the mean free path $\lambda$ is approximately temperature-independent for hard spheres at constant density. From equation~\eqref{eq:viscosity_derived}:
+\begin{equation}
+\mu \propto \sqrt{T}.
+\end{equation}
+
+More realistic intermolecular potentials (Lennard-Jones, Sutherland) modify this dependence. The Sutherland formula gives:
+\begin{equation}
+\mu(T) = \mu_0 \frac{T_0 + S}{T + S} \left(\frac{T}{T_0}\right)^{3/2},
+\label{eq:sutherland}
+\end{equation}
+where $S$ is the Sutherland constant (characteristic of the attractive part of the intermolecular potential). For air, $S \approx 110$ K.
+
+In partition terms, increasing temperature increases molecular velocities, which increases the rate of momentum transfer per collision (coupling strength $g \propto T$) but also decreases the collision time (partition lag $\tau_c \propto T^{-1/2}$). The net effect is $\mu \propto T^{1/2}$.
+
+\subsubsection{Liquid Viscosity}
+
+For liquids, viscosity \textit{decreases} with temperature:
+\begin{equation}
+\mu_{\text{liquid}}(T) = \mu_0 \exp\left(\frac{E_a}{k_B T}\right),
+\label{eq:viscosity_liquid_T}
+\end{equation}
+where $E_a$ is the activation energy for molecular motion. This Arrhenius form reflects activated hopping over energy barriers \citep{eyring1936}.
+
+In liquids, molecules are densely packed and must overcome potential energy barriers to change positions. The partition lag is dominated by the waiting time for thermal activation:
+\begin{equation}
+\tau_c(T) = \tau_0 \exp\left(\frac{E_a}{k_B T}\right).
+\label{eq:tau_liquid}
+\end{equation}
+
+As temperature increases, thermal energy $k_B T$ more readily overcomes the barrier $E_a$, decreasing the partition lag exponentially. The coupling strength $g$ is approximately temperature-independent in liquids (set by molecular packing), so:
+\begin{equation}
+\mu(T) = \tau_c(T) \cdot g \propto \exp\left(\frac{E_a}{k_B T}\right).
+\end{equation}
+
+Typical activation energies are $E_a \sim 10$--$50$ kJ/mol, corresponding to $E_a/(k_B T) \sim 4$--$20$ at room temperature. This explains why liquid viscosity is extremely sensitive to temperature: water viscosity decreases by factor $\sim$2 from 20°C to 40°C.
+
+\subsubsection{The Viscosity Crossover}
+
+The opposite temperature dependences of gas and liquid viscosity reflect a fundamental difference in partition mechanisms:
+
+\begin{itemize}
+\item \textbf{Gases:} Partition lag is set by collision frequency $\tau_c \sim 1/(n\sigma\bar{v})$. Increasing $T$ increases collision rate (decreases $\tau_c$) but increases momentum transfer per collision (increases $g$). The $g$ effect dominates, giving $\mu \propto \sqrt{T}$.
+
+\item \textbf{Liquids:} Partition lag is set by activation over barriers $\tau_c \sim \exp(E_a/k_B T)$. Increasing $T$ exponentially decreases $\tau_c$ while $g$ remains approximately constant. The $\tau_c$ effect dominates, giving $\mu \propto \exp(E_a/k_B T)$.
+\end{itemize}
+
+At the gas-liquid critical point, the distinction between these mechanisms vanishes, and viscosity exhibits critical scaling behavior \citep{sengers1986}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_viscous_transport.png}
+\caption{\textbf{Viscous transport molecular dynamics showing momentum transfer mechanisms.} 
+\textbf{(Top left)} 2D cross-section of molecular network showing instantaneous configuration of molecules in liquid. Molecules (cyan dots) are connected by transient bonds (cyan lines) representing intermolecular forces. Network is dynamic: bonds constantly break and reform as molecules move. Dense connectivity indicates strong intermolecular coupling (high viscosity). Sparse connectivity indicates weak coupling (low viscosity). Network topology determines viscosity: more connections mean higher resistance to flow. Temperature affects network: heating breaks bonds, reducing viscosity.
+\textbf{(Top right)} Molecular vibration mapper showing time-dependent displacement for different molecules. H$_2$O bend mode (cyan) oscillates at $\sim 1600$ cm$^{-1}$ ($\sim 50$ THz). H$_2$O stretch mode (orange) oscillates at $\sim 3600$ cm$^{-1}$ ($\sim 100$ THz). CO$_2$ asymmetric stretch (blue) oscillates at $\sim 2350$ cm$^{-1}$ ($\sim 70$ THz). CH$_4$ C-H stretch (dark blue) oscillates at $\sim 3000$ cm$^{-1}$ ($\sim 90$ THz). Each molecule has characteristic vibration frequencies determined by bond strengths and atomic masses. Vibrations couple to translational motion, determining partition lag $\tau_p$ and viscosity $\mu \propto \tau_p g$.
+\textbf{(Bottom left)} Viscosity vs. temperature for different fluids showing exponential decrease. Water (cyan) has low viscosity $\mu \sim 1$ mPa$\cdot$s at room temperature, decreasing slightly with $T$. Glycerol (magenta) has high viscosity $\mu \sim 10^3$ mPa$\cdot$s at 300 K due to hydrogen bonding, decreasing strongly as bonds break. Honey (orange) has very high viscosity $\mu \sim 10^4$ mPa$\cdot$s. Engine oil (green) has moderate viscosity $\mu \sim 10^2$ mPa$\cdot$s. All fluids follow Arrhenius-like behavior $\mu \propto \exp(E_a/k_B T)$ where activation energy $E_a$ is the energy barrier for molecular rearrangement.
+\textbf{(Bottom right)} Surface wave potential for water showing 2D potential landscape at liquid-air interface. Red regions (positive potential) represent peaks where surface is elevated. Blue regions (negative potential) represent troughs where surface is depressed. Wave pattern shows capillary waves propagating across surface. Wavelength $\lambda \sim 2$ mm corresponds to frequency $\omega \sim 100$ Hz. Surface tension $\gamma$ provides restoring force, while viscosity $\mu$ provides damping. Dispersion relation $\omega^2 = (\gamma k^3/\rho)\tanh(kh)$ determines wave propagation, where $k = 2\pi/\lambda$ is wavenumber and $h$ is depth.}
+\label{fig:viscous_transport}
+\end{figure}
+
+\subsection{Momentum Transfer Mechanism}
+
+Viscous momentum transfer in fluids parallels current propagation in conductors but with a crucial difference: molecules move \textit{with} the flow, carrying momentum directly, whereas electrons in conductors undergo replacement without net transport of individual particles.
+
+Consider a shear flow with velocity profile $v_x(y)$ and velocity gradient $\partial v_x/\partial y > 0$:
+
+\begin{enumerate}
+\item Molecules in the faster-moving layer (larger $y$, larger $v_x$) have higher average momentum in the $x$-direction.
+
+\item Thermal motion causes molecules to cross between layers. A molecule moving from high-$y$ to low-$y$ carries excess $x$-momentum into the slower layer.
+
+\item Collisions transfer this momentum to molecules in the slower layer, accelerating them.
+
+\item Simultaneously, molecules moving from low-$y$ to high-$y$ carry deficit $x$-momentum into the faster layer, decelerating it.
+
+\item The net momentum flux from fast to slow layer produces shear stress:
+\begin{equation}
+\tau_{xy} = \mu \frac{\partial v_x}{\partial y}.
+\label{eq:shear_stress}
+\end{equation}
+\end{enumerate}
+
+The molecular collisions are partition operations. Each collision creates undetermined residue (molecular velocities not sharply defined during collision duration $\tau_c$), and this residue manifests as viscous dissipation.
+
+\subsubsection{Contrast with Electrical Conduction}
+
+The key difference from electrical conduction:
+
+\begin{itemize}
+\item \textbf{Electrical:} Electrons undergo replacement. Individual electron identity is lost. The electromagnetic signal propagates at $\sim c$, while electrons drift at $\sim 10^{-4}$ m/s. Phase mismatch between signal and lattice response causes dissipation.
+
+\item \textbf{Viscous:} Molecules move continuously with the flow. Molecular identity is preserved (molecules can be labeled and tracked). There is no separate ``signal''---the molecular motion \textit{is} the momentum transport. Dissipation arises only from velocity \textit{gradients}, not from uniform flow.
+\end{itemize}
+
+This explains why uniform fluid flow does not spontaneously heat (no dissipation for $\partial v/\partial y = 0$), while uniform electrical current always heats (dissipation even for constant $J$).
+
+\subsection{The Navier-Stokes Equation}
+
+The momentum equation for a viscous incompressible fluid is \citep{navier1822,stokes1845}:
+\begin{equation}
+\rho \left( \frac{\partial \mathbf{v}}{\partial t} + (\mathbf{v} \cdot \nabla)\mathbf{v} \right) = -\nabla p + \mu \nabla^2 \mathbf{v} + \mathbf{f},
+\label{eq:navier_stokes}
+\end{equation}
+where $\rho$ is density, $\mathbf{v}$ is velocity, $p$ is pressure, $\mu$ is dynamic viscosity, and $\mathbf{f}$ is body force per unit volume.
+
+The viscous term $\mu \nabla^2 \mathbf{v}$ represents momentum diffusion driven by partition operations between adjacent fluid elements. The viscosity $\mu = \sum_{ij} \tau_{c,ij} g_{ij}$ sets the rate of this diffusion.
+
+In partition terms, the Navier-Stokes equation describes the competition between:
+\begin{itemize}
+\item \textbf{Inertia:} $\rho(\partial \mathbf{v}/\partial t + (\mathbf{v} \cdot \nabla)\mathbf{v})$ --- momentum transport by bulk flow
+\item \textbf{Pressure:} $-\nabla p$ --- momentum transport by compressional forces
+\item \textbf{Viscosity:} $\mu \nabla^2 \mathbf{v}$ --- momentum transport by partition operations (molecular collisions)
+\end{itemize}
+
+The relative importance of these terms determines the flow regime.
+
+\subsection{Reynolds Number and Turbulence}
+
+The Reynolds number compares inertial to viscous forces:
+\begin{equation}
+\text{Re} = \frac{\rho v L}{\mu},
+\label{eq:reynolds}
+\end{equation}
+where $v$ is characteristic velocity and $L$ is characteristic length scale.
+
+At low Reynolds number ($\text{Re} \ll 1$), viscous partition operations dominate, and the flow is laminar (smooth, predictable). At high Reynolds number ($\text{Re} \gg 1$), inertial momentum transport dominates, and the flow becomes turbulent (chaotic, unpredictable) \citep{reynolds1883}.
+
+In partition terms:
+\begin{equation}
+\text{Re} = \frac{\rho v L}{\sum_{ij} \tau_{c,ij} g_{ij}} = \frac{\text{inertial momentum flux}}{\text{partition-limited momentum flux}}.
+\label{eq:reynolds_partition}
+\end{equation}
+
+The transition to turbulence at $\text{Re} \gtrsim 2000$ (for pipe flow) marks the regime where partition operations can no longer keep pace with inertial momentum transport. The partition lag $\tau_c$ becomes too long relative to the advection timescale $L/v$, and the flow cannot equilibrate locally through collisions.
+
+Turbulence is a manifestation of \emph{partition breakdown}: the system cannot complete partition operations fast enough to maintain categorical coherence. The flow fragments into a hierarchy of eddies, each attempting to complete local partition operations at its own scale.
+
+\subsection{Energy Dissipation}
+
+Viscous dissipation per unit volume is given by:
+\begin{equation}
+\Phi = \mu \sum_{i,j} \left( \frac{\partial v_i}{\partial x_j} + \frac{\partial v_j}{\partial x_i} \right)^2 = 2\mu \mathbf{D} : \mathbf{D},
+\label{eq:viscous_dissipation}
+\end{equation}
+where $\mathbf{D}$ is the rate-of-strain tensor:
+\begin{equation}
+D_{ij} = \frac{1}{2}\left( \frac{\partial v_i}{\partial x_j} + \frac{\partial v_j}{\partial x_i} \right).
+\label{eq:strain_rate}
+\end{equation}
+
+This dissipation equals the entropy production rate from molecular collision partitions:
+\begin{equation}
+T\dot{S} = \sum_{i,j} \Gamma_{c,ij} \Delta S_{ij} = \sum_{i,j} \Gamma_{c,ij} k_B \ln n_{\text{res},ij},
+\label{eq:entropy_production_viscous}
+\end{equation}
+where $\Gamma_{c,ij}$ is the collision rate between molecular pairs $(i,j)$ and $n_{\text{res},ij}$ is the number of undetermined residue states created per collision.
+
+Viscous heating is the thermal manifestation of partition entropy production, precisely analogous to Joule heating in electrical transport. The key difference is that viscous heating requires velocity gradients ($\mathbf{D} \neq 0$), while Joule heating occurs even in uniform current flow.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_transport_coefficients.png}
+\caption{\textbf{Universal transport coefficients from partition lag and coupling structure.} 
+\textbf{(A)} Viscosity as partition lag times coupling: $\mu = \sum_{i,j} \tau_{p,ij} g_{ij}$. Viscosity (blue solid, in mPa$\cdot$s) decreases with temperature as molecular collision rate increases (shorter partition lag). Partition lag $\tau_p$ (red dashed, in ps) shows the characteristic time for momentum partition between molecules. Coupling strength $g$ (green dotted, scaled) represents the interaction strength. The product $\tau_p \cdot g$ gives viscosity, demonstrating the universal formula. 
+\textbf{(B)} Thermal conductivity from $g/\tau_p$ ratio showing relative values across materials. Air ($\kappa \sim 1$, cyan) has low thermal conductivity due to weak coupling and long partition lag. Water ($\kappa \sim 5$, blue) has moderate conductivity from hydrogen bonding. Oil ($\kappa \propto g/\tau_p$, orange) has intermediate value. Glycerol ($\kappa \sim 0.5$, red) has low conductivity despite high density. Metals ($\kappa \sim 10^4$, gray) have very high conductivity from electron transport with short partition lag and strong coupling. 
+\textbf{(C)} Diffusivity from Stokes-Einstein relation: $D = k_B T/(6\pi\mu r)$. Diffusivity decreases with particle radius: H$_2$O molecules ($r \sim 0.1$ nm) have $D \sim 2$ nm$^2$/ns. Glucose ($r \sim 0.5$ nm) has $D \sim 0.5$ nm$^2$/ns. Proteins ($r \sim 5$ nm) have $D \sim 0.05$ nm$^2$/ns. The inverse relationship $D \propto 1/r$ arises from increased partition lag for larger particles. 
+\textbf{(D)} Unified transport coefficient structure showing that all three coefficients emerge from partition dynamics. Viscosity $\mu \propto \tau_p \cdot g$ (blue), thermal conductivity $\kappa \propto g/\tau_p$ (orange), and diffusivity $D \propto k_B T/(6\pi\mu r)$ (green) all derive from the same partition lag $\tau_p$ and coupling $g$, demonstrating the universal origin of transport phenomena.}
+\label{fig:transport_coefficients}
+\end{figure}
+
+\subsubsection{The Dissipation Function}
+
+The dissipation function $\Phi$ has several important properties:
+
+\begin{enumerate}
+\item \textbf{Always positive:} $\Phi \geq 0$ for all velocity fields, reflecting the Second Law (entropy production is non-negative).
+
+\item \textbf{Quadratic in gradients:} $\Phi \propto (\nabla \mathbf{v})^2$, consistent with linear response theory (Onsager relations).
+
+\item \textbf{Vanishes for rigid-body motion:} $\Phi = 0$ for $\mathbf{v} = \boldsymbol{\omega} \times \mathbf{r}$ (pure rotation) or $\mathbf{v} = \text{const}$ (pure translation), because these motions involve no relative motion between fluid elements and thus no partition operations.
+
+\item \textbf{Maximized by shear:} For a given velocity magnitude, shear flows (large $\partial v_i/\partial x_j$ with $i \neq j$) produce maximum dissipation, because they maximize the rate of partition operations between layers.
+\end{enumerate}
+
+\subsection{Superfluidity as Partition Extinction}
+
+Superfluid helium-4 below $T_\lambda = 2.17$ K exhibits exactly zero viscosity \citep{kapitza1938,allen1938}. In the partition framework, this is a manifestation of partition extinction.
+
+Above $T_\lambda$, helium atoms are distinguishable, and collisions between atoms are well-defined partition operations with finite partition lag $\tau_c > 0$. Below $T_\lambda$, atoms condense into the ground state, forming a macroscopic wavefunction. Atoms in the condensate are categorically indistinguishable, and partition operations between them become undefined.
+
+The two-fluid model describes the system as a mixture of normal fluid (thermal excitations with finite viscosity $\mu_n$) and superfluid (condensate with zero viscosity $\mu_s = 0$). The total viscosity is:
+\begin{equation}
+\mu(T) = \frac{\rho_n(T)}{\rho} \mu_n,
+\label{eq:viscosity_twofluid}
+\end{equation}
+where $\rho_n(T)/\rho$ is the normal fluid fraction. As $T \to 0$, $\rho_n \to 0$, so $\mu \to 0$.
+
+In partition terms, the superfluid fraction has $\tau_c = 0$ (no partition lag because no partition operations occur between indistinguishable atoms). The normal fluid fraction has $\tau_c > 0$ (finite partition lag for distinguishable thermal excitations). The total viscosity is the weighted average, dominated by the normal fluid component.
+
+This mechanism is analyzed in detail in Section~\ref{sec:forbidden}, where we show that superfluidity, superconductivity, and Bose-Einstein condensation are all manifestations of the same underlying principle: partition extinction through categorical unification.

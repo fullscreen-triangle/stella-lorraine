@@ -1,0 +1,461 @@
+%==============================================================================
+\section{Transport as Aperture Dynamics}
+\label{sec:aperture_transport}
+%==============================================================================
+
+The universal transport formula derived in Section~\ref{sec:unified_transport} can be understood through the lens of \emph{categorical enthalpy}, where boundaries are characterised by apertures---geometric constraints that selectively allow certain configurations to pass. This perspective unifies transport phenomena with thermodynamic potentials and reveals the deep connexion between selectivity and dissipation.
+
+\subsection{Apertures in Transport Media}
+
+Every transport process involves carriers passing through selective constraints. When an electron scatters from a phonon, it must pass through a momentum-space aperture. When a molecule collides with another, it must pass through a configuration-space aperture. When a phonon transmits across an interface, it must pass through a frequency-space aperture. These apertures are not physical objects but categorical boundaries that distinguish allowed from forbidden carrier configurations.
+
+\begin{definition}[Transport Aperture]
+\label{def:transport_aperture}
+A \emph{transport aperture} is a geometric constraint in the medium that selectively allows carriers to pass based on their configuration. The selectivity is:
+\begin{equation}
+s_{a} = \frac{\Omega_{\text{pass}}}{\Omega_{\text{total}}},
+\label{eq:selectivity}
+\end{equation}
+where $\Omega_{\text{pass}}$ is the number of carrier configurations that can traverse the aperture and $\Omega_{\text{total}}$ is the total number of carrier configurations.
+\end{definition}
+
+The selectivity $s_{a}$ ranges from 0 (completely blocking) to 1 (completely transparent). Most physical apertures have intermediate selectivity: they allow some carrier configurations to pass while blocking others.
+
+The \emph{categorical potential} of an aperture measures the barrier to passage:
+\begin{equation}
+\Phi_{a}(T) = -k_{B} T \ln s_{a}.
+\label{eq:categorical_potential}
+\end{equation}
+
+This potential has several important properties:
+\begin{itemize}
+\item For highly selective apertures ($s_{a} \ll 1$), the potential is large: $\Phi_{a} \gg k_{B} T$.
+\item For non-selective apertures ($s_{a} = 1$), the potential vanishes: $\Phi_{a} = 0$.
+\item The potential has units of energy and represents the thermodynamic cost of selective passage.
+\item The potential is temperature-dependent, reflecting the thermal energy available to overcome selectivity.
+\end{itemize}
+
+The categorical potential generalises the concept of chemical potential (which governs particle exchange) to arbitrary categorical boundaries (which govern configuration exchange). Just as chemical potential differences drive particle flow, categorical potential differences drive configuration flow—which is transport.
+
+\subsection{Aperture Identification in Transport Systems}
+
+Each transport system has characteristic apertures that determine its transport properties. Identifying these apertures provides physical insight into the microscopic origin of transport coefficients.
+
+\subsubsection{Electrical Transport}
+
+In metallic conductors, electrons encounter scattering apertures formed by:
+
+\begin{itemize}
+\item \textbf{Lattice vibrations (phonons):} Phonons create time-varying apertures as atomic positions fluctuate. An electron with momentum $\mathbf{k}$ can pass without scattering only if its momentum matches the instantaneous lattice configuration. The selectivity is:
+\begin{equation}
+s_{{\text{ph}}} = \exp\left(-\frac{E_{{\text{ph}}}}{k_{B} T}\right),
+\label{eq:selectivity_phonon}
+\end{equation}
+where $E_{{\text{ph}}} \sim k_{B} \Theta_{D}$ is the phonon energy scale. At high temperatures ($T > \Theta_{D}$), $s_{{\text{ph}}} \to 0$ (many phonons, high selectivity). At low temperatures ($T \ll \Theta_{D}$), $s_{{\text{ph}}} \to 1$ (few phonons, low selectivity).
+
+\item \textbf{Impurities:} Substitutional atoms or vacancies create fixed apertures, with selectivity determined by the scattering cross-section:
+\begin{equation}
+s_{{\text{imp}}} = 1 - \frac{n_{{\text{imp}}} \sigma_{{\text{imp}}}}{\ell_{{\text{mfp}}}},
+\label{eq:selectivity_impurity}
+\end{equation}
+where $n_{{\text{imp}}}$ is impurity density, $\sigma_{{\text{imp}}}$ is scattering cross-section, and $\ell_{{\text{mfp}}}$ is mean free path.
+
+\item \textbf{Grain boundaries:} Interfaces between crystalline domains act as apertures, with selectivity determined by crystallographic misorientation. Large-angle boundaries have low selectivity (high scattering); small-angle boundaries have high selectivity (low scattering).
+\end{itemize}
+
+The scattering rate at each aperture is inversely proportional to selectivity:
+\begin{equation}
+\tau_{s}^{-1} \propto (1 - s_{a}) \approx \frac{\Phi_{a}}{k_{B} T} \quad \text{for } s_{a} \approx 1.
+\label{eq:scatter_rate_aperture}
+\end{equation}
+
+\subsubsection{Phonon Transport}
+
+For phonons (quantised lattice vibrations), apertures arise from:
+
+\begin{itemize}
+\item \textbf{Mode matching:} Only phonons whose frequency $\omega$ and wavevector $\mathbf{q}$ match the local mode structure can propagate. The selectivity is:
+\begin{equation}
+s_{{\text{mode}}}(\omega, \mathbf{q}) = \delta(\omega - \omega_{{\mathbf{q}}}),
+\label{eq:selectivity_mode}
+\end{equation}
+where $\omega_{{\mathbf{q}}}$ is the dispersion relation. This is the aperture selectivity in phonon frequency-momentum space.
+
+\item \textbf{Umklapp constraints:} Crystal momentum must be conserved modulo reciprocal lattice vectors. Umklapp processes (where $\mathbf{q}_{1} + \mathbf{q}_{2} = \mathbf{q}_{3} + \mathbf{G}$, with $\mathbf{G}$ a reciprocal lattice vector) are ``failed'' passages through momentum-space apertures. These processes dominate thermal resistance at high temperatures.
+
+\item \textbf{Interfaces:} At boundaries between dissimilar materials, only phonons with matching dispersion relations can transmit. The transmission coefficient is:
+\begin{equation}
+s_{{\text{interface}}} = \frac{4 Z_{1} Z_{2}}{(Z_{1} + Z_{2})^{2}},
+\label{eq:selectivity_interface}
+\end{equation}
+where $Z_{i} = \rho_{i} v_{i}$ is the acoustic impedance of material $i$. This is the origin of Kapitza resistance at interfaces.
+\end{itemize}
+
+The chromatographic picture of thermal transport (Section~\ref{sec:thermal}) is precisely aperture-based: different phonon modes experience different selectivities through the material's aperture structure, leading to mode-dependent transport.
+
+\subsubsection{Viscous Transport}
+
+In fluids, molecular collisions create dynamic apertures:
+
+\begin{itemize}
+\item \textbf{Collision geometry:} Only molecules approaching with appropriate impact parameters can exchange momentum efficiently. The selectivity depends on the collision cross-section $\sigma$ and the relative velocity $v_{{\text{rel}}}$:
+\begin{equation}
+s_{{\text{coll}}} = \exp\left(-\frac{\sigma v_{{\text{rel}}}^{2}}{k_{B} T}\right).
+\label{eq:selectivity_collision}
+\end{equation}
+
+\item \textbf{Steric constraints:} Molecular shape determines which orientations allow close approach. For non-spherical molecules, the selectivity depends on orientation:
+\begin{equation}
+s_{{\text{steric}}}(\theta, \phi) = \frac{\sigma_{{\text{eff}}}(\theta, \phi)}{\sigma_{{\text{max}}}},
+\label{eq:selectivity_steric}
+\end{equation}
+where $\sigma_{{\text{eff}}}$ is the orientation-dependent cross-section.
+
+\item \textbf{Velocity matching:} Momentum transfer is most efficient when molecular velocities are commensurate. The selectivity is maximum when $v_{1} \approx v_{2}$ and decreases for large velocity mismatches.
+\end{itemize}
+
+\subsubsection{Diffusive Transport}
+
+For atomic diffusion in solids, apertures include:
+
+\begin{itemize}
+\item \textbf{Vacancy sites:} Atoms can only jump to unoccupied nearest-neighbour sites. The selectivity is:
+\begin{equation}
+s_{{\text{vac}}} = \frac{n_{{\text{vac}}}}{n_{{\text{sites}}}},
+\label{eq:selectivity_vacancy}
+\end{equation}
+where $n_{{\text{vac}}}$ is the vacancy concentration. This is a highly selective aperture in most solids.
+
+\item \textbf{Saddle points:} The transition state between lattice sites is an aperture in configuration space. The selectivity is determined by the activation energy:
+\begin{equation}
+s_{{\text{saddle}}} = \exp\left(-\frac{E_{a}}{k_{B} T}\right),
+\label{eq:selectivity_saddle}
+\end{equation}
+where $E_{a}$ is the saddle-point energy.
+
+\item \textbf{Grain boundaries:} Diffusion along boundaries is faster than bulk diffusion because grain boundary apertures are less selective (more disordered structure, lower activation energy).
+\end{itemize}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_aperture_selectivity.png}
+\caption{\textbf{Aperture Selectivity Determines Transport Coefficients.} 
+All four transport coefficients are expressed as $\Xi = N^{-1} \sum_{i,j} \tau_{p,ij} g_{ij}$, where $\tau_p$ is partition lag and $g$ is coupling strength. 
+(\textbf{Top left}) Electrical resistivity $\rho = N^{-1} \sum \tau_{s,ij} g_{ij}$ as a function of temperature. Copper (orange) has low resistivity ($\sim 10^{-8}~\Omega\cdot$m) that increases linearly with temperature due to phonon scattering. Superconductors (cyan) exhibit zero resistivity below $T_c$ due to aperture bypass by Cooper pairs. Insulators (gray) have extremely high resistivity ($> 10^{10}~\Omega\cdot$m). 
+(\textbf{Top right}) Viscosity $\mu = \sum \tau_{p,ij} g_{ij}$ as a function of temperature. Water (cyan) has low viscosity ($\sim 1$ mPa$\cdot$s) that decreases with temperature. Glycerol (green) has high viscosity ($\sim 10^3$ mPa$\cdot$s) due to strong intermolecular coupling. Superfluid helium (magenta) has zero viscosity below $T_\lambda$ due to quantum aperture bypass. 
+(\textbf{Bottom left}) Diffusivity $D = (k_B T)^{-1} \sum \tau_{p,ij}^{-1} g_{ij}^{-1}$ as a function of temperature. Carbon in copper (orange) has high diffusivity that increases exponentially with temperature. Carbon in iron (red) has lower diffusivity. Hydrogen in palladium (green) has the highest diffusivity due to small atomic size and weak coupling. 
+(\textbf{Bottom right}) Thermal conductivity $\kappa = \sum \tau_{p,ij}^{-1} g_{ij}$ as a function of temperature. Diamond (cyan) has the highest thermal conductivity ($> 10^3$ W/m$\cdot$K) due to strong covalent bonds and long phonon mean free paths. Metals (copper, green) have intermediate conductivity ($\sim 10^2$ W/m$\cdot$K). Insulators (silicon, glass) have low conductivity ($< 10$ W/m$\cdot$K). 
+The unified formula demonstrates that all transport coefficients arise from the same partition-coupling structure, with different combinations of $\tau_p$ and $g$ producing the diverse behaviors observed in nature.}
+\label{fig:aperture_selectivity}
+\end{figure*}
+
+\subsection{Partition Lag as Aperture Traversal Time}
+
+The partition lag $\tau_{p}$ introduced in Section~\ref{sec:unified_transport} can be understood as the time required to traverse an aperture. This connection makes the physical meaning of partition lag explicit.
+
+\begin{theorem}[Lag-Aperture Correspondence]
+\label{thm:lag_aperture}
+The partition lag $\tau_{p}$ between carriers is the time required to traverse the aperture connecting their pre-interaction and post-interaction states:
+\begin{equation}
+\tau_{p} = \frac{d_{a}}{v_{{\text{carrier}}}} \cdot \frac{1}{s_{a}},
+\label{eq:lag_aperture}
+\end{equation}
+where $d_{a}$ is the aperture thickness (characteristic length scale), $v_{{\text{carrier}}}$ is the carrier velocity, and $s_{a}$ is the selectivity.
+\end{theorem}
+
+\begin{proof}
+A carrier approaching an aperture with selectivity $s_{a}$ has probability $s_{a}$ of passing on each attempt. The mean number of attempts before successful passage is $1/s_{a}$ (geometric distribution). Each attempt takes time $\tau_{{\text{attempt}}} = d_{a}/v_{{\text{carrier}}}$ (time to traverse the aperture thickness at carrier velocity). Therefore, the mean time to successful passage is:
+\begin{equation}
+\tau_{p} = \frac{1}{s_{a}} \cdot \frac{d_{a}}{v_{{\text{carrier}}}}.
+\end{equation}
+
+\textbf{Limiting cases:}
+\begin{itemize}
+\item For a non-selective aperture ($s_{a} = 1$), passage is immediate: $\tau_{p} = d_{a}/v_{{\text{carrier}}}$ (bare traversal time).
+\item For a highly selective aperture ($s_{a} \to 0$), passage takes infinite time: $\tau_{p} \to \infty$ (carrier is effectively blocked).
+\item For intermediate selectivity ($0 < s_{a} < 1$), the partition lag exceeds the bare traversal time by the factor $1/s_{a}$.
+\end{itemize}
+\qed
+\end{proof}
+
+This theorem connects the partition lag directly to aperture selectivity. \textbf{Resistance to transport arises because carriers must wait for aperture passage.} The waiting time is inversely proportional to selectivity: highly selective apertures require many attempts before passage, creating long partition lags and high resistance.
+
+\subsection{Transport Coefficient from Aperture Potentials}
+
+The universal transport formula can now be rewritten in terms of aperture potentials, revealing a deep connection between transport and thermodynamics.
+
+\begin{theorem}[Transport-Enthalpy Connection]
+\label{thm:transport_enthalpy}
+The transport coefficient is proportional to the sum of categorical potentials of all apertures encountered by carriers:
+\begin{equation}
+\Xi = \frac{1}{\mathcal{N}} \sum_{\text{apertures}} n_{a} \Phi_{a},
+\label{eq:transport_enthalpy}
+\end{equation}
+where $n_{a}$ is the number of apertures of type $a$ encountered per unit length (or per unit time) and $\Phi_{a}$ is the categorical potential of each aperture.
+\end{theorem}
+
+\begin{proof}
+From the Lag-Aperture Correspondence (Theorem~\ref{thm:lag_aperture}):
+\begin{equation}
+\tau_{{p,a}} = \frac{d_{a}}{v} \cdot \frac{1}{s_{a}}.
+\end{equation}
+
+From the categorical potential definition~\eqref{eq:categorical_potential}:
+\begin{equation}
+\Phi_{a} = -k_{B} T \ln s_{a} \quad \Rightarrow \quad s_{a} = e^{-\Phi_{a}/k_{B} T}.
+\end{equation}
+
+Therefore:
+\begin{equation}
+\tau_{{p,a}} = \frac{d_{a}}{v} \cdot e^{\Phi_{a}/k_{B} T}.
+\end{equation}
+
+For apertures with moderate selectivity ($\Phi_{a} \lesssim k_{B} T$), we can expand:
+\begin{equation}
+e^{\Phi_{a}/k_{B} T} \approx 1 + \frac{\Phi_{a}}{k_{B} T} + \mathcal{O}\left(\frac{\Phi_{a}^{2}}{(k_{B} T)^{2}}\right).
+\end{equation}
+
+To first order:
+\begin{equation}
+\tau_{{p,a}} \approx \frac{d_{a}}{v} \left(1 + \frac{\Phi_{a}}{k_{B} T}\right) = \frac{d_{a}}{v} + \frac{d_{a}}{v k_{B} T} \Phi_{a}.
+\end{equation}
+
+The first term is the bare traversal time (independent of selectivity). The second term is the selectivity-induced delay, proportional to the categorical potential.
+
+The transport coefficient from the universal formula~\eqref{eq:universal_transport} is:
+\begin{equation}
+\Xi = \frac{1}{\mathcal{N}} \sum_{i,j} \tau_{{p,ij}} g_{{ij}} = \frac{1}{\mathcal{N}} \sum_{a} n_{a} \tau_{{p,a}} g_{a},
+\end{equation}
+where the sum over carrier pairs $(i,j)$ has been rewritten as a sum over aperture types $a$, with $n_{a}$ counting the number of apertures of each type and $g_{a}$ the coupling strength for that aperture type.
+
+Substituting the expression for $\tau_{{p,a}}$ and absorbing geometric factors ($d_{a}/v$) and coupling strengths ($g_{a}$) into the normalization:
+\begin{equation}
+\Xi = \frac{1}{\mathcal{N}} \sum_{a} n_{a} \left(\frac{d_{a} g_{a}}{v} + \frac{d_{a} g_{a}}{v k_{B} T} \Phi_{a}\right).
+\end{equation}
+
+The first term (bare traversal) contributes a temperature-independent background. The second term (selectivity-induced) dominates transport properties. Redefining the normalization to absorb constant factors:
+\begin{equation}
+\Xi = \frac{1}{\mathcal{N}} \sum_{a} n_{a} \Phi_{a}.
+\end{equation}
+\qed
+\end{proof}
+
+This remarkable result shows that \textbf{the transport coefficient is essentially the categorical enthalpy of the aperture structure encountered by carriers}. High enthalpy (many selective apertures with large $\Phi_{a}$) means high resistance to transport. Low enthalpy (few selective apertures or small $\Phi_{a}$) means low resistance.
+
+The connection to categorical enthalpy is not merely formal. Categorical enthalpy $\mathcal{H} = U + \sum_{a} n_{a} \Phi_{a}$ measures the total energy including the potential energy stored in aperture configurations. The transport coefficient measures the rate at which this potential energy is dissipated during carrier flow. They are two aspects of the same underlying aperture structure.
+
+\subsection{Why High Selectivity Means High Resistance}
+
+The connection between selectivity and resistance has a simple physical interpretation that illuminates the microscopic origin of dissipation:
+
+\begin{enumerate}
+\item \textbf{Selective apertures reject most configurations:} If only 1\% of carrier configurations can pass ($s_{a} = 0.01$), the carrier must ``try'' approximately 100 configurations before finding one that fits. Each failed attempt represents a collision or scattering event.
+
+\item \textbf{Rejected attempts create undetermined residue:} Each failed attempt leaves the carrier in an undetermined state for duration $\tau_{{\text{attempt}}}$. The carrier is neither ``passed'' (on the other side of the aperture) nor ``reflected'' (returned to its initial state) but in a superposition of both. This superposition is the undetermined residue introduced in Section~\ref{sec:unified_transport}.
+
+\item \textbf{Undetermined residue becomes entropy:} When the partition finally completes (carrier successfully passes or is definitively reflected), the accumulated undetermined states must be resolved. This resolution generates entropy:
+\begin{equation}
+\Delta S = k_{B} \ln\left(\frac{1}{s_{a}}\right) = -k_{B} \ln s_{a} = \frac{\Phi_{a}}{T}.
+\label{eq:entropy_from_selectivity}
+\end{equation}
+
+\item \textbf{Entropy production is dissipation:} The energy $T\Delta S = \Phi_{a}$ extracted from the driving force appears as thermal motion (heat) rather than directed transport. This is the microscopic origin of Joule heating, viscous dissipation, and thermal resistance.
+\end{enumerate}
+
+This explains why resistivity, viscosity, and inverse thermal conductivity are all positive: they measure the selectivity of the apertures that carriers must traverse, and selectivity is always $0 \leq s_{a} \leq 1$, giving $\Phi_{a} \geq 0$.
+
+The deeper insight is that \textbf{dissipation is not a dynamical process but a categorical necessity}. It arises not from the equations of motion (which are time-reversible) but from the categorical structure of state space (which is irreversible). Apertures create categorical boundaries, and crossing these boundaries generates entropy regardless of the direction of time.
+
+\subsection{Dissipationless Transport as Zero Selectivity}
+
+The aperture framework provides a clear criterion for dissipationless transport.
+
+\begin{theorem}[Zero Selectivity Theorem]
+\label{thm:zero_selectivity}
+When aperture selectivity equals unity for all apertures ($s_{a} = 1$ for all $a$), the transport coefficient vanishes:
+\begin{equation}
+s_{a} = 1 \; \forall a \quad \Rightarrow \quad \Xi = 0.
+\label{eq:zero_selectivity}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+When $s_{a} = 1$ for all apertures:
+\begin{enumerate}
+\item The categorical potential vanishes: $\Phi_{a} = -k_{B} T \ln(1) = 0$ for all $a$.
+\item The partition lag reduces to bare traversal time: $\tau_{p} = d_{a}/v$ with no selectivity penalty ($1/s_{a} = 1$).
+\item No configurations are rejected, so no undetermined residue is created.
+\item No entropy is produced during transport: $\Delta S = 0$.
+\end{enumerate}
+
+From Theorem~\ref{thm:transport_enthalpy}:
+\begin{equation}
+\Xi = \frac{1}{\mathcal{N}} \sum_{a} n_{a} \Phi_{a} = \frac{1}{\mathcal{N}} \sum_{a} n_{a} \cdot 0 = 0.
+\end{equation}
+\qed
+\end{proof}
+
+This theorem provides the aperture interpretation of dissipationless transport: \textbf{superconductivity, superfluidity, and Bose-Einstein condensation occur when carriers ``fit'' all apertures perfectly}. There is no selectivity, no rejection, no undetermined residue, and therefore no dissipation.
+
+The question then becomes: how do physical systems achieve $s_{a} = 1$? The answer is phase-locking, which we analyze in the next subsection.
+
+\subsection{Phase-Locking Eliminates Selectivity}
+
+How does phase-locking produce $s_{a} = 1$? The mechanism differs by system but shares a common principle: \textbf{phase-locked carriers become extended objects that average over or eliminate the aperture structure}.
+
+\subsubsection{Cooper Pairs in Superconductors}
+
+Individual electrons face highly selective apertures---only certain momentum states avoid scattering from the instantaneous lattice configuration. The selectivity for a single electron is:
+\begin{equation}
+s_{{\text{electron}}} \sim \exp\left(-\frac{E_{{\text{ph}}}}{k_{B} T}\right) \ll 1 \quad \text{for } T > T_{c}.
+\label{eq:selectivity_electron}
+\end{equation}
+
+But Cooper pairs are extended objects with coherence length $\xi \sim 10^{-6}$ m (for conventional superconductors), encompassing $\sim 10^{9}$ lattice sites. The pair wavefunction is:
+\begin{equation}
+\psi_{{\text{pair}}}(\mathbf{r}_{1}, \mathbf{r}_{2}) = \phi(\mathbf{r}_{1} - \mathbf{r}_{2}) \cdot e^{i\mathbf{K} \cdot (\mathbf{r}_{1} + \mathbf{r}_{2})/2},
+\label{eq:cooper_wavefunction}
+\end{equation}
+where $\phi$ is the pair envelope (size $\sim \xi$) and $\mathbf{K}$ is the center-of-mass momentum.
+
+\begin{proposition}[Cooper Pair Aperture Averaging]
+\label{prop:cooper_averaging}
+A Cooper pair averages over all lattice configurations within its coherence volume. The effective selectivity becomes:
+\begin{equation}
+s_{{\text{pair}}} = \left\langle s_{{\text{electron}}} \right\rangle_{{\xi^{3}}} \to 1,
+\label{eq:pair_averaging}
+\end{equation}
+because the pair wavefunction samples all configurations simultaneously, not a single one.
+\end{proposition}
+
+\begin{proof}
+The pair wavefunction extends over volume $V_{{\text{coh}}} \sim \xi^{3}$ containing $N_{{\text{sites}}} \sim (\xi/a)^{3}$ lattice sites, where $a$ is the lattice constant. Each site has a different instantaneous configuration due to thermal vibrations. The pair ``sees'' the average configuration:
+\begin{equation}
+\langle \text{lattice config} \rangle = \frac{1}{N_{{\text{sites}}}} \sum_{i=1}^{N_{{\text{sites}}}} \text{config}_{i}.
+\end{equation}
+
+For $N_{{\text{sites}}} \gg 1$, the central limit theorem ensures that fluctuations around the average are suppressed by $1/\sqrt{N_{{\text{sites}}}}$. The pair experiences an effectively static, averaged lattice with no time-varying apertures. Therefore, $s_{{\text{pair}}} \approx 1$.
+\qed
+\end{proof}
+
+The pair ``fits'' the aperture because it IS the aperture---it encompasses and averages over all the configurations that would normally select against individual electrons. This is why Cooper pairs do not scatter from phonons: they are too large to ``see'' individual phonon-induced lattice distortions.
+
+\subsubsection{Bose-Einstein Condensate}
+
+In a Bose-Einstein condensate, all atoms occupy the same quantum state $|\psi_{0}\rangle$. There is only one ``configuration'' in the system.
+
+\begin{proposition}[Single Configuration Selectivity]
+\label{prop:single_config}
+When all carriers are in the same state, the selectivity is:
+\begin{equation}
+s = \frac{\Omega_{\text{pass}}}{\Omega_{\text{total}}} = \frac{1}{1} = 1,
+\label{eq:single_state}
+\end{equation}
+because the single state is automatically compatible with itself.
+\end{proposition}
+
+\begin{proof}
+An aperture distinguishes between configurations. If there is only one configuration, there is nothing to distinguish. All atoms are in state $|\psi_{0}\rangle$, so any aperture that allows $|\psi_{0}\rangle$ to pass allows all atoms to pass. The selectivity is unity by definition.
+\qed
+\end{proof}
+
+This is the essence of Bose-Einstein condensation: the macroscopic occupation of a single state eliminates all aperture selectivity because there are no alternative configurations to select against.
+
+\subsubsection{Superfluid Helium-4}
+
+In superfluid helium-4 below $T_{\lambda} = 2.17$ K, atoms condense into the ground state, forming a macroscopic wavefunction. The condensate is a single categorical entity that cannot ``collide with itself''---apertures between atoms become meaningless when the atoms are indistinguishable parts of a single wavefunction.
+
+The two-fluid model describes the system as a mixture of normal fluid (thermal excitations with finite viscosity) and superfluid (condensate with zero viscosity). The superfluid fraction $\rho_{s}/\rho$ increases from 0 at $T_{\lambda}$ to 1 at $T = 0$. In the aperture picture:
+\begin{equation}
+s_{{\text{superfluid}}} = 1, \quad s_{{\text{normal}}} < 1.
+\label{eq:selectivity_twofluid}
+\end{equation}
+
+The total viscosity is:
+\begin{equation}
+\mu(T) = \frac{\rho_{n}(T)}{\rho} \mu_{{\text{normal}}},
+\label{eq:viscosity_twofluid}
+\end{equation}
+where $\rho_{n}(T)/\rho$ is the normal fluid fraction. As $T \to 0$, $\rho_{n} \to 0$, so $\mu \to 0$.
+
+\subsection{Aperture Reconfiguration as Phase Transition}
+
+Phase transitions can be understood as sudden reconfigurations of the aperture structure. The categorical enthalpy framework identifies phase transitions with changes in aperture potentials:
+\begin{equation}
+\Delta\mathcal{H} = \Delta U + \sum_{a} \left[ n_{a}^{{\text{final}}} \Phi_{a}^{{\text{final}}} - n_{a}^{{\text{initial}}} \Phi_{a}^{{\text{initial}}} \right].
+\label{eq:enthalpy_change}
+\end{equation}
+
+For the superconducting transition:
+\begin{itemize}
+\item \textbf{Above $T_{c}$ (normal state):} Many selective apertures exist (electron-phonon scattering, electron-impurity scattering). High $\sum_{a} n_{a} \Phi_{a}$, finite resistivity $\rho > 0$.
+
+\item \textbf{Below $T_{c}$ (superconducting state):} Apertures become non-selective due to Cooper pair averaging. $\Phi_{a} \to 0$ for all $a$, resistivity $\rho = 0$.
+\end{itemize}
+
+The condensation energy (energy released upon entering the superconducting state) is exactly the categorical potential released when apertures become non-selective:
+\begin{equation}
+\Delta E_{{\text{cond}}} = -\sum_{a} n_{a} \Phi_{a}(T_{c}).
+\label{eq:condensation_energy}
+\end{equation}
+
+For BCS superconductors, this is the gap energy:
+\begin{equation}
+\Delta E_{{\text{cond}}} = \frac{1}{2} N(E_{F}) \Delta^{2},
+\label{eq:BCS_condensation}
+\end{equation}
+where $N(E_{F})$ is the density of states at the Fermi energy and $\Delta$ is the superconducting gap. This energy is now understood as the total categorical potential of the electron-scattering apertures that are eliminated by Cooper pairing.
+
+\subsection{Unified Picture: Transport, Enthalpy, and Dissipation}
+
+The aperture framework provides a unified picture connecting three fundamental quantities:
+
+\begin{enumerate}
+\item \textbf{Categorical enthalpy:} Internal energy plus aperture potentials:
+\begin{equation}
+\mathcal{H} = U + \sum_{a} n_{a} \Phi_{a}.
+\label{eq:enthalpy_unified}
+\end{equation}
+
+\item \textbf{Transport coefficient:} Aperture potentials per carrier flux:
+\begin{equation}
+\Xi = \frac{1}{\mathcal{N}} \sum_{a} n_{a} \Phi_{a}.
+\label{eq:transport_unified}
+\end{equation}
+
+\item \textbf{Dissipation rate:} Entropy production from selective passage:
+\begin{equation}
+\dot{Q} = T\dot{S} = T \sum_{a} \Gamma_{a} k_{B} \ln(1/s_{a}) = \sum_{a} \Gamma_{a} \Phi_{a},
+\label{eq:dissipation_unified}
+\end{equation}
+where $\Gamma_{a}$ is the rate of carrier passage through aperture $a$.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_categorical_enthalpy.png}
+\caption{\textbf{Categorical enthalpy $H = k_B T \sum_a \ln(1/s_a)$ quantifies partition energy cost across transport types.} 
+\textbf{(Top left)} Electrical categorical enthalpy showing energy required to partition electrons through scattering apertures. Copper (orange) has $H \sim 0$ at low $T$, increasing linearly to $H \sim 1.8$ eV at 500 K as phonon population grows. Aluminum (yellow) shows similar behavior. Tungsten (gray) has higher enthalpy due to stronger electron-phonon coupling.
+\textbf{(Top right)} Diffusive categorical enthalpy showing energy required for atomic diffusion. Bulk diffusion (green) has highest enthalpy $H \sim 3.5$ eV, corresponding to breaking bonds and moving through lattice. Grain boundary diffusion (cyan) has lower enthalpy $H \sim 1.5$ eV as atoms move along defects. Surface diffusion (magenta) has lowest enthalpy $H \sim 0.8$ eV as atoms hop along surface.
+\textbf{(Bottom left)} Thermal categorical enthalpy showing energy required for phonon scattering. Diamond (cyan) has highest enthalpy $H \sim 1$ eV due to strong covalent bonds. Silicon (green) has moderate enthalpy $H \sim 0.6$ eV. Copper (orange) has lower enthalpy $H \sim 0.3$ eV as electron transport dominates. Lead (gray) has lowest enthalpy $H \sim 0.1$ eV due to heavy atoms and weak bonds.
+\textbf{(Bottom right)} Viscous categorical enthalpy showing energy required for momentum transfer between molecules. Water (cyan) has low enthalpy $H \sim 0.2$ eV, decreasing with temperature. Glycerol (magenta) has high enthalpy $H \sim 0.7$ eV at low $T$, decreasing to $\sim 0.4$ eV at 600 K as hydrogen bonds break. Silicone oil (yellow) has intermediate enthalpy $H \sim 0.3$ eV. The categorical enthalpy $H = k_B T \sum_a \ln(1/s_a)$ provides a unified measure of transport resistance across all four transport modes, quantifying the total energy cost of partition operations.}
+\label{fig:categorical_enthalpy}
+\end{figure}
+
+All three quantities—enthalpy, transport coefficient, dissipation—are controlled by the same underlying structure: the categorical potentials of apertures in the system. They are not merely correlated; they are manifestations of the same geometric reality.
+
+This explains why thermodynamic quantities (enthalpy, free energy) and transport coefficients (resistivity, viscosity) are so intimately related. The Wiedemann-Franz law (Section~\ref{sec:thermal}), which relates electrical and thermal conductivity, is not a coincidence but a consequence of the fact that both are determined by the same aperture structure.
+
+\subsection{The Classical Limit Revisited}
+
+In the limit of infinitely many non-selective apertures ($n_{a} \to \infty$, $s_{a} \to 1$ for all $a$), categorical enthalpy reduces to the classical form $\mathcal{H} = U + PV$. The corresponding transport limit is:
+\begin{equation}
+\Xi \to \frac{1}{\mathcal{N}} \sum_{a} n_{a} \Phi_{a} = \frac{1}{\mathcal{N}} \cdot \infty \cdot 0 = \text{finite (if limits balance)}.
+\label{eq:classical_limit_transport}
+\end{equation}
+
+Classical transport coefficients emerge when there are infinitely many infinitesimally selective apertures, just as classical pressure emerges as the aggregate of infinitely many infinitesimal aperture interactions.
+
+This reveals that \textbf{classical transport theory is a coarse-graining of the aperture structure}, averaging over discrete selective barriers to produce continuous transport coefficients. The Boltzmann equation, for example, treats scattering as a continuous process described by a collision integral, whereas the aperture picture reveals the underlying discrete structure.
+
+The partition framework restores the underlying discreteness, which becomes essential near phase transitions where individual aperture extinctions produce discontinuous changes. The superconducting transition is not a smooth crossover but a sharp threshold because aperture selectivity changes discontinuously from $s_{a} < 1$ (normal state) to $s_{a} = 1$ (superconducting state).

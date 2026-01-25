@@ -1,0 +1,290 @@
+%==============================================================================
+\section{S-Entropy Coordinate Geometry and Ternary Representation}
+\label{sec:stellas}
+%==============================================================================
+
+\subsection{Three-Dimensional Entropy Space}
+
+\begin{definition}[S-Entropy Coordinates]
+\label{def:s_entropy}
+The S-entropy coordinate space $\Sspace = [0,1]^3$ comprises three fundamental dimensions:
+\begin{align}
+S_k &\in [0,1] \quad \text{(knowledge entropy)} \label{eq:Sk} \\
+S_t &\in [0,1] \quad \text{(temporal entropy)} \label{eq:St} \\
+S_e &\in [0,1] \quad \text{(evolution entropy)} \label{eq:Se}
+\end{align}
+\end{definition}
+
+The three coordinates emerge from categorical decomposition of bounded systems:
+
+\textbf{Knowledge entropy} $S_k = -\log_2 P_{\text{config}}$ measures information deficit---how many categorical distinctions remain to be specified to fully determine the system state. At $S_k = 0$, configuration is fully specified. At $S_k = 1$, maximal uncertainty.
+
+\textbf{Temporal entropy} $S_t = \log_{10}(\tau/\tau_0)$ measures temporal distance from reference timescale $\tau_0$, capturing hierarchical structure from molecular vibrations ($\tau \sim 10^{-14}$ s) to macroscopic equilibration ($\tau \sim 10^{0}$ s).
+
+\textbf{Evolution entropy} $S_e = -\sum_i p_i \log_2 p_i$ measures phase distribution entropy, quantifying diversity of oscillatory modes in the system.
+
+\begin{proposition}[Metric Structure]
+\label{prop:metric}
+S-entropy space admits metric:
+\begin{equation}
+d_{\Sspace}(\Scoord_1, \Scoord_2) = \sqrt{(S_{k,1} - S_{k,2})^2 + (S_{t,1} - S_{t,2})^2 + (S_{e,1} - S_{e,2})^2}
+\end{equation}
+satisfying triangle inequality:
+\begin{equation}
+d_{\Sspace}(\Scoord_i, \Scoord_k) \leq d_{\Sspace}(\Scoord_i, \Scoord_j) + d_{\Sspace}(\Scoord_j, \Scoord_k)
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The Euclidean metric on $\mathbb{R}^3$ restricted to $[0,1]^3$ inherits all metric properties. Triangle inequality follows from Cauchy-Schwarz inequality applied to coordinate differences.
+\end{proof}
+
+\subsection{Categorical Distance and Physical Distance}
+
+\begin{theorem}[Distance Inequivalence]
+\label{thm:distance_inequivalence}
+Categorical distance $d_{\Sspace}$ does not correspond to physical distance $d_{\text{phys}}$:
+\begin{equation}
+d_{\Sspace}(\Scoord_i, \Scoord_j) \neq f(d_{\text{phys}}(\mathbf{r}_i, \mathbf{r}_j))
+\end{equation}
+for any function $f$.
+\end{theorem}
+
+\begin{proof}
+Consider two molecular configurations:
+\begin{itemize}
+\item Configuration A: Two molecules separated by $d_{\text{phys}} = 1$ nm in same categorical state (identical vibrational modes, same phase)
+\item Configuration B: Two molecules separated by $d_{\text{phys}} = 1$ nm in different categorical states (different vibrational modes, opposite phase)
+\end{itemize}
+
+Physical distance identical: $d_{\text{phys}}^A = d_{\text{phys}}^B = 1$ nm.
+
+Categorical distance differs:
+\begin{align}
+d_{\Sspace}^A &= 0 \quad \text{(same categorical state)} \\
+d_{\Sspace}^B &> 0 \quad \text{(different categorical states)}
+\end{align}
+
+Therefore, no function $f$ exists mapping physical distance to categorical distance. The two metrics are inequivalent.
+\end{proof}
+
+This inequivalence is central to resolving Maxwell's demon: spatial proximity does not imply categorical proximity. Molecules can be physically adjacent yet categorically distant, and vice versa.
+
+\subsection{Ternary Representation}
+
+\begin{definition}[Ternary Digit (Trit)]
+\label{def:trit}
+A ternary digit (trit) $\trit \in \{0, 1, 2\}$ encodes position along one of three S-entropy axes:
+\begin{align}
+\trit = 0 &\leftrightarrow \text{refinement along } S_k \\
+\trit = 1 &\leftrightarrow \text{refinement along } S_t \\
+\trit = 2 &\leftrightarrow \text{refinement along } S_e
+\end{align}
+\end{definition}
+
+\begin{theorem}[Trit-Coordinate Correspondence]
+\label{thm:trit_coord}
+A $k$-trit ternary string addresses exactly one cell in the $3^k$ hierarchical partition of $\Sspace$.
+\end{theorem}
+
+\begin{proof}
+At recursion level $k$, $\Sspace$ is partitioned into $3^k$ cells through recursive subdivision. Each subdivision divides one cube into 3 subcubes along one axis.
+
+A $k$-trit string $T = \trit_1 \trit_2 \cdots \trit_k$ specifies navigation path:
+\begin{itemize}
+\item $\trit_1 \in \{0,1,2\}$: Select one of 3 cells at depth 1 (3 cells total)
+\item $\trit_2 \in \{0,1,2\}$: Select one of 3 subcells at depth 2 (9 cells total)
+\item $\trit_k \in \{0,1,2\}$: Select one of 3 subcells at depth $k$ ($3^k$ cells total)
+\end{itemize}
+
+Each trit value determines which axis to subdivide along:
+\begin{itemize}
+\item $\trit_i = 0$: Subdivide interval $[0,1] \to [0, 1/3), [1/3, 2/3), [2/3, 1]$ along $S_k$ axis
+\item $\trit_i = 1$: Subdivide along $S_t$ axis
+\item $\trit_i = 2$: Subdivide along $S_e$ axis
+\end{itemize}
+
+The mapping $\phi: \{0,1,2\}^k \to \{\text{cells at depth } k\}$ is bijective:
+\begin{itemize}
+\item Injective: Different strings $T \neq T'$ specify different navigation paths, hence different final cells
+\item Surjective: Every cell at depth $k$ is reachable by some string of length $k$
+\end{itemize}
+
+Therefore, $k$-trit strings correspond one-to-one with cells at depth $k$.
+\end{proof}
+
+\subsection{Continuous Emergence}
+
+\begin{theorem}[Continuous Emergence]
+\label{thm:continuous_emergence}
+As $k \to \infty$, the discrete $3^k$ cell structure converges to continuous space $[0,1]^3$:
+\begin{equation}
+\lim_{k \to \infty} \text{Cell}(\trit_1, \ldots, \trit_k) = \Scoord \in [0,1]^3
+\end{equation}
+with the ternary expansion:
+\begin{equation}
+S_\alpha = \sum_{i=1}^\infty \frac{\trit_i^{(\alpha)}}{3^i}, \quad \alpha \in \{k, t, e\}
+\end{equation}
+converging to unique point in the continuum.
+\end{theorem}
+
+\begin{proof}
+For coordinate $S_\alpha$, the $k$-trit approximation is:
+\begin{equation}
+S_\alpha^{(k)} = \sum_{i=1}^k \frac{\trit_i^{(\alpha)}}{3^i}
+\end{equation}
+
+This is a geometric series with ratio $1/3$. For any $\epsilon > 0$, choose $k$ such that:
+\begin{equation}
+\left|S_\alpha - S_\alpha^{(k)}\right| = \sum_{i=k+1}^\infty \frac{\trit_i^{(\alpha)}}{3^i} \leq \sum_{i=k+1}^\infty \frac{2}{3^i} = \frac{2}{3^k} \cdot \frac{1}{1-1/3} = \frac{1}{3^{k-1}} < \epsilon
+\end{equation}
+
+For $k > \log_3(1/\epsilon) + 1$, approximation error $< \epsilon$. Therefore:
+\begin{equation}
+\lim_{k \to \infty} S_\alpha^{(k)} = S_\alpha
+\end{equation}
+
+Convergence is uniform over $[0,1]$. The infinite ternary string specifies unique point in continuum, bridging discrete computation and continuous dynamics.
+\end{proof}
+
+\subsection{Trajectory Encoding}
+
+\begin{proposition}[Position-Trajectory Duality]
+\label{prop:trajectory}
+A ternary string encodes both position (final cell) and trajectory (navigation path):
+\begin{equation}
+T = \trit_1 \trit_2 \cdots \trit_k \quad \Rightarrow \quad \begin{cases}
+\text{Position: Cell at depth } k \\
+\text{Trajectory: Sequence of refinements}
+\end{cases}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Position interpretation: Apply Theorem \ref{thm:trit_coord}---string $T$ addresses unique cell.
+
+Trajectory interpretation: Each trit $\trit_i$ specifies operation at step $i$:
+\begin{itemize}
+\item $\trit_i = 0$: Refine along $S_k$ axis (knowledge accumulation)
+\item $\trit_i = 1$: Refine along $S_t$ axis (temporal progression)
+\item $\trit_i = 2$: Refine along $S_e$ axis (evolutionary development)
+\end{itemize}
+
+The sequence $\trit_1 \to \trit_2 \to \cdots \to \trit_k$ describes path through $\Sspace$ from origin $(0,0,0)$ to final position. Reading the string forward gives trajectory; evaluating the string gives position. Address IS trajectory.
+\end{proof}
+
+This duality eliminates the von Neumann separation between data (position) and instructions (trajectory) at the representational level.
+
+\subsection{Information Density Enhancement}
+
+\begin{proposition}[Ternary Advantage]
+\label{prop:ternary_advantage}
+Ternary representation provides information density enhancement over binary:
+\begin{equation}
+\frac{3^k}{2^k} = \left(\frac{3}{2}\right)^k = 1.5^k
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Binary string of length $k$ encodes $2^k$ values. Ternary string of length $k$ encodes $3^k$ values. Density ratio:
+\begin{equation}
+\rho_{\text{ternary}} = \frac{3^k}{2^k} = \left(\frac{3}{2}\right)^k
+\end{equation}
+
+For $k = 20$ trits:
+\begin{equation}
+\rho_{\text{ternary}}^{(20)} = 1.5^{20} = 3325.26 \approx 10^{3.5}
+\end{equation}
+
+A 20-trit string encodes $3^{20} = 3.49 \times 10^9$ values compared to 20-bit string's $2^{20} = 1.05 \times 10^6$ values---over 3000 times more information in same string length.
+\end{proof}
+
+\subsection{Ternary Operations}
+
+\begin{definition}[Ternary Projection]
+\label{def:projection}
+Extract coordinate along one axis:
+\begin{equation}
+\pi_\alpha(T) = \sum_{i: \trit_i^{(\alpha)} \neq \text{null}} \frac{\trit_i^{(\alpha)}}{3^i}, \quad \alpha \in \{k, t, e\}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Categorical Completion]
+\label{def:completion}
+Extend partial string to full representation:
+\begin{equation}
+\mathcal{C}(T_{\text{partial}}) = T_{\text{partial}} \oplus T_{\text{completion}}
+\end{equation}
+where $\oplus$ denotes concatenation and $T_{\text{completion}}$ is determined by minimizing categorical distance to accessible states.
+\end{definition}
+
+\begin{definition}[Trajectory Composition]
+\label{def:composition}
+Concatenate two trajectory segments:
+\begin{equation}
+T_3 = T_1 \circ T_2 = \trit_1^{(1)} \cdots \trit_{k_1}^{(1)} \trit_1^{(2)} \cdots \trit_{k_2}^{(2)}
+\end{equation}
+navigating first through $T_1$ then through $T_2$.
+\end{definition}
+
+These operations (project, complete, compose) replace Boolean logic (AND, OR, NOT) as fundamental computational primitives in ternary architecture.
+
+\subsection{Hardware Realization}
+
+\begin{proposition}[Three-Phase Oscillator Encoding]
+\label{prop:three_phase}
+Three-phase oscillators with phase separation $2\pi/3$ provide natural ternary encoding:
+\begin{equation}
+\phi_i = \frac{2\pi i}{3}, \quad i \in \{0, 1, 2\}
+\end{equation}
+maps to trit values $\trit \in \{0, 1, 2\}$.
+\end{proposition}
+
+\begin{proof}
+Three-phase system has three oscillators with phases:
+\begin{align}
+\phi_0 &= 0 \\
+\phi_1 &= 2\pi/3 \\
+\phi_2 &= 4\pi/3
+\end{align}
+
+At any instant, exactly one oscillator is in dominant phase (maximum amplitude). Define mapping:
+\begin{equation}
+\trit(t) = \argmax_{i \in \{0,1,2\}} |\cos(\omega t + \phi_i)|
+\end{equation}
+
+This encoding is bijective: each trit value corresponds to unique phase relationship. Physical implementation using three-phase AC power (ubiquitous in industrial applications) provides immediate hardware substrate for ternary logic.
+\end{proof}
+
+\subsection{Navigation Complexity}
+
+\begin{theorem}[Logarithmic Navigation]
+\label{thm:navigation}
+Reaching target cell in $\Sspace$ requires $O(\log_3 n)$ operations for partition depth $n$.
+\end{theorem}
+
+\begin{proof}
+At depth $k$, there are $3^k$ cells. To specify unique cell requires $k$ trits (Theorem \ref{thm:trit_coord}). For $3^k \approx n$ cells:
+\begin{equation}
+k = \log_3 n
+\end{equation}
+
+Each trit specifies one subdivision operation (constant time $O(1)$). Total operations:
+\begin{equation}
+\mathcal{O}(k) = \mathcal{O}(\log_3 n)
+\end{equation}
+
+Compared to binary search $O(\log_2 n)$, ternary navigation has same asymptotic complexity but with additional advantage: three-dimensional position is intrinsically encoded rather than requiring separate coordinate transformations.
+\end{proof}
+
+The ternary representation in $S$-entropy space thus provides:
+\begin{itemize}
+\item Natural encoding of three-dimensional structure
+\item Information density enhancement $(3/2)^k$
+\item Position-trajectory duality (address IS path)
+\item Continuous emergence through infinite limits
+\item Logarithmic navigation complexity
+\item Direct hardware mapping to three-phase oscillators
+\end{itemize}
+
+This establishes ternary as the natural mathematical representation of bounded oscillatory systems in three-dimensional categorical space.

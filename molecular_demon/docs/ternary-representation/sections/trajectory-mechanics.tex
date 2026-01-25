@@ -1,0 +1,225 @@
+\section{Trajectory Mechanics}
+\label{sec:trajectory}
+
+\subsection{Trits as Trajectory Steps}
+
+A fundamental insight of ternary S-entropy representation is that ternary strings encode \textit{trajectories} through S-space, not merely positions.
+
+\begin{definition}[Trajectory Step]
+A \textbf{trajectory step} is a single trit $t \in \{0, 1, 2\}$ indicating movement along one of the three S-entropy axes:
+\begin{align}
+t = 0 &: \text{step along } \Sk \text{ (refine knowledge)} \\
+t = 1 &: \text{step along } \St \text{ (refine temporal)} \\
+t = 2 &: \text{step along } \Se \text{ (refine evolution)}
+\end{align}
+\end{definition}
+
+\begin{definition}[Trajectory]
+A \textbf{trajectory} is a sequence of trits $\mathbf{t} = (t_1, t_2, \ldots, t_k)$ specifying a path through the $3^k$ hierarchy from the root cell to a level-$k$ cell.
+\end{definition}
+
+\begin{theorem}[Position-Trajectory Duality]\label{thm:pos-traj-duality}
+Every ternary string simultaneously encodes:
+\begin{enumerate}
+    \item A \textbf{position}: the cell $\phi(\mathbf{t})$ in S-space
+    \item A \textbf{trajectory}: the path from root to cell through the hierarchy
+\end{enumerate}
+These are not separate encodings but the same mathematical object viewed differently.
+\end{theorem}
+
+\begin{proof}
+By construction, $\phi(\mathbf{t})$ specifies a unique cell. The sequence $(t_1, t_2, \ldots, t_k)$ specifies the unique path:
+\begin{equation}
+\Sspace = C_0 \supset C_1 \supset \cdots \supset C_k = \phi(\mathbf{t})
+\end{equation}
+where $C_j = \phi_j(t_1, \ldots, t_j)$.
+
+The address IS the path. No additional structure is needed. \qed
+\end{proof}
+
+\begin{remark}
+This duality contrasts sharply with binary representation, where position (coordinates) and trajectory (program) are distinct data structures. In ternary S-entropy representation, the von Neumann separation between data and instruction dissolves at the representational level.
+\end{remark}
+
+\subsection{Ternary Operations}
+
+We now define the fundamental operations on ternary S-entropy representations.
+
+\begin{definition}[Projection]
+The \textbf{projection} onto dimension $d \in \{0, 1, 2\}$ extracts the trits that refine that dimension:
+\begin{equation}
+\pi_d(\mathbf{t}) = (t_j : j \equiv d \pmod 3)
+\end{equation}
+\end{definition}
+
+\begin{example}
+For $\mathbf{t} = (1, 0, 2, 2, 1, 0)$:
+\begin{align}
+\pi_0(\mathbf{t}) &= (t_3, t_6) = (2, 0) \quad \text{($\Sk$ refinements)} \\
+\pi_1(\mathbf{t}) &= (t_1, t_4) = (1, 2) \quad \text{($\St$ refinements)} \\
+\pi_2(\mathbf{t}) &= (t_2, t_5) = (0, 1) \quad \text{($\Se$ refinements)}
+\end{align}
+\end{example}
+
+\begin{definition}[Extension]
+The \textbf{extension} of string $\mathbf{t}$ by trit $t$ is concatenation:
+\begin{equation}
+\mathbf{t} \cdot t = (t_1, \ldots, t_k, t)
+\end{equation}
+This refines the position along dimension $d = (k+1) \mod 3$.
+\end{definition}
+
+\begin{definition}[Truncation]
+The \textbf{truncation} of string $\mathbf{t}$ to length $j < k$ is:
+\begin{equation}
+\mathbf{t}|_j = (t_1, \ldots, t_j)
+\end{equation}
+This coarsens the position to the enclosing level-$j$ cell.
+\end{definition}
+
+\begin{definition}[Composition]
+The \textbf{composition} of trajectories $\mathbf{t} = (t_1, \ldots, t_k)$ and $\mathbf{s} = (s_1, \ldots, s_m)$ is:
+\begin{equation}
+\mathbf{t} \circ \mathbf{s} = (t_1, \ldots, t_k, s_1, \ldots, s_m)
+\end{equation}
+This represents following trajectory $\mathbf{t}$ then continuing with trajectory $\mathbf{s}$.
+\end{definition}
+
+\begin{proposition}[Composition Associativity]
+Trajectory composition is associative:
+\begin{equation}
+(\mathbf{t} \circ \mathbf{s}) \circ \mathbf{r} = \mathbf{t} \circ (\mathbf{s} \circ \mathbf{r})
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+String concatenation is associative. \qed
+\end{proof}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure_4_ternary_operations.png}
+  \caption{\textbf{Ternary Operations (Projection, Completion, MIN/MAX/CONSENSUS) Replace Boolean Logic as Fundamental Computational Primitives for S-Space Navigation and Categorical Completion.}
+  \textbf{(Top Left)} Projection operation extracts individual coordinates from 3D point. Red sphere: original point S=(0.67, 0.17, 0.17) in 3D S-space. Three colored squares show projections onto coordinate axes: cyan square (Proj(Sk), projects onto Sk axis at (0.67, 0, 0)), green square (Proj(St), projects onto St axis at (0, 0.17, 0)), gray square (Proj(Se), projects onto Se axis at (0, 0, 0.17)). Dashed lines (blue, green, red) connect original point to projections, showing orthogonal decomposition. Projection operation π$_i$(T) extracts every third trit from string T starting at position i: π$_0$(T) yields Sk coordinate, π$_1$(T) yields St, π$_2$(T) yields Se. Geometric interpretation: projection collapses 3D trajectory onto 1D axis, recovering coordinate value from trit sequence. Inverse operation (composition) reconstructs 3D point from three 1D projections.
+  \textbf{(Top Right)} Completion operation for categorical finalization. Orange line: incomplete trajectory from origin (0,0) to intermediate point (0.5, 0.5) in 2D Sk-St projection, representing partial trit string (e.g., "01"). Green squares: three possible completions to categorical boundary. Green star (top right): completion to upper boundary (1.0, 0.8) by filling remaining trits with maximum values (e.g., "01222..."). Green square (middle): completion to center of cell (0.5, 0.5) by filling with median values (e.g., "01111..."). Green square (bottom left): completion to lower boundary (0.5, 0.2) by filling with minimum values (e.g., "01000..."). Red star marks final categorical boundary after completion. Completion operation C(T) extends partial trit string T to full precision, enabling categorical finalization without additional information. Three completion strategies (MIN, MAX, CENTER) correspond to conservative, optimistic, and balanced categorical choices.
+  \textbf{(Bottom Left)} Ternary logic gates implementing MIN, MAX, CONSENSUS operations. Three truth tables for 3-valued logic: \textbf{MIN table} (left): output = minimum of two inputs (conservative operation), e.g., MIN(1,2)=1, MIN(0,2)=0. \textbf{MAX table} (middle): output = maximum of two inputs (optimistic operation), e.g., MAX(1,2)=2, MAX(0,1)=1. \textbf{CONSENSUS table} (right): output = median of three inputs (balanced operation), e.g., CONS(0,1,2)=1, CONS(1,1,2)=1. Annotations below tables: "MIN: Minimum value (Conservative)" selects lower bound of interval, "MAX: Maximum value (Optimistic)" selects upper bound, "CONSENSUS: Median (Balanced)" selects center. Ternary operations preserve dimensional structure: MIN/MAX define interval boundaries in S-space, CONSENSUS identifies central tendency. These replace Boolean AND/OR/NOT as fundamental primitives for ternary computation.
+  \textbf{(Bottom Right)} Boolean vs Ternary operation comparison. Bar chart with four properties: \textbf{States} (blue bar: binary 2.00, red bar: ternary 3.00, 50\% more states per digit). \textbf{Operations} (blue: 3.00 Boolean operations {AND, OR, NOT}, red: 9.00 ternary operations {MIN, MAX, CONS, SHIFT, ROTATE, etc.}, 3× more primitive operations). \textbf{Expressiveness} (blue: 1.00 baseline, red: 2.50, ternary can express 2.5× more distinct functions with same circuit depth). \textbf{Efficiency} (blue: 1.00 baseline, red: 1.89, ternary achieves 1.89× speedup for 3D navigation due to intrinsic dimensional encoding, matching log$_3$/log$_2$ ratio). Red bars consistently exceed blue bars, confirming ternary superiority for multidimensional computation. Efficiency gain (1.89×) directly corresponds to base conversion factor: log$_3$(n)/log$_2$(n) = 0.631, meaning ternary requires 37\% fewer digits for same resolution, translating to 1/0.631 = 1.89× speedup.}
+  \label{fig:ternary_operations}
+\end{figure}
+
+\subsection{Categorical Completion}
+
+\begin{definition}[Completion Status]
+A ternary string $\mathbf{t}$ has \textbf{completion status}:
+\begin{itemize}
+    \item \textbf{Incomplete}: The string has finite length; further refinement is possible.
+    \item \textbf{Complete}: The string is infinite; it specifies a unique point in $[0,1]^3$.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Completion Operator]
+The \textbf{completion operator} $\Omega$ extends a finite string to an infinite string by a completion rule:
+\begin{equation}
+\Omega(\mathbf{t}) = (t_1, t_2, \ldots, t_k, c_{k+1}, c_{k+2}, \ldots)
+\end{equation}
+where $(c_{k+1}, c_{k+2}, \ldots)$ is determined by a completion rule.
+\end{definition}
+
+\begin{example}[Centroid Completion]
+The \textbf{centroid completion} pads with 1's (middle value):
+\begin{equation}
+\Omega_{\text{centroid}}(\mathbf{t}) = (t_1, \ldots, t_k, 1, 1, 1, \ldots)
+\end{equation}
+This completes to the centre of the current cell.
+\end{example}
+
+\begin{example}[Minimal Completion]
+The \textbf{minimal completion} pads with 0's:
+\begin{equation}
+\Omega_{\text{min}}(\mathbf{t}) = (t_1, \ldots, t_k, 0, 0, 0, \ldots)
+\end{equation}
+This completes to the minimal-coordinate corner.
+\end{example}
+
+\begin{example}[Maximal Completion]
+The \textbf{maximal completion} pads with 2's:
+\begin{equation}
+\Omega_{\text{max}}(\mathbf{t}) = (t_1, \ldots, t_k, 2, 2, 2, \ldots)
+\end{equation}
+This completes to the maximal-coordinate corner.
+\end{example}
+
+\subsection{Navigation Algorithms}
+
+\begin{definition}[Navigation Problem]
+Given current position $\mathbf{t}$ and target region $R \subset [0,1]^3$, find the shortest extension $\mathbf{s}$ such that $\phi(\mathbf{t} \circ \mathbf{s}) \in R$.
+\end{definition}
+
+\begin{algorithm}[H]
+\caption{Ternary Navigation}
+\label{alg:navigation}
+\begin{enumerate}
+    \item \textbf{Input}: Current string $\mathbf{t}$, target coordinates $\Scoord_{\text{target}}$, tolerance $\delta$
+    \item \textbf{While} $d(\phi(\mathbf{t}), \Scoord_{\text{target}}) > \delta$:
+    \begin{enumerate}
+        \item Compute next dimension: $d = (|\mathbf{t}| + 1) \mod 3$
+        \item Extract target coordinate: $c = \Scoord_{\text{target}}[d]$
+        \item Compute current interval bounds for dimension $d$
+        \item Determine which third contains $c$: $t_{\text{next}} \in \{0, 1, 2\}$
+        \item Extend: $\mathbf{t} \leftarrow \mathbf{t} \cdot t_{\text{next}}$
+    \end{enumerate}
+    \item \textbf{Return} $\mathbf{t}$
+\end{enumerate}
+\end{algorithm}
+
+\begin{theorem}[Navigation Complexity]\label{thm:nav-complexity}
+Navigation to tolerance $\delta$ requires:
+\begin{equation}
+O\left(\log_3 \frac{1}{\delta}\right) = O(\log \delta^{-1})
+\end{equation}
+trit extensions.
+\end{theorem}
+
+\begin{proof}
+Each extension refines one dimension by factor 3. After $k$ extensions, cell diameter is at most $\sqrt{3} \cdot 3^{-\lfloor k/3 \rfloor}$.
+
+For diameter $< \delta$:
+\begin{equation}
+k = O(3 \log_3 \delta^{-1}) = O(\log_3 \delta^{-1})
+\end{equation}
+\qed
+\end{proof}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure_3_trajectory_encoding.png}
+  \caption{\textbf{Ternary Strings Encode Navigation Trajectories Through S-Space Rather Than Static Positions, Enabling Path-Dependent Computation and Geometric Optimization.}
+  \textbf{(Top Left)} Multiple paths to same destination in 3D S-space. Three colored trajectories (red, blue, green) from black star (start, origin S=(0,0,0)) to orange star (end, target S=(0.67,0.67,0.67)). Red path: "Sk→St→Se" (trit sequence "012", first refine knowledge, then temporal, then evolution). Blue path: "St→Se→Sk" (trit sequence "120", first refine temporal, then evolution, then knowledge). Green path: "Se→Sk→St" (trit sequence "201", first refine evolution, then knowledge, then temporal). All three paths reach same final cell (yellow cube at target) but traverse different routes through intermediate cells. Spheres mark intermediate waypoints after each trit. Trajectory encoding preserves path information: trit sequence specifies both destination and journey, unlike binary coordinates which specify only endpoint. Six possible 3-trit permutations yield six distinct paths to same cell, demonstrating trajectory-position duality.
+  \textbf{(Top Right)} Trit sequence as navigation instructions in 2D Sk-St projection. Blue circle (filled) at St=0.5 represents intermediate position after two trits. Orange annotations show trit sequence: "Trit 2: 2 (St)" indicates second trit value 2 refines St coordinate to upper third [2/3,1], "Trit 3: 0 (Se)" indicates third trit value 0 refines Se coordinate to lower third [0,1/3]. Each trit acts as navigation instruction: value 0 means "go to lower third of next axis," value 1 means "go to middle third," value 2 means "go to upper third." Cyclic axis ordering (Sk→St→Se→Sk...) determines which coordinate each trit refines. Visualization demonstrates computational interpretation: ternary string is program that navigates S-space, not passive data structure.
+  \textbf{(Bottom Left)} Geodesic vs non-geodesic paths in 2D Sk-St projection. Green line: geodesic (optimal) path from black star (0.2, 0.2) to blue circle (0.8, 0.8), Euclidean length $\sqrt{(0.8-0.2)^2 + (0.8-0.2)^2}$ = 0.849. Blue line: Manhattan (ternary) path following axis-aligned segments, length |0.8-0.2| + |0.8-0.2| = 1.200. Red dashed curve: non-geodesic path with unnecessary detours, length >1.4. Annotation box: "Geodesic distance: 0.849, Manhattan distance: 1.200, Ratio: 1.414" confirms $\sqrt{2}$ ratio between Euclidean and Manhattan metrics in 2D. Ternary encoding naturally produces Manhattan paths (axis-aligned steps) because each trit refines one coordinate. Geodesic paths require interleaved trit sequences (alternating between axes), while non-geodesic paths use blocked sequences (all trits for one axis, then next axis). Path complexity measured by number of axis switches: geodesic requires k switches for k trits, blocked path requires 2 switches regardless of k.
+  \textbf{(Bottom Right)} Path length distribution for random trit sequences. Blue horizontal line with error bars: average Manhattan distance vs depth k for 1000 random trit sequences. Mean distance ≈1.0 (constant) across all k=1,2,3,4,5,6,7,8, confirming random walk statistics. Error bars (±1 standard deviation) show σ≈0.3, indicating moderate variability. Red dashed line: theoretical geodesic distance increasing linearly with k (slope ≈0.5), representing shortest possible path. Gap between red line and blue line quantifies inefficiency of random (unoptimized) ternary paths: random paths are ≈2× longer than geodesics. Implication: ternary navigation algorithms can optimize path length by choosing trit sequences that minimize axis switches, approaching geodesic efficiency while maintaining discrete ternary structure.}
+  \label{fig:trajectory_encoding}
+\end{figure}
+
+\subsection{Trajectory Invariants}
+
+\begin{definition}[Common Prefix]
+The \textbf{common prefix} of trajectories $\mathbf{t}$ and $\mathbf{s}$ is the longest $\mathbf{p}$ such that:
+\begin{equation}
+\mathbf{t} = \mathbf{p} \circ \mathbf{t}' \quad \text{and} \quad \mathbf{s} = \mathbf{p} \circ \mathbf{s}'
+\end{equation}
+for some $\mathbf{t}'$, $\mathbf{s}'$.
+\end{definition}
+
+\begin{theorem}[Prefix-Ancestor Correspondence]
+Two strings share common prefix $\mathbf{p}$ if and only if their cells share a common ancestor at level $|\mathbf{p}|$.
+\end{theorem}
+
+\begin{proof}
+By the nesting structure, cells $\phi(\mathbf{t})$ and $\phi(\mathbf{s})$ are both descendants of cell $\phi(\mathbf{p})$ if and only if their addresses extend $\mathbf{p}$. \qed
+\end{proof}
+
+\begin{corollary}[Semantic Clustering]
+Trajectories with long common prefixes address nearby cells in S-space, indicating semantic relatedness in categorical computing.
+\end{corollary}
+

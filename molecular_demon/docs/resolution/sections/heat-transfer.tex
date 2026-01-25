@@ -1,0 +1,537 @@
+%==============================================================================
+\section{Heat Transfer versus Entropy: The Fundamental Decoupling}
+\label{sec:heat_transfer}
+%==============================================================================
+
+A critical insight emerges from analyzing what happens when the demon's door operation results in a collision near the aperture. The analysis reveals that heat transfer and entropy change are fundamentally decoupled: heat can flow in either direction during individual molecular collisions, while entropy increases monotonically regardless of heat flow direction. This decoupling exposes a profound conceptual error in the original formulation of Maxwell's demon paradox. Maxwell framed the paradox in terms of heat flow (can the demon transfer heat from cold to hot?), implicitly assuming that the direction of heat flow determines the direction of entropy change. This assumption is correct macroscopically in the thermodynamic limit but fails at the microscopic level where individual molecular collisions exhibit thermal fluctuations. The demon operates at the microscopic level, attempting to exploit these fluctuations, but the quantity it manipulates (heat) is not the quantity constrained by the Second Law (entropy). The Second Law constrains entropy, which is a categorical property determined by phase-lock network structure, not heat, which is a statistical property determined by averaging over many collisions. This fundamental decoupling renders the demon's strategy irrelevant: even if the demon succeeds in transferring heat from cold to hot in individual collisions, entropy still increases through categorical completion, preserving the Second Law.
+
+\subsection{The Collision Scenario}
+
+We begin by defining the physical scenario precisely. Consider the demon opening the door to allow a fast molecule from the hot container (A) to pass through the aperture to the cold container (B). As this molecule transits through the aperture, it may collide with a molecule already present in container B near the aperture. This collision is the critical event that reveals the heat-entropy decoupling.
+
+\begin{definition}[Door Collision Event]
+\label{def:door_collision}
+A \textbf{door collision event} occurs when a molecule transiting through the demon's aperture collides with a molecule in the receiving container before fully entering and thermalizing with the bulk gas. Let $m_A$ denote the transiting molecule from container A with initial velocity $\mathbf{v}_A$ (before collision), $m_B$ denote the molecule in container B with initial velocity $\mathbf{v}_B$ (before collision), and $\mathbf{v}_A'$, $\mathbf{v}_B'$ denote the post-collision velocities of molecules $m_A$ and $m_B$, respectively. The collision occurs in the aperture region, a small volume near the partition where molecules from both containers can interact before the transiting molecule has equilibrated with its destination container.
+\end{definition}
+
+\begin{remark}[Physical Realization]
+\label{rem:collision_physical}
+Door collision events are not merely theoretical constructs but are physically inevitable in any realistic implementation of Maxwell's demon. The aperture has finite size (it must be large enough for molecules to pass through), and the receiving container has finite density (molecules are present near the aperture). The probability of a collision during transit is approximately $P_{\text{collision}} \sim \rho \sigma v_A \Delta t$, where $\rho$ is the number density in container B, $\sigma$ is the collision cross-section, $v_A$ is the transiting molecule's speed, and $\Delta t$ is the transit time through the aperture. For typical gas densities and aperture sizes, $P_{\text{collision}} \sim 0.1$-$0.5$, meaning that a substantial fraction of door operations result in collisions. These collisions cannot be avoided without reducing the aperture size to the point where molecular transport becomes negligibly slow.
+\end{remark}
+
+We analyse three cases based on collision outcomes, showing that in all cases entropy increases, regardless of the heat flow direction.
+
+\subsection{Case 1: Elastic Collision with Bounce-Back}
+
+The first case considers an elastic collision in which the transiting molecule $m_A$ bounces back to its original container A after colliding with molecule $m_B$ in container B.
+
+\begin{proposition}[Bounce-Back Heat Transfer]
+\label{prop:bounce_back}
+If molecule $m_A$ undergoes an elastic collision with molecule $m_B$ and bounces back to container A, then energy transfers from $m_A$ to $m_B$ (heat flows from hot to cold), the "counted" molecule returns to its origin (the demon's sorting operation fails), heat has transferred in the standard direction (hot $\to$ cold), and entropy increases in both containers through the formation of new phase-lock correlations.
+\end{proposition}
+
+\begin{proof}
+In an elastic collision, kinetic energy is conserved:
+\begin{equation}
+\frac{1}{2}m_A v_A^2 + \frac{1}{2}m_B v_B^2 = \frac{1}{2}m_A v_A'^2 + \frac{1}{2}m_B v_B'^2
+\label{eq:elastic_energy}
+\end{equation}
+where $v_A = |\mathbf{v}_A|$ and $v_B = |\mathbf{v}_B|$ are the initial speeds, and $v_A' = |\mathbf{v}_A'|$ and $v_B' = |\mathbf{v}_B'|$ are the final speeds.
+
+Momentum is also conserved:
+\begin{equation}
+m_A \mathbf{v}_A + m_B \mathbf{v}_B = m_A \mathbf{v}_A' + m_B \mathbf{v}_B'
+\label{eq:elastic_momentum}
+\end{equation}
+
+If molecule $m_A$ bounces back to container A, its velocity component perpendicular to the partition must reverse sign: $v_{A,\perp}' < 0$ (where we define positive perpendicular velocity as pointing from A to B). For this to occur, molecule $m_A$ must transfer momentum to molecule $m_B$ in the perpendicular direction.
+
+For equal-mass molecules ($m_A = m_B = m$), the standard elastic collision formulas give:
+\begin{align}
+\mathbf{v}_A' &= \mathbf{v}_B \label{eq:elastic_vA} \\
+\mathbf{v}_B' &= \mathbf{v}_A \label{eq:elastic_vB}
+\end{align}
+for a head-on collision. The velocities are exchanged. Since $m_A$ was initially fast (from the hot container) and $m_B$ was initially slow (from the cold container), after the collision $m_A$ is slow and $m_B$ is fast. The kinetic energies are:
+\begin{align}
+E_A' &= \frac{1}{2}m v_B^2 < \frac{1}{2}m v_A^2 = E_A \\
+E_B' &= \frac{1}{2}m v_A^2 > \frac{1}{2}m v_B^2 = E_B
+\end{align}
+
+Energy has been transferred from molecule $m_A$ to molecule $m_B$. Since $m_A$ returns to container A with reduced energy and $m_B$ remains in container B with increased energy, the net effect is heat transfer from hot container A to cold container B. This is the standard thermodynamic direction.
+
+However, the demon's sorting operation has failed: the molecule that was supposed to be transferred from A to B has returned to A. The demon opened the door intending to increase the temperature difference, but the collision reversed the transfer.
+
+For entropy, we must consider the categorical effects. The collision creates new phase-lock correlations between molecules $m_A$ and $m_B$. Before the collision, the two molecules had independent phases (they were in different containers and had never interacted). After the collision, their trajectories are correlated: the post-collision velocities $\mathbf{v}_A'$ and $\mathbf{v}_B'$ are deterministically related to the pre-collision velocities through the collision dynamics.
+
+This correlation increases the accessible categorical state space. Before the collision, the system could be in any categorical state consistent with the independent phases of $m_A$ and $m_B$. After the collision, the system can be in any categorical state consistent with the correlated phases. The number of accessible states increases because the correlation creates new equivalence classes: states that differ in the correlation structure are categorically distinct.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/arg3_retrieval_paradox.png}
+\caption{\textbf{The Retrieval Paradox—Velocity-Based Sorting is Self-Defeating.}
+\textbf{(A)} Timescale hierarchy showing collisions happen first. Molecular collision timescale $\tau_{\text{coll}} \sim 10^{-10}$ s (red bar) is orders of magnitude faster than measurement ($\sim 10^{-8}$ s), gate operation ($\sim 10^{-6}$ s), sorting ($\sim 10^{-3}$ s), and demon decision-making ($\sim 10^{-1}$ s). The collision rate $\nu_{\text{coll}} \sim 10^{10}$ collisions/s in gases at STP ensures velocities randomize before any sorting operation can complete. The label ``TOO SLOW!'' emphasizes that sorting timescale exceeds thermalization timescale by $10^7$, making velocity-based sorting operationally impossible.
+\textbf{(B)} Phase space scrambling showing sorted states randomize in $\tau_{\text{coll}}$. Initially sorted molecules (blue points, $t=0$) with velocities clustered in one region of phase space become completely randomized (red points, $t > \tau_{\text{coll}}$) after a single collision time. The velocity distribution returns to Maxwell-Boltzmann, erasing any sorting. This demonstrates that maintaining sorted states requires infinite retrieval operations.
+\textbf{(C)} Sorting versus thermalization dynamics. The sorting signal strength $S(t) = |\langle v_A \rangle - \langle v_B \rangle|/\sigma_v$ (teal curve) decays exponentially as $S(t) = S_0 \exp(-t/\tau_{\text{coll}})$, while thermal randomization (red shaded region) dominates. The system relaxes to equilibrium ($S \to 0$) within $\sim 2\tau_{\text{coll}}$. The demon's sorting attempt (starting from yellow circle at $S_0 \approx 0.9$) is overwhelmed by thermalization.
+\textbf{(D)} Long-term sorting attempts always return to 50/50 equilibrium. Three independent sorting attempts (colored traces) show fast/total molecule ratio fluctuating around equilibrium value 0.5 (red dashed line). Despite initial deviations, all attempts converge to the equilibrium distribution within $\sim 50$ time steps. The red shaded band indicates $\pm 2\sigma$ fluctuations. This confirms that velocity-sorted states cannot be maintained: the retrieval paradox makes the demon's operation self-defeating.}
+\label{fig:retrieval_paradox}
+\end{figure*}
+
+Formally, the entropy increase from correlation is:
+\begin{equation}
+\Delta S_{\text{correlation}} = k_B \ln \frac{\Omega_{\text{correlated}}}{\Omega_{\text{uncorrelated}}} > 0
+\label{eq:correlation_entropy}
+\end{equation}
+where $\Omega_{\text{correlated}}$ is the number of categorical states accessible after the collision (with correlation) and $\Omega_{\text{uncorrelated}}$ is the number accessible before (without correlation). The inequality holds because correlations enrich categorical structure, as proven in Proposition~\ref{prop:entropy_edge_density}: more edges (correlations) correspond to higher entropy.
+
+Additionally, both containers experience categorical completion. In container A, the returning molecule $m_A$ (now with reduced energy) must re-establish phase-lock relationships with its neighbors. The network configuration before departure was $\phaselockgraph_A$; after return, it is $\phaselockgraph_A'$ with different edge structure. From Theorem~\ref{thm:categorical_cascade}, this reconfiguration is a categorical completion: $C_A \prec C_A'$, giving $\Delta S_A > 0$.
+
+In container B, molecule $m_B$ (now with increased energy) has altered phase-lock relationships with its neighbors. The network advances: $C_B \prec C_B'$, giving $\Delta S_B > 0$.
+
+The total entropy increase is:
+\begin{equation}
+\Delta S_{\text{total}} = \Delta S_A + \Delta S_B + \Delta S_{\text{correlation}} > 0
+\end{equation}
+
+Entropy increases in both containers despite the fact that the demon's sorting operation failed and heat flowed in the standard direction. \qed
+\end{proof}
+
+\begin{remark}[Demon's Failure in Case 1]
+\label{rem:demon_failure_case1}
+Case 1 demonstrates that even when heat flows in the thermodynamically expected direction (hot $\to$ cold), the demon's strategy fails. The demon opened the door to transfer a fast molecule from A to B, intending to make A colder and B hotter. But the collision reversed the transfer, and the fast molecule returned to A with reduced energy. The net effect is the opposite of the demon's intention: container A has lost energy (the returned molecule has less energy than when it left), and container B has gained energy (molecule $m_B$ is now faster). The temperature difference has decreased, not increased. The demon has accelerated equilibration rather than creating a temperature gradient. This failure occurs even though the demon "measured" the molecule correctly (it was indeed fast) and "opened the door at the right time" (the molecule was transiting). The failure is due to the uncontrollable collision dynamics, which are determined by microscopic phase-space trajectories that the demon cannot predict or control.
+\end{remark}
+
+\subsection{Case 2: Inelastic Collision—Cold Molecule Accelerates}
+
+The second case considers an inelastic collision in which energy is dissipated (converted to internal degrees of freedom or radiated away) and the cold molecule $m_B$ gains significant kinetic energy.
+
+\begin{proposition}[Standard Heat Transfer]
+\label{prop:standard_heat}
+If the collision is inelastic and molecule $m_B$ gains significant kinetic energy (accelerates), then heat transfers from hot to cold (standard thermodynamic direction), entropy increases in both containers through dissipation and phase-lock correlation, and this is the "expected" thermodynamic outcome consistent with macroscopic heat flow.
+\end{proposition}
+
+\begin{proof}
+In an inelastic collision, kinetic energy is not conserved. Some kinetic energy is converted to internal energy (vibrational, rotational excitation of molecules) or radiated away (photon emission). Energy conservation including dissipation is:
+\begin{equation}
+\frac{1}{2}m_A v_A^2 + \frac{1}{2}m_B v_B^2 = \frac{1}{2}m_A v_A'^2 + \frac{1}{2}m_B v_B'^2 + Q_{\text{dissipated}}
+\label{eq:inelastic_energy}
+\end{equation}
+where $Q_{\text{dissipated}} > 0$ is the energy converted to non-kinetic forms.
+
+If molecule $m_B$ accelerates ($v_B' > v_B$), its kinetic energy increases:
+\begin{equation}
+E_B' = \frac{1}{2}m_B v_B'^2 > \frac{1}{2}m_B v_B^2 = E_B
+\end{equation}
+
+For energy to be conserved (equation~\eqref{eq:inelastic_energy}), molecule $m_A$ must lose more energy than $m_B$ gains:
+\begin{equation}
+E_A - E_A' = (E_B' - E_B) + Q_{\text{dissipated}} > E_B' - E_B
+\end{equation}
+
+Energy has flowed from molecule $m_A$ (initially fast, from hot container) to molecule $m_B$ (initially slow, from cold container). This is conventional heat transfer in the standard direction: hot $\to$ cold.
+
+Entropy increases through three mechanisms.
+
+First, dissipation increases entropy. The dissipated energy $Q_{\text{dissipated}}$ is converted to internal degrees of freedom (molecular vibrations, rotations) or radiated away. This conversion is irreversible and increases entropy by:
+\begin{equation}
+\Delta S_{\text{dissipation}} = \frac{Q_{\text{dissipated}}}{T} > 0
+\label{eq:dissipation_entropy}
+\end{equation}
+where $T$ is the local temperature. This is the standard thermodynamic entropy increase from irreversible energy conversion.
+
+Second, phase-lock correlations form from the collision. As in Case 1, the collision creates correlations between the trajectories of $m_A$ and $m_B$, increasing the accessible categorical state space:
+\begin{equation}
+\Delta S_{\text{correlation}} = k_B \ln \frac{\Omega_{\text{correlated}}}{\Omega_{\text{uncorrelated}}} > 0
+\end{equation}
+
+Third, categorical completion occurs in both containers. Molecule $m_A$ (now with reduced energy) reconfigures its phase-lock relationships in container A: $C_A \prec C_A'$, giving $\Delta S_A > 0$. Molecule $m_B$ (now with increased energy) reconfigures its relationships in container B: $C_B \prec C_B'$, giving $\Delta S_B > 0$.
+
+The total entropy increase is:
+\begin{equation}
+\Delta S_{\text{total}} = \Delta S_A + \Delta S_B + \Delta S_{\text{correlation}} + \Delta S_{\text{dissipation}} > 0
+\end{equation}
+
+This is the "expected" thermodynamic outcome: heat flows from hot to cold, and entropy increases. Case 2 is consistent with macroscopic thermodynamics and does not present a paradox. \qed
+\end{proof}
+
+\begin{remark}[Macroscopic Consistency]
+\label{rem:macroscopic_consistency}
+Case 2 demonstrates that when averaged over many collisions, the demon's door operations produce the macroscopically expected outcome: heat flows from hot to cold, and entropy increases. This is why Maxwell's demon does not violate thermodynamics in practice: the majority of collisions (or at least a sufficient fraction) behave like Case 2, transferring heat in the standard direction and increasing entropy. The demon cannot selectively allow only "favorable" collisions (those that transfer heat cold $\to$ hot) because it cannot predict collision outcomes, which depend on microscopic phase-space details beyond the demon's knowledge. Even if the demon could predict outcomes, Case 3 (below) shows that "favorable" collisions still increase entropy, so the demon gains nothing.
+\end{remark}
+
+\subsection{Case 3: Inelastic Collision—Cold Molecule Decelerates}
+
+The third case is the most revealing. It considers an inelastic collision in which the cold molecule $m_B$ loses kinetic energy (decelerates), transferring energy to the hot molecule $m_A$, which returns to container A with more energy than it started with. This appears to be heat transfer from cold to hot, apparently violating the Second Law.
+
+\begin{theorem}[Reverse Heat Transfer with Entropy Increase]
+\label{thm:reverse_heat}
+If the collision is inelastic and molecule $m_B$ loses significant kinetic energy (decelerates), then heat transfers from cold to hot (reverse of the standard thermodynamic direction), the fast molecule $m_A$ may return to container A with more energy than it started with (apparent violation of energy conservation, resolved by extracting energy from $m_B$), and entropy still increases in both containers through phase-lock correlation and categorical completion, preserving the Second Law despite reverse heat flow.
+\end{theorem}
+
+\begin{proof}
+Consider an inelastic collision with the following energy changes:
+\begin{align}
+E_B' &< E_B \quad \text{(cold molecule lost kinetic energy)} \label{eq:EB_decrease} \\
+E_A' &> E_A \quad \text{(hot molecule gained kinetic energy)} \label{eq:EA_increase}
+\end{align}
+
+At first glance, this appears to violate energy conservation: how can both molecules change energy in the same direction (one loses, one gains more than the other loses)? The resolution is that molecule $m_B$ had kinetic energy before the collision, and this energy is extracted during the collision and transferred to molecule $m_A$. Additionally, dissipation may be negative (energy is released from internal degrees of freedom), or the collision may be asymmetric (molecule $m_B$ was moving toward the aperture, and the collision converts this directed motion into increased speed for $m_A$).
+
+Formally, energy conservation, including dissipation, is:
+\begin{equation}
+E_A + E_B = E_A' + E_B' + Q_{\text{dissipated}}
+\end{equation}
+
+For equations~\eqref{eq:EB_decrease} and~\eqref{eq:EA_increase} to hold simultaneously, we need:
+\begin{equation}
+E_A' - E_A = (E_B - E_B') - Q_{\text{dissipated}}
+\end{equation}
+
+If $Q_{\text{dissipated}}$ is small (nearly elastic collision) or negative (energy released from internal degrees of freedom), then the energy gained by $m_A$ can exceed the energy lost by $m_B$. This is physically possible and does not violate energy conservation.
+
+\textbf{Heat direction:}
+Molecule $m_B$ is in the cold container B and loses energy. Molecule $m_A$ is in (or returning to) the hot container A and gains energy. Energy has flowed from the cold container to the hot container. This is heat transfer in the reverse direction: cold $\to$ hot.
+
+Macroscopically, this appears to violate the Second Law, which states (in the Clausius formulation) that heat cannot spontaneously flow from cold to hot. However, the Clausius formulation applies to macroscopic heat flow averaged over many molecular collisions, not to individual collision events. At the microscopic level, thermal fluctuations allow individual collisions to transfer energy in either direction.
+
+\textbf{Entropy direction:}
+Despite the reverse heat flow, entropy still increases. The collision creates phase-lock correlations between molecules $m_A$ and $m_B$, regardless of the direction of energy transfer. The correlation entropy increase is:
+\begin{equation}
+\Delta S_{\text{correlation}} = k_B \ln \frac{\Omega_{\text{correlated}}}{\Omega_{\text{uncorrelated}}} > 0
+\end{equation}
+
+This entropy increase is independent of energy flow direction because it arises from categorical structure (phase-lock relationships), not from kinetic energy distribution.
+
+In container A, the returning molecule $m_A$ now has more energy than when it left. It must reconfigure its phase-lock relationships with neighbors, which were established when it had lower energy. The network advances: $C_A \prec C_A'$, giving $\Delta S_A > 0$. The categorical completion occurs because the system must incorporate the new information that molecule $m_A$ has returned with altered energy, creating new categorical distinctions.
+
+In container B, molecule $m_B$ has lost energy and now has different phase relationships with its neighbors. The network reconfigures: $C_B \prec C_B'$, giving $\Delta S_B > 0$. The categorical completion occurs because the system must incorporate the information that molecule $m_B$ has been slowed by the collision.
+
+The total entropy increase is:
+\begin{equation}
+\Delta S_{\text{total}} = \Delta S_A + \Delta S_B + \Delta S_{\text{correlation}} > 0
+\end{equation}
+
+Entropy increases despite reverse heat flow. The Second Law is preserved because it constrains entropy (which increases), not heat flow direction (which can fluctuate at the microscopic level). \qed
+\end{proof}
+
+\begin{remark}[Microscopic Fluctuations and Macroscopic Law]
+\label{rem:fluctuations_law}
+Theorem~\ref{thm:reverse_heat} reveals a subtle but crucial distinction between microscopic dynamics and macroscopic thermodynamics. At the microscopic level, individual molecular collisions can transfer energy in either direction due to thermal fluctuations. The Second Law does not forbid these fluctuations; it only requires that they average out macroscopically to produce net heat flow from hot to cold. At the macroscopic level, the probability of a large-scale fluctuation (e.g., all molecules in a gas spontaneously moving to one half of the container) is exponentially small: $P \sim \exp(-N)$ for $N$ molecules. But the probability of a single-molecule fluctuation (one collision transferring energy cold $\to$ hot) is $P \sim 1/2$ (roughly half of collisions transfer energy in each direction). The Second Law emerges from averaging over $N \gg 1$ molecules, not from constraining individual collisions. Maxwell's demon operates at the single-molecule level, attempting to exploit these fluctuations. But as Theorem~\ref{thm:reverse_heat} proves, even "favorable" fluctuations (reverse heat flow) increase entropy, so the demon gains nothing.
+\end{remark}
+
+\subsection{The Fundamental Decoupling}
+
+We now prove the central result: heat transfer and entropy change are fundamentally decoupled at the microscopic level.
+
+\begin{theorem}[Heat-Entropy Decoupling]
+\label{thm:heat_entropy_decoupling}
+Heat transfer direction and entropy change are fundamentally decoupled in individual molecular collisions. The heat transfer direction can be hot $\to$ cold, cold $\to$ hot, or zero (no net energy transfer), while entropy change is always positive:
+\begin{align}
+\text{Heat direction} &\in \{\text{hot} \to \text{cold}, \text{cold} \to \text{hot}, \text{zero}\} \label{eq:heat_direction} \\
+\text{Entropy change} &> 0 \quad \text{(always)} \label{eq:entropy_always_positive}
+\end{align}
+for any collision event at the demon's door. The two quantities are independent: knowing the heat flow direction does not determine the entropy change, and knowing the entropy change does not determine the heat flow direction.
+\end{theorem}
+
+\begin{proof}
+We prove the decoupling by showing that heat transfer and entropy change have different physical origins and obey different constraints.
+
+\textbf{Heat transfer is a kinetic property.}
+Heat transfer is determined by the change in kinetic energy of molecules:
+\begin{equation}
+\Delta Q = \Delta E_A + \Delta E_B = (E_A' - E_A) + (E_B' - E_B)
+\end{equation}
+where positive $\Delta Q$ indicates energy transfer from A to B (hot $\to$ cold) and negative $\Delta Q$ indicates transfer from B to A (cold $\to$ hot). The sign of $\Delta Q$ depends on the details of the collision: the initial velocities $\mathbf{v}_A$, $\mathbf{v}_B$, the impact parameter, the collision cross-section, and whether the collision is elastic or inelastic. These details are determined by microscopic phase-space trajectories, which fluctuate thermally. Therefore, $\Delta Q$ fluctuates: some collisions give $\Delta Q > 0$ (heat hot $\to$ cold), others give $\Delta Q < 0$ (heat cold $\to$ hot), and some give $\Delta Q \approx 0$ (no net heat transfer).
+
+\textbf{Entropy change is a categorical property.}
+Entropy change is determined by the change in phase-lock network structure:
+\begin{equation}
+\Delta S = k_B \ln \frac{\Omega_{\text{final}}}{\Omega_{\text{initial}}} = k_B \Delta |E|
+\end{equation}
+where $\Delta |E|$ is the change in the number of phase-lock edges (from Proposition~\ref{prop:entropy_edge_density}). Every collision creates new phase-lock correlations between the colliding molecules, regardless of energy transfer direction. The correlation arises because the post-collision velocities are deterministically related to the pre-collision velocities through collision dynamics. This correlation increases the number of categorical states accessible to the system (the collision creates new equivalence classes of phase-space regions), increasing entropy.
+
+Formally, before the collision, molecules $m_A$ and $m_B$ have independent phases: $\Phi_A$ and $\Phi_B$ are uncorrelated. After the collision, the phases are correlated: $\Phi_A'$ and $\Phi_B'$ satisfy a constraint imposed by the collision (e.g., momentum conservation, energy conservation). This constraint is a phase-lock relationship, represented by an edge $(m_A, m_B)$ in the phase-lock network. The edge addition increases entropy: $\Delta S = k_B \ln[1 + \Delta |E| / |E|] > 0$ for $\Delta |E| > 0$.
+
+\textbf{Independence of heat and entropy.}
+The three cases analyzed above demonstrate the independence:
+\begin{itemize}
+    \item Case 1 (elastic bounce-back): Heat flows hot $\to$ cold ($\Delta Q > 0$), entropy increases ($\Delta S > 0$).
+    \item Case 2 (inelastic, cold accelerates): Heat flows hot $\to$ cold ($\Delta Q > 0$), entropy increases ($\Delta S > 0$).
+    \item Case 3 (inelastic, cold decelerates): Heat flows cold $\to$ hot ($\Delta Q < 0$), entropy increases ($\Delta S > 0$).
+\end{itemize}
+
+In all three cases, entropy increases ($\Delta S > 0$), but heat flow direction varies ($\Delta Q$ can be positive, negative, or zero). The entropy change is independent of heat flow direction because entropy is determined by categorical structure (phase-lock correlations), not by kinetic energy distribution (heat flow).
+
+\textbf{Universality of entropy increase.}
+Every collision—regardless of energy flow direction, elasticity, or outcome—creates new phase-lock correlations. The collision event itself is a categorical completion that increases accessible states. The correlation is irreversible: once the collision has occurred, the system "knows" that molecules $m_A$ and $m_B$ have interacted, and this knowledge cannot be erased without further collisions (which create additional correlations, further increasing entropy). Therefore, $\Delta S > 0$ for all collisions.
+
+The decoupling is complete: heat direction is variable and fluctuating (determined by kinetic details), while entropy change is universal and monotonic (determined by categorical structure). \qed
+\end{proof}
+
+\begin{corollary}[Second Law Constrains Entropy, Not Heat]
+\label{cor:second_law_entropy}
+The Second Law of Thermodynamics constrains entropy change ($\Delta S \geq 0$ for isolated systems), not heat flow direction ($\Delta Q$ can have either sign). The traditional formulation "heat cannot spontaneously flow from cold to hot" is a macroscopic consequence of entropy increase, not a microscopic constraint. At the microscopic level, heat can flow in either direction in individual collisions, provided that entropy increases (which it always does).
+\end{corollary}
+
+\begin{proof}
+The Second Law, in its most fundamental form, states:
+\begin{equation}
+\Delta S_{\text{universe}} \geq 0
+\end{equation}
+for any process in an isolated system. This constrains entropy, not energy flow.
+
+The Clausius formulation ("heat cannot spontaneously flow from cold to hot") is derived from the entropy formulation by noting that for a reversible heat transfer $\delta Q$ at temperature $T$, the entropy change is $dS = \delta Q / T$. If heat flows from hot ($T_h$) to cold ($T_c$) with $T_h > T_c$, the entropy change is:
+\begin{equation}
+\Delta S = -\frac{\delta Q}{T_h} + \frac{\delta Q}{T_c} = \delta Q \left(\frac{1}{T_c} - \frac{1}{T_h}\right) > 0
+\end{equation}
+since $T_c < T_h$. If heat flows from cold to hot, $\Delta S < 0$, violating the Second Law.
+
+However, this derivation assumes macroscopic heat transfer ($\delta Q \gg k_B T$) and reversibility. At the microscopic level, individual collisions transfer energy $\Delta E \sim k_B T$ (comparable to thermal energy), and the process is irreversible (collisions create correlations). The entropy change from correlation dominates the entropy change from energy transfer:
+\begin{equation}
+\Delta S_{\text{correlation}} \sim k_B \gg \left|\frac{\Delta E}{T}\right| \sim \frac{k_B T}{T} = k_B
+\end{equation}
+
+Therefore, even if energy flows from cold $\to$ to hot (giving a negative $\Delta E / T$ contribution), the total entropy change is positive due to correlation entropy. The Second Law is preserved at the microscopic level, but it constrains entropy (which increases from correlation), not the direction of heat flow (which can fluctuate). \qed
+\end{proof}
+
+
+
+\subsection{Why Maxwell Conflated Heat and Entropy}
+
+The heat-entropy decoupling was not recognised in Maxwell's time, leading to the conflation that underlies the demon paradox.
+
+\begin{proposition}[Maxwell's Conflation]
+\label{prop:maxwell_conflation}
+Maxwell implicitly assumed that heat flow and entropy change are equivalent:
+\begin{equation}
+\Delta Q > 0 \iff \Delta S > 0
+\label{eq:maxwell_conflation}
+\end{equation}
+That is, heat flowing from hot to cold implies an increase in entropy, and an increase in entropy implies heat flowing from hot to cold. This assumption is correct macroscopically in the thermodynamic limit but fails at the microscopic level, where individual collisions exhibit thermal fluctuations.
+\end{proposition}
+
+\begin{proof}
+The macroscopic Second Law, as formulated in the 19th century, relates heat flow to entropy change through:
+\begin{equation}
+dS \geq \frac{\delta Q}{T}
+\label{eq:clausius_inequality}
+\end{equation}
+
+This is the Clausius inequality, which states that entropy change is at least as large as the heat absorbed divided by temperature, with equality for reversible processes. For macroscopic systems in the thermodynamic limit ($N \to \infty$ molecules), this inequality becomes an effective equivalence: processes that transfer heat from hot to cold increase entropy, and processes that increase entropy transfer heat from hot to cold (on average).
+
+Maxwell, reasoning at the single-molecule level, assumed this equivalence would hold. He imagined a demon that could "sort" molecules by velocity, allowing fast molecules to pass from cold to hot and slow molecules from hot to cold, thereby transferring heat from cold to hot without doing work. If heat flow and entropy change are equivalent (equation~\eqref{eq:maxwell_conflation}), then reverse heat flow would imply entropy decrease, violating the Second Law.
+
+However, the equivalence fails at the microscopic level. Individual collisions can transfer energy in either direction due to thermal fluctuations. The Clausius inequality~\eqref{eq:clausius_inequality} applies only statistically, averaged over many collisions. At the single-molecule level, the inequality becomes:
+\begin{equation}
+\langle \Delta S \rangle \geq \left\langle \frac{\Delta Q}{T} \right\rangle
+\end{equation}
+where angle brackets denote ensemble average. Individual collisions can have $\Delta Q < 0$ (reverse heat flow) while still having $\Delta S > 0$ (entropy increase), provided that the average over many collisions satisfies the inequality.
+
+Maxwell measured the wrong quantity: he focused on heat flow (kinetic energy transfer) instead of entropy (categorical structure). At the microscopic level, heat flow fluctuates and can be reversed, but entropy increases monotonically through categorical completion. The demon's strategy of sorting by velocity (to control heat flow) does not control entropy, so the Second Law is preserved. \qed
+\end{proof}
+
+\begin{remark}[Historical Context]
+\label{rem:historical_context}
+Maxwell formulated the demon paradox in 1867, before the statistical mechanical foundations of thermodynamics were fully developed. Boltzmann's statistical interpretation of entropy ($S = k_B \ln \Omega$) was published in 1877, and the connexion between entropy and information was not established until the 20th century (Shannon 1948, Landauer 1961). In Maxwell's time, entropy was understood primarily through its relationship to heat flow (the Clausius formulation), not through its relationship to microscopic states (the Boltzmann formulation). The conflation of heat and entropy was therefore natural given the conceptual tools available. The categorical framework, which distinguishes heat (kinetic property) from entropy (categorical property), provides a resolution that was not accessible to Maxwell.
+\end{remark}
+
+\subsection{Heat is Statistical, Entropy is Categorical}
+
+We now formalise the distinction between heat and entropy in terms of their physical and mathematical properties.
+
+\begin{definition}[Heat as Statistical Average]
+\label{def:heat_statistical}
+Heat flow $Q$ is the statistical average of energy transfer over many molecular collisions:
+\begin{equation}
+Q = \lim_{N \to \infty} \frac{1}{N} \sum_{i=1}^{N} \Delta E_i
+\label{eq:heat_average}
+\end{equation}
+where $\Delta E_i$ is the energy transferred in the $i$-th collision. Individual $\Delta E_i$ can be positive (energy flows hot $\to$ cold) or negative (energy flows cold $\to$ hot); only the average $Q$ has thermodynamic significance. Heat is an emergent statistical property that arises from averaging over microscopic fluctuations.
+\end{definition}
+
+\begin{definition}[Entropy as Categorical Completion]
+\label{def:entropy_categorical}
+Entropy change $\Delta S$ is the categorical advancement through phase-lock network densification:
+\begin{equation}
+\Delta S = k_B \ln \frac{\Omega_{\text{final}}}{\Omega_{\text{initial}}} = k_B \ln \frac{\Omega_{\text{initial}} + \Delta \Omega}{\Omega_{\text{initial}}} \approx k_B \frac{\Delta \Omega}{\Omega_{\text{initial}}}
+\label{eq:entropy_categorical}
+\end{equation}
+where $\Omega$ counts accessible categorical states (equivalence classes of phase-space regions determined by phase-lock relationships). Entropy is always non-negative for spontaneous processes because categorical completion is irreversible: once a categorical state is completed, it cannot be uncompleted (Axiom~\ref{axiom:categorical_irreversibility}). Entropy is a fundamental categorical property that increases monotonically through network densification.
+\end{definition}
+
+\begin{theorem}[Heat Statistical, Entropy Fundamental]
+\label{thm:heat_statistical}
+Heat is an emergent statistical property that arises from summing over fluctuating microscopic energy transfers, while entropy is a fundamental categorical property that increases monotonically through categorical completion. The Second Law constrains entropy (fundamental), not heat (statistical). Heat obeys the Second Law only on average (in the thermodynamic limit), while entropy obeys the Second Law exactly (for every individual process).
+\end{theorem}
+
+\begin{proof}
+We prove each statement in turn.
+
+\textbf{Heat is emergent and statistical.}
+Heat is defined macroscopically as the energy transferred between systems due to temperature difference. Microscopically, heat is the sum of energy transfers in individual molecular collisions:
+\begin{equation}
+Q = \sum_{i=1}^{N} \Delta E_i
+\end{equation}
+
+Each $\Delta E_i$ fluctuates: some collisions transfer energy hot $\to$ cold ($\Delta E_i > 0$), others transfer energy cold $\to$ hot ($\Delta E_i < 0$). The distribution of $\Delta E_i$ is determined by the Maxwell-Boltzmann velocity distribution and collision dynamics. For a system with a temperature difference of $\Delta T = T_h - T_c$, the average energy transfer per collision is:
+\begin{equation}
+\langle \Delta E \rangle \propto \Delta T
+\end{equation}
+
+The total heat transfer is:
+\begin{equation}
+Q = N \langle \Delta E \rangle \propto N \Delta T
+\end{equation}
+
+For large $N$, the fluctuations average out: $Q / N \to \langle \Delta E \rangle$ by the law of large numbers. But for small $N$ (or individual collisions, $N = 1$), fluctuations dominate: $\Delta E_i$ can have either sign with comparable probability. Heat is therefore an emergent statistical property that becomes well-defined only in the thermodynamic limit $N \to \infty$.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/panel_arg3_retrieval_paradox.png}
+\caption{\textbf{Argument 3: The Retrieval Paradox—Velocity-Based Sorting is Self-Defeating: Thermal Equilibration is Faster.}
+\textbf{(A)} Timescale hierarchy: collisions happen before sorting. Horizontal bar chart on logarithmic scale (x-axis: $10^{-10}$ to $10^{-3}$ seconds) showing four processes from top to bottom: (1) Sorting Complete (gray bar, $\approx 1 \times 10^{-3}$ s = 1 ms), (2) Door Operation (orange bar, $\approx 1 \times 10^{-6}$ s = 1 μs), (3) Velocity Measurement (yellow bar, $\approx 1 \times 10^{-8}$ s = 10 ns), (4) Molecular Collision (red bar, $\approx 1 \times 10^{-10}$ s = 0.1 ns, with annotation "Collisions happen before sorting!"). The five-order-of-magnitude separation between collision timescale ($10^{-10}$ s) and sorting completion ($10^{-3}$ s) means that $\sim 10^7$ collisions occur during one sorting cycle. Each collision randomizes velocities, erasing the demon's sorting progress. The annotation emphasizes the causal impossibility: by the time sorting completes, the system has already thermalized $10^7$ times. This timescale separation makes velocity-based sorting fundamentally self-defeating.
+\textbf{(B)} Velocity redistribution: sorted state returns to Maxwell-Boltzmann. Overlapping histograms showing probability density (y-axis, 0.0–0.7) versus velocity (x-axis, $-4$ to $+4$). Three distributions: Initial (MB) (gray bars, broad Gaussian centered at $v = 0$), "Sorted" (pink bars, narrow double-peaked distribution with peaks at $v \approx -0.5$ and $v \approx +1$), and After $\tau_{\text{collision}}$ (green bars, broad Gaussian matching initial). The initial Maxwell-Boltzmann distribution (gray) represents thermal equilibrium with width $\sigma \approx 1.5$. The sorted distribution (pink) shows the demon's attempt to separate fast and slow molecules, creating artificial bimodal structure with reduced entropy. After one collision time (green), the distribution returns to the original Maxwell-Boltzmann form—the sorting has been completely erased. The green bars overlay the gray bars almost perfectly, demonstrating that $\tau_{\text{collision}}$ is the relaxation time for velocity distribution. Any deviation from Maxwell-Boltzmann decays exponentially with time constant $\tau_{\text{collision}}$, making sustained sorting impossible.
+\textbf{(C)} Sorting cannot be maintained: repeated attempts, repeated failures. Time series of fast/total ratio (y-axis, 0.3–1.0) versus time steps (x-axis, 0–200). Dark teal line shows actual ratio fluctuating around equilibrium. Red dashed horizontal line at 0.5 marks equilibrium (50\%). Four sharp spikes to $\approx 0.8$–0.85 occur at steps $\approx 25, 50, 75, 125$, each labeled "Attempt" with vertical gray dashed line. Each spike represents a demon sorting intervention that temporarily increases the fast fraction to $\sim 80$–85\%. However, each spike decays rapidly back to 0.5 within $\sim 20$ steps, following exponential relaxation. The pattern repeats four times with identical behavior: spike → decay → equilibrium. The consistency of the decay demonstrates that thermalization operates with fixed time constant regardless of sorting strength. The demon cannot maintain sorting because the relaxation rate ($\sim 1/20$ per step) exceeds any achievable sorting rate. This is the retrieval paradox: the demon can create order temporarily but cannot retrieve or maintain it.
+\textbf{(D)} Timescale separation: kinetic (fast) versus categorical (slow). Two-curve plot showing state evolution (y-axis, 0.2–0.8) versus normalized time (x-axis, 0.0–1.0). Red oscillating curve labeled "Kinetic (fast)" shows rapid oscillations with period $\approx 0.1$ and amplitude $\approx 0.3$, completing $\sim 10$ cycles. Purple smooth curve labeled "Categorical (slow)" shows gradual monotonic increase from $\approx 0.2$ to $\approx 0.8$, with no oscillations. Pink shaded region indicates categorical timescale regime. The red curve represents kinetic properties (velocity distribution) that oscillate on collision timescales—each oscillation corresponds to sorting attempt and thermal relaxation. The purple curve represents categorical properties (network topology, spatial arrangement) that evolve smoothly on much longer timescales. The separation demonstrates that kinetic and categorical dynamics operate on different timescales: kinetic processes (velocity sorting, thermalization) occur on $\tau_{\text{collision}} \sim 10^{-10}$ s, while categorical processes (spatial rearrangement, network reconfiguration) occur on $\tau_{\text{categorical}} \sim 10^{-3}$ s or longer. The demon operates on kinetic timescales but entropy is determined by categorical timescales. This timescale mismatch is fundamental: the demon manipulates fast variables (velocity) but the second law protects slow variables (configuration). The retrieval paradox arises because kinetic order decays faster than it can be exploited for categorical work.}
+\label{fig:arg3_retrieval_paradox_v2}
+\end{figure*}
+
+
+\textbf{Entropy is fundamental and categorical.}
+Entropy is defined microscopically through the Boltzmann formula $S = k_B \ln \Omega$, where $\Omega$ is the number of accessible microstates. In the categorical framework, $\Omega$ is the number of accessible categorical states (equivalence classes determined by phase-lock relationships). Each collision creates new phase-lock correlations, increasing $\Omega$:
+\begin{equation}
+\Omega_{\text{after}} = \Omega_{\text{before}} + \Delta \Omega
+\end{equation}
+where $\Delta \Omega > 0$ because the collision creates new categorical distinctions (states with the correlation versus states without).
+
+The entropy change is:
+\begin{equation}
+\Delta S = k_B \ln \frac{\Omega_{\text{after}}}{\Omega_{\text{before}}} = k_B \ln \left(1 + \frac{\Delta \Omega}{\Omega_{\text{before}}}\right) > 0
+\end{equation}
+
+This increase is exact and non-fluctuating: every collision increases $\Omega$, so every collision increases $S$. There are no "negative entropy fluctuations" at the microscopic level because categorical completion is irreversible (Axiom~\ref{axiom:categorical_irreversibility}). Entropy is therefore a fundamental property that increases monotonically for every individual process, not just on average.
+
+\textbf{Second Law constrains entropy, not heat.}
+The Second Law states $\Delta S \geq 0$ for isolated systems. This constrains entropy directly. Heat is constrained only indirectly through its relationship to entropy:
+\begin{equation}
+\Delta S \geq \frac{Q}{T}
+\end{equation}
+
+For macroscopic processes with $Q \gg k_B T$, this inequality effectively constrains heat flow direction: $Q$ must be positive (hot $\to$ cold) for entropy to increase. But for microscopic processes with $Q \sim k_B T$, the inequality is weak: $\Delta S$ can be positive even if $Q$ is negative, provided that other contributions to entropy (correlation, categorical completion) dominate.
+
+The Second Law is fundamentally a constraint on entropy (categorical property), not on heat (statistical property). Heat obeys the Second Law only on average because heat is a statistical average of fluctuating microscopic transfers.
+
+\textbf{Heat obeys Second Law only on average.}
+For a single collision, heat transfer $\Delta E$ can be positive or negative with comparable probability. The Second Law does not forbid $\Delta E < 0$ (reverse heat flow) because entropy still increases through correlation: $\Delta S = \Delta S_{\text{correlation}} + \Delta E / T > 0$ even if $\Delta E < 0$, provided $\Delta S_{\text{correlation}} > |\Delta E / T|$.
+
+For $N$ collisions, the total heat transfer is $Q = \sum_{i=1}^{N} \Delta E_i$. By the central limit theorem, $Q / N \to \langle \Delta E \rangle$ as $N \to \infty$, with fluctuations of order $\sqrt{N}$. For large $N$, the probability of $Q < 0$ (net reverse heat flow) is exponentially small: $P(Q < 0) \sim \exp(-N)$. The Second Law emerges statistically: heat flows hot $\to$ cold on average, with probability approaching unity as $N \to \infty$.
+
+\textbf{Entropy obeys Second Law exactly.}
+For every individual collision, entropy increases: $\Delta S_i > 0$. For $N$ collisions, the total entropy change is $\Delta S = \sum_{i=1}^{N} \Delta S_i > 0$ (sum of positive terms is positive). There are no fluctuations: entropy increases monotonically, not just on average. The Second Law is exact at all scales, from single collisions to macroscopic processes. \qed
+\end{proof}
+
+\begin{corollary}[Demon Measures Wrong Quantity]
+\label{cor:demon_wrong_quantity}
+Maxwell's demon measures and manipulates heat (velocity, kinetic energy), which is a statistical property that fluctuates at the microscopic level. The Second Law constrains entropy (categorical structure), which is a fundamental property that increases monotonically. The demon's strategy is misdirected: it attacks a fluctuating statistical property while the Second Law protects a monotonic fundamental property.
+\end{corollary}
+
+\subsection{Implications for the Demon}
+
+The heat-entropy decoupling has profound implications for Maxwell's demon.
+
+\begin{corollary}[Demon's Irrelevance to Heat Direction]
+\label{cor:demon_irrelevant}
+The demon's door operation produces an increase in entropy regardless of the direction of heat flow. Even if a particular collision transfers heat from cold to hot (reverse direction, apparently favorable for the demon), total entropy still increases through categorical completion and phase-lock correlation. The demon cannot exploit individual heat flow fluctuations because entropy does not fluctuate—it increases monotonically through categorical structure evolution.
+\end{corollary}
+
+\begin{proof}
+The demon operates at the single-molecule level, where heat flow is fluctuating (Definition~\ref{def:heat_statistical}). Some door operations will result in collisions that transfer heat from hot $\to$ to cold (Cases 1 and 2), while others result in collisions that transfer heat from cold $\to$ to hot (Case 3). The demon cannot predict which outcome will occur because collision dynamics depend on microscopic phase-space details (impact parameter, relative velocity, molecular orientations) that are beyond the demon's knowledge or control.
+
+Even if the demon could predict outcomes and selectively allow only "favorable" collisions (those transferring heat from cold $\to$ hot), it would gain nothing. From Theorem~\ref{thm:reverse_heat}, even favorable collisions increase entropy through categorical completion:
+\begin{equation}
+\Delta S_{\text{total}} = \Delta S_A + \Delta S_B + \Delta S_{\text{correlation}} > 0
+\end{equation}
+
+The entropy increase arises from phase-lock correlations created by the collision, which are independent of energy transfer direction. The demon cannot avoid creating correlations because correlations are inevitable consequences of molecular interactions.
+
+Therefore, the demon's strategy is irrelevant: regardless of which collisions it allows, entropy increases. The demon cannot exploit heat flow fluctuations because the quantity constrained by the Second Law (entropy) is not fluctuating—it increases monotonically through categorical completion. \qed
+\end{proof}
+
+\begin{theorem}[Complete Demon Defeat]
+\label{thm:complete_defeat}
+The demon is defeated at every level of analysis: at the level of individual collisions, entropy increases regardless of energy transfer direction (Theorem~\ref{thm:reverse_heat}); at the level of statistical averages, net heat flows hot $\to$ cold (Second Law on average, Theorem~\ref{thm:heat_statistical}); and at the level of categorical structure, every operation advances categorical completion (Theorem~\ref{thm:categorical_cascade}). The demon cannot violate the Second Law because it cannot control individual collision outcomes (quantum and thermal uncertainty prevent prediction), even "favorable" outcomes (heat cold $\to$ hot) increase entropy through categorical completion, and the quantity it attempts to manipulate (heat) is not the quantity constrained by the Second Law (entropy).
+\end{theorem}
+
+\begin{proof}
+We prove defeat at each level.
+
+\textbf{Level 1: Individual collisions.}
+From Theorem~\ref{thm:reverse_heat}, every collision increases entropy regardless of energy transfer direction. Cases 1, 2, and 3 exhaust the possibilities (heat flows hot $\to$ cold, cold $\to$ hot, or zero), and in all cases $\Delta S > 0$. The demon cannot find a collision that decreases entropy.
+
+\textbf{Level 2: Statistical averages.}
+From Theorem~\ref{thm:heat_statistical}, heat is a statistical average over many collisions. In the thermodynamic limit ($N \to \infty$ collisions), the average heat flow is hot $\to$ cold with probability approaching unity. The demon operates at finite $N$ (it allows molecules through one at a time), so fluctuations occur. But these fluctuations average out: over many door operations, net heat flows hot $\to$ cold, consistent with the Second Law.
+
+\textbf{Level 3: Categorical structure.}
+From Theorem~\ref{thm:categorical_cascade}, every door operation advances categorical completion. Opening the door allows a molecule to transit, which creates new phase-lock relationships (the transiting molecule interacts with molecules in the receiving container). These relationships densify the phase-lock network, increasing entropy (Proposition~\ref{prop:entropy_edge_density}). The demon cannot avoid categorical completion because it is a deterministic consequence of molecular interactions.
+
+\textbf{Why the demon cannot violate the Second Law:}
+
+First, the demon cannot control individual collision outcomes. Collision dynamics are determined by microscopic phase-space trajectories (positions, velocities, orientations of molecules at the instant of collision). These trajectories are subject to quantum uncertainty (Heisenberg uncertainty principle prevents simultaneous precise knowledge of position and momentum) and thermal fluctuations (molecular velocities are distributed according to Maxwell-Boltzmann statistics, which are inherently probabilistic). The demon would need to know the phase-space coordinates of all molecules to arbitrary precision to predict collision outcomes, which is impossible.
+
+Second, even if the demon could predict outcomes and selectively allow only "favorable" collisions (those transferring heat cold $\to$ hot), these collisions still increase entropy. From Theorem~\ref{thm:reverse_heat}, reverse heat flow does not imply entropy decrease. The entropy increase from categorical completion ($\Delta S_{\text{categorical}}$) dominates the entropy decrease from reverse heat flow ($\Delta S_{\text{heat}} = -\Delta Q / T < 0$ for $\Delta Q < 0$):
+\begin{equation}
+\Delta S_{\text{total}} = \Delta S_{\text{categorical}} + \Delta S_{\text{heat}} > 0
+\end{equation}
+because $\Delta S_{\text{categorical}} \sim k_B$ (order of Boltzmann constant) while $\Delta S_{\text{heat}} \sim \Delta Q / T \sim k_B T / T = k_B$ (same order), but $\Delta S_{\text{categorical}}$ is always positive while $\Delta S_{\text{heat}}$ can be negative. The categorical term dominates on average.
+
+Third, the demon manipulates the wrong quantity. It measures velocity (kinetic energy) and attempts to control heat flow (energy transfer). But the Second Law constrains entropy (categorical structure), not heat. Heat is a statistical property that fluctuates; entropy is a fundamental property that increases monotonically. The demon's strategy is misdirected: it attacks a fluctuating statistical property while the Second Law protects a monotonic fundamental property.
+
+The demon is completely defeated: it cannot predict outcomes, cannot exploit favorable outcomes (they still increase entropy), and cannot manipulate the quantity constrained by the Second Law. \qed
+\end{proof}
+
+\subsection{The Insight Formalized}
+
+The fundamental insight can be summarized as follows:
+
+\begin{equation}
+\boxed{
+\begin{aligned}
+\text{Heat} &: \text{energy accounting (kinetic property, can flow either way)} \\
+\text{Entropy} &: \text{categorical completion (categorical property, always increases)}
+\end{aligned}
+}
+\label{eq:heat_entropy_summary}
+\end{equation}
+
+Maxwell asked: "Can the demon sort molecules to transfer heat from cold to hot, violating the Second Law?"
+
+The answer is: It doesn't matter. Even if a particular collision transfers heat from cold to hot (reverse direction), entropy still increases through categorical completion. The demon is defeated not by heat flow constraints (which can be violated at the microscopic level) but by the inexorable advance of categorical completion (which cannot be reversed).
+
+The Second Law, properly understood, does not state "heat cannot flow from cold to hot" (which is false at the microscopic level). It states "entropy cannot decrease in isolated systems" (which is true at all levels). Heat is a statistical consequence of entropy increase, not the fundamental constraint.
+
+\begin{remark}[Historical Irony]
+\label{rem:historical_irony}
+The Second Law was historically formulated in terms of heat: the Clausius statement ("heat cannot spontaneously flow from cold to hot") and the Kelvin statement ("no process can convert heat entirely to work in a cycle"). These formulations, while correct macroscopically, obscure the microscopic reality: the Second Law constrains entropy (categorical structure), not heat (energy flow). The heat formulations are consequences of entropy increase, not the foundation.
+
+Maxwell's demon exploits this historical conflation. By framing the paradox in terms of heat ("can the demon transfer heat from cold $\to$ to hot?"), Maxwell created a puzzle that seemed to require an information-theoretic resolution (Landauer's principle, erasure costs). Framed in terms of entropy ("can the demon decrease entropy?"), the paradox dissolves immediately: entropy increases through categorical completion regardless of the direction of heat flow, so the demon cannot decrease entropy even if it can (locally, temporarily) reverse heat flow.
+
+The categorical framework reveals that the demon's strategy is fundamentally misdirected: it attacks heat (the wrong target) while entropy (the actual target of the Second Law) is immune to the attack. This is perhaps the deepest resolution of Maxwell's demon: the demon is defeated not by information theory, not by measurement costs, not by erasure requirements, but by the simple fact that it is trying to violate a constraint on entropy by manipulating heat, and the two quantities are decoupled at the microscopic level.
+\end{remark}
+
+\subsection{Summary}
+
+The analysis of door collisions reveals the fundamental decoupling of heat and entropy, providing the most direct resolution of Maxwell's demon paradox.
+
+Heat can flow in either direction in individual collisions due to thermal fluctuations at the microscopic level. Cases 1 and 2 demonstrate heat flowing hot $\to$ cold (standard direction), while Case 3 demonstrates heat flowing cold $\to$ hot (reverse direction). The direction is determined by collision dynamics (impact parameter, relative velocity, elasticity), which fluctuate thermally.
+
+Entropy always increases through categorical completion, regardless of heat flow direction. Every collision creates phase-lock correlations between the colliding molecules, enriching categorical structure and increasing the number of accessible categorical states. This increase is monotonic and non-fluctuating because categorical completion is irreversible (Axiom~\ref{axiom:categorical_irreversibility}).
+
+The Second Law constrains entropy (categorical property), not heat direction (kinetic property). The traditional formulation in terms of heat ("heat cannot spontaneously flow from cold to hot") is a macroscopic consequence that emerges from averaging over many collisions, not a microscopic constraint on individual collisions.
+
+Heat obeys thermodynamic constraints only statistically, in the thermodynamic limit ($N \to \infty$ molecules). Individual collisions can violate the heat formulation of the Second Law (transferring heat cold $\to$ hot), but these violations average out macroscopically. The probability of a macroscopic violation (net heat flow cold $\to$ hot over many collisions) is exponentially small: $P \sim \exp(-N)$.
+
+The demon measures and manipulates heat—the wrong quantity. It attempts to exploit thermal fluctuations in heat flow to create a temperature gradient without doing work. But the Second Law does not constrain heat flow at the microscopic level; it constrains entropy, which is immune to the demon's manipulations because entropy increases through categorical completion regardless of heat flow direction.
+
+Entropy, the actually conserved quantity, is immune to the demon's strategy. The demon cannot decrease entropy because every door operation creates phase-lock correlations (categorical completion), which increase entropy. Even if the demon succeeds in transferring heat cold $\to$ hot in individual collisions, the entropy increase from categorical completion dominates the entropy decrease from reverse heat flow, preserving the Second Law.
+
+This decoupling provides the most fundamental resolution of Maxwell's demon: the demon attacks a statistical emergent property (heat) while the Second Law protects a categorical fundamental property (entropy). The demon's entire strategy is misdirected, and the paradox dissolves once we recognize that heat and entropy are decoupled at the microscopic level.
+

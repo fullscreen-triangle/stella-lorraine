@@ -1,0 +1,331 @@
+%==============================================================================
+\section{Diffusive Transport}
+\label{sec:diffusive}
+%==============================================================================
+
+\subsection{Atomic Scattering Partition Dynamics}
+
+Diffusion is the transport of mass driven by concentration gradients. Atoms or molecules move from regions of high concentration to low concentration through random thermal motion interrupted by scattering events \citep{fick1855,einstein1905diffusion}. Unlike electrical transport (charge carriers) and viscous transport (momentum carriers), diffusive transport involves the motion of the particles themselves, making it the most direct manifestation of partition dynamics.
+
+\begin{definition}[Diffusive Partition]
+\label{def:diffusive_partition}
+A \emph{diffusive partition operation} occurs when a diffusing species interacts with the host medium (collision with host atoms, scattering from defects, or hopping between lattice sites), randomising its trajectory. The scattering time $\tau_d$ serves as the partition lag.
+\end{definition}
+
+During a scattering event, the diffusing particle's position and velocity are undetermined for the duration of $\tau_d$. The particle is neither in its pre-scattering state (position $\mathbf{r}_i$, velocity $\mathbf{v}_i$) nor in its post-scattering state (position $\mathbf{r}_f$, velocity $\mathbf{v}_f$) but in a superposition. This undetermined residue generates entropy, which manifests macroscopically as diffusive resistance (inverse diffusivity).
+
+For diffusive transport, Fick's first law gives the flux:
+\begin{equation}
+\mathbf{J} = -D\nabla c,
+\label{eq:fick_first_law}
+\end{equation}
+where $\mathbf{J}$ is the particle flux (particles per unit area per unit time), $D$ is the diffusivity (m$^2$/s), and $c$ is the concentration (particles per unit volume). The transport coefficient is the inverse of the diffusivity $\Xi = D^{-1}$.
+
+\begin{theorem}[Diffusivity]
+\label{thm:diffusivity}
+The diffusivity of a species in a medium is:
+\begin{equation}
+D = \frac{\mathcal{N}}{\sum_{i,j} \tau_{d,ij} g_{ij}},
+\label{eq:diffusivity_partition}
+\end{equation}
+where $\mathcal{N} = \lambda^2/2$ is the normalisation factor (with $\lambda$ the mean free path or jump distance), $\tau_{d,ij}$ is the scattering partition lag, and $g_{ij}$ is the scattering coupling strength.
+\end{theorem}
+
+\begin{proof}
+From the universal transport formula~\eqref{eq:universal_transport}, the inverse diffusivity is:
+\begin{equation}
+D^{-1} = \frac{1}{\mathcal{N}} \sum_{i,j} \tau_{d,ij} g_{ij}.
+\end{equation}
+
+The normalisation $\mathcal{N}$ has units m$^2$/s (the same as diffusivity). From random walk theory, the mean square displacement after time $t$ is:
+\begin{equation}
+\langle r^2 \rangle = 2dDt,
+\end{equation}
+where $d$ is the spatial dimension. For one-dimensional diffusion ($d = 1$), if each step has length $\lambda$ and duration $\tau$, then after $N = t/\tau$ steps:
+\begin{equation}
+\langle x^2 \rangle = N\lambda^2 = \frac{t}{\tau}\lambda^2 = 2Dt.
+\end{equation}
+
+Solving for $D$:
+\begin{equation}
+D = \frac{\lambda^2}{2\tau}.
+\end{equation}
+
+Identifying $\tau$ with the partition lag and absorbing the step length into normalisation gives $\mathcal{N} = \lambda^2/2$. \qed
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_scattering_apertures.png}
+\caption{\textbf{Lattice scattering as categorical apertures in momentum space.} 
+\textbf{(A)} Scattering apertures in $k$-space showing different aperture types that partition electron momentum. The Fermi surface (blue circle) contains all occupied electron states. Phonon apertures (red) scatter electrons through phonon emission/absorption. Impurity apertures (orange) scatter through static potential barriers. Each aperture type has characteristic selectivity $s_a = \Omega_{\text{pass}}/\Omega_{\text{total}}$ and aperture potential $\Phi_a = -k_B T \ln s_a$. 
+\textbf{(B)} Scattering types and their selectivities, showing how different mechanisms have different aperture strengths. Phonon scattering ($s \sim 0.1$, $\lambda \sim 10$--$100$ nm) dominates at high temperature. Impurity scattering ($s \sim 0.01$, $\lambda \sim 1$--$10$ nm) is temperature-independent. Electron-electron scattering ($s \sim 0.5$, $\lambda \sim 100$--$1000$ nm) has strong temperature dependence ($\propto T^2$). Grain boundaries ($s \sim 0.001$, $\lambda \sim 0.1$--$1$ nm) provide weak scattering. Surface scattering ($s \sim 0.1$) depends on film thickness. 
+\textbf{(C)} Mean free path $\lambda$ vs. scatterer density $n$, showing inverse relationship $\lambda = 1/(n_a \sigma)$ where $\sigma$ is the scattering cross-section. For copper ($\lambda \sim 40$ nm, dashed green), scatterer density $n \sim 10^{22}$ m$^{-3}$. For iron ($\lambda \sim 5$ nm, dashed orange), higher scattering gives $n \sim 10^{23}$ m$^{-3}$. 
+\textbf{(D)} Resistance as aperture barrier sum: $R = \sum_a \Phi_a/T = (k_B/T) \sum_a \ln(1/s_a)$. Each scatterer (red X) acts as an aperture barrier. Total resistance is the sum of all aperture potentials along the transport path, explaining why resistivity increases with defect density and temperature (more apertures, higher barriers).}
+\label{fig:scattering_apertures}
+\end{figure}
+
+\subsection{Einstein Relation}
+
+Einstein's theory of Brownian motion relates diffusivity to mobility \citep{einstein1905diffusion}. For a particle subject to drag force $F_{\text{drag}} = -\gamma v$ (where $\gamma$ is the friction coefficient), the mobility is $\mu_{\text{mob}} = 1/\gamma$. The Einstein relation states:
+\begin{equation}
+D = \mu_{\text{mob}} k_B T = \frac{k_B T}{\gamma}.
+\label{eq:einstein_relation}
+\end{equation}
+
+For spherical particles of radius $r$ in a medium with dynamic viscosity $\mu_{\text{visc}}$, Stokes' law gives $\gamma = 6\pi\mu_{\text{visc}} r$, yielding the Einstein-Stokes relation:
+\begin{equation}
+D = \frac{k_B T}{6\pi\mu_{\text{visc}} r}.
+\label{eq:einstein_stokes}
+\end{equation}
+
+From Section~\ref{sec:viscous}, the viscosity is $\mu_{\text{visc}} = \sum_{ij} \tau_{c,ij} g_{ij}$, giving:
+\begin{equation}
+D = \frac{k_B T}{6\pi r \sum_{ij} \tau_{c,ij} g_{ij}}.
+\label{eq:diffusivity_viscosity}
+\end{equation}
+
+Thus $D^{-1} \propto \sum \tau_c g$ confirms the partition structure of diffusive transport. The diffusivity is inversely proportional to the partition lag: longer scattering times (more frequent collisions) reduce diffusivity.
+
+The Einstein relation reveals a deep connexion between equilibrium fluctuations (diffusion) and non-equilibrium response (mobility). Both are governed by the same partition structure, reflecting the fluctuation-dissipation theorem \citep{kubo1966}.
+
+\subsection{Random Walk and Partition}
+
+Diffusive motion is a random walk with step length $\lambda$ (mean free path or jump distance) and step time $\tau$ (partition lag) \citep{chandrasekhar1943}. After $N$ steps, the mean square displacement is:
+\begin{equation}
+\langle r^2 \rangle = N\lambda^2 = \frac{t}{\tau}\lambda^2 = 2dDt,
+\label{eq:random_walk}
+\end{equation}
+where $d$ is the spatial dimension. For three-dimensional diffusion ($d = 3$):
+\begin{equation}
+D = \frac{\lambda^2}{6\tau}.
+\label{eq:diffusivity_3d}
+\end{equation}
+
+For one-dimensional diffusion ($d = 1$):
+\begin{equation}
+D = \frac{\lambda^2}{2\tau}.
+\label{eq:diffusivity_1d}
+\end{equation}
+
+Each step involves a partition operation (scattering event). The partition lag $\tau$ determines how often direction randomization occurs:
+\begin{itemize}
+\item \textbf{Frequent partitions} ($\tau$ small): Direction randomizes rapidly, giving small step length $\lambda = v\tau$ and slow diffusion $D = \lambda^2/(2\tau) \propto \tau$.
+\item \textbf{Rare partitions} ($\tau$ large): Direction persists longer, giving large step length $\lambda \propto \tau$ and fast diffusion $D \propto \tau$.
+\end{itemize}
+
+The diffusivity is maximized when the partition lag matches the natural timescale of thermal motion. Too frequent or too rare partitions both reduce diffusivity.
+
+\subsubsection{Connection to Kinetic Theory}
+
+For dilute gases, kinetic theory gives:
+\begin{equation}
+\lambda = \frac{1}{n\sigma}, \quad \bar{v} = \sqrt{\frac{8k_B T}{\pi m}}, \quad \tau = \frac{\lambda}{\bar{v}} = \frac{1}{n\sigma\bar{v}},
+\label{eq:kinetic_parameters}
+\end{equation}
+where $n$ is number density, $\sigma$ is collision cross-section, and $m$ is molecular mass. Substituting into the diffusivity formula:
+\begin{equation}
+D = \frac{\lambda^2}{2\tau} = \frac{\lambda \bar{v}}{2} = \frac{1}{2n\sigma} \sqrt{\frac{8k_B T}{\pi m}}.
+\label{eq:diffusivity_kinetic}
+\end{equation}
+
+This reproduces the Chapman-Enskog result for self-diffusion in a dilute gas \citep{chapman1970}.
+
+\subsection{Temperature Dependence}
+
+The temperature dependence of diffusivity differs dramatically between gases, liquids, and solids, reflecting different underlying partition mechanisms.
+
+\subsubsection{Gas Diffusivity}
+
+For gases at constant pressure, diffusivity increases with temperature:
+\begin{equation}
+D_{\text{gas}}(T) \propto T^{3/2}.
+\label{eq:diffusivity_gas_T}
+\end{equation}
+
+This arises from the temperature dependences of mean free path and molecular velocity. For an ideal gas at constant pressure, $n \propto 1/T$, so:
+\begin{equation}
+\lambda = \frac{1}{n\sigma} \propto T.
+\end{equation}
+
+The mean velocity scales as:
+\begin{equation}
+\bar{v} = \sqrt{\frac{8k_B T}{\pi m}} \propto \sqrt{T}.
+\end{equation}
+
+The partition lag is:
+\begin{equation}
+\tau = \frac{\lambda}{\bar{v}} \propto \frac{T}{\sqrt{T}} = \sqrt{T}.
+\end{equation}
+
+Therefore:
+\begin{equation}
+D = \frac{\lambda^2}{2\tau} \propto \frac{T^2}{\sqrt{T}} = T^{3/2}.
+\end{equation}
+
+This $T^{3/2}$ scaling is observed experimentally for most gas pairs \citep{hirschfelder1964}.
+
+\subsubsection{Liquid Diffusivity}
+
+For liquids, diffusivity increases with temperature but more weakly than gases. The Stokes-Einstein relation combined with Arrhenius viscosity gives:
+\begin{equation}
+D_{\text{liquid}}(T) = \frac{k_B T}{6\pi r \mu_0} \exp\left(-\frac{E_a}{k_B T}\right) \approx D_0 \exp\left(-\frac{E_a}{k_B T}\right),
+\label{eq:diffusivity_liquid_T}
+\end{equation}
+where the prefactor $k_B T$ is weak compared to the exponential. The activation energy $E_a$ represents the barrier for molecular rearrangement in the dense liquid structure.
+
+\subsubsection{Solid Diffusivity}
+
+For diffusion in solids, the Arrhenius form dominates:
+\begin{equation}
+D_{\text{solid}}(T) = D_0 \exp\left(-\frac{E_a}{k_B T}\right).
+\label{eq:diffusivity_solid_T}
+\end{equation}
+
+The activation energy $E_a$ represents the barrier for atomic jumps between lattice sites \citep{shewmon1963}. Typical values are:
+\begin{itemize}
+\item \textbf{Interstitial diffusion:} $E_a \sim 0.5$--$1.5$ eV (small atoms like H, C, N in metals)
+\item \textbf{Vacancy diffusion:} $E_a \sim 1$--$3$ eV (substitutional diffusion in metals)
+\item \textbf{Grain boundary diffusion:} $E_a \sim 0.5$--$1.5$ eV (lower barriers due to disorder)
+\end{itemize}
+
+In partition terms, $E_a$ is the energy required to initiate a partition operation that moves the atom to an adjacent site. The partition lag is:
+\begin{equation}
+\tau_d(T) = \tau_0 \exp\left(\frac{E_a}{k_B T}\right),
+\label{eq:tau_solid}
+\end{equation}
+where $\tau_0 \sim 10^{-13}$ s is the attempt frequency (inverse of lattice vibration frequency). As temperature increases, thermal energy more readily overcomes the barrier, decreasing the partition lag exponentially and increasing diffusivity.
+
+\subsection{Fick's Laws}
+
+The macroscopic description of diffusion is given by Fick's laws.
+
+\begin{theorem}[Fick's First Law]
+\label{thm:fick1}
+The diffusive flux is proportional to the concentration gradient:
+\begin{equation}
+\mathbf{J} = -D\nabla c.
+\label{eq:fick1}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fick's first law is a constitutive relation analogous to Ohm's law ($\mathbf{J} = -\sigma\nabla V$) and Fourier's law ($\mathbf{J}_Q = -\kappa\nabla T$). It states that particles flow down concentration gradients at a rate proportional to the gradient magnitude. The proportionality constant $D$ is the diffusivity, which measures how readily particles respond to concentration differences. \qed
+\end{proof}
+
+\begin{theorem}[Fick's Second Law]
+\label{thm:fick2}
+The concentration evolves according to the diffusion equation:
+\begin{equation}
+\frac{\partial c}{\partial t} = D\nabla^2 c.
+\label{eq:fick2}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fick's second law follows from mass conservation combined with Fick's first law. The continuity equation for particle number is:
+\begin{equation}
+\frac{\partial c}{\partial t} + \nabla \cdot \mathbf{J} = 0.
+\end{equation}
+
+Substituting Fick's first law $\mathbf{J} = -D\nabla c$:
+\begin{equation}
+\frac{\partial c}{\partial t} + \nabla \cdot (-D\nabla c) = 0.
+\end{equation}
+
+For constant diffusivity:
+\begin{equation}
+\frac{\partial c}{\partial t} = D\nabla^2 c.
+\end{equation}
+\qed
+\end{proof}
+
+The diffusivity $D = \lambda^2/(2\tau)$ sets the rate of concentration equilibration. The characteristic timescale for diffusion over length $L$ is:
+\begin{equation}
+t_{\text{diff}} = \frac{L^2}{D} = \frac{2L^2}{\lambda^2}\tau.
+\label{eq:diffusion_timescale}
+\end{equation}
+
+The partition lag determines the equilibration timescale: longer partition lags (less frequent scattering) give slower equilibration.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_categorical_potential.png}
+\caption{\textbf{Categorical potential $\Phi/k_B T = \sum_a \ln(1/s_a)$ determines transport coefficients across all modes.} 
+\textbf{(Top left)} Electrical categorical potential showing dimensionless aperture barrier sum. Phonon scattering at $T = 300$ K (cyan) has $\Phi/k_B T \sim 1.5$, increasing with temperature. Phonon scattering at $T = 100$ K (dark cyan) has lower potential $\Phi/k_B T \sim 0.5$. Impurity scattering (orange) is temperature-independent at $\Phi/k_B T \sim 0.7$ (red horizontal line). Electron-electron scattering (yellow) increases from $\sim 0.3$ to $\sim 1.5$ as temperature rises.
+\textbf{(Top right)} Diffusive categorical potential showing barriers for different diffusion mechanisms. Vacancy diffusion (bright green) has highest potential $\Phi/k_B T \sim 2.2$ at low $T$, decreasing to $\sim 0.6$ at 800 K. Interstitial diffusion (dark green) has lower potential $\Phi/k_B T \sim 1.5$ at low $T$. Grain boundary diffusion (medium green) has intermediate potential. Surface diffusion (lime green) has lowest potential $\Phi/k_B T \sim 0.3$.
+\textbf{(Bottom left)} Thermal categorical potential showing phonon scattering barriers. Acoustic LA branch (orange) has potential increasing from $\Phi/k_B T \sim 0$ at low frequency to $\sim 25$ at Debye frequency (orange vertical line). Acoustic TA branch (yellow) shows similar trend. Optical phonons (gray) have higher potential. Debye frequency (gray vertical line) marks the cutoff where phonon density of states drops to zero.
+\textbf{(Bottom right)} Viscous categorical potential showing shear-rate dependence for different fluids. Water (cyan) has low constant potential $\Phi/k_B T \sim 0.5$ across all shear rates (Newtonian behavior). Glycerol (magenta) shows shear-thinning: potential decreases from $\sim 2.2$ at low shear rate to $\sim 1.5$ at high shear rate. Polymer melt (red) shows strong shear-thinning from $\sim 2.2$ to $\sim 0$ as molecular chains align. Ideal gas (green) has lowest potential $\Phi/k_B T \sim 0.1$. The categorical potential $\Phi/k_B T$ provides a universal, dimensionless measure of transport resistance applicable to all transport modes.}
+\label{fig:categorical_potential}
+\end{figure}
+
+\subsection{Self-Diffusion and Tracer Diffusion}
+
+Two types of diffusion are distinguished experimentally:
+
+\begin{definition}[Self-Diffusion]
+\label{def:self_diffusion}
+\emph{Self-diffusion} measures the motion of atoms in their pure substance (e.g., $^{13}$C atoms in natural carbon). The diffusivity is:
+\begin{equation}
+D_{\text{self}} = \frac{\lambda_{\text{self}}^2}{2\tau_{\text{self}}},
+\label{eq:self_diffusion}
+\end{equation}
+where $\tau_{\text{self}}$ is the partition lag for atom-atom interactions in the pure substance.
+\end{definition}
+
+\begin{definition}[Tracer Diffusion]
+\label{def:tracer_diffusion}
+\emph{Tracer diffusion} measures the motion of labeled atoms at low concentration in a host substance (e.g., $^{14}$C atoms in iron). The diffusivity is:
+\begin{equation}
+D_{\text{tracer}} = \frac{\lambda_{\text{tracer}}^2}{2\tau_{\text{tracer}}},
+\label{eq:tracer_diffusion}
+\end{equation}
+where $\tau_{\text{tracer}}$ is the partition lag for tracer-host interactions.
+\end{definition}
+
+Both follow the same partition structure, but the partition lags differ due to differing interaction potentials. Typically, $D_{\text{tracer}} \neq D_{\text{self}}$ because tracer atoms experience different scattering rates than host atoms.
+
+\subsection{Knudsen Diffusion}
+
+In porous media with pore size $d$ smaller than the mean free path $\lambda$, \emph{Knudsen diffusion} dominates \citep{knudsen1909}. Molecules collide primarily with pore walls rather than with each other. The diffusivity is:
+\begin{equation}
+D_K = \frac{d}{3}\sqrt{\frac{8k_B T}{\pi m}}.
+\label{eq:knudsen}
+\end{equation}
+
+\begin{proof}
+In the Knudsen regime, the mean free path is set by the pore diameter: $\lambda \sim d$. The molecular velocity is $\bar{v} = \sqrt{8k_B T/\pi m}$. The partition lag is $\tau = d/\bar{v}$. For three-dimensional diffusion:
+\begin{equation}
+D_K = \frac{\lambda^2}{6\tau} = \frac{d^2}{6(d/\bar{v})} = \frac{d\bar{v}}{6}.
+\end{equation}
+
+The factor of 6 becomes 3 when accounting for the geometry of wall collisions in cylindrical pores, giving:
+\begin{equation}
+D_K = \frac{d}{3}\sqrt{\frac{8k_B T}{\pi m}}.
+\end{equation}
+\qed
+\end{proof}
+
+In partition terms, Knudsen diffusion represents a regime where partition operations occur at pore walls rather than in gas-phase collisions. The pore diameter $d$ replaces the mean free path $\lambda$, and wall collisions replace molecular collisions. The partition structure remains: transport is limited by scattering (wall) events.
+
+Knudsen diffusion is independent of pressure (because $\lambda$ is set by geometry, not density) and proportional to $\sqrt{T/m}$ (reflecting molecular velocity). It is crucial in catalysis, membrane separation, and gas transport in porous materials.
+
+\subsection{Interdiffusion and the Darken Equation}
+
+When two species A and B interdiffuse, the interdiffusion coefficient $\tilde{D}$ relates to the individual diffusivities through the Darken equation \citep{darken1948}:
+\begin{equation}
+\tilde{D} = x_B D_A + x_A D_B,
+\label{eq:darken}
+\end{equation}
+where $x_A$ and $x_B$ are mole fractions. This weighted average reflects the fact that interdiffusion involves partition operations between both A-A, B-B, and A-B pairs. The total partition lag is the weighted sum of individual partition lags.
+
+\subsection{Diffusion and Entropy Production}
+
+Diffusive transport generates entropy at rate:
+\begin{equation}
+\dot{S} = \int \frac{\mathbf{J} \cdot (-\nabla\mu)}{T} dV = \int \frac{D(\nabla c)^2}{c T} dV,
+\label{eq:entropy_diffusion}
+\end{equation}
+where $\mu$ is chemical potential. This entropy production arises from partition operations: each scattering event creates undetermined residue, and the accumulation of these events produces macroscopic entropy.
+
+The diffusive dissipation is analogous to Joule heating in electrical transport and viscous dissipation in fluid flow. All three are manifestations of partition entropy production.

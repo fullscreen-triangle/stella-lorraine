@@ -1,0 +1,545 @@
+%==============================================================================
+\section{Velocity-Temperature Non-Correspondence: The Distribution Overlap}
+\label{sec:velocity_overlap}
+%==============================================================================
+
+A deeper problem emerges from examining the statistical nature of temperature itself. Temperature is not a property of individual molecules but rather a statistical property of ensembles, defined as the mean kinetic energy of a collection of molecules. This statistical definition implies that molecular velocities follow a Maxwell-Boltzmann distribution, which has a crucial property: when two containers have similar (or even moderately different) temperatures, their velocity distributions overlap significantly. The same velocity appears in both distributions, but with different statistical meaning—a velocity that is "above average" (fast) in the colder container may be "below average" (slow) in the hotter container. This distribution overlap renders velocity-based sorting fundamentally incoherent: the demon cannot determine whether a molecule is "hot" or "cold" from its velocity alone because the meaning of a velocity depends on the ensemble context. A molecule that appears "hot" in one container becomes "cold" when transferred to another container, even though its velocity is unchanged. The demon's strategy of sorting by velocity to create a temperature difference is therefore conceptually incoherent—it attempts to sort by a property (temperature) that molecules do not individually possess, using a measurement (velocity) that does not determine the property even statistically. This section establishes the velocity-temperature non-correspondence and proves that the demon cannot sort by temperature because temperature is ensemble-relative, not molecule-intrinsic.
+
+\subsection{The Maxwell-Boltzmann Distribution}
+
+We begin by reviewing the Maxwell-Boltzmann distribution, which describes the statistical distribution of molecular speeds in an ideal gas at thermal equilibrium.
+
+\begin{definition}[Maxwell-Boltzmann Distribution]
+\label{def:maxwell_boltzmann}
+The probability density function for molecular speeds in an ideal gas at temperature $T$ is:
+\begin{equation}
+f(v; T) = 4\pi n \left(\frac{m}{2\pi k_B T}\right)^{3/2} v^2 \exp\left(-\frac{mv^2}{2k_B T}\right)
+\label{eq:maxwell_boltzmann}
+\end{equation}
+where $v = |\mathbf{v}|$ is the speed (magnitude of velocity), $m$ is the molecular mass, $k_B$ is Boltzmann's constant, $T$ is the absolute temperature, and $n$ is the number density. The distribution gives the probability density for finding a molecule with speed in the interval $[v, v + dv]$. The normalization condition is $\int_0^\infty f(v; T) \, dv = n$ (the integral over all speeds equals the total number density).
+\end{definition}
+
+\begin{remark}[Derivation and Assumptions]
+\label{rem:maxwell_boltzmann_derivation}
+The Maxwell-Boltzmann distribution is derived from statistical mechanics under the assumptions of an ideal gas (no intermolecular interactions except instantaneous elastic collisions), thermal equilibrium (the system has relaxed to a stationary distribution), and classical mechanics (quantum effects are negligible). The derivation proceeds by maximizing the entropy $S = -k_B \sum_i p_i \ln p_i$ subject to constraints of fixed total energy $E = \sum_i p_i E_i$ and fixed total probability $\sum_i p_i = 1$, using Lagrange multipliers. The resulting distribution is exponential in energy: $p_i \propto \exp(-E_i / k_B T)$. For translational kinetic energy $E = (1/2) m v^2$, this gives the Maxwell-Boltzmann distribution~\eqref{eq:maxwell_boltzmann}.
+\end{remark}
+
+The Maxwell-Boltzmann distribution has several characteristic speeds that quantify the typical velocities in the ensemble.
+
+\begin{definition}[Most Probable Speed]
+\label{def:most_probable_speed}
+The \textbf{most probable speed} $v_p$ is the speed at which the probability density $f(v; T)$ is maximized. It is found by setting $df/dv = 0$:
+\begin{equation}
+v_p = \sqrt{\frac{2k_B T}{m}}
+\label{eq:most_probable_speed}
+\end{equation}
+This is the speed at which the largest number of molecules are found (the peak of the distribution).
+\end{definition}
+
+\begin{definition}[Mean Speed]
+\label{def:mean_speed}
+The \textbf{mean speed} $\langle v \rangle$ is the average speed over the entire distribution:
+\begin{equation}
+\langle v \rangle = \int_0^\infty v f(v; T) \, dv / n = \sqrt{\frac{8k_B T}{\pi m}}
+\label{eq:mean_speed}
+\end{equation}
+This is the arithmetic mean of molecular speeds, weighted by the probability density.
+\end{definition}
+
+\begin{definition}[Root-Mean-Square Speed]
+\label{def:rms_speed}
+The \textbf{root-mean-square speed} $v_{\text{rms}}$ is the square root of the mean squared speed:
+\begin{equation}
+v_{\text{rms}} = \sqrt{\langle v^2 \rangle} = \sqrt{\int_0^\infty v^2 f(v; T) \, dv / n} = \sqrt{\frac{3k_B T}{m}}
+\label{eq:rms_speed}
+\end{equation}
+The rms speed is related to temperature through the equipartition theorem: $\langle E_{\text{kin}} \rangle = (1/2) m \langle v^2 \rangle = (3/2) k_B T$, giving $v_{\text{rms}} = \sqrt{3k_B T / m}$.
+\end{definition}
+
+\begin{remark}[Ordering of Characteristic Speeds]
+\label{rem:speed_ordering}
+The three characteristic speeds are ordered as:
+\begin{equation}
+v_p < \langle v \rangle < v_{\text{rms}}
+\end{equation}
+with numerical ratios:
+\begin{equation}
+v_p : \langle v \rangle : v_{\text{rms}} = \sqrt{2} : \sqrt{8/\pi} : \sqrt{3} \approx 1.414 : 1.596 : 1.732
+\end{equation}
+The most probable speed is the smallest (the peak of the distribution), the mean speed is intermediate, and the rms speed is the largest (because squaring emphasizes high speeds). For nitrogen at 300 K, these speeds are approximately $v_p \approx 422$ m/s, $\langle v \rangle \approx 476$ m/s, and $v_{\text{rms}} \approx 517$ m/s.
+\end{remark}
+
+Crucially, the Maxwell-Boltzmann distribution has tails extending to both low and high velocities. At any temperature, some molecules move slowly (near zero velocity) and some move rapidly (far above the mean). The distribution never vanishes for any positive velocity.
+
+\begin{proposition}[Distribution Tails]
+\label{prop:distribution_tails}
+The Maxwell-Boltzmann distribution has support on the entire positive real line: $f(v; T) > 0$ for all $v > 0$ and any $T > 0$. The distribution has exponential tails: as $v \to \infty$, $f(v; T) \sim v^2 \exp(-mv^2 / 2k_B T) \to 0$ exponentially fast, but never reaches exactly zero. As $v \to 0$, $f(v; T) \sim v^2 \to 0$ (the distribution vanishes quadratically at zero speed due to the $v^2$ prefactor, which arises from the spherical volume element in velocity space).
+\end{proposition}
+
+\begin{proof}
+The distribution function is:
+\begin{equation}
+f(v; T) = C v^2 \exp\left(-\frac{mv^2}{2k_B T}\right)
+\end{equation}
+where $C = 4\pi n (m / 2\pi k_B T)^{3/2} > 0$ is a positive constant. For any $v > 0$ and $T > 0$, both factors are positive: $v^2 > 0$ and $\exp(-mv^2 / 2k_B T) > 0$ (the exponential function is always positive). Therefore, $f(v; T) > 0$ for all $v > 0$.
+
+The exponential tail dominates at large $v$: as $v \to \infty$, the exponential $\exp(-mv^2 / 2k_B T)$ decreases faster than any polynomial $v^n$ increases, so $f(v; T) \to 0$. But the exponential is never exactly zero for finite $v$, so the distribution has infinite support (it is positive everywhere on $(0, \infty)$).
+
+At $v = 0$, the $v^2$ prefactor causes the distribution to vanish: $f(0; T) = 0$. This is physically reasonable: the probability of finding a molecule with exactly zero velocity is zero (it is a measure-zero event in velocity space). The probability of finding a molecule with speed in a small interval $[0, \epsilon]$ is $\int_0^\epsilon f(v; T) \, dv \sim \epsilon^3 \to 0$ as $\epsilon \to 0$. \qed
+\end{proof}
+
+\subsection{Distribution Overlap Between Containers}
+
+Consider two containers A and B at different temperatures $T_A < T_B$. The key insight is that their velocity distributions overlap significantly: there is a large range of velocities that appear in both distributions with non-zero probability.
+
+\begin{theorem}[Distribution Overlap]
+\label{thm:distribution_overlap}
+For any two temperatures $T_A < T_B$ (both positive), the velocity distributions overlap completely. Formally, for any velocity $v > 0$, both distributions have positive probability density:
+\begin{equation}
+f_A(v; T_A) > 0 \quad \text{and} \quad f_B(v; T_B) > 0
+\label{eq:complete_overlap}
+\end{equation}
+The overlap region is the entire positive real line: every velocity that exists in one container also exists in the other, with positive (though possibly small) probability.
+\end{theorem}
+
+\begin{proof}
+From Proposition~\ref{prop:distribution_tails}, the Maxwell-Boltzmann distribution has support on $(0, \infty)$ for any positive temperature. For container A at temperature $T_A$:
+\begin{equation}
+f_A(v; T_A) = C_A v^2 \exp\left(-\frac{mv^2}{2k_B T_A}\right) > 0 \quad \forall v > 0
+\end{equation}
+where $C_A = 4\pi n_A (m / 2\pi k_B T_A)^{3/2} > 0$.
+
+Similarly, for container B at temperature $T_B$:
+\begin{equation}
+f_B(v; T_B) = C_B v^2 \exp\left(-\frac{mv^2}{2k_B T_B}\right) > 0 \quad \forall v > 0
+\end{equation}
+where $C_B = 4\pi n_B (m / 2\pi k_B T_B)^{3/2} > 0$.
+
+Both distributions are strictly positive for all $v > 0$, regardless of the temperature difference $T_B - T_A$. Therefore, the overlap region is $(0, \infty)$—the entire positive real line. Every velocity has positive probability in both containers.
+
+The overlap is complete, not partial. There is no velocity threshold $v_{\text{threshold}}$ such that velocities below the threshold exist only in A and velocities above exist only in B. Even velocities far below the mean of A (very slow molecules) have positive probability in B, and velocities far above the mean of B (very fast molecules) have positive probability in A. The probabilities may be exponentially small (due to the exponential tails), but they are never exactly zero. \qed
+\end{proof}
+
+\begin{corollary}[Complete Overlap]
+\label{cor:complete_overlap}
+The velocity distributions of any two containers at positive temperatures overlap completely. There is no velocity that uniquely identifies a molecule as belonging to one container or the other based on velocity alone. Every velocity is compatible with both containers, differing only in probability (how common that velocity is in each container).
+\end{corollary}
+
+\begin{remark}[Quantitative Overlap]
+\label{rem:quantitative_overlap}
+While the overlap is complete (all velocities appear in both distributions), the degree of overlap (how much the distributions coincide) depends on the temperature ratio $T_B / T_A$. For small temperature differences ($T_B / T_A \approx 1$), the distributions are nearly identical, and the overlap is nearly perfect. For large temperature differences ($T_B / T_A \gg 1$), the distributions are well-separated, and the overlap is small (most velocities in A are below most velocities in B). However, even for large temperature differences, the overlap is non-zero: there is always a range of velocities where both distributions have significant probability.
+
+Quantitatively, the overlap can be measured by the Bhattacharyya coefficient:
+\begin{equation}
+BC = \int_0^\infty \sqrt{f_A(v; T_A) f_B(v; T_B)} \, dv
+\end{equation}
+which ranges from 0 (no overlap) to 1 (complete coincidence). For Maxwell-Boltzmann distributions, the Bhattacharyya coefficient can be computed analytically, giving $BC = (2\sqrt{T_A T_B} / (T_A + T_B))^{3/2}$. For $T_B / T_A = 1.1$ (10\% temperature difference), $BC \approx 0.985$ (98.5\% overlap). For $T_B / T_A = 2$ (100\% temperature difference), $BC \approx 0.707$ (70.7\% overlap). Even for large temperature differences, the overlap remains substantial.
+\end{remark}
+
+\subsection{Context-Dependent Velocity Meaning}
+
+The critical insight is that a velocity's statistical meaning (whether it is "fast" or "slow") depends on the ensemble context (which distribution it is part of). The same velocity can be "above average" in one ensemble and "below average" in another.
+
+\begin{definition}[Velocity Percentile]
+\label{def:velocity_percentile}
+For a molecule with speed $v$ in an ensemble at temperature $T$, the \textbf{velocity percentile} $P_T(v)$ is the cumulative probability up to speed $v$:
+\begin{equation}
+P_T(v) = \int_0^v f(v'; T) \, dv' / n
+\label{eq:velocity_percentile}
+\end{equation}
+This measures what fraction of the ensemble has speed less than or equal to $v$. The percentile ranges from 0 (slowest molecule) to 1 (fastest molecule). A molecule at the 50th percentile ($P_T(v) = 0.5$) has speed near the median (approximately equal to the mean speed $\langle v \rangle$ for Maxwell-Boltzmann distributions). A molecule at the 90th percentile ($P_T(v) = 0.9$) is faster than 90% of the ensemble.
+\end{definition}
+
+\begin{theorem}[Context-Dependent Percentile]
+\label{thm:context_dependent}
+For the same velocity $v$ in two ensembles at temperatures $T_A < T_B$, the velocity percentile is higher in the colder ensemble:
+\begin{equation}
+P_{T_A}(v) > P_{T_B}(v)
+\label{eq:percentile_ordering}
+\end{equation}
+The same velocity represents a higher percentile (is "faster" relative to the ensemble) in the colder container than in the hotter container. A molecule that is "above average" in the cold container may be "below average" in the hot container.
+\end{theorem}
+
+\begin{proof}
+The Maxwell-Boltzmann distribution shifts to higher velocities as the temperature increases. The mean speed increases with temperature:
+\begin{equation}
+\langle v \rangle_A = \sqrt{\frac{8k_B T_A}{\pi m}} < \sqrt{\frac{8k_B T_B}{\pi m}} = \langle v \rangle_B
+\end{equation}
+for $T_A < T_B$.
+
+Consider a fixed velocity $v$. If $v = \langle v \rangle_A$ (the mean speed in container A), then $v$ is at the 50th percentile in A: $P_{T_A}(v) \approx 0.5$ (half of the molecules in A are slower than $v$, and half are faster). But since $\langle v \rangle_A < \langle v \rangle_B$, the same velocity $v$ is below the mean in container B: $v < \langle v \rangle_B$. Therefore, more than half of molecules in B are faster than $v$, giving $P_{T_B}(v) < 0.5$.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/velocity_temperature_panel.png}
+\caption{\textbf{Velocity-Temperature Non-Correspondence: Same Velocity, Different "Temperature Meaning"—Context Determines Categorical Interpretation.}
+\textbf{(A)} Overlapping velocity distributions. Three Gaussian distributions: Cold (300K, teal), Hot (340K, red), and their Overlap (purple). The distributions substantially overlap in the velocity range $v \in [2, 8]$ (arbitrary units). Dashed vertical line indicates overlap region where cold and hot distributions intersect. The complete overlap demonstrates that every velocity value exists in both temperature distributions—there is no velocity threshold that cleanly separates "cold" from "hot" molecules. This overlap is the fundamental reason why velocity-based sorting cannot sort by temperature.
+\textbf{(B)} Same velocity, opposite categorical meaning. Central diagram shows single velocity value (500 m/s, white circle) with two interpretations: "FAST" (above average) in cold container (300K, teal box) and "SLOW" (below average) in hot container (310K, red box). Green arrows point from 500 m/s to both interpretations. Text below: "Same velocity, opposite categorical meaning!" A molecule with $v = 500$ m/s contributes to hotness in a cold ensemble but contributes to coldness in a hot ensemble. The categorical meaning of velocity is context-dependent, not intrinsic.
+\textbf{(C)} Velocity percentile by context. Two horizontal bars representing containers: Cold Container (300K, teal) and Hot Container (310K, red). Yellow dashed line at "50\%" in cold container indicates molecule is "Fast" (above median). Same yellow dashed line at "47\%" in hot container indicates same molecule is "Slow" (below median). Text: "Same v!" The identical velocity corresponds to different percentile ranks in different ensembles. This proves that velocity does not have intrinsic "temperature meaning"—the same $v$ can be hot-contributing or cold-contributing depending on context.
+\textbf{(D)} The sorting paradox. Two containers: COLD (teal, molecule with "FAST" label) and HOT (red, molecule with "SLOW" label). Demon (orange circle) between them says "Move to hot!" Red box below: "PARADOX: Intended: Add 'fast' to make hotter. Result: Added 'slow'—makes COLDER! Demon achieved the OPPOSITE." When the demon moves a "fast" molecule from cold to hot, that molecule becomes "slow" in the hot context. The demon intends to heat the hot container but actually cools it. This is not a measurement error—it's a category inversion upon transfer.
+\textbf{(E)} No molecular temperature—only ensemble temperature. Left box (red, "WRONG"): "Molecule has $v \Rightarrow$ Molecule has $T$". Right box (green, "CORRECT"): "Ensemble has $\{v_i\} \Rightarrow$ Ensemble has $T$". Formula below: "$T = T[\{v_1, v_2, \ldots, v_N\}]$. Temperature is a FUNCTIONAL of distribution, NOT a function of individual velocity. Only ENSEMBLES have temperature." Individual molecules do not have temperature—they have velocity. Temperature is a statistical property of the distribution $\{v_i\}$, not a property of individual $v_i$. The demon's error is treating velocity as if it were temperature.
+\textbf{(F)} Category changes upon transfer. Two panels: Before (left) shows molecule in "Category: HOT" (red container). After (right) shows same molecule transferred to "Category: COLD" (teal container). Arrow indicates transfer. Yellow box below: "Velocity: UNCHANGED. Category: INVERTED. Context determines meaning." The molecule's velocity doesn't change during transfer, but its categorical role inverts. A hot-contributing molecule becomes a cold-contributing molecule simply by changing containers. This context-dependence makes velocity-based sorting fundamentally incapable of temperature-based sorting.
+\textbf{(G)} Why the demon cannot sort by temperature—four reasons. Numbered list: "1. Temperature is not a molecular property. 2. Velocity does not determine T contribution. 3. T contribution is ensemble-relative. 4. Transfer changes categorical meaning." Red box below: "Sorting by velocity $\neq$ sorting by temperature." Each point addresses a different aspect of the category error. Temperature is collective (1), velocity-temperature mapping is non-unique (2), contribution depends on context (3), and context changes upon transfer (4). These four reasons combine to prove that velocity sorting cannot achieve temperature sorting.
+\textbf{(H)} The overlap region problem. Venn diagram with two circles: "Cold only" (teal), "Hot only" (red), and overlap region "BOTH" (purple). Text below: "Overlap—ALL velocities! Every velocity exists in both distributions. The overlap is COMPLETE." The overlap region is not a small boundary—it encompasses the entire velocity range. There is no velocity value that belongs exclusively to cold or exclusively to hot. Complete overlap means that velocity provides zero information about which distribution a molecule came from. The demon cannot use velocity to determine temperature category.
+\textbf{(I)} The insight: velocity $\neq$ temperature. Purple box: "Velocity $\neq$ Temperature. Same velocity $v$: In cold: 'FAST' (contributes to hotness). In hot: 'SLOW' (contributes to coldness). The demon sorts by velocity but CANNOT sort by temperature. Temperature is contextual, not intrinsic." This summarizes the resolution: velocity and temperature are not equivalent. The same velocity has opposite thermal meanings in different contexts. The demon's velocity-based sorting cannot achieve temperature-based sorting because temperature meaning is context-dependent. This is a fundamental limitation, not an engineering challenge. No improvement in velocity measurement precision can overcome the context-dependence of temperature meaning.}
+\label{fig:velocity_temperature_noncorrespondence}
+\end{figure*}
+
+
+More generally, the cumulative distribution function $F_T(v) = P_T(v)$ satisfies:
+\begin{equation}
+\frac{\partial F_T(v)}{\partial T} < 0 \quad \text{for fixed } v > 0
+\label{eq:cdf_temperature_derivative}
+\end{equation}
+
+This can be proven by differentiating the cumulative distribution:
+\begin{equation}
+F_T(v) = \int_0^v f(v'; T) \, dv' / n
+\end{equation}
+
+Taking the derivative with respect to $T$:
+\begin{equation}
+\frac{\partial F_T(v)}{\partial T} = \int_0^v \frac{\partial f(v'; T)}{\partial T} \, dv' / n
+\end{equation}
+
+The derivative of the Maxwell-Boltzmann distribution with respect to temperature can be computed:
+\begin{equation}
+\frac{\partial f(v; T)}{\partial T} = f(v; T) \left[\frac{mv^2}{2k_B T^2} - \frac{3}{2T}\right]
+\end{equation}
+
+For $v < v_{\text{rms}} = \sqrt{3k_B T / m}$, the term in brackets is negative: $mv^2 / 2k_B T^2 < 3/2T$, giving $\partial f / \partial T < 0$. For $v > v_{\text{rms}}$, the term is positive: $\partial f / \partial T > 0$. The distribution decreases at low velocities and increases at high velocities as temperature increases (the distribution shifts to the right).
+
+Integrating over $[0, v]$, the cumulative distribution decreases with temperature for $v$ in the range where most of the probability mass lies (roughly $v < v_{\text{rms}}$). Therefore, $\partial F_T(v) / \partial T < 0$ for typical velocities, giving $P_{T_A}(v) > P_{T_B}(v)$ for $T_A < T_B$.
+
+The physical interpretation is clear: as temperature increases, the distribution shifts to higher velocities. A fixed velocity $v$ becomes relatively slower (lower percentile) as the ensemble heats up. \qed
+\end{proof}
+
+\begin{example}[Numerical Illustration]
+\label{ex:nitrogen_percentiles}
+Consider nitrogen gas (N$_2$, molecular mass $m = 28$ atomic mass units $\approx 4.65 \times 10^{-26}$ kg) in two containers at temperatures $T_A = 300$ K and $T_B = 310$ K (a 10 K or 3.3% temperature difference).
+
+The mean speeds are:
+\begin{align}
+\langle v \rangle_A &= \sqrt{\frac{8k_B T_A}{\pi m}} \approx 476 \text{ m/s} \\
+\langle v \rangle_B &= \sqrt{\frac{8k_B T_B}{\pi m}} \approx 484 \text{ m/s}
+\end{align}
+
+Consider a molecule moving at $v = 480$ m/s. This velocity is:
+\begin{itemize}
+    \item In Container A: Above the mean ($480 > 476$ m/s), so the molecule is "fast" relative to A. The percentile is $P_{T_A}(480) \approx 0.53$ (53rd percentile—faster than 53% of molecules in A).
+    \item In Container B: Below the mean ($480 < 484$ m/s), so the molecule is "slow" relative to B. The percentile is $P_{T_B}(480) \approx 0.47$ (47th percentile—faster than only 47% of molecules in B).
+\end{itemize}
+
+The same velocity (480 m/s) is "fast" in container A (above average, 53rd percentile) and "slow" in container B (below average, 47th percentile). The velocity's meaning is context-dependent: it depends on which ensemble the molecule belongs to.
+
+If the demon transfers this molecule from A to B, intending to make B hotter (by adding a "fast" molecule from A), the transfer actually makes B colder (because the molecule is "slow" relative to B). The demon's sorting achieves the opposite of its intention for molecules in the overlap region.
+\end{example}
+
+\begin{remark}[Ambiguous Velocity Region]
+\label{rem:ambiguous_region}
+The region of velocities where the percentile changes sign (from above average in A to below average in B) is the "ambiguous region" where the demon's sorting is most confused. For the nitrogen example above, the ambiguous region is approximately $[476, 484]$ m/s (between the two mean speeds). Molecules in this region are "fast" in A but "slow" in B. The width of the ambiguous region is proportional to the temperature difference: $\Delta v_{\text{ambiguous}} \sim \langle v \rangle_B - \langle v \rangle_A \propto \sqrt{T_B} - \sqrt{T_A} \approx (\sqrt{T_A} / 2\sqrt{T_A}) \Delta T = \Delta T / 2\sqrt{T_A}$ for small $\Delta T$. As the temperature difference decreases ($\Delta T \to 0$), the ambiguous region shrinks, but the fraction of molecules in the ambiguous region increases (because the distributions become more similar, and more molecules are near the mean where the ambiguity occurs).
+\end{remark}
+
+\subsection{The Demon's Sorting Paradox}
+
+The context-dependence of velocity meaning creates a fundamental paradox for the demon's sorting operation: the demon cannot determine whether a molecule is "hot" or "cold" from its velocity alone because the classification depends on the ensemble context, which changes when the molecule is transferred.
+
+\begin{theorem}[Sorting Paradox]
+\label{thm:sorting_paradox}
+The demon cannot sort molecules by "temperature contribution" because velocity does not determine temperature contribution (temperature is an ensemble property, not a molecular property), temperature contribution is context-dependent (the same velocity has different meanings in different ensembles), and moving a molecule changes its context, hence its contribution (a molecule that is "hot" in A becomes "cold" in B upon transfer).
+\end{theorem}
+
+\begin{proof}
+Consider the demon attempting to sort molecules from the overlap region (velocities that exist in both containers with significant probability).
+
+\textbf{Step 1: Identification.}
+The demon identifies a molecule in container A with velocity $v^*$ where $P_{T_A}(v^*) > 0.5$ (the molecule is "fast" in A, above the 50th percentile). The demon classifies this molecule as "hot" based on its velocity.
+
+\textbf{Step 2: Transfer.}
+The demon opens the door and allows the molecule to pass from container A to container B. The demon's intention is to increase B's temperature by adding a "hot" molecule.
+
+\textbf{Step 3: Context change.}
+Upon entering container B, the molecule's velocity $v^*$ is unchanged (velocity is conserved during the transfer, assuming no collisions at the door). However, the molecule's percentile changes:
+\begin{equation}
+P_{T_B}(v^*) < P_{T_A}(v^*)
+\end{equation}
+from Theorem~\ref{thm:context_dependent}.
+
+If $v^*$ was chosen such that $P_{T_A}(v^*) > 0.5$ but $P_{T_B}(v^*) < 0.5$ (a velocity in the ambiguous region), then the molecule is now "slow" relative to container B (below the 50th percentile in B). The molecule that was "hot" in A has become "cold" in B.
+
+\textbf{Step 4: Consequence.}
+The transfer of a "cold" molecule (relative to B) into container B decreases B's temperature rather than increasing it. The demon's sorting achieves the opposite of its intention for molecules in the overlap region.
+
+\textbf{Paradox:}
+The demon classified the molecule as "hot" based on its velocity in A, but the molecule is "cold" in B. The classification is context-dependent and changes upon transfer. The demon cannot know, from velocity alone, whether a transfer will increase or decrease the destination container's temperature. The demon's sorting strategy is incoherent because the property it is sorting by (temperature contribution) is not a molecular property but an ensemble-relative property that changes when the molecule changes ensembles. \qed
+\end{proof}
+
+\begin{corollary}[No Molecular Temperature]
+\label{cor:no_molecular_temperature}
+Individual molecules do not possess temperature. Temperature is a property of ensembles, not particles. Formally, temperature is a functional of the entire velocity distribution:
+\begin{equation}
+T = T[\{v_1, v_2, \ldots, v_N\}] \neq T(v_i) \text{ for any } i
+\label{eq:temperature_functional}
+\end{equation}
+Temperature is defined as $T = (m / 3k_B N) \sum_{i=1}^N v_i^2$, which depends on all $N$ velocities, not on any single velocity $v_i$. An individual molecule contributes $(m v_i^2) / (3k_B N)$ to the temperature, but this contribution's significance (whether it increases or decreases temperature) depends on how $v_i$ compares to the ensemble mean $\langle v^2 \rangle$, which depends on all other velocities.
+\end{corollary}
+
+\begin{proof}
+Temperature is defined thermodynamically as the inverse of the partial derivative of entropy with respect to energy: $1/T = (\partial S / \partial E)_{V,N}$. In statistical mechanics, this is equivalent to the mean kinetic energy per degree of freedom: $\langle E_{\text{kin}} \rangle = (3/2) N k_B T$ for a three-dimensional ideal gas, giving:
+\begin{equation}
+T = \frac{2}{3N k_B} \sum_{i=1}^N \frac{1}{2} m v_i^2 = \frac{m}{3N k_B} \sum_{i=1}^N v_i^2
+\end{equation}
+
+This is a function of all $N$ velocities $\{v_1, v_2, \ldots, v_N\}$, not a function of any single velocity $v_i$. Temperature is an ensemble average, not a molecular property.
+
+An individual molecule with velocity $v_i$ contributes:
+\begin{equation}
+\Delta T_i = \frac{m v_i^2}{3N k_B}
+\end{equation}
+to the total temperature. But this contribution is $1/N$ of the total, and its significance depends on how $v_i$ compares to the ensemble mean. If $v_i > \langle v \rangle$, the molecule contributes more than average, increasing temperature. If $v_i < \langle v \rangle$, the molecule contributes less than average, decreasing temperature. The classification ("hot" or "cold") depends on the ensemble context (the mean $\langle v \rangle$), not on the velocity $v_i$ alone.
+
+Therefore, temperature is not a molecular property. It is an emergent ensemble property that arises from averaging over many molecules. Individual molecules have velocities and kinetic energies, but not temperatures. \qed
+\end{proof}
+
+\begin{remark}[Intensive vs. Extensive Properties]
+\label{rem:intensive_extensive}
+Corollary~\ref{cor:no_molecular_temperature} reflects the distinction between intensive and extensive properties. Temperature is an intensive property: it does not scale with system size (doubling the number of molecules does not double the temperature). Intensive properties are ensemble properties that emerge from averaging over many particles. Individual particles do not possess intensive properties; they possess extensive properties (energy, momentum, mass) that sum to give the total. Temperature is the average kinetic energy per particle, not a property of individual particles.
+
+This distinction is crucial for understanding the demon's failure. The demon attempts to sort by temperature (an intensive, ensemble property), but it can only measure velocity (an extensive, molecular property). The mapping from velocity to temperature is many-to-one and context-dependent: the same velocity corresponds to different temperature contributions in different ensembles. The demon cannot invert this mapping to determine temperature from velocity alone.
+\end{remark}
+
+\subsection{Velocity as Categorical Position}
+
+The context-dependence of velocity meaning can be formalized using the categorical framework. A molecule's velocity category (whether it is "hot," "cold," or "average") is determined by its position in the ensemble distribution, not by its absolute velocity.
+
+\begin{definition}[Velocity Category]
+\label{def:velocity_category}
+A molecule's \textbf{velocity category} in ensemble $E$ at temperature $T$ is its position relative to the ensemble distribution, defined by percentile thresholds:
+\begin{equation}
+\mathcal{V}_E(v; T) = \begin{cases}
+\text{``cold''} & \text{if } P_T(v) < P_{\text{low}} \\
+\text{``average''} & \text{if } P_{\text{low}} \leq P_T(v) \leq P_{\text{high}} \\
+\text{``hot''} & \text{if } P_T(v) > P_{\text{high}}
+\end{cases}
+\label{eq:velocity_category}
+\end{equation}
+where $P_{\text{low}}$ and $P_{\text{high}}$ are threshold percentiles (e.g., $P_{\text{low}} = 0.33$ and $P_{\text{high}} = 0.67$ for terciles, dividing the distribution into three equal parts). The velocity category is a categorical variable (a discrete label) that depends on both the velocity $v$ and the ensemble context (temperature $T$).
+\end{definition}
+
+\begin{theorem}[Category Change on Transfer]
+\label{thm:category_change}
+When a molecule transfers between ensembles at different temperatures, its velocity category can change, even though its velocity is unchanged. Formally, for velocities in the overlap region with different percentile positions:
+\begin{equation}
+\mathcal{V}_A(v; T_A) \neq \mathcal{V}_B(v; T_B)
+\label{eq:category_change}
+\end{equation}
+for $T_A < T_B$ and $v$ in the ambiguous region where $P_{T_A}(v) > P_{\text{high}}$ but $P_{T_B}(v) < P_{\text{high}}$ (or similar boundary crossings).
+\end{theorem}
+
+\begin{proof}
+Direct consequence of Theorem~\ref{thm:context_dependent}. For $T_A < T_B$ and a velocity $v$ in the overlap region:
+\begin{equation}
+P_{T_A}(v) > P_{T_B}(v)
+\end{equation}
+
+If $v$ is chosen such that $P_{T_A}(v) > P_{\text{high}}$ (the molecule is "hot" in A, above the high percentile threshold) but $P_{T_B}(v) < P_{\text{high}}$ (the molecule is not "hot" in B, below the high percentile threshold), then the velocity category changes upon transfer:
+\begin{equation}
+\mathcal{V}_A(v; T_A) = \text{``hot''} \quad \text{but} \quad \mathcal{V}_B(v; T_B) = \text{``average'' or ``cold''}
+\end{equation}
+
+The molecule has crossed a category boundary (the high percentile threshold) upon changing ensembles. Its velocity $v$ is unchanged, but its categorical position (relative to the ensemble distribution) has changed.
+
+This category change is inevitable for velocities in the ambiguous region (roughly between the two ensemble means $\langle v \rangle_A$ and $\langle v \rangle_B$). For small temperature differences, the ambiguous region contains a significant fraction of molecules, so category changes are common. \qed
+\end{proof}
+
+\begin{remark}[Categorical vs. Absolute Classification]
+\label{rem:categorical_absolute}
+Theorem~\ref{thm:category_change} reveals that velocity classification is categorical (relative to ensemble), not absolute (independent of ensemble). An absolute classification would assign the same category to a velocity regardless of ensemble context: a velocity $v > v_{\text{threshold}}$ would always be "hot," regardless of which ensemble it belongs to. But the Maxwell-Boltzmann distribution makes absolute classification impossible: there is no velocity threshold that separates "hot" molecules from "cold" molecules across all ensembles. The same velocity is "hot" in one ensemble and "cold" in another.
+
+The categorical classification (Definition~\ref{def:velocity_category}) is the only coherent classification: it assigns categories based on percentile position, which is ensemble-relative. But this makes the demon's sorting incoherent: the demon classifies a molecule as "hot" in ensemble A, transfers it to ensemble B, and the molecule becomes "cold" upon transfer. The demon cannot maintain a consistent classification across ensembles.
+\end{remark}
+
+\subsection{The Demon Cannot Sort by Temperature}
+
+We now prove the central result: the demon cannot sort molecules by temperature because temperature is not a molecular property and velocity does not determine temperature contribution.
+
+\begin{theorem}[Temperature Sorting Impossibility]
+\label{thm:temp_sort_impossible}
+The demon cannot sort molecules by temperature because temperature is not a molecular property (it is an ensemble property), velocity determines only kinetic energy, not temperature contribution (contribution depends on ensemble context), temperature contribution is ensemble-relative (the same velocity has different contributions in different ensembles), and sorting changes ensemble composition, hence all molecules' contributions (each transfer changes the ensemble means, changing all percentiles).
+\end{theorem}
+
+\begin{proof}
+Suppose the demon attempts to sort molecules by "temperature contribution," with the goal of increasing the temperature of container B by transferring "hot" molecules from container A.
+
+\textbf{Problem 1: Temperature is not a molecular property.}
+From Corollary~\ref{cor:no_molecular_temperature}, temperature is an ensemble property, not a molecular property. Temperature is defined as:
+\begin{equation}
+T = \frac{m}{3k_B N} \sum_{i=1}^N v_i^2 = \frac{m}{3k_B} \langle v^2 \rangle
+\end{equation}
+where the average $\langle v^2 \rangle$ is over the entire ensemble. An individual molecule contributes $(m v_i^2) / (3k_B N)$ to this average, but this contribution's significance (whether it increases or decreases temperature) depends on $N$ and on the other molecules' velocities $\{v_j\}_{j \neq i}$.
+
+The demon cannot measure "temperature" of an individual molecule because temperature is not defined for individuals. The demon can measure velocity $v_i$, which determines kinetic energy $E_i = (1/2) m v_i^2$, but kinetic energy is not temperature. The demon must infer temperature contribution from velocity, but this inference is context-dependent (Problem 3 below).
+
+\textbf{Problem 2: Sorting changes the ensemble.}
+When the demon removes a molecule from container A, the ensemble composition changes. The temperature of A after removal is:
+\begin{equation}
+T_A' = \frac{m}{3k_B(N_A - 1)} \sum_{j \neq i} v_j^2
+\end{equation}
+where the sum excludes the removed molecule $i$. This is different from the original temperature:
+\begin{equation}
+T_A' = \frac{N_A}{N_A - 1} \left(T_A - \frac{m v_i^2}{3k_B N_A}\right) \neq T_A
+\end{equation}
+
+The removal changes the mean, which changes all molecules' percentile positions. A molecule that was "average" before removal may become "hot" after removal (if the removed molecule was faster than average, lowering the mean). The demon's classification of remaining molecules is invalidated by the removal.
+
+Similarly, when the demon adds a molecule to container B, the temperature of B after addition is:
+\begin{equation}
+T_B' = \frac{m}{3k_B(N_B + 1)} \left(\sum_{j=1}^{N_B} v_j^2 + v_i^2\right)
+\end{equation}
+
+Whether $T_B' > T_B$ (temperature increases) or $T_B' < T_B$ (temperature decreases) depends on how $v_i$ compares to the mean in B:
+\begin{equation}
+T_B' > T_B \iff v_i^2 > \langle v^2 \rangle_B \iff v_i > v_{\text{rms}, B}
+\end{equation}
+
+The demon's goal (increase $T_B$) is achieved only if $v_i > v_{\text{rms}, B}$ (the transferred molecule is faster than the rms speed in B). But the demon classified the molecule based on its velocity in A ($v_i > v_{\text{rms}, A}$), not in B. If $v_{\text{rms}, A} < v_i < v_{\text{rms}, B}$ (the molecule is in the ambiguous region), the demon's classification is incorrect: the molecule is "hot" in A but "cold" in B, and the transfer decreases $T_B$ rather than increasing it.
+
+\textbf{Problem 3: Temperature contribution is ensemble-relative.}
+From Theorem~\ref{thm:context_dependent}, the same velocity $v$ has different percentile positions in different ensembles:
+\begin{equation}
+P_{T_A}(v) > P_{T_B}(v) \quad \text{for } T_A < T_B
+\end{equation}
+
+A molecule with velocity $v$ contributes $(m v^2) / (3k_B N)$ to temperature, but whether this is a "positive" contribution (increases temperature) or "negative" contribution (decreases temperature) depends on how $v$ compares to the ensemble mean. In ensemble A, if $v > \langle v \rangle_A$, the contribution is positive. In ensemble B, if $v < \langle v \rangle_B$, the contribution is negative. The same velocity can have positive contribution in A and negative contribution in B.
+
+The demon cannot determine temperature contribution from velocity alone. The demon must know the ensemble context (the mean $\langle v \rangle$ or rms speed $v_{\text{rms}}$) to determine whether a velocity is "hot" or "cold." But the ensemble context changes with each transfer (Problem 2), so the demon must continuously update its classification. This is computationally infeasible for large $N$ and fundamentally incoherent (the classification changes faster than sorting can occur).
+
+\textbf{Problem 4: The demon cannot know the effect of a transfer.}
+Combining Problems 1-3, the demon cannot know, from velocity alone, whether a transfer will increase or decrease the destination container's temperature. The effect depends on:
+\begin{itemize}
+    \item The current ensemble composition in both containers (the means $\langle v \rangle_A$ and $\langle v \rangle_B$).
+    \item How the transferred molecule's velocity compares to both means.
+    \item How the ensemble compositions will change after the transfer (which changes the means).
+\end{itemize}
+
+All of these factors are dynamic (they change with each transfer) and context-dependent (they depend on the ensemble, not on the molecule). The demon cannot compute the effect of a transfer without knowing the full ensemble state (all $N_A + N_B$ velocities), which would require measuring the entire system, not just the molecule at the door.
+
+\textbf{Conclusion:}
+The demon's strategy of sorting by velocity to create a temperature difference is fundamentally incoherent. Temperature is not a molecular property, velocity does not determine temperature contribution, temperature contribution is ensemble-relative, and sorting changes the ensemble (invalidating previous classifications). The demon cannot sort by temperature because temperature is not sortable at the molecular level. \qed
+\end{proof}
+
+\begin{remark}[Demon's Dilemma]
+\label{rem:demon_dilemma}
+Theorem~\ref{thm:temp_sort_impossible} reveals a dilemma for the demon. To sort by temperature, the demon must:
+\begin{enumerate}
+    \item Measure velocity (the only molecular property accessible).
+    \item Infer temperature contribution from velocity (requires knowing ensemble context).
+    \item Update ensemble context after each transfer (requires tracking all molecules).
+    \item Repeat for $N$ molecules (computationally infeasible).
+\end{enumerate}
+
+Step 2 requires knowledge of the ensemble state (the mean or distribution), which requires measuring all molecules (Step 3). But if the demon must measure all molecules to determine temperature contribution, it gains no advantage from measuring individual velocities at the door. The demon might as well measure the entire ensemble state directly (compute the temperature of each container) and decide whether to open the door based on the ensemble temperatures, not on individual velocities.
+
+But even this strategy fails because sorting changes the ensemble state (Problem 2), so the demon must re-measure after each transfer. The demon enters an infinite loop of measurement and sorting, never achieving a stable temperature difference. The demon's strategy is not merely difficult but conceptually incoherent.
+\end{remark}
+
+\subsection{Why the Overlap Matters}
+
+The distribution overlap is not merely a technical detail but a fundamental obstacle to the demon's sorting strategy.
+
+\begin{proposition}[Overlap Fraction]
+\label{prop:overlap_fraction}
+For temperatures $T_A$ and $T_B$ with $T_B = T_A + \Delta T$, the fraction of molecules in the ambiguous overlap region (where "hot in A" maps to "cold in B") increases as $\Delta T \to 0$. In the limit of equal temperatures ($\Delta T \to 0$), the entire distribution is ambiguous: every molecule is in the overlap region where its category is undefined.
+\end{proposition}
+
+\begin{proof}
+The ambiguous region is defined as velocities where the percentile changes category upon transfer. For simplicity, consider the region where $P_{T_A}(v) > 0.5$ (above average in A) but $P_{T_B}(v) < 0.5$ (below average in B). This region is approximately:
+\begin{equation}
+\langle v \rangle_A < v < \langle v \rangle_B
+\end{equation}
+where $\langle v \rangle_A$ and $\langle v \rangle_B$ are the mean speeds in the two containers.
+
+The width of the ambiguous region is:
+\begin{equation}
+\Delta v_{\text{ambiguous}} = \langle v \rangle_B - \langle v \rangle_A = \sqrt{\frac{8k_B T_B}{\pi m}} - \sqrt{\frac{8k_B T_A}{\pi m}}
+\end{equation}
+
+For small temperature differences $\Delta T = T_B - T_A \ll T_A$, we can expand:
+\begin{equation}
+\langle v \rangle_B \approx \langle v \rangle_A \left(1 + \frac{\Delta T}{2T_A}\right)
+\end{equation}
+giving:
+\begin{equation}
+\Delta v_{\text{ambiguous}} \approx \langle v \rangle_A \frac{\Delta T}{2T_A}
+\end{equation}
+
+The width of the ambiguous region is proportional to $\Delta T$ and vanishes as $\Delta T \to 0$.
+
+However, the fraction of molecules in the ambiguous region does not vanish. The probability density at the mean is $f(\langle v \rangle; T) \sim \exp(-3/2)$ (from the Maxwell-Boltzmann distribution), which is significant. The fraction of molecules in the interval $[\langle v \rangle_A, \langle v \rangle_B]$ is approximately:
+\begin{equation}
+\text{Fraction} \approx f(\langle v \rangle_A; T_A) \cdot \Delta v_{\text{ambiguous}} \approx f(\langle v \rangle_A; T_A) \cdot \langle v \rangle_A \frac{\Delta T}{2T_A}
+\end{equation}
+
+As $\Delta T \to 0$, the width $\Delta v_{\text{ambiguous}} \to 0$, but the density $f(\langle v \rangle_A; T_A)$ remains finite. The fraction of molecules in the ambiguous region scales as $\Delta T / T_A$, which is small for small temperature differences but non-zero.
+
+More importantly, as $\Delta T \to 0$, the distributions become identical: $f_A(v; T_A) \to f_B(v; T_B)$. In the limit $T_A = T_B$, every molecule is in the "ambiguous" region in the sense that its category in A equals its category in B (there is no category change upon transfer because the distributions are identical). The demon's sorting becomes completely incoherent: there is no way to distinguish "hot" molecules from "cold" molecules because all molecules have the same distribution. \qed
+\end{proof}
+
+\begin{corollary}[Demon Failure at Small Temperature Differences]
+\label{cor:demon_failure_small_delta_t}
+The demon's sorting is most confused precisely where it should be most effective—when the temperature difference is small and needs to be amplified. For small $\Delta T$, a significant fraction of molecules are in the ambiguous overlap region where the demon's classification is incorrect. As $\Delta T \to 0$, the demon's sorting becomes completely incoherent (no molecules can be reliably classified as "hot" or "cold").
+\end{corollary}
+
+\begin{proof}
+The demon's goal is to amplify a small temperature difference: starting from $T_A \approx T_B$ (nearly equal temperatures), the demon attempts to create a large temperature difference by sorting. But from Proposition~\ref{prop:overlap_fraction}, the demon's sorting is most confused when $\Delta T$ is small: a large fraction of molecules are in the ambiguous region where the demon's classification is incorrect.
+
+For example, if $\Delta T / T_A = 0.01$ (1% temperature difference), approximately 1% of molecules are in the ambiguous region (rough estimate). The demon misclassifies these molecules, transferring "hot" molecules from A to B that are actually "cold" in B, decreasing $T_B$ rather than increasing it. The demon's sorting is partially counterproductive.
+
+As $\Delta T \to 0$, the fraction of misclassified molecules approaches 100%: all molecules are in the ambiguous region. The demon's sorting becomes completely counterproductive: every transfer decreases the temperature difference rather than increasing it (or has no effect, if the molecule is exactly at the mean).
+
+Therefore, the demon fails most dramatically precisely where it should succeed: at small temperature differences. The demon cannot amplify small temperature differences because the distribution overlap makes classification impossible. \qed
+\end{proof}
+
+\begin{remark}[Paradoxical Failure Mode]
+\label{rem:paradoxical_failure}
+Corollary~\ref{cor:demon_failure_small_delta_t} reveals a paradoxical failure mode: the demon is most effective when it is least needed (large temperature differences, where the distributions are well-separated and classification is easy), and least effective when it is most needed (small temperature differences, where the distributions overlap and classification is hard). This is the opposite of what one would expect from an intelligent agent: the demon should be most useful precisely when the task is most difficult (amplifying small differences). But the statistical nature of temperature makes the task impossible when the differences are small: the demon cannot distinguish "hot" from "cold" when the distributions overlap.
+
+This paradox is a signature of the demon's fundamental incoherence: the demon is trying to sort by a property (temperature) that is not well-defined at the molecular level (it is an ensemble property). The demon's failure at small $\Delta T$ is not a practical limitation (insufficient measurement precision, slow operation speed) but a conceptual limitation (the property being sorted does not exist at the level where sorting occurs).
+\end{remark}
+
+\subsection{Summary}
+
+The velocity-temperature overlap reveals a fundamental incoherence in the demon's task, arising from the statistical nature of temperature and the complete overlap of velocity distributions.
+
+Key results established in this section:
+
+\textbf{(1) Temperature is a statistical property of ensembles, not molecules.} Temperature is defined as the mean kinetic energy: $T = (m / 3k_B) \langle v^2 \rangle$, which is an average over the entire ensemble. Individual molecules have velocities and kinetic energies, but not temperatures (Corollary~\ref{cor:no_molecular_temperature}).
+
+\textbf{(2) Velocity distributions overlap completely between any two temperatures.} The Maxwell-Boltzmann distribution has support on $(0, \infty)$ for any positive temperature. Every velocity exists in both containers with positive (though possibly small) probability (Theorem~\ref{thm:distribution_overlap}).
+
+\textbf{(3) The same velocity has different "temperature meaning" in different ensembles.} A velocity that is "above average" (fast) in a cold container may be "below average" (slow) in a hot container. The velocity percentile $P_T(v)$ is context-dependent: $P_{T_A}(v) > P_{T_B}(v)$ for $T_A < T_B$ (Theorem~\ref{thm:context_dependent}).
+
+\textbf{(4) A "fast" molecule in a cold container is "slow" in a hot container.} Molecules in the ambiguous overlap region (roughly between the two ensemble means) change category upon transfer: a molecule classified as "hot" in A becomes "cold" in B (Theorem~\ref{thm:category_change}).
+
+\textbf{(5) Sorting by velocity does not sort by temperature.} The demon classifies molecules based on velocity in the source container, but the classification is invalid in the destination container. The demon's sorting achieves the opposite of its intention for molecules in the overlap region (Theorem~\ref{thm:sorting_paradox}).
+
+\textbf{(6) Moving molecules changes their categorical position.} Transfer changes the ensemble context, which changes the velocity's meaning. A molecule's temperature contribution depends on the ensemble it belongs to, not on its velocity alone (Theorem~\ref{thm:category_change}).
+
+\textbf{(7) The demon cannot know the effect of a transfer from velocity alone.} The effect of transferring a molecule (whether it increases or decreases the destination temperature) depends on the ensemble context (the current means in both containers), which changes with each transfer. The demon must track the entire ensemble state, which is computationally infeasible and conceptually incoherent (Theorem~\ref{thm:temp_sort_impossible}).
+
+\textbf{(8) The demon fails most dramatically at small temperature differences.} When the temperature difference is small, the distributions overlap almost completely, and most molecules are in the ambiguous region where classification is impossible. The demon cannot amplify small temperature differences because the overlap makes sorting incoherent (Corollary~\ref{cor:demon_failure_small_delta_t}).
+
+The demon's sorting strategy is not merely difficult but conceptually incoherent. The demon attempts to sort by a property (temperature) that molecules do not individually possess, using a measurement (velocity) that does not determine the property even statistically. The velocity-temperature non-correspondence is a fundamental obstacle that cannot be overcome by improved measurement, faster operation, or more sophisticated information processing. The demon is trying to sort by an ensemble property at the molecular level, which is impossible because ensemble properties emerge from averaging over many molecules and do not exist at the individual level.
+
+\begin{equation}
+\boxed{
+\begin{aligned}
+\text{Velocity} &\neq \text{Temperature} \quad \text{(temperature is ensemble property)} \\
+\text{Velocity meaning} &= f(\text{velocity}, \text{ensemble}) \quad \text{(context-dependent)} \\
+\text{Transfer} &\to \text{New ensemble} \to \text{New meaning} \quad \text{(category change)} \\
+\text{Demon's strategy} &: \text{conceptually incoherent} \quad \text{(sorts non-existent property)}
+\end{aligned}
+}
+\end{equation}
+
+The demon attacks a property (temperature) that molecules do not possess, using a measurement (velocity) that does not determine the property even statistically. The demon's entire strategy is misdirected at the most fundamental level: it confuses molecular properties (velocity, kinetic energy) with ensemble properties (temperature, entropy), and attempts to manipulate the latter by measuring the former. This confusion is the deepest source of the demon's failure, more fundamental than information-theoretic costs or thermodynamic constraints. The demon is conceptually incoherent before it even begins to operate.

@@ -1,0 +1,139 @@
+\section{Entropy from Oscillatory Mechanics}
+\label{sec:oscillatory}
+
+We derive entropy from first principles of oscillatory dynamics, making no reference to categorical structure or partition operations. The derivation rests solely on the physics of bounded oscillating systems.
+
+\subsection{Axioms of Oscillatory Systems}
+
+\begin{axiom}[Boundedness]
+\label{axiom:bounded}
+Physical systems occupy bounded regions of phase space. For any system with generalised coordinates $\{q_i\}$ and momenta $\{p_i\}$, there exist finite bounds:
+\begin{equation}
+    |q_i| \leq Q_{\max}, \quad |p_i| \leq P_{\max}
+\end{equation}
+for all degrees of freedom $i$.
+\end{axiom}
+
+\begin{axiom}[Nonlinear Coupling]
+\label{axiom:nonlinear}
+Physical systems exhibit nonlinear coupling between degrees of freedom. The Hamiltonian contains interaction terms:
+\begin{equation}
+    H = \sum_i H_i(q_i, p_i) + \sum_{i < j} V_{ij}(q_i, q_j)
+\end{equation}
+where $V_{ij} \neq 0$ for at least some pairs $(i, j)$.
+\end{axiom}
+
+\begin{theorem}[Bounded Systems Oscillate]
+\label{thm:bounded_oscillate}
+Every dynamical system satisfying Axioms~\ref{axiom:bounded} and~\ref{axiom:nonlinear} exhibits oscillatory behaviour in phase space.
+\end{theorem}
+
+\begin{proof}
+Let $(X, d)$ be the bounded phase space with finite diameter $\text{diam}(X) = R < \infty$, and let $T: X \to X$ be the time evolution map. By boundedness, any orbit $\{T^n(x_0)\}_{n=0}^{\infty}$ is contained within $X$. By the Bolzano-Weierstrass theorem, every bounded sequence in finite-dimensional space possesses at least one accumulation point.
+
+For the system to possess stable fixed points, we require solutions to $x^* = T(x^*)$. In systems with nonlinear coupling, such fixed points are generically unstable or absent. The absence of stable fixed points, combined with boundedness, precludes monotonic convergence to equilibrium.
+
+By Poincaré's recurrence theorem, for any measurable set $A \subset X$ with positive measure $\mu(A) > 0$, almost every point in $A$ returns to $A$ infinitely often under $T$. Combined with the absence of stable fixed points, this necessitates oscillatory behaviour: the system repeatedly traverses regions of phase space without settling into static configurations.
+\end{proof}
+
+\subsection{Oscillatory Mode Structure}
+
+\begin{definition}[Oscillatory Mode]
+\label{def:mode}
+An \emph{oscillatory mode} is an independent degree of freedom characterised by a frequency $\omega_i$ and amplitude $A_i$. For a system with $M$ modes, the state is specified by the vector of mode amplitudes:
+\begin{equation}
+    \mathbf{A} = (A_1, A_2, \ldots, A_M)
+\end{equation}
+\end{definition}
+
+\begin{definition}[Quantum Oscillator States]
+\label{def:quantum_states}
+For quantum mechanical systems, each oscillatory mode $i$ admits discrete energy levels:
+\begin{equation}
+    E_{n_i} = \hbar \omega_i \left( n_i + \frac{1}{2} \right)
+\end{equation}
+where $n_i \in \{0, 1, 2, \ldots, n_{\max}\}$ is the quantum number and $n_{\max}$ is determined by the energy available to the mode.
+\end{definition}
+
+At temperature $T$, the equipartition theorem yields average energy per mode:
+\begin{equation}
+    \langle E_i \rangle = \kB T
+\end{equation}
+The maximum quantum number accessible at temperature $T$ is therefore:
+\begin{equation}
+    n_{\max} \approx \frac{\kB T}{\hbar \omega}
+\end{equation}
+for modes with characteristic frequency $\omega$.
+
+\subsection{Derivation of Oscillatory Entropy}
+
+\begin{theorem}[Oscillatory Entropy]
+\label{thm:osc_entropy}
+For a system with $M$ oscillatory modes, each admitting $n$ distinguishable states, the entropy is:
+\begin{equation}
+    \boxed{\Sosc = \kB M \ln n}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The state of the system is specified by the vector of quantum numbers $\mathbf{n} = (n_1, n_2, \ldots, n_M)$, where each $n_i \in \{0, 1, \ldots, n-1\}$. The total number of distinguishable configurations is:
+\begin{equation}
+    W_{\text{osc}} = \prod_{i=1}^{M} n = n^M
+\end{equation}
+
+By Boltzmann's relation, the entropy is:
+\begin{equation}
+    \Sosc = \kB \ln W_{\text{osc}} = \kB \ln(n^M) = \kB M \ln n
+\end{equation}
+\end{proof}
+
+\begin{remark}[Physical Interpretation]
+The entropy $\Sosc = \kB M \ln n$ has the following interpretation:
+\begin{itemize}
+    \item $M$ counts the number of independent oscillatory degrees of freedom
+    \item $n$ counts the number of distinguishable states per degree of freedom
+    \item $\ln n$ is the information content (in natural units) per mode
+    \item $\kB$ converts to thermodynamic units (J/K)
+\end{itemize}
+The entropy increases linearly with the number of modes and logarithmically with the number of states per mode.
+\end{remark}
+
+\subsection{Temperature Dependence}
+
+\begin{corollary}[Temperature Scaling]
+\label{cor:temp_scaling}
+For harmonic oscillators at temperature $T$ with characteristic frequency $\omega$, the oscillatory entropy scales as:
+\begin{equation}
+    \Sosc = \kB M \ln\left( \frac{\kB T}{\hbar \omega} \right)
+\end{equation}
+in the high-temperature limit $\kB T \gg \hbar \omega$.
+\end{corollary}
+
+\begin{proof}
+At temperature $T$, the number of accessible states per mode is $n \approx \kB T / \hbar \omega$. Substituting into Theorem~\ref{thm:osc_entropy}:
+\begin{equation}
+    \Sosc = \kB M \ln\left( \frac{\kB T}{\hbar \omega} \right)
+\end{equation}
+This recovers the classical result for the entropy of $M$ harmonic oscillators.
+\end{proof}
+
+\begin{remark}[Quantum Corrections]
+At low temperatures $\kB T \lesssim \hbar \omega$, quantum corrections become significant. The full quantum expression is:
+\begin{equation}
+    \Sosc = \kB \sum_{i=1}^{M} \left[ \frac{\hbar \omega_i / \kB T}{e^{\hbar \omega_i / \kB T} - 1} - \ln\left(1 - e^{-\hbar \omega_i / \kB T}\right) \right]
+\end{equation}
+However, the functional form $S \propto M$ persists across all temperature regimes.
+\end{remark}
+
+\subsection{Independence from Categorical and Partition Concepts}
+
+The derivation of $\Sosc = \kB M \ln n$ relies solely on:
+\begin{enumerate}
+    \item Boundedness of phase space (Axiom~\ref{axiom:bounded})
+    \item Nonlinear coupling (Axiom~\ref{axiom:nonlinear})
+    \item Quantum discretisation of energy levels (Definition~\ref{def:quantum_states})
+    \item Boltzmann's entropy relation $S = \kB \ln W$
+\end{enumerate}
+
+No reference has been made to categorical structure, partition operations, or information-theoretic concepts. The entropy arises purely from counting distinguishable oscillatory configurations.
+

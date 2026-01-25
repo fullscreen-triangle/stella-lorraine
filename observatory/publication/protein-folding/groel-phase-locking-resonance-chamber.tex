@@ -1,24 +1,144 @@
-\documentclass[11pt]{article}
+\documentclass[11pt,a4paper]{article}
+
+% ============================================================
+% ESSENTIAL MATH PACKAGES
+% ============================================================
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{physics}
+\usepackage{amsfonts}
 \usepackage{mathrsfs}
+\usepackage{physics}       % For \abs, \norm, \bra, \ket, etc.
 
-% Theorem environments
-\newtheorem{theorem}{Theorem}
+% ============================================================
+% GRAPHICS AND FIGURES
+% ============================================================
+\usepackage{graphicx}
+\usepackage{float}         % For [H] placement
+\usepackage{caption}       % Better captions
+\usepackage{subcaption}    % For subfigures if needed
+
+% Better figure placement
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\textfraction}{0.07}
+
+% ============================================================
+% PAGE LAYOUT
+% ============================================================
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing            % 1.5 line spacing for readability
+
+% ============================================================
+% FONTS AND ENCODING
+% ============================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}       % Better font rendering
+
+% ============================================================
+% COLORS (for hyperlinks and emphasis)
+% ============================================================
+\usepackage{xcolor}
+\definecolor{linkblue}{RGB}{0,102,204}
+\definecolor{citegreen}{RGB}{0,128,0}
+\definecolor{urlpurple}{RGB}{128,0,128}
+
+% ============================================================
+% HYPERLINKS (LOAD NEAR END)
+% ============================================================
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkblue,
+    citecolor=citegreen,
+    urlcolor=urlpurple,
+    pdftitle={GroEL-Mediated Protein Folding Through Phase-Locked Hydrogen Bond Networks},
+    pdfauthor={Kundai Farai Sachikonye},
+    pdfsubject={Protein Folding, Chaperonins, Phase-Locking Dynamics},
+    pdfkeywords={GroEL, protein folding, hydrogen bonds, phase-locking, Kuramoto dynamics, Maxwell demon},
+    bookmarksnumbered=true,
+    bookmarksopen=true
+}
+
+% ============================================================
+% THEOREM ENVIRONMENTS
+% ============================================================
+\theoremstyle{plain}       % For theorems, lemmas (italic body)
+\newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{definition}{Definition}
 
-\title{GroEL-Mediated Protein Folding Through\\
-Phase-Locked Hydrogen Bond Networks:\\
-A Complete Computational Framework}
+\theoremstyle{definition}  % For definitions (normal body)
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Example}[section]
+\newtheorem{remark}{Remark}[section]
 
-\author{Stella Lorraine Observatory}
+\theoremstyle{remark}      % For remarks, notes (italic header)
+\newtheorem*{note}{Note}   % Unnumbered
+
+% ============================================================
+% CUSTOM COMMANDS - FREQUENCIES
+% ============================================================
+\newcommand{\omegaO}{\omega_{\text{O}_2}}        % O2 frequency
+\newcommand{\omegaH}{\omega_{\text{H}^+}}        % H+ frequency
+\newcommand{\omegaATP}{\omega_{\text{ATP}}}      % ATP frequency
+\newcommand{\omegaGroEL}{\omega_{\text{GroEL}}}  % GroEL frequency
+
+% ============================================================
+% CUSTOM COMMANDS - ENTROPY & INFORMATION
+% ============================================================
+\newcommand{\Sk}{S_k}           % Kinetic entropy
+\newcommand{\St}{S_t}           % Topological entropy
+\newcommand{\Se}{S_e}           % Evolutionary entropy
+\newcommand{\Sspace}{\mathcal{S}}  % S-space
+
+% ============================================================
+% CUSTOM COMMANDS - THERMODYNAMICS
+% ============================================================
+\newcommand{\kB}{k_\text{B}}    % Boltzmann constant
+\newcommand{\hbar}{\hslash}     % Reduced Planck constant
+\newcommand{\DeltaG}{\Delta G}  % Free energy change
+\newcommand{\DeltaS}{\Delta S}  % Entropy change
+
+% ============================================================
+% CUSTOM COMMANDS - PHASE DYNAMICS
+% ============================================================
+\newcommand{\phase}{\phi}       % Phase angle
+\newcommand{\phasei}{\phi_i}    % Phase of oscillator i
+\newcommand{\phasej}{\phi_j}    % Phase of oscillator j
+\newcommand{\orderpar}{\langle r \rangle}  % Order parameter
+\newcommand{\Kij}{K_{ij}}       % Coupling strength
+
+% ============================================================
+% CUSTOM COMMANDS - OPERATORS
+% ============================================================
+\newcommand{\diff}{\mathrm{d}}  % Differential operator
+\renewcommand{\vec}[1]{\mathbf{#1}}  % Bold vectors
+\newcommand{\expect}[1]{\langle #1 \rangle}  % Expectation value
+
+% ============================================================
+% CUSTOM COMMANDS - SPECIAL NOTATION
+% ============================================================
+\newcommand{\PMD}{\text{PMD}}   % Proton Maxwell Demon
+\newcommand{\PRC}{\text{PRC}}   % Phase Response Curve
+\newcommand{\ATP}{\text{ATP}}   % ATP
+\newcommand{\ADP}{\text{ADP}}   % ADP
+
+% ============================================================
+% BIBLIOGRAPHY STYLE (if using BibTeX)
+% ============================================================
+\usepackage[numbers,sort&compress]{natbib}
+   % Numbered, unsorted style
+
+\title{On the Consequences of Categorical Completion in Molecular Chaperones: GroEL-Mediated Protein Folding Through Phase-Locked Hydrogen Bond Networks}
+
+\author{Kundai Farai Sachikonye}
 \date{\today}
 
 \begin{document}
@@ -26,27 +146,27 @@ A Complete Computational Framework}
 \maketitle
 
 \begin{abstract}
-We present a complete theoretical and computational framework for protein folding mediated by the GroEL chaperonin, based on phase-locking dynamics of hydrogen bond networks. We establish three fundamental results: (1) protein hydrogen bonds constitute coupled proton oscillators operating at frequencies $\omega \sim 10^{13}-10^{14}$ Hz, (2) the GroEL cavity provides a time-varying resonance environment through ATP-driven cycles that scan frequency space at harmonics of the cytoplasmic O$_2$ master clock ($\omega_{\text{O}_2} = 10^{13}$ Hz), and (3) protein folding proceeds through cycle-by-cycle establishment of phase-locked hydrogen bond clusters, with earlier-cycle bonds acting as nucleation sites for later-cycle bonds through a causal dependency structure.
+We present a complete theoretical and computational framework for protein folding mediated by the GroEL chaperonin, based on phase-locking dynamics of hydrogen bond networks. We establish three fundamental results: (1) protein hydrogen bonds constitute coupled proton oscillators operating at frequencies $\omega \sim 10^{13}-10^{14}$ Hz; (2) the GroEL cavity provides a time-varying resonance environment through ATP-driven cycles that scan frequency space at harmonics of the cytoplasmic O$_2$ master clock ($\omega_{\text{O}_2} = 10^{13}$ Hz); and (3) protein folding proceeds through the cycle-by-cycle establishment of phase-locked hydrogen bond clusters, with earlier-cycle bonds acting as nucleation sites for later-cycle bonds through a causal dependency structure.
 
-We derive the phase-locking equations from first principles using Kuramoto dynamics, prove that native protein structure corresponds to the global minimum of phase variance across the hydrogen bond network, and present a reverse folding algorithm that reveals the complete folding pathway by tracking formation cycles. Computational validation on model proteins demonstrates successful folding in 4-11 ATP cycles with final phase coherence $\langle r \rangle > 0.8$, dependency graphs showing clear folding nuclei, and quantitative agreement between predicted and observed cycle-by-cycle bond formation.
+We derive the phase-locking equations from first principles using Kuramoto dynamics, prove that the native protein structure corresponds to the global minimum of phase variance across the hydrogen bond network, and present a reverse folding algorithm that reveals the complete folding pathway by tracking formation cycles. Computational validation on model proteins demonstrates successful folding in 4-11 ATP cycles, with final phase coherence $\langle r \rangle > 0.8$, dependency graphs showing clear folding nuclei, and quantitative agreement between predicted and observed cycle-by-cycle bond formation.
 
-This work provides a rigorous mathematical foundation for chaperonin-mediated folding as an active phase-locking process, explains the necessity of multiple ATP cycles, and establishes a computational method for determining folding pathways from native structure.
+This work provides a rigorous mathematical foundation for chaperonin-mediated folding as an active phase-locking process, explains the necessity of multiple ATP cycles, and establishes a computational method for determining folding pathways from the native structure.
 \end{abstract}
 
 \tableofcontents
 
 \section{Introduction}
 
-The mechanism by which GroEL facilitates protein folding remains incompletely understood despite extensive experimental and computational study. While it is established that GroEL encapsulates misfolded proteins in its cavity and undergoes ATP-driven conformational changes, the physical basis for how these conformational changes actively facilitate folding has not been rigorously formulated.
+The mechanism by which GroEL facilitates protein folding remains incompletely understood, despite extensive experimental and computational studies. While it is established that GroEL encapsulates misfolded proteins in its cavity and undergoes ATP-driven conformational changes, the physical basis for how these conformational changes actively facilitate folding has not been rigorously formulated.
 
-We present a complete theoretical framework establishing that protein folding in GroEL proceeds through phase-locking of hydrogen bond proton oscillators to the cavity's time-varying resonance field. This framework makes three essential claims:
+We present a complete theoretical framework establishing that protein folding in GroEL proceeds through the phase-locking of hydrogen bond proton oscillators to the cavity's time-varying resonance field. This framework makes three essential claims:
 
 \begin{enumerate}
 \item Hydrogen bonds in proteins are coupled oscillators whose natural frequencies arise from proton motion between donor and acceptor atoms.
 
 \item The GroEL cavity undergoes systematic frequency modulation through ATP hydrolysis cycles, sampling harmonics of the cytoplasmic O$_2$ oscillation field.
 
-\item Protein folding is the process of minimizing phase variance across the hydrogen bond network, achieved through iterative phase-locking across multiple ATP cycles.
+\item Protein folding is the process of minimising phase variance across the hydrogen bond network, achieved through iterative phase-locking across multiple ATP cycles.
 \end{enumerate}
 
 This document establishes these claims through rigorous mathematical derivation and computational validation. We present:
@@ -54,11 +174,11 @@ This document establishes these claims through rigorous mathematical derivation 
 \begin{itemize}
 \item \textbf{Section~\ref{sec:categorical}}: Formal equivalence between categorical dynamics and oscillatory mechanics, establishing that information transfer in biological systems occurs through phase-locking.
 
-\item \textbf{Section~\ref{sec:phaselock}}: Intracellular phase-locking mechanism and topological constraints in crowded cytoplasm that necessitate chaperonin function.
+\item \textbf{Section~\ref{sec:phaselock}}: Intracellular phase-locking mechanisms and topological constraints in a crowded cytoplasm that necessitate chaperonin function.
 
 \item \textbf{Section~\ref{sec:proton}}: Complete derivation of proton Maxwell demon dynamics for hydrogen bond networks.
 
-\item \textbf{Section~\ref{sec:groel}}: GroEL cavity as ATP-driven resonance chamber with quantitative frequency modulation.
+\item \textbf{Section~\ref{sec:groel}}: GroEL cavity as an ATP-driven resonance chamber with quantitative frequency modulation.
 
 \item \textbf{Section~\ref{sec:reverse}}: Reverse folding algorithm, computational validation, and complete folding pathway determination.
 \end{itemize}
@@ -102,16 +222,16 @@ All frequencies are given in Hz unless otherwise specified. Phase angles are in 
 We have established a complete theoretical framework for GroEL-mediated protein folding through phase-locking dynamics:
 
 \begin{enumerate}
-\item \textbf{Theoretical Foundation}: Protein hydrogen bonds constitute coupled proton oscillators with natural frequencies determined by bond geometry. Phase-locking between these oscillators minimizes network variance, with the native state corresponding to the global variance minimum.
+\item \textbf{Theoretical Foundation}: Protein hydrogen bonds constitute coupled proton oscillators, with natural frequencies determined by bond geometry. Phase-locking between these oscillators minimises network variance, with the native state corresponding to the global variance minimum.
 
 \item \textbf{GroEL Mechanism}: The GroEL cavity provides a time-varying resonance environment through ATP-driven conformational cycles. Each cycle samples a specific harmonic of the O$_2$ master clock, systematically scanning the frequency space required for complete network phase-locking.
 
-\item \textbf{Folding Pathway}: Protein folding proceeds through cycle-by-cycle establishment of phase-locked hydrogen bond clusters. Bonds forming in early cycles constitute folding nuclei that constrain and enable formation of later-cycle bonds through causal dependencies.
+\item \textbf{Folding Pathway}: Protein folding proceeds through the cycle-by-cycle establishment of phase-locked hydrogen bond clusters. Bonds formed in early cycles constitute folding nuclei that constrain and enable the formation of later-cycle bonds through causal dependencies.
 
 \item \textbf{Computational Validation}: The reverse folding algorithm successfully determines complete folding pathways from native structures, with quantitative agreement between predicted formation cycles and simulation results.
 \end{enumerate}
 
-This framework provides a rigorous mathematical foundation for understanding chaperonin function as an active phase-locking process. The necessity of multiple ATP cycles arises naturally from the requirement to sample sufficient frequency space for complete network synchronization. The cycle-by-cycle formation pattern reveals the causal structure of folding pathways that was previously inaccessible.
+This framework provides a rigorous mathematical foundation for understanding chaperonin function as an active phase-locking process. The necessity of multiple ATP cycles arises naturally from the requirement to sample a sufficient frequency space for complete network synchronisation. The cycle-by-cycle formation pattern reveals the causal structure of folding pathways that was previously inaccessible.
 
 The computational implementation (\texttt{observatory/src/protein\_folding/}) provides a complete toolkit for analyzing protein folding through this framework, validated across multiple test systems with consistent results.
 

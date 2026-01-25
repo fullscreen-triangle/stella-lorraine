@@ -1,0 +1,208 @@
+%==============================================================================
+\section{Phase-Lock Networks and Kinetic Independence}
+\label{sec:phase_lock}
+%==============================================================================
+
+\subsection{Intermolecular Interactions in Gas Systems}
+
+We begin by establishing the physical basis for phase-lock networks in gas systems. Gas molecules interact through several mechanisms, each with characteristic distance dependence and each fundamentally independent of molecular translational velocity.
+
+\begin{definition}[Van der Waals Interaction]
+\label{def:vdw}
+The Van der Waals interaction between two molecules $i$ and $j$ separated by a distance $r_{ij}$ is:
+\begin{equation}
+U_{\text{vdW}}(r_{ij}) = -\frac{C_6^{(ij)}}{r_{ij}^6}
+\label{eq:vdw_potential}
+\end{equation}
+where $C_6^{(ij)}$ is the dispersion coefficient determined by molecular polarizabilities:
+\begin{equation}
+C_6^{(ij)} = \frac{3}{2} \frac{\alpha_i \alpha_j}{(4\pi\varepsilon_0)^2} \frac{I_i I_j}{I_i + I_j}
+\label{eq:c6_coefficient}
+\end{equation}
+with $\alpha_i$ and $\alpha_j$ being the static polarizabilities, and $I_i$ and $I_j$ the ionisation energies.
+\end{definition}
+
+\begin{definition}[Dipole-Dipole Interaction]
+\label{def:dipole}
+For molecules with permanent dipole moments $\boldsymbol{\mu}_i$ and $\boldsymbol{\mu}_j$, the interaction energy is:
+\begin{equation}
+U_{\text{dipole}}(r_{ij}, \theta_i, \theta_j, \phi) = -\frac{\mu_i \mu_j}{4\pi\varepsilon_0 r_{ij}^3} \left( 2\cos\theta_i \cos\theta_j - \sin\theta_i \sin\theta_j \cos\phi \right)
+\label{eq:dipole_potential}
+\end{equation}
+where $\theta_i$ and $\theta_j$ are angles between dipoles and the intermolecular axis, and $\phi$ is the dihedral angle.
+\end{definition}
+
+\begin{proposition}[Kinetic Energy Independence of Interactions]
+\label{prop:kinetic_independence_interactions}
+The interaction potentials $U_{\text{vdW}}$ and $U_{\text{dipole}}$ are independent of molecular translational kinetic energy:
+\begin{equation}
+\frac{\partial U_{\text{vdW}}}{\partial E_{\text{kin}}} = 0, \quad \frac{\partial U_{\text{dipole}}}{\partial E_{\text{kin}}} = 0
+\end{equation}
+where $E_{\text{kin}} = \frac{1}{2}m|\mathbf{v}|^2$ is molecular translational kinetic energy.
+\end{proposition}
+
+\begin{proof}
+From Equation~\eqref{eq:vdw_potential}, $U_{\text{vdW}}$ depends only on the separation $r_{ij}$ and the molecular properties $\alpha_i$, $\alpha_j$, $I_i$, and $I_j$. None of these quantities involve molecular velocity $\mathbf{v}$.
+
+The polarizability $\alpha$ is an electronic property determined by the sum over electronic transitions:
+\begin{equation}
+\alpha = \sum_n \frac{2|\langle 0 | \hat{\mathbf{d}} | n \rangle|^2}{E_n - E_0}
+\end{equation}
+where $|n\rangle$ are electronic states and $\hat{\mathbf{d}}$ is the dipole operator. This sum is independent of nuclear translational motion because electronic wavefunctions are computed in the molecular frame under the Born-Oppenheimer approximation.
+
+Similarly, Equation~\eqref{eq:dipole_potential} depends on the separation $r_{ij}$, the dipole moments $\mu_i$ and $\mu_j$, and orientational angles $\theta_i$, $\theta_j$, and $\phi$. The dipole moment is a ground-state electronic property, and the orientational angles describe spatial configuration, not translational velocity.
+
+Therefore $\partial U / \partial E_{\text{kin}} = 0$ for both interaction types. \qed
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/phase_lock_mechanism_panel.png}
+\caption{Phase-lock mechanism in molecular systems. (A) Independent oscillators with uncorrelated phases. (B) Intermolecular coupling enables phase information exchange. (C) Coupling drives phase synchronization with bounded phase difference. (D) Phase-locked state represents categorical completion. (E) Autocatalytic cascade: existing locks enable new locks through network topology. (F) Categorical entropy increases monotonically with phase-lock network density.}
+\label{fig:phase_lock_mechanism}
+\end{figure}
+
+\subsection{Phase-Lock Network Construction}
+
+\begin{definition}[Molecular Phase]
+\label{def:molecular_phase}
+The instantaneous phase of molecule $i$ is a composite quantity capturing vibrational, rotational, and electronic oscillations:
+\begin{equation}
+\Phi_i(t) = \omega_{\text{vib},i} t + \phi_{\text{vib},i} + \omega_{\text{rot},i} t + \phi_{\text{rot},i} + \Phi_{\text{elec},i}(t)
+\label{eq:molecular_phase}
+\end{equation}
+where $\omega_{\text{vib},i}$ and $\phi_{\text{vib},i}$ are the vibrational frequency and initial phase, $\omega_{\text{rot},i}$ and $\phi_{\text{rot},i}$ are the rotational frequency and initial phase, and $\Phi_{\text{elec},i}(t)$ is the electronic oscillation phase.
+\end{definition}
+
+\begin{definition}[Phase-Lock Condition]
+\label{def:phase_lock}
+Molecules $i$ and $j$ are phase-locked if their phase difference remains bounded over a coherence time:
+\begin{equation}
+|\Phi_i(t) - \Phi_j(t) - \Delta\phi_{ij}| < \varepsilon \quad \forall t \in [t_0, t_0 + \tau]
+\label{eq:phase_lock_condition}
+\end{equation}
+for some constant offset $\Delta\phi_{ij}$, threshold $\varepsilon < \pi/4$, and coherence time $\tau > \tau_{\min}$.
+\end{definition}
+
+\begin{definition}[Phase-Lock Network]
+\label{def:phase_lock_network}
+The phase-lock network of a gas system is the graph $\phaselockgraph = (V, E)$, where $V = \{m_1, m_2, \ldots, m_N\}$ is the set of molecules, and an edge $(m_i, m_j) \in E$ exists if and only if molecules $i$ and $j$ satisfy the phase-lock condition~\eqref{eq:phase_lock_condition}.
+\end{definition}
+
+\begin{proposition}[Phase-Lock Formation Mechanism]
+\label{prop:phase_lock_formation}
+Phase-locking between molecules $i$ and $j$ occurs when the interaction energy exceeds thermal energy by a threshold factor:
+\begin{equation}
+|U_{\text{int}}(r_{ij})| > k_B T \cdot \eta_{\text{threshold}}
+\label{eq:phase_lock_threshold}
+\end{equation}
+where $U_{\text{int}} = U_{\text{vdW}} + U_{\text{dipole}} + \ldots$ is the total interaction potential and $\eta_{\text{threshold}} \approx 0.1$ is a dimensionless coupling threshold.
+\end{proposition}
+
+\begin{proof}
+Phase synchronisation requires coupling strength exceeding thermal fluctuations. The coupling strength scales with interaction energy $|U_{\text{int}}|$, while thermal disruption scales with $k_B T$. Standard synchronisation theory \citep{pikovsky2001synchronization, kuramoto1975self} establishes that phase-locking occurs when the coupling strength $K_{ij} \propto |U_{\text{int}}(r_{ij})|$ exceeds the critical coupling $K_c \propto k_B T$. This yields condition~\eqref{eq:phase_lock_threshold}. \qed
+\end{proof}
+
+\subsection{The Kinetic Independence Theorem}
+
+We now prove the central result establishing that phase-lock networks are determined by spatial configuration and molecular properties, not by translational velocities.
+
+\begin{theorem}[Phase-Lock Kinetic Independence]
+\label{thm:kinetic_independence}
+The phase-lock network $\phaselockgraph = (V, E)$ is independent of molecular kinetic energies:
+\begin{equation}
+\frac{\partial \phaselockgraph}{\partial E_{\text{kin},i}} = 0 \quad \forall i \in V
+\label{eq:network_kinetic_independence}
+\end{equation}
+Specifically, the edge set $E$ is determined by spatial configuration $\{\mathbf{r}_i\}$ and molecular properties $\{\alpha_i, \mu_i, \omega_{\text{vib},i}, \ldots\}$, but not by velocities $\{\mathbf{v}_i\}$.
+\end{theorem}
+
+\begin{proof}
+We establish kinetic independence by demonstrating that each factor determining edge existence is velocity-independent.
+
+\textbf{Step 1: Interaction potential independence.}
+From Proposition~\ref{prop:kinetic_independence_interactions}, the interaction potential $U_{\text{int}}(r_{ij})$ does not depend on molecular velocities. Van der Waals forces depend on polarizabilities and separation, both of which are velocity-independent. Dipole interactions depend on dipole moments and orientational angles, neither of which involve translational velocity.
+
+\textbf{Step 2: Phase-lock threshold independence.}
+The threshold condition~\eqref{eq:phase_lock_threshold} involves $U_{\text{int}}$ and $T$. While temperature $T$ relates to average kinetic energy through the equipartition theorem:
+\begin{equation}
+\langle E_{\text{kin}} \rangle = \frac{3}{2} k_B T
+\end{equation}
+this is a statistical relationship over ensembles. For a given instantaneous configuration, the phase-lock condition depends on separation $r_{ij}$, polarizabilities $\alpha_i$ and $\alpha_j$, dipole moments $\mu_i$ and $\mu_j$, and orientational angles $\theta_i$, $\theta_j$, and $\phi$. None of these quantities depend on translational velocity $\mathbf{v}$.
+
+\textbf{Step 3: Phase dynamics independence.}
+From Definition~\ref{def:molecular_phase}, the molecular phase $\Phi_i(t)$ comprises vibrational modes determined by molecular structure, rotational modes determined by angular momentum and moment of inertia, and electronic oscillations determined by electronic structure. Translational kinetic energy $E_{\text{kin}} = \frac{1}{2}m|\mathbf{v}|^2$ does not appear in the phase equation~\eqref{eq:molecular_phase}. While molecular collisions can affect rotational states, the rotational angular momentum is independent of the direction and magnitude of translational velocity.
+
+\textbf{Step 4: Edge set determination.}
+An edge $(m_i, m_j) \in E$ exists if and only if the coupling exceeds the threshold, satisfying $|U_{\text{int}}(r_{ij})| > k_B T \cdot \eta_{\text{threshold}}$, and phase coherence is maintained according to condition~\eqref{eq:phase_lock_condition}. Both conditions are determined by spatial configuration and molecular properties, not translational velocities.
+
+Therefore, the edge set satisfies $E = E(\{\mathbf{r}_i\}, \{\alpha_i, \mu_i, \ldots\})$ with no dependence on $\{\mathbf{v}_i\}$, establishing~\eqref{eq:network_kinetic_independence}. \qed
+\end{proof}
+
+\begin{corollary}[Velocity-Invariant Network Topology]
+\label{cor:velocity_invariant}
+Two gas configurations with identical spatial arrangements $\{\mathbf{r}_i\}$ but different velocity distributions $\{\mathbf{v}_i\}$ and $\{\mathbf{v}'_i\}$ have identical phase-lock networks:
+\begin{equation}
+\phaselockgraph(\{\mathbf{r}_i\}, \{\mathbf{v}_i\}) = \phaselockgraph(\{\mathbf{r}_i\}, \{\mathbf{v}'_i\})
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:kinetic_independence}. Since $\phaselockgraph$ does not depend on velocities, changing velocities while preserving positions leaves the network unchanged. \qed
+\end{proof}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/arg1_temporal_triviality.png}
+\caption{\textbf{Temporal Triviality—Any Configuration Occurs Naturally Through Thermal Fluctuations.}
+\textbf{(A)} Boltzmann probability landscape showing all configurations are thermally accessible. The probability distribution $P(\text{config}) = \exp(-E/k_BT)/Z$ ensures every spatial arrangement, including ``sorted'' states, occurs naturally through fluctuations.
+\textbf{(B)} Poincaré recurrence times as a function of sorting degree. Higher sorting corresponds to exponentially longer recurrence times $\tau_{\text{rec}} \sim \exp(N\Delta S)$, but all states eventually recur. The horizontal dashed line indicates laboratory timescales; even highly sorted states recur within observable time for small systems.
+\textbf{(C)} Configuration space flow field showing all trajectories converge to equilibrium. The flow follows $\dot{\mathbf{q}} = -\nabla_{\mathbf{q}} F(\mathbf{q})$ where $F$ is the free energy. Red squares mark ``sorted'' configurations; yellow circles mark equilibrium. All paths lead to the central attractor, demonstrating that sorted states are unstable fixed points.
+\textbf{(D)} Entropy evolution over time showing fluctuations enable access to all states. The solid black line shows total entropy $S(t) = -k_B \sum_i p_i \ln p_i$ increasing monotonically toward equilibrium (horizontal dashed line). The dotted red line marks the entropy of the ``sorted'' state. Yellow triangles indicate moments when the system spontaneously visits sorted configurations through thermal fluctuations, demonstrating temporal triviality: the demon's purported action is redundant.}
+\label{fig:temporal_triviality}
+\end{figure*}
+
+\subsection{Network Properties and Characteristic Scales}
+
+\begin{definition}[Phase-Lock Degree]
+\label{def:phase_lock_degree}
+The phase-lock degree of molecule $i$ is:
+\begin{equation}
+k_i = |\{j : (m_i, m_j) \in E\}|
+\end{equation}
+the number of molecules phase-locked to $i$.
+\end{definition}
+
+\begin{proposition}[Degree Distribution]
+\label{prop:degree_distribution}
+For a gas at uniform density $n = N/V$, the expected phase-lock degree scales as:
+\begin{equation}
+\langle k \rangle \sim n \cdot \frac{4\pi}{3} r_{\text{lock}}^3
+\label{eq:expected_degree}
+\end{equation}
+where $r_{\text{lock}}$ is the characteristic distance at which phase-locking occurs, determined by:
+\begin{equation}
+|U_{\text{int}}(r_{\text{lock}})| = k_B T \cdot \eta_{\text{threshold}}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Molecules within a distance $r_{\text{lock}}$ satisfy the phase-lock condition with high probability. The expected number of neighbours within this distance is:
+\begin{equation}
+\langle k \rangle = n \cdot V_{\text{sphere}}(r_{\text{lock}}) = n \cdot \frac{4\pi}{3} r_{\text{lock}}^3
+\end{equation}
+For Van der Waals interactions with $U_{\text{vdW}} \propto r^{-6}$, the phase-lock distance satisfies:
+\begin{equation}
+r_{\text{lock}} \sim \left(\frac{C_6}{k_B T \eta_{\text{threshold}}}\right)^{1/6}
+\end{equation}
+For typical gases at room temperature with $C_6 \sim 10^{-77}$ J·m$^6$ and $k_B T \sim 4 \times 10^{-21}$ J, this yields $r_{\text{lock}} \sim 0.3$--$0.5$ nm. \qed
+\end{proof}
+
+\begin{definition}[Phase-Lock Cluster]
+\label{def:phase_lock_cluster}
+A phase-lock cluster is a connected component of $\phaselockgraph$, defined as a maximal subset $S \subseteq V$ such that for any $i, j \in S$, there exists a path in $\phaselockgraph$ connecting $m_i$ and $m_j$.
+\end{definition}
+
+\begin{remark}[Zero Temperature Persistence]
+At absolute zero temperature, where $T \to 0$, molecular translational motion ceases and $\langle E_{\text{kin}} \rangle \to 0$. However, phase-lock networks persist. Electronic orbitals continue oscillating at characteristic frequencies $\sim 10^{15}$ Hz, vibrational zero-point motion persists with amplitude $\sim (h/m\omega)^{1/2}$, and intermolecular forces remain active. The phase-lock network $\phaselockgraph(T=0)$ is well-defined and nontrivial, containing edges determined by spatial configuration and electronic structure. This underscores the fundamental kinetic independence: the network exists independently of thermal motion and translational kinetic energy.
+\end{remark}

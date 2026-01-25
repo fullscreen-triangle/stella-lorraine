@@ -1,0 +1,152 @@
+\section{S-Entropy Coordinate Space}
+\label{sec:coordinates}
+
+\subsection{The Three-Dimensional Structure}
+
+The S-entropy coordinate space is a bounded three-dimensional manifold encoding categorical state.
+
+\begin{definition}[S-Entropy Space]
+The \textbf{S-entropy space} is the compact metric space:
+\begin{equation}
+\Sspace = [0,1]^3 = \{(\Sk, \St, \Se) : \Sk, \St, \Se \in [0,1]\}
+\end{equation}
+equipped with the Euclidean metric $d(\Scoord_1, \Scoord_2) = \|\Scoord_1 - \Scoord_2\|_2$.
+\end{definition}
+
+\begin{definition}[S-Entropy Coordinates]
+The three coordinates of S-space are:
+\begin{enumerate}
+    \item \textbf{Knowledge entropy} $\Sk \in [0,1]$: Quantifies uncertainty in categorical state identification. $\Sk = 0$ indicates complete knowledge; $\Sk = 1$ indicates maximum uncertainty.
+
+    \item \textbf{Temporal entropy} $\St \in [0,1]$: Quantifies uncertainty in timing relationships. $\St = 0$ indicates precise temporal location; $\St = 1$ indicates complete temporal uncertainty.
+
+    \item \textbf{Evolution entropy} $\Se \in [0,1]$: Quantifies uncertainty in trajectory progression. $\Se = 0$ indicates deterministic evolution; $\Se = 1$ indicates maximum trajectory uncertainty.
+\end{enumerate}
+\end{definition}
+
+\subsection{Geometric Properties}
+
+\begin{theorem}[Compactness]
+The S-entropy space $\Sspace = [0,1]^3$ is compact.
+\end{theorem}
+
+\begin{proof}
+$[0,1]$ is compact in $\mathbb{R}$ (Heine-Borel theorem). The product of compact spaces is compact (Tychonoff theorem). Therefore, $[0,1]^3$ is compact. \qed
+\end{proof}
+
+\begin{theorem}[Path-Connectedness]
+The S-entropy space $\Sspace$ is path-connected: for any $\Scoord_1, \Scoord_2 \in \Sspace$, there exists a continuous path $\gamma: [0,1] \to \Sspace$ with $\gamma(0) = \Scoord_1$ and $\gamma(1) = \Scoord_2$.
+\end{theorem}
+
+\begin{proof}
+The straight-line path:
+\begin{equation}
+\gamma(t) = (1-t)\Scoord_1 + t\Scoord_2
+\end{equation}
+is continuous and connects $\Scoord_1$ to $\Scoord_2$. Convexity of $[0,1]^3$ ensures $\gamma(t) \in \Sspace$ for all $t \in [0,1]$. \qed
+\end{proof}
+
+\subsection{The $3^k$ Hierarchical Partition}
+
+\begin{definition}[Hierarchical Partition]
+For depth $k \in \mathbb{Z}_{\geq 0}$, the \textbf{level-$k$ partition} of $\Sspace$ divides each dimension into $3^{k/3}$ equal intervals (for $k$ divisible by 3) or the appropriate fractional refinement, producing $3^k$ congruent cells:
+\begin{equation}
+\mathcal{C}_k = \{C_{i_1, i_2, \ldots, i_k} : i_j \in \{0, 1, 2\}\}
+\end{equation}
+where each cell $C_{i_1, \ldots, i_k}$ is a rectangular box with side length $3^{-\lceil k/3 \rceil}$ along each axis.
+\end{definition}
+
+More precisely, we define the partition through sequential refinement:
+
+\begin{definition}[Sequential Refinement]
+At each level, one dimension is refined by factor 3:
+\begin{align}
+k \equiv 0 \pmod{3} &: \text{refine } \Sk \text{ dimension} \\
+k \equiv 1 \pmod{3} &: \text{refine } \St \text{ dimension} \\
+k \equiv 2 \pmod{3} &: \text{refine } \Se \text{ dimension}
+\end{align}
+After $3m$ refinements, each dimension has been refined $m$ times, producing cells of size $3^{-m} \times 3^{-m} \times 3^{-m}$.
+\end{definition}
+
+\begin{proposition}[Cell Count]
+The level-$k$ partition contains exactly $3^k$ cells.
+\end{proposition}
+
+\begin{proof}
+Each refinement triples the cell count. Starting from 1 cell at $k=0$:
+\begin{equation}
+|\mathcal{C}_k| = 3^k
+\end{equation}
+\qed
+\end{proof}
+
+\subsection{Cell Addressing}
+
+\begin{definition}[Cell Address]
+A cell $C \in \mathcal{C}_k$ is addressed by a string $(i_1, i_2, \ldots, i_k)$ where $i_j \in \{0, 1, 2\}$ specifies the choice at refinement level $j$.
+\end{definition}
+
+\begin{proposition}[Address Uniqueness]
+Each cell has a unique address, and each valid address specifies a unique cell.
+\end{proposition}
+
+\begin{proof}
+The mapping from addresses to cells is constructed inductively:
+\begin{itemize}
+    \item Level 0: One cell (empty address)
+    \item Level $j \to j+1$: Each cell splits into 3 subcells, indexed by $i_j \in \{0, 1, 2\}$
+\end{itemize}
+This produces a bijection between $\{0,1,2\}^k$ and $\mathcal{C}_k$. \qed
+\end{proof}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure_1_binary_vs_ternary_hierarchy.png}
+  \caption{\textbf{Binary Representation Encodes One-Dimensional Information While Ternary Naturally Encodes Three-Dimensional S-Space Position Through Intrinsic Axis Selection.}
+  \textbf{(Top Left)} Binary tree demonstrating 2$^k$ branching hierarchy: Level 0 (2$^0$=1 root node), Level 1 (2$^1$=2 nodes, left/right decisions), Level 2 (2$^2$=4 nodes), Level 3 (2$^3$=8 leaf nodes, light blue). Each bit provides binary choice along single dimension, requiring three separate bit streams to encode 3D position. Binary structure inherently one-dimensional: each branch point offers only two options (0 or 1), forcing sequential encoding of multidimensional information.
+  \textbf{(Top Right)} Ternary tree demonstrating 3$^k$ branching hierarchy: Level 0 (3$^0$=1 root node, red, labeled Sk for knowledge coordinate), Level 1 (3$^1$=3 nodes, green, labeled St for temporal coordinate), Level 2 (3$^2$=9 leaf nodes, cyan, labeled Se for evolution coordinate). Each trit provides three-way choice corresponding to three S-space axes: trit value 0 selects Sk refinement (knowledge axis), value 1 selects St refinement (temporal axis), value 2 selects Se refinement (evolution axis). Color coding (red→green→cyan) indicates cyclic progression through coordinate dimensions. Ternary structure intrinsically three-dimensional: single trit string encodes 3D position without coordinate transformation.
+  \textbf{(Bottom Left)} Hierarchical growth comparison on log-linear plot. Blue curve: binary growth 2$^k$ (exponential in 1D). Orange curve: ternary growth 3$^k$ (exponential in 3D). Key crossover points annotated: k=3 yields 2$^3$=8 (binary) vs 3$^3$=27 (ternary, 3.4× advantage); k=6 yields 2$^6$=64 vs 3$^6$=729 (11.4× advantage). Ternary achieves same state count as binary with fewer digits: 729 ternary states (k=6) exceeds 256 binary states (k=8), demonstrating 25\% digit reduction (6 trits vs 8 bits) for comparable information content. Exponential separation increases with depth k, confirming superior scaling for multidimensional encoding.
+  \textbf{(Bottom Right)} 3D S-space coverage visualization for k=2 (3$^2$=9 cells). Cube represents S-space [0,1]$^3$ with axes Sk (knowledge, x-axis), St (temporal, y-axis), Se (evolution, z-axis). Nine colored spheres show cell centers after two ternary refinements: purple spheres (low coordinates, near origin), cyan/green spheres (intermediate coordinates), yellow spheres (high coordinates, near opposite corner). Color gradient (purple→cyan→green→yellow) indicates increasing coordinate values. Spatial distribution demonstrates uniform coverage of 3D volume: cells partition space into 3×3×1 grid (first refinement splits along Sk, second along St). Each sphere represents one of nine possible 2-trit addresses: "00" (purple, origin corner), "11" (green, center), "22" (yellow, opposite corner). Visualization confirms ternary encoding naturally fills 3D space without coordinate transformation.}
+  \label{fig:binary_vs_ternary}
+\end{figure}
+
+\subsection{Nesting Structure}
+
+\begin{theorem}[Hierarchical Nesting]
+For $k' > k$, every cell $C' \in \mathcal{C}_{k'}$ is contained in exactly one cell $C \in \mathcal{C}_k$:
+\begin{equation}
+C' \subseteq C \iff \text{address}(C') \text{ extends } \text{address}(C)
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+If address$(C) = (i_1, \ldots, i_k)$ and address$(C') = (i_1, \ldots, i_k, i_{k+1}, \ldots, i_{k'})$, then $C'$ is obtained from $C$ by $(k' - k)$ additional refinements, each of which selects a subset. Hence $C' \subseteq C$.
+
+Conversely, if $C' \subseteq C$, the refinement sequence producing $C'$ must pass through $C$, so address$(C')$ extends address$(C)$. \qed
+\end{proof}
+
+\begin{corollary}[Tree Structure]
+The hierarchy $\{\mathcal{C}_k\}_{k=0}^\infty$ forms a tree with branching factor 3. The root is $\Sspace$ itself; each node has exactly 3 children.
+\end{corollary}
+
+\subsection{Coordinate Recovery}
+
+\begin{theorem}[Coordinate from Address]
+Given an address $(i_1, i_2, \ldots, i_k)$, the cell centre has coordinates:
+\begin{align}
+\Sk &= \sum_{j : j \equiv 0 \pmod 3} \frac{2i_j + 1}{2 \cdot 3^{\lceil j/3 \rceil}} \\
+\St &= \sum_{j : j \equiv 1 \pmod 3} \frac{2i_j + 1}{2 \cdot 3^{\lceil j/3 \rceil}} \\
+\Se &= \sum_{j : j \equiv 2 \pmod 3} \frac{2i_j + 1}{2 \cdot 3^{\lceil j/3 \rceil}}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+At refinement level $j$ affecting dimension $d$, the interval is subdivided into thirds. Choosing $i_j \in \{0, 1, 2\}$ selects the subinterval $[i_j/3, (i_j+1)/3]$ relative to the current interval. The centre of this subinterval is at $(2i_j + 1)/6$ relative to the current interval, which is $(2i_j + 1)/(2 \cdot 3^m)$ relative to $[0,1]$ where $m$ is the number of prior refinements of that dimension.
+
+Summing over all refinements of each dimension gives the coordinates. \qed
+\end{proof}
+
+\begin{remark}
+This theorem establishes that a ternary address encodes continuous coordinates through a well-defined limiting process. The discrete address converges to exact coordinates as $k \to \infty$.
+\end{remark}
+

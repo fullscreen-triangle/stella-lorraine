@@ -1,0 +1,334 @@
+\section{Dual-Membrane Pixel Demon}
+
+\subsection{Motivation}
+
+Every categorical state has a \emph{conjugate} representation. Just as quantum mechanics has complementary observables (position/momentum, energy/time), categorical space has complementary states. We formalise this through the \emph{dual-membrane} structure.
+
+\subsection{Dual State Definition}
+
+\begin{definition}[Dual Membrane State]
+A dual-membrane pixel demon maintains two categorical states:
+\begin{align}
+\mathbf{S}_{\text{front}} &= (S_{k,f}, S_{t,f}, S_{e,f}) \quad \text{(observable face)} \\
+\mathbf{S}_{\text{back}} &= (S_{k,b}, S_{t,b}, S_{e,b}) \quad \text{(hidden face)}
+\end{align}
+related by a conjugate transformation $T$:
+\begin{equation}
+\mathbf{S}_{\text{back}} = T(\mathbf{S}_{\text{front}})
+\end{equation}
+\end{definition}
+
+\subsection{Conjugate Transformations}
+
+We define several conjugate operators:
+
+\subsubsection{Phase Conjugate}
+
+\begin{equation}
+T_{\text{phase}}(S_k, S_t, S_e) = (-S_k, S_t, S_e)
+\end{equation}
+
+Inverts knowledge entropy, preserving temporal and evolutionary coordinates. This represents information inversion: high information content ($S_k \to 1$) maps to low information content ($S_k \to -1$).
+
+\subsubsection{Temporal Inverse}
+
+\begin{equation}
+T_{\text{temporal}}(S_k, S_t, S_e) = (S_k, -S_t, S_e)
+\end{equation}
+
+Inverts temporal entropy, representing time-reversal symmetry.
+
+\subsubsection{Evolution Complement}
+
+\begin{equation}
+T_{\text{evolution}}(S_k, S_t, S_e) = (S_k, S_t, 1-S_e)
+\end{equation}
+
+Maps evolutionary potential to its complement.
+
+\subsubsection{Full Conjugate}
+
+\begin{equation}
+T_{\text{full}}(S_k, S_t, S_e) = (-S_k, -S_t, -S_e)
+\end{equation}
+
+Complete inversion of all coordinates.
+
+\subsubsection{Harmonic Conjugate}
+
+\begin{equation}
+T_{\text{harmonic}}(\mathbf{S}) = R_\pi(\mathbf{S})
+\end{equation}
+
+where $R_\pi$ is rotation by $\pi$ radians in the $(S_k, S_t)$ plane:
+\begin{equation}
+\begin{pmatrix} S_{k,b} \\ S_{t,b} \\ S_{e,b} \end{pmatrix} =
+\begin{pmatrix} -\cos(\pi) & -\sin(\pi) & 0 \\ \sin(\pi) & -\cos(\pi) & 0 \\ 0 & 0 & 1 \end{pmatrix}
+\begin{pmatrix} S_{k,f} \\ S_{t,f} \\ S_{e,f} \end{pmatrix}
+\end{equation}
+
+            \begin{figure}[htbp]
+                \centering
+                \includegraphics[width=\textwidth]{figures/moriarty_dual_membrane_analysis.png}
+                \caption{\textbf{Dual-membrane analysis of real photograph demonstrating conjugate
+                structure and platform independence.}
+                Subject: ``Moriarty'', Italian Greyhound, professional model (grandson of
+                ``Hypnotic Poison''), photographed in Croatia.
+                \textbf{Top row:} Original color image (left) and grayscale conversion (right)
+                used as input to categorical coordinate analysis.
+                \textbf{Second row:} Front face $S_k$ coordinates (left, blue-red colormap)
+                and back face $S_k$ coordinates (right, red-blue colormap) showing spatial
+                distribution of categorical states. Visual anti-correlation evident in
+                inverted color patterns.
+                \textbf{Third row:} Conjugate difference map (left) showing
+                $S_k^{\text{front}} + S_k^{\text{back}}$ with deviations $< 10^{-15}$
+                (within machine precision, white indicates perfect cancellation).
+                Conjugate relationship scatter plot (center) demonstrates perfect linear
+                anti-correlation ($r = -1.000000$, red dashed line).
+                $S_k$ distributions (right) show mirror-image histograms for front (blue)
+                and back (red) faces.
+                \textbf{Fourth row:} Platform independence validation. Difference map (left)
+                between two independent computational runs (Run 1: 20251126\_124850,
+                Run 2: 20251126\_124931, $\Delta t = 41$ s) shows zero difference across
+                entire image. Reproducibility scatter plot (center) confirms perfect correlation
+                ($r = 1.000000000000$). Cross-section comparison (right, row 64) shows
+                identical $S_k$ profiles between runs.
+                \textbf{Verification panels (right):} Conjugate verification confirms
+                $r = -1.000000000$, mean difference $|\Delta| = 0.000000 \times 10^0$,
+                status: ✓ CONJUGATE. Platform independence confirms max difference
+                $= 0.000000 \times 10^0$, identical to tolerance $10^{-10}$,
+                status: ✓ PLATFORM INDEPENDENT.
+                Image dimensions: $128 \times 128$ pixels (downsampled for computational
+                efficiency). This comprehensive analysis validates: (1) conjugate relationship
+                between faces, (2) information conservation, (3) objective existence of
+                categorical coordinates independent of observer platform.}
+                \label{fig:moriarty_full_analysis}
+                \end{figure}
+
+
+
+\subsection{Observable Face Switching}
+
+\begin{definition}[Observable Face]
+At any time $t$, exactly one face is \emph{observable}:
+\begin{equation}
+\text{Face}(t) \in \{\text{FRONT}, \text{BACK}\}
+\end{equation}
+\end{definition}
+
+Switching the observable face is a discrete operation:
+
+\begin{algorithm}
+\caption{Switch Observable Face}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Current face $F$
+\State \textbf{Output:} New face $F'$
+\State
+\If{$F = \text{FRONT}$}
+    \State $F' \gets \text{BACK}$
+\Else
+    \State $F' \gets \text{FRONT}$
+\EndIf
+\State
+\State \Return $F'$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Carbon Copy Mechanism}
+
+When the observable face changes, the hidden face must change correspondingly:
+
+\begin{definition}[Carbon Copy Propagation]
+A change $\Delta\rho_i$ in molecular density on the observable face induces a conjugate change on the hidden face:
+\begin{equation}
+\Delta\rho_{\text{hidden}} = T_\rho(\Delta\rho_{\text{observable}})
+\end{equation}
+where $T_\rho$ is the density transformation corresponding to the conjugate operator $T$.
+\end{definition}
+
+For phase conjugate transformation:
+\begin{equation}
+T_\rho(\Delta\rho) = -\Delta\rho
+\end{equation}
+
+An increase in density on front corresponds to a decrease on back.
+
+\subsection{Synchronized Evolution}
+
+\begin{theorem}[Synchronized Dual Evolution]
+The front and back states evolve according to:
+\begin{align}
+\frac{d\mathbf{S}_{\text{front}}}{dt} &= \mathbf{F}(\mathbf{S}_{\text{front}}, t) \\
+\frac{d\mathbf{S}_{\text{back}}}{dt} &= T\left(\mathbf{F}(\mathbf{S}_{\text{front}}, t)\right)
+\end{align}
+where $\mathbf{F}$ is the evolution vector field and $T$ is the conjugate transformation.
+\end{theorem}
+
+\begin{proof}
+By definition, $\mathbf{S}_{\text{back}}(t) = T(\mathbf{S}_{\text{front}}(t))$ for all $t$. Taking the time derivative:
+\begin{equation}
+\frac{d\mathbf{S}_{\text{back}}}{dt} = \frac{d}{dt}T(\mathbf{S}_{\text{front}}) = T\left(\frac{d\mathbf{S}_{\text{front}}}{dt}\right) = T(\mathbf{F}(\mathbf{S}_{\text{front}}, t))
+\end{equation}
+assuming $T$ is time-independent and linear.
+\end{proof}
+
+\subsection{Dual Molecular Demon Lattice}
+
+Each molecule type has \emph{two} demons: one for each face.
+
+\begin{definition}[Dual Molecular Demon]
+For molecule type $i$:
+\begin{align}
+M_{i,\text{front}} &= (n_{i,f}, f_{i,f}, \phi_{i,f}) \\
+M_{i,\text{back}} &= (n_{i,b}, f_{i,b}, \phi_{i,b})
+\end{align}
+with conjugate relationship:
+\begin{equation}
+(n_{i,b}, f_{i,b}, \phi_{i,b}) = T_M(n_{i,f}, f_{i,f}, \phi_{i,f})
+\end{equation}
+\end{definition}
+
+For phase conjugation, the transformation preserves frequencies and phases but inverts densities:
+\begin{equation}
+T_M(n, f, \phi) = (-n, f, \phi)
+\end{equation}
+
+(Negative density is interpreted as a deficit relative to baseline.)
+
+\subsection{Dual Grid Structure}
+
+\begin{definition}[Dual Membrane Grid]
+A dual grid consists of $N_x \times N_y$ dual-membrane pixels, each maintaining:
+\begin{itemize}
+\item Front state $\mathbf{S}_{i,j,\text{front}}$
+\item Back state $\mathbf{S}_{i,j,\text{back}}$
+\item Observable face indicator $F_{i,j}(t)$
+\end{itemize}
+\end{definition}
+
+\subsubsection{Synchronized Grid Switching}
+
+All pixels can switch faces simultaneously:
+
+\begin{algorithm}
+\caption{Synchronized Grid Switch}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Grid $G$ with $N_x \times N_y$ pixels
+\For{$i = 0$ to $N_x - 1$}
+    \For{$j = 0$ to $N_y - 1$}
+        \State $F_{i,j} \gets \text{SwitchFace}(F_{i,j})$
+    \EndFor
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Observable Grid Image}
+
+At any time, the observable image is:
+
+\begin{equation}
+I[i,j] = \begin{cases}
+S_{k,f}(i,j) & \text{if } F_{i,j} = \text{FRONT} \\
+S_{k,b}(i,j) & \text{if } F_{i,j} = \text{BACK}
+\end{cases}
+\end{equation}
+
+For synchronized switching, all pixels show the same face:
+
+\begin{equation}
+I_{\text{front}}[i,j] = S_{k,f}(i,j), \quad I_{\text{back}}[i,j] = S_{k,b}(i,j)
+\end{equation}
+
+\subsection{Information Density Conservation}
+
+\begin{theorem}[Dual-Membrane Information Conservation]
+The total information density across both faces is conserved:
+\begin{equation}
+\rho_{\text{front}}(\mathbf{r}, t) + \rho_{\text{back}}(\mathbf{r}, t) = \rho_{\text{total}}(\mathbf{r})
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Information density is computed from molecular vibrational frequencies:
+\begin{equation}
+\rho = \sum_i n_i \log_2(f_i / f_{\text{ref}})
+\end{equation}
+
+For phase conjugate transformation, $n_{i,b} = -n_{i,f}$ while $f_{i,b} = f_{i,f}$:
+\begin{align}
+\rho_{\text{back}} &= \sum_i (-n_{i,f}) \log_2(f_{i,f}/f_{\text{ref}}) \\
+&= -\sum_i n_{i,f} \log_2(f_{i,f}/f_{\text{ref}}) \\
+&= -\rho_{\text{front}}
+\end{align}
+
+However, the \emph{observable} information density (always positive) is $|\rho|$, so:
+\begin{equation}
+|\rho_{\text{front}}| + |\rho_{\text{back}}| = 2|\rho_{\text{front}}|
+\end{equation}
+
+The total accessible information is doubled by the dual structure.
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/moriarty_dual_membrane_20251128_042607.png}
+\caption{\textbf{Comprehensive dual-membrane analysis revealing conjugacy failure
+and diagnostic insights.}
+Analysis timestamp: 2025-11-28 04:26:07. Subject: ``Moriarty'' photograph.
+\textbf{Top row:}
+(\textbf{A}) Original grayscale image ($\mu = 0.769$, $\sigma = 0.238$).
+(\textbf{B}) Front face $S_k$ (observable): $\mu = 0.539$, $\sigma = 0.475$.
+(\textbf{C}) Back face $S_k$ (conjugate): $\mu = 0.000$, $\sigma = 0.000$—unexpected
+uniform teal, indicating transformation error.
+(\textbf{D}) Front $S_\tau$ (evolution coordinate): $\mu = 0.500$, $\sigma = 0.000$,
+uniform magenta suggests initialization artifact.
+\textbf{Middle row:}
+(\textbf{E}) Negative visual (inverted grayscale): $\mu = 0.231$, $\sigma = 0.238$.
+(\textbf{F}) Back face $S_k$ (alternate view): $\mu = 0.539$, $\sigma = 0.475$—matches
+front face statistics, violating conjugate constraint.
+(\textbf{G}) Back face $S_k$ (conjugate, repeated): uniform teal persists.
+(\textbf{H}) Back $S_\tau$: $\mu = 0.500$, $\sigma = 0.000$, uniform magenta.
+\textbf{Bottom row:}
+(\textbf{I}) Sum map $S_k^{\text{front}} + S_k^{\text{back}}$: $\mu = 1.078$,
+$\sigma = 0.950$. Non-zero sum with spatial structure (green-red pattern) indicates
+conjugate constraint violated. Expected: uniform zero.
+(\textbf{J}) Conjugate correlation scatter plot: Ideal relationship $y = -x$
+(red dashed line) vs. fitted relationship $y = 1.000x + 0.000$ (green line).
+Correlation $r = 1.0000$ (should be $-1$), confirming faces are identical rather
+than conjugate.
+(\textbf{K}) Distribution comparison: Front face (blue) and back face (red) histograms
+should be mirror images. Instead, they overlap perfectly, indicating back face was
+incorrectly computed as copy rather than conjugate.
+(\textbf{L}) Conjugacy verification panel:}
+\label{fig:moriarty_failed_conjugacy}
+\end{figure}
+
+\subsection{Conjugacy Verification}
+
+To verify the conjugate relationship, we cheque:
+
+\begin{equation}
+\mathbf{S}_{\text{front}} + T(\mathbf{S}_{\text{front}}) = \mathbf{0}
+\end{equation}
+
+for full conjugate transformation. For phase conjugation:
+
+\begin{equation}
+S_{k,\text{front}} + S_{k,\text{back}} \approx 0
+\end{equation}
+
+within numerical tolerance.
+
+\subsection{Physical Interpretation}
+
+The dual membrane structure can be understood as:
+
+\begin{enumerate}
+\item \textbf{Wave/Particle Duality Analog}: Just as light has wave and particle aspects that cannot be observed simultaneously, categorical states have front and back aspects.
+
+\item \textbf{Basis Rotation}: Switching faces is analogous to changing the measurement basis in quantum mechanics—different observables become accessible.
+
+\item \textbf{Information Complementarity}: The front face contains information that is complementary to the back face; together, they form a complete description.
+
+\item \textbf{Membrane Thickness}: The categorical distance $d_S(\mathbf{S}_{\text{front}}, \mathbf{S}_{\text{back}})$ defines a "thickness" to the membrane in categorical space.
+\end{enumerate}

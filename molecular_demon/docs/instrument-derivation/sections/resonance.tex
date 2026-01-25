@@ -1,0 +1,376 @@
+\section{Resonance Conditions}
+\label{sec:resonance}
+
+Having established the necessity and uniqueness of frequency-selective coupling structures in Section~\ref{sec:instrument_necessity}, we now derive the quantitative conditions under which such coupling achieves efficient information extraction. The central concept is \emph{resonance}: coupling strength is maximised when apparatus and system frequencies match and falls off rapidly with detuning. We prove that regime separation (Proposition~\ref{prop:regime_separation}) combined with narrow linewidths guarantees high selectivity, enabling the independent extraction of different partition coordinates. These results establish the mathematical foundation for spectroscopic resolution and multi-frequency measurement strategies.
+
+\subsection{Resonance in Oscillatory Coupling}
+
+We begin by formalising the concept of resonance and deriving the functional form of coupling strength versus frequency detuning.
+
+\begin{definition}[Resonance]
+\label{def:resonance}
+An oscillatory coupling between system oscillation at frequency $\omega_s$ and apparatus oscillation at frequency $\omega_a$ is \emph{resonant} if the frequency detuning $\Delta = |\omega_s - \omega_a|$ satisfies:
+\begin{equation}
+\Delta = |\omega_s - \omega_a| < \Gamma,
+\end{equation}
+where $\Gamma > 0$ is the \emph{linewidth} (or \emph{bandwidth}) characterising the frequency selectivity of the coupling. The condition $\Delta \ll \Gamma$ defines \emph{strong resonance}; $\Delta \gg \Gamma$ defines \emph{off-resonance}.
+\end{definition}
+
+\begin{remark}
+The linewidth $\Gamma$ arises from the finite lifetimes of oscillatory modes (due to damping, spontaneous emission, collisional broadening, etc.) and from finite measurement times (Fourier uncertainty). It sets the fundamental limit on frequency resolution.
+\end{remark}
+
+\begin{theorem}[Resonance Enhancement]
+\label{thm:resonance_enhancement}
+The coupling strength between the system and the apparatus as a function of frequency detuning has the Lorentzian form:
+\begin{equation}
+\mathcal{C}(\omega_s, \omega_a) = \frac{\mathcal{C}_0}{1 + 4(\omega_s - \omega_a)^2 / \Gamma^2},
+\end{equation}
+where $\mathcal{C}_0$ is the maximum coupling strength achieved at exact resonance $\omega_s = \omega_a$, and $\Gamma$ is the full width at half maximum (FWHM) of the resonance curve.
+\end{theorem}
+
+\begin{proof}
+Consider a harmonic oscillator (representing the apparatus) with natural frequency $\omega_a$, damping rate $\gamma$, and driven by an external force at frequency $\omega_s$. The equation of motion is:
+\begin{equation}
+\ddot{x} + \gamma \dot{x} + \omega_a^2 x = F_0 \cos(\omega_s t),
+\end{equation}
+where $F_0$ is the driving amplitude.
+
+Seeking a steady-state solution $x(t) = A \cos(\omega_s t + \phi)$, we substitute it into the equation of motion and solve for the amplitude:
+\begin{equation}
+A(\omega_s) = \frac{F_0}{\sqrt{(\omega_a^2 - \omega_s^2)^2 + \gamma^2 \omega_s^2}}.
+\end{equation}
+
+Near resonance ($\omega_s \approx \omega_a$), we can approximate $\omega_a^2 - \omega_s^2 = (\omega_a - \omega_s)(\omega_a + \omega_s) \approx 2\omega_a (\omega_a - \omega_s)$ and $\omega_s \approx \omega_a$. This yields:
+\begin{equation}
+A(\omega_s) \approx \frac{F_0}{\sqrt{4\omega_a^2 (\omega_a - \omega_s)^2 + \gamma^2 \omega_a^2}} = \frac{F_0}{2\omega_a \sqrt{(\omega_a - \omega_s)^2 + (\gamma/2)^2}}.
+\end{equation}
+
+The coupling strength is proportional to the energy stored in the oscillator, which scales as $\mathcal{C} \propto A^2$:
+\begin{equation}
+\mathcal{C}(\omega_s, \omega_a) = \frac{\mathcal{C}_0}{(\omega_a - \omega_s)^2 + (\gamma/2)^2} \cdot \frac{(\gamma/2)^2}{(\gamma/2)^2} = \frac{\mathcal{C}_0}{1 + 4(\omega_s - \omega_a)^2 / \gamma^2},
+\end{equation}
+where we have normalised so that $\mathcal{C}(\omega_a, \omega_a) = \mathcal{C}_0$. Identifying the full width at half maximum $\Gamma = \gamma$ completes the proof.
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_zeeman_orientation_coordinate.png}
+\caption{Orientation coordinate $m$ and Zeeman spectroscopy coupling structure. \textbf{Top row:} $m$-state energy distribution for $\ell=3$, Zeeman splitting in external magnetic field $\mathbf{B}$, and Larmor precession geometry. \textbf{Middle row:} Selection rules $\Delta m = 0, \pm 1$, normal Zeeman triplet ($\sigma^-$, $\pi$, $\sigma^+$ transitions), phase pattern $\text{Re}(e^{im\phi})$, and space quantization for $\ell=2$. \textbf{Bottom row:} Light polarization components, circular polarization helices, microwave cavity TE$_{11}$ mode structure, and Zeeman frequency dependence $\omega_m \propto m \cdot B$. The coupling structure $\mathcal{I}_m$ implements magnetic field gradient coupling in regime $\Omega_m$, corresponding to magnetic resonance spectroscopy (Theorem~\ref{thm:orientation_coupling}).}
+\label{fig:zeeman_orientation}
+\end{figure}
+
+\begin{remark}
+The Lorentzian lineshape is universal for resonant systems with exponential decay. It arises in diverse contexts: atomic spectroscopy (natural linewidth), cavity resonators (cavity linewidth), NMR (transverse relaxation), etc. The $1/\Delta^2$ tail at large detuning is crucial for selectivity.
+\end{remark}
+
+\begin{corollary}[Off-Resonance Suppression]
+\label{cor:off_resonance}
+For large detuning $\Delta = |\omega_s - \omega_a| \gg \Gamma$, the coupling strength is suppressed as:
+\begin{equation}
+\mathcal{C}(\omega_s, \omega_a) \approx \mathcal{C}_0 \cdot \left(\frac{\Gamma}{2\Delta}\right)^2 = \frac{\mathcal{C}_0 \Gamma^2}{4\Delta^2}.
+\end{equation}
+Coupling falls off as the square of the inverse detuning, providing strong discrimination against off-resonant frequencies.
+\end{corollary}
+
+\begin{proof}
+For $\Delta \gg \Gamma$, the denominator in Theorem~\ref{thm:resonance_enhancement} is dominated by the detuning term:
+\begin{equation}
+\mathcal{C}(\omega_s, \omega_a) = \frac{\mathcal{C}_0}{1 + 4\Delta^2 / \Gamma^2} \approx \frac{\mathcal{C}_0 \Gamma^2}{4\Delta^2}.
+\end{equation}
+\end{proof}
+
+\subsection{Linewidth Bounds and Time-Frequency Uncertainty}
+
+The linewidth $\Gamma$ is not arbitrary but is bounded by fundamental constraints arising from the finite lifetime of oscillatory modes and the finite duration of measurements.
+
+\begin{definition}[Quality Factor]
+\label{def:quality_factor}
+The \emph{quality factor} of an oscillatory system with natural frequency $\omega_0$ and linewidth $\Gamma$ is:
+\begin{equation}
+Q = \frac{\omega_0}{\Gamma}.
+\end{equation}
+High-$Q$ systems ($Q \gg 1$) have narrow linewidths relative to their oscillation frequency, enabling precise frequency selectivity.
+\end{definition}
+
+\begin{theorem}[Linewidth-Lifetime Uncertainty]
+\label{thm:linewidth_lifetime}
+For any oscillatory mode with finite lifetime $\tau$ (the time scale over which the mode amplitude decays by a factor of $e$), the linewidth satisfies:
+\begin{equation}
+\Gamma \cdot \tau \geq \frac{1}{2},
+\end{equation}
+with equality for exponentially decaying modes. In natural units where $\hbar = 1$, this becomes the energy-time uncertainty relation $\Delta E \cdot \Delta t \geq 1/2$.
+\end{theorem}
+
+\begin{proof}
+Consider an oscillatory mode with exponential decay:
+\begin{equation}
+x(t) = \begin{cases}
+A e^{-t/(2\tau)} \cos(\omega_0 t) & t \geq 0, \\
+0 & t < 0.
+\end{cases}
+\end{equation}
+The factor of $1/(2\tau)$ in the exponent ensures that the \emph{energy} (proportional to $|x(t)|^2$) decays with time constant $\tau$.
+
+The Fourier transform is:
+\begin{align}
+\hat{x}(\omega) &= \int_0^\infty A e^{-t/(2\tau)} \cos(\omega_0 t) e^{-i\omega t} \, dt \\
+&= \frac{A}{2} \int_0^\infty e^{-t/(2\tau)} \left[ e^{i(\omega_0 - \omega)t} + e^{-i(\omega_0 + \omega)t} \right] dt \\
+&= \frac{A}{2} \left[ \frac{1}{1/(2\tau) - i(\omega_0 - \omega)} + \frac{1}{1/(2\tau) + i(\omega_0 + \omega)} \right].
+\end{align}
+
+For $\omega \approx \omega_0 > 0$, the first term dominates:
+\begin{equation}
+\hat{x}(\omega) \approx \frac{A}{2} \cdot \frac{1}{1/(2\tau) - i(\omega - \omega_0)} = \frac{A}{2} \cdot \frac{1/(2\tau) + i(\omega - \omega_0)}{1/(4\tau^2) + (\omega - \omega_0)^2}.
+\end{equation}
+
+The power spectral density is:
+\begin{equation}
+|\hat{x}(\omega)|^2 = \frac{A^2}{4} \cdot \frac{1/(4\tau^2) + (\omega - \omega_0)^2}{[1/(4\tau^2) + (\omega - \omega_0)^2]^2} = \frac{A^2}{4} \cdot \frac{1}{1/(4\tau^2) + (\omega - \omega_0)^2}.
+\end{equation}
+
+This is a Lorentzian with half-width at half-maximum (HWHM) equal to $1/(2\tau)$. The full width at half maximum (FWHM) is:
+\begin{equation}
+\Gamma = 2 \cdot \frac{1}{2\tau} = \frac{1}{\tau}.
+\end{equation}
+
+Hence $\Gamma \tau = 1$. For the more general definition where $\Gamma$ is the HWHM, we have $\Gamma \tau = 1/2$.
+
+For non-exponential decay (e.g., Gaussian, power-law), the Fourier transform is broader, yielding $\Gamma \tau > 1/2$. Thus $\Gamma \tau \geq 1/2$ is a lower bound.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:linewidth_lifetime} is the spectroscopic manifestation of the time-frequency uncertainty principle. Short-lived states have broad spectral lines; long-lived states have narrow lines. This fundamental trade-off cannot be circumvented by improved instrumentation—it is a mathematical property of Fourier transforms.
+\end{remark}
+
+\begin{proposition}[Resolution-Bandwidth Trade-off]
+\label{prop:resolution_bandwidth}
+A coupling structure with linewidth $\Gamma$ can resolve two distinct frequencies $\omega_1, \omega_2$ if their separation satisfies:
+\begin{equation}
+|\omega_1 - \omega_2| \geq \Gamma.
+\end{equation}
+To achieve frequency resolution $\delta\omega$, the minimum measurement time is:
+\begin{equation}
+T_{\min} = \frac{2\pi}{\delta\omega}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+\textbf{Part 1: Rayleigh criterion.} Two Lorentzian peaks centered at $\omega_1$ and $\omega_2$ with common linewidth $\Gamma$ (FWHM) are considered resolved if the dip between them is at least 50\% of the peak height. For Lorentzians, this occurs when the separation equals the FWHM:
+\begin{equation}
+|\omega_1 - \omega_2| = \Gamma.
+\end{equation}
+For separations $|\omega_1 - \omega_2| < \Gamma$, the peaks merge into a single unresolved feature.
+
+\textbf{Part 2: Fourier uncertainty.} The frequency resolution achievable from a time-domain measurement of duration $T$ is limited by the Fourier uncertainty relation:
+\begin{equation}
+\delta\omega \cdot T \geq 2\pi.
+\end{equation}
+To resolve frequencies separated by $\delta\omega$, we require $T \geq 2\pi / \delta\omega$.
+
+Combining these, to resolve features separated by $\Gamma$, we need measurement time $T \geq 2\pi / \Gamma = 2\pi \tau$ (using Theorem~\ref{thm:linewidth_lifetime}).
+\end{proof}
+
+\begin{corollary}[High-Resolution Constraint]
+\label{cor:high_resolution}
+Achieving high frequency resolution $\delta\omega \ll \omega_0$ requires either:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item Long measurement times $T \gg 2\pi/\omega_0$, or
+    \item Long-lived oscillatory modes $\tau \gg 1/\omega_0$ (high quality factor $Q \gg 1$).
+\end{enumerate}
+\end{corollary}
+
+\subsection{Selectivity Conditions for Coordinate Extraction}
+
+We now apply the resonance theory to the problem of selective coordinate extraction, proving that regime separation guarantees high selectivity.
+
+\begin{definition}[Coordinate Selectivity]
+\label{def:selectivity}
+For a coupling structure $\mathcal{I}_\xi$ targeting coordinate $\xi$ with characteristic frequency $\omega_\xi$, the \emph{selectivity} is defined as the ratio of on-resonance coupling to maximum off-resonance coupling:
+\begin{equation}
+S_\xi = \frac{\mathcal{C}(\omega_\xi, \omega_\xi)}{\max_{\xi' \neq \xi} \mathcal{C}(\omega_{\xi'}, \omega_\xi)},
+\end{equation}
+where $\omega_{\xi'}$ are the characteristic frequencies of other coordinates.
+\end{definition}
+
+\begin{remark}
+High selectivity ($S_\xi \gg 1$) ensures that coupling predominantly extracts the target coordinate $\xi$ with minimal contamination from other coordinates. Selectivity $S_\xi = 100$ corresponds to 99\% purity (1\% cross-talk).
+\end{remark}
+
+\begin{theorem}[Selectivity from Regime Separation]
+\label{thm:selectivity}
+For a coupling structure $\mathcal{I}_\xi$ with linewidth $\Gamma$ targeting coordinate $\xi$, the selectivity satisfies:
+\begin{equation}
+S_\xi \geq \left( \frac{2\Delta_{\min}}{\Gamma} \right)^2,
+\end{equation}
+where $\Delta_{\min} = \min_{\xi' \neq \xi} |\omega_\xi - \omega_{\xi'}|$ is the minimum frequency separation between coordinate $\xi$ and all other coordinates.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:resonance_enhancement}, the on-resonance coupling is:
+\begin{equation}
+\mathcal{C}(\omega_\xi, \omega_\xi) = \mathcal{C}_0.
+\end{equation}
+
+The coupling to the nearest off-target coordinate at frequency $\omega_{\xi'}$ with $|\omega_{\xi'} - \omega_\xi| = \Delta_{\min}$ is, by Corollary~\ref{cor:off_resonance}:
+\begin{equation}
+\mathcal{C}(\omega_{\xi'}, \omega_\xi) \approx \mathcal{C}_0 \cdot \frac{\Gamma^2}{4\Delta_{\min}^2}.
+\end{equation}
+
+Hence the selectivity is:
+\begin{equation}
+S_\xi = \frac{\mathcal{C}_0}{\mathcal{C}_0 \Gamma^2 / (4\Delta_{\min}^2)} = \frac{4\Delta_{\min}^2}{\Gamma^2} = \left( \frac{2\Delta_{\min}}{\Gamma} \right)^2.
+\end{equation}
+
+For coordinates further away ($|\omega_{\xi''} - \omega_\xi| > \Delta_{\min}$), the coupling is even more suppressed, so the minimum selectivity is achieved for the nearest neighbor.
+\end{proof}
+
+\begin{corollary}[High-Selectivity Condition]
+\label{cor:high_selectivity}
+To achieve selectivity $S_\xi > 100$ (corresponding to 99\% purity), the linewidth must satisfy:
+\begin{equation}
+\Gamma < \frac{\Delta_{\min}}{5}.
+\end{equation}
+For selectivity $S_\xi > 10^4$ (99.99\% purity), we require:
+\begin{equation}
+\Gamma < \frac{\Delta_{\min}}{50}.
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+From Theorem~\ref{thm:selectivity}, $S_\xi = (2\Delta_{\min}/\Gamma)^2$. Setting $S_\xi = 100$:
+\begin{equation}
+\left( \frac{2\Delta_{\min}}{\Gamma} \right)^2 = 100 \quad \Rightarrow \quad \frac{2\Delta_{\min}}{\Gamma} = 10 \quad \Rightarrow \quad \Gamma = \frac{\Delta_{\min}}{5}.
+\end{equation}
+Similarly, $S_\xi = 10^4$ gives $\Gamma = \Delta_{\min}/50$.
+\end{proof}
+
+\begin{proposition}[Regime Separation Enables High Selectivity]
+\label{prop:regime_selectivity}
+Under the frequency hierarchy $\omega_n \gg \omega_\ell \gg \omega_m \sim \omega_s$ established in Theorem~\ref{thm:frequency_duality}, with hierarchy parameters $\beta \sim 10^{-2}$, $\gamma \sim 10^{-4}$, $\delta \sim 10^{-4}$, the minimum frequency separations satisfy:
+\begin{align}
+\Delta_{\min}(n) &\sim \omega_0 \cdot 10^{-3}, \\
+\Delta_{\min}(\ell) &\sim \omega_0 \cdot 10^{-2}, \\
+\Delta_{\min}(m) &\sim \omega_0 \cdot 10^{-4}, \\
+\Delta_{\min}(s) &\sim \omega_0 \cdot 10^{-4}.
+\end{align}
+Hence, linewidths $\Gamma_\xi \sim 10^{-5} \omega_0$ achieve selectivities $S_\xi > 10^4$ for all coordinates.
+\end{proposition}
+
+\begin{proof}
+From Theorem~\ref{thm:frequency_duality}:
+\begin{itemize}[noitemsep]
+    \item Adjacent $n$ levels: $\Delta\omega_n = \omega_0 |n^{-3} - (n+1)^{-3}| \sim \omega_0 / n^4 \sim \omega_0 \cdot 10^{-3}$ for $n \sim 10$.
+    \item Adjacent $\ell$ levels: $\Delta\omega_\ell = \omega_0 \beta |\ell(\ell+1) - (\ell+1)(\ell+2)| = \omega_0 \beta (2\ell + 3) \sim \omega_0 \cdot 10^{-2}$ for $\beta \sim 10^{-2}$, $\ell \sim 1$.
+    \item Adjacent $m$ levels: $\Delta\omega_m = \omega_0 \gamma \sim \omega_0 \cdot 10^{-4}$.
+    \item Chirality splitting: $\Delta\omega_s = \omega_0 \delta \sim \omega_0 \cdot 10^{-4}$.
+\end{itemize}
+
+For selectivity $S_\xi > 10^4$, Corollary~\ref{cor:high_selectivity} requires $\Gamma < \Delta_{\min}/50$. Taking the smallest separation $\Delta_{\min} \sim 10^{-4} \omega_0$ (for $m$ or $s$), we need:
+\begin{equation}
+\Gamma < \frac{10^{-4} \omega_0}{50} = 2 \times 10^{-6} \omega_0.
+\end{equation}
+
+This is achievable: for $\omega_0 \sim 10^{18}$ Hz (atomic transitions), $\Gamma \sim 10^{12}$ Hz corresponds to lifetimes $\tau \sim 10^{-12}$ s (picoseconds), typical for vibrational modes. For narrower lines, longer-lived states (e.g., metastable atomic states, nuclear spin states) can achieve $\Gamma \sim 10^{3}$ Hz, giving $Q \sim 10^{15}$.
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_nmr_chirality_coordinate.png}
+\caption{Chirality coordinate $s$ and nuclear magnetic resonance (NMR) spectroscopy. \textbf{Top row:} Bloch sphere representation of spin states $|\uparrow\rangle$ and $|\downarrow\rangle$, Zeeman energy splitting $\Delta E = \gamma \hbar B$ linear in magnetic field, Boltzmann spin population distribution at various temperatures (100--500 K), and $^1$H NMR spectrum showing chemical shift peaks for different molecular environments. \textbf{Middle row:} NMR relaxation curves for longitudinal ($T_1 = 1.0$ s, blue) and transverse ($T_2 = 0.5$ s, red) magnetization, free induction decay (FID) signal with exponential envelope, spin echo pulse sequence (90°--180°--acquisition), and tissue-dependent NMR properties radar plot (water, fat, brain) showing $T_1$, $T_2$, $T_2^*$, chemical shift, and J-coupling variations. \textbf{Bottom row:} 2D COSY correlation map showing through-bond connectivity, J-coupling multiplet patterns (singlet, doublet, triplet, quartet), Larmor frequency $\omega = \gamma B$ for different nuclei ($^1$H, $^{13}$C, $^{19}$F, $^{31}$P), and two-spin energy level diagram. The coupling structure $\mathcal{I}_s$ implements radio-frequency magnetic resonance at the Larmor frequency in regime $\Omega_s$, corresponding to NMR and ESR spectroscopy (Theorem~\ref{thm:chirality_resonance}).}
+\label{fig:chirality_nmr}
+\end{figure}
+
+\subsection{Multi-Frequency Resonance and Independent Extraction}
+
+Having established that narrow linewidths enable high selectivity, we now prove that multi-frequency coupling allows simultaneous independent extraction of all partition coordinates.
+
+\begin{definition}[Multi-Frequency Coupling]
+\label{def:multi_frequency}
+A \emph{multi-frequency coupling structure} consists of $N$ independent oscillators with frequencies $\{\omega_1, \omega_2, \ldots, \omega_N\}$ and linewidths $\{\Gamma_1, \Gamma_2, \ldots, \Gamma_N\}$, each coupled to the system via coupling functions $\{\kappa_1, \kappa_2, \ldots, \kappa_N\}$. The total coupling is:
+\begin{equation}
+\kappa_{\text{total}}(x, \mathbf{y}) = \sum_{i=1}^N \kappa_i(x, y_i),
+\end{equation}
+where $\mathbf{y} = (y_1, \ldots, y_N)$ parameterizes the combined apparatus state space $\oscillator_{\text{total}} = \oscillator_1 \times \cdots \times \oscillator_N$.
+\end{definition}
+
+\begin{theorem}[Independent Coordinate Extraction]
+\label{thm:independent_extraction}
+A multi-frequency coupling structure with frequencies $\{\omega_n, \omega_\ell, \omega_m, \omega_s\}$ matched to the characteristic frequencies of partition coordinates $(n, \ell, m, s)$ (Theorem~\ref{thm:frequency_duality}), and with linewidths satisfying the high-selectivity condition (Corollary~\ref{cor:high_selectivity}), enables simultaneous independent extraction of all four coordinates. Specifically:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item Each frequency channel $\omega_\xi$ couples predominantly to coordinate $\xi$ with selectivity $S_\xi \gg 1$,
+    \item Cross-talk between channels is suppressed by factor $1/S_\xi$,
+    \item The four coordinates can be extracted in parallel without mutual interference.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textbf{Step 1: Decomposition by frequency regime.}
+
+By Proposition~\ref{prop:regime_separation}, the frequency regimes $\Omega_n, \Omega_\ell, \Omega_m, \Omega_s$ are well-separated. Each coupling channel $\kappa_\xi$ operates at frequency $\omega_\xi \in \Omega_\xi$ with linewidth $\Gamma_\xi \ll \Delta_{\min}(\xi)$.
+
+The total coupling decomposes as:
+\begin{equation}
+\kappa_{\text{total}}(x, \mathbf{y}) = \kappa_n(x, y_n) + \kappa_\ell(x, y_\ell) + \kappa_m(x, y_m) + \kappa_s(x, y_s).
+\end{equation}
+
+\textbf{Step 2: Selectivity ensures dominance.}
+
+By Theorem~\ref{thm:selectivity}, each coupling $\kappa_\xi$ extracts coordinate $\xi$ with selectivity $S_\xi = (2\Delta_{\min}/\Gamma_\xi)^2 \gg 1$. The coupling to coordinate $\xi$ from channel $\xi'$ (with $\xi' \neq \xi$) is suppressed by:
+\begin{equation}
+\frac{\mathcal{C}_{\xi'}(\omega_\xi)}{\mathcal{C}_\xi(\omega_\xi)} \sim \frac{1}{S_\xi} \ll 1.
+\end{equation}
+
+\textbf{Step 3: Independence from orthogonality.}
+
+The readout functions $g_\xi: \oscillator_\xi \to \Reals$ for different coordinates are orthogonal in the sense that:
+\begin{equation}
+\int_{\oscillator_{\text{total}}} g_\xi(\mathbf{y}) \kappa_{\xi'}(x, y_{\xi'}) \, d\nu(\mathbf{y}) \approx 0 \quad \text{for } \xi \neq \xi',
+\end{equation}
+because $g_\xi$ integrates over frequency regime $\Omega_\xi$ while $\kappa_{\xi'}$ is concentrated in regime $\Omega_{\xi'}$, and these regimes are disjoint.
+
+Hence, the extraction of coordinate $\xi$ via:
+\begin{equation}
+\xi(x) = \int_{\oscillator_{\text{total}}} g_\xi(\mathbf{y}) \kappa_{\text{total}}(x, \mathbf{y}) \, d\nu(\mathbf{y}) = \int_{\oscillator_\xi} g_\xi(y_\xi) \kappa_\xi(x, y_\xi) \, d\nu_\xi(y_\xi)
+\end{equation}
+is independent of the other channels.
+
+\textbf{Step 4: Parallel operation.}
+
+Since the channels are independent, they can operate simultaneously. The measurement time for extracting all four coordinates is $T_{\text{total}} = \max_\xi T_\xi$, not $\sum_\xi T_\xi$. This represents a significant efficiency gain over sequential measurement.
+\end{proof}
+
+\begin{proposition}[Minimal Frequency Set]
+\label{prop:minimal_frequency_set}
+The minimal number of distinct frequencies required for complete partition coordinate extraction is exactly 4, corresponding to the four coordinates $(n, \ell, m, s)$.
+\end{proposition}
+
+\begin{proof}
+\textbf{Necessity ($\geq 4$):} By Theorem~\ref{thm:coupling_necessity}, extracting coordinate $\xi$ requires coupling in frequency regime $\Omega_\xi$. Since the four coordinates have distinct characteristic frequencies in well-separated regimes (Proposition~\ref{prop:regime_separation}), at least one frequency per coordinate is necessary. Hence at least 4 frequencies are required.
+
+\textbf{Sufficiency ($\leq 4$):} By Theorem~\ref{thm:independent_extraction}, 4 frequencies (one per regime) suffice for complete extraction. Hence exactly 4 frequencies are both necessary and sufficient.
+\end{proof}
+
+\begin{corollary}[Spectroscopic Completeness]
+\label{cor:spectroscopic_completeness}
+The four spectroscopic techniques identified in Theorem~\ref{thm:instrument_necessity}—absorption/emission ($\omega_n$), Raman ($\omega_\ell$), magnetic resonance ($\omega_m$), circular dichroism/ESR ($\omega_s$)—form a complete basis for partition coordinate measurement. Any additional spectroscopic technique either:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item Provides redundant information (measuring the same coordinate via a different frequency in the same regime), or
+    \item Measures a derived quantity (combination of coordinates), or
+    \item Probes physics beyond the partition coordinate system (e.g., higher-order multipole moments, relativistic corrections).
+\end{enumerate}
+\end{corollary}
+
+\begin{remark}
+Corollary~\ref{cor:spectroscopic_completeness} explains why spectroscopy textbooks consistently organize techniques into these four categories: this classification is not conventional but reflects the mathematical structure of partition coordinates. New spectroscopic methods (e.g., two-dimensional spectroscopy, coherent control) represent sophisticated combinations or extensions of these four fundamental coupling structures, not fundamentally new coordinate extraction mechanisms.
+\end{remark}
+
+This completes the theory of resonance conditions. We have established that:
+\begin{enumerate}[label=(\alph*), noitemsep]
+    \item Resonance enhancement follows a universal Lorentzian form (Theorem~\ref{thm:resonance_enhancement}),
+    \item Linewidths are bounded by lifetime uncertainty (Theorem~\ref{thm:linewidth_lifetime}),
+    \item Selectivity is determined by the ratio of regime separation to linewidth (Theorem~\ref{thm:selectivity}),
+    \item Four frequencies are necessary and sufficient for complete coordinate extraction (Proposition~\ref{prop:minimal_frequency_set}).
+\end{enumerate}
+
+In Section~\ref{sec:explicit_coupling}, we derive explicit forms for the coupling functions $\kappa_\xi$, connecting the abstract resonance theory to concrete spectroscopic observables.

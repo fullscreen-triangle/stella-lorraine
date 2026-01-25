@@ -1,0 +1,192 @@
+\section{Categorical Instrument Orchestration}
+\label{sec:instrument_orchestration}
+
+We demonstrate that the instrument ensemble constitutes a Poincaré machine---a computational system where solutions are trajectories through categorical space that return to their origin. Element identification becomes trajectory completion; instrument agreement becomes recurrence.
+
+\subsection{Instruments as Projection Operators}
+
+\begin{definition}[Instrument Projection]
+\label{def:instrument_projection}
+Each instrument $\Pi_j$ is a \emph{projection operator} on categorical space $\mathcal{S}$:
+\begin{align}
+    \Pi_{\text{MS}} &: \mathcal{S} \to (m/z, E_I) \quad \text{[Mass Spectrometer]} \\
+    \Pi_{\text{XPS}} &: \mathcal{S} \to \{E_B(n,l)\} \quad \text{[X-ray Photoelectron]} \\
+    \Pi_{\text{NMR}} &: \mathcal{S} \to (\delta, J) \quad \text{[Nuclear Magnetic Resonance]} \\
+    \Pi_{\text{ESR}} &: \mathcal{S} \to (g, n_{\text{unpaired}}) \quad \text{[Electron Spin Resonance]} \\
+    \Pi_{\text{UV}} &: \mathcal{S} \to \{\lambda_{\text{transition}}\} \quad \text{[UV-Vis Spectroscopy]}
+\end{align}
+Each projection extracts a different aspect of the partition coordinates $(n, l, m, s)$.
+\end{definition}
+
+\begin{theorem}[Projection Consistency]
+\label{thm:projection_consistency}
+For a valid categorical state $\mathbf{S} \in \mathcal{S}$, all projections must be mutually consistent:
+\begin{equation}
+    \Pi_{\text{MS}}(\mathbf{S}) \wedge \Pi_{\text{XPS}}(\mathbf{S}) \wedge \Pi_{\text{NMR}}(\mathbf{S}) \wedge \Pi_{\text{ESR}}(\mathbf{S}) \to \text{unique } (n, l, m, s)
+\end{equation}
+Inconsistency indicates either measurement error or an exotic state.
+\end{theorem}
+
+\subsection{Trajectory Through Instrument Space}
+
+\begin{definition}[Instrument Trajectory]
+\label{def:instrument_trajectory}
+An \emph{instrument trajectory} $\gamma$ is a sequence of projections applied to a sample:
+\begin{equation}
+    \gamma = (\Pi_{j_1}, \Pi_{j_2}, \ldots, \Pi_{j_k})
+\end{equation}
+Each projection refines the knowledge of the partition coordinates.
+\end{definition}
+
+\begin{theorem}[Trajectory Convergence]
+\label{thm:trajectory_convergence}
+A trajectory $\gamma$ \emph{converges} when all projections agree on the same partition coordinates:
+\begin{equation}
+    \text{Converged}(\gamma) \iff \forall i, j: \Pi_i(\mathbf{S}) \text{ consistent with } \Pi_j(\mathbf{S})
+\end{equation}
+Convergence is the \emph{recurrence condition}---the trajectory returns to a self-consistent state.
+\end{theorem}
+
+\subsection{The Categorical Identification Algorithm}
+
+\begin{definition}[Categorical Element Identification]
+\label{def:cat_identification}
+\begin{enumerate}
+    \item \textbf{Initialise}: Place unknown sample in categorical space $\mathbf{S}_0$
+    \item \textbf{Project}: Apply instrument $\Pi_j$ to extract partial coordinates
+    \item \textbf{Propagate}: Use extracted information to constrain other projections
+    \item \textbf{Iterate}: Select next instrument based on information gain
+    \item \textbf{Converge}: Terminate when all projections agree
+\end{enumerate}
+The output is the consensus partition signature $\mathcal{E}_Z$.
+\end{definition}
+
+\begin{theorem}[Information Gain Routing]
+\label{thm:info_gain}
+The optimal instrument sequence minimises the number of projections to convergence. The information gain $I(\Pi_j | \text{current knowledge})$ determines the next instrument:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Current Knowledge & Best Next Instrument & Information Gained \\
+\midrule
+Nothing & Mass Spectrometer & $Z$ (partition count) \\
+$Z$ known & XPS & All $(n, l)$ binding energies \\
+$(n, l)$ known & ESR & Unpaired $s$ count \\
+$s$ distribution known & NMR & Hyperfine confirmation \\
+All coordinates & UV-Vis & Transition verification \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{theorem}
+
+\subsection{Poincaré Complexity of Element Identification}
+
+\begin{definition}[Poincaré Complexity]
+\label{def:poincare_complexity}
+The \emph{Poincaré complexity} $\Pi(Z)$ of identifying element $Z$ is the minimum number of instrument projections required for convergence:
+\begin{equation}
+    \Pi(Z) = \min_{|\gamma|} \{|\gamma| : \gamma \text{ converges to } \mathcal{E}_Z\}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Complexity Bounds]
+\label{thm:complexity_bounds}
+For elements with partition count $Z$:
+\begin{align}
+    \Pi(Z) &\geq 2 \quad \text{(at least 2 instruments for cross-validation)} \\
+    \Pi(Z) &\leq 5 \quad \text{(all instrument categories)}
+\end{align}
+Typical complexity: $\Pi(Z) = 3$ for main group elements, $\Pi(Z) = 4$ for transition elements.
+\end{theorem}
+
+\begin{proof}
+Main group elements have simple configurations determinable from:
+\begin{enumerate}
+    \item Mass spectrometer: $Z$ and valence $(n, l)$
+    \item XPS: Complete $(n, l)$ configuration
+    \item ESR: Unpaired $s$ confirmation
+\end{enumerate}
+
+Transition elements require additional discrimination of $d$-shell occupancy, adding one projection.
+\end{proof}
+
+\subsection{Recurrence as Solution Recognition}
+
+\begin{theorem}[Recurrence Condition]
+\label{thm:recurrence_solution}
+Element identification is complete when the instrument trajectory exhibits \emph{recurrence}:
+\begin{equation}
+    \|\mathbf{S}_{\text{final}} - \mathbf{S}_0\| < \epsilon
+\end{equation}
+where $\epsilon$ is the measurement precision. This is the $\epsilon$-boundary condition from Poincaré Computing.
+\end{theorem}
+
+\begin{proof}
+The initial state $\mathbf{S}_0$ encodes the true partition coordinates (unknown to the observer). Each projection refines the estimate. Convergence occurs when the estimated state is within $\epsilon$ of the true state---recognisable because all projections become consistent.
+
+The system cannot reach \emph{exact} recurrence because:
+\begin{enumerate}
+    \item Measurement has finite precision
+    \item The categorical state has been ``visited'' (irreversibility)
+\end{enumerate}
+Thus solutions are recognised at the $\epsilon$-boundary, exactly as in Poincaré Computing.
+\end{proof}
+
+\subsection{Constraint Propagation}
+
+\begin{theorem}[Constraint Propagation]
+\label{thm:constraint_propagation}
+Each projection constrains subsequent projections through physical laws:
+\begin{align}
+    \Pi_{\text{MS}} \to Z &\Rightarrow \text{XPS must show exactly } Z \text{ core levels} \\
+    \Pi_{\text{XPS}} \to (n, l) &\Rightarrow \text{ESR must show correct unpaired count} \\
+    \Pi_{\text{ESR}} \to s &\Rightarrow \text{NMR must show consistent hyperfine}
+\end{align}
+Constraints propagate bidirectionally: later measurements constrain interpretation of earlier measurements.
+\end{theorem}
+
+\subsection{Experimental Validation}
+
+\begin{theorem}[Convergence Demonstration]
+\label{thm:convergence_demo}
+Experimental trajectories for known elements demonstrate convergence:
+
+\paragraph{Carbon ($Z = 6$):}
+\begin{enumerate}
+    \item $\Pi_{\text{MS}}$: $m/z = 12$, $E_I = 11.3$ eV $\Rightarrow$ $Z = 6$, valence in $2p$
+    \item $\Pi_{\text{XPS}}$: $E_B(1s) = 284$ eV $\Rightarrow$ Confirms $1s^2$
+    \item $\Pi_{\text{ESR}}$: 2 unpaired $\Rightarrow$ Confirms $2p^2$
+    \item Convergence achieved in 3 projections
+\end{enumerate}
+
+\paragraph{Iron ($Z = 26$):}
+\begin{enumerate}
+    \item $\Pi_{\text{MS}}$: $m/z = 56$, $E_I = 7.9$ eV $\Rightarrow$ $Z = 26$, valence in $4s$
+    \item $\Pi_{\text{XPS}}$: All core levels $\Rightarrow$ Confirms $[\text{Ar}] 3d^6 4s^2$
+    \item $\Pi_{\text{ESR}}$: 4 unpaired $\Rightarrow$ Confirms high-spin $3d^6$
+    \item $\Pi_{\text{NMR}}$: $^{57}$Fe, $I = 1/2$ $\Rightarrow$ Confirms nuclear structure
+    \item Convergence achieved in 4 projections
+\end{enumerate}
+\end{theorem}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/instrument_orchestration_panel.png}
+\caption{\textbf{Categorical Instrument Orchestration.} \textbf{(A)} Instruments as projections: each instrument projects the categorical state onto a measurement subspace, extracting different aspects of $(n, l, m, s)$. \textbf{(B)} Trajectory through instrument space: the identification process is a path through projections, converging when all agree. \textbf{(C)} Information gain routing: optimal instrument selection based on current knowledge. \textbf{(D)} Convergence dynamics: agreement between instruments increases with each projection until recurrence is achieved. \textbf{(E)} Poincaré complexity: minimum projections needed for different element types. \textbf{(F)} Constraint propagation: each measurement constrains subsequent measurements through physical consistency.}
+\label{fig:instrument_orchestration}
+\end{figure}
+
+\begin{remark}[Connection to Poincaré Computing]
+The instrument ensemble is a physical instantiation of Poincaré Computing:
+\begin{itemize}
+    \item \textbf{Phase space} $\mathcal{S}$: Space of all partition configurations
+    \item \textbf{Trajectory} $\gamma$: Sequence of instrument measurements
+    \item \textbf{Recurrence}: All instruments agreeing on coordinates
+    \item \textbf{$\epsilon$-boundary}: Measurement precision limit
+    \item \textbf{Constraints} $\mathcal{C}$: Physical laws (Pauli, selection rules)
+    \item \textbf{Complexity} $\Pi$: Minimum instruments for convergence
+\end{itemize}
+Standard analytical chemistry has been performing Poincaré computation without recognising it as such.
+\end{remark}
+

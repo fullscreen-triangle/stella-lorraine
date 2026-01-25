@@ -1,0 +1,172 @@
+\section{Categorical State Synthesiser}
+\label{sec:synthesiser}
+
+We describe the inverse of measurement: constructing elements by specifying their target partition coordinates. The synthesiser generates physical realisations from categorical specifications.
+
+\subsection{Synthesis as Inverse Measurement}
+
+\begin{definition}[Categorical Synthesis]
+\label{def:cat_synthesis}
+\emph{Categorical synthesis} is the process of generating a physical system from a specified partition coordinate signature:
+\begin{equation}
+    \text{Synthesis}: \mathcal{E}_Z \rightarrow \text{Physical system with signature } \mathcal{E}_Z
+\end{equation}
+This is the inverse of measurement, which extracts $\mathcal{E}_Z$ from a physical system.
+\end{definition}
+
+\begin{theorem}[Synthesis Protocol]
+\label{thm:synthesis_protocol}
+To synthesise an element with partition count $Z$:
+\begin{enumerate}
+    \item \textbf{Specify target}: Define $\mathcal{E}_Z = \{(n_i, l_i, m_i, s_i)\}_{i=1}^Z$
+    \item \textbf{Verify constraints}: Ensure all coordinates satisfy geometric bounds
+    \item \textbf{Apply filling order}: Occupy coordinates in energy-minimising sequence
+    \item \textbf{Verify exclusion}: No duplicate coordinates
+    \item \textbf{Generate}: Create physical realisation
+\end{enumerate}
+\end{theorem}
+
+\subsection{Constructing Example Elements}
+
+\begin{theorem}[Synthesising $Z = 1$ (Hydrogen-like)]
+\label{thm:synth_z1}
+\textbf{Target}: Single-partition configuration
+
+\textbf{Specification}:
+\begin{align}
+    Z &= 1 \\
+    \mathcal{E}_1 &= \{(1, 0, 0, +\tfrac{1}{2})\} \quad \text{or} \quad \{(1, 0, 0, -\tfrac{1}{2})\}
+\end{align}
+
+\textbf{Properties from partition geometry}:
+\begin{itemize}
+    \item Binding energy: $E_B = E_0 / 1^2 = E_0 = 13.6$ eV
+    \item Characteristic radius: $r_1 = a_0 = 52.9$ pm
+    \item Hyperfine splitting: $\Delta E_{\text{hf}} = 5.87 \times 10^{-6}$ eV (21 cm line)
+    \item Single valence: one partially filled shell
+\end{itemize}
+\end{theorem}
+
+\begin{theorem}[Synthesising $Z = 6$ (Carbon-like)]
+\label{thm:synth_z6}
+\textbf{Target}: Six-partition configuration
+
+\textbf{Specification}:
+\begin{align}
+    Z &= 6 \\
+    \mathcal{E}_6 &= \{(1,0,0,+\tfrac{1}{2}), (1,0,0,-\tfrac{1}{2}), (2,0,0,+\tfrac{1}{2}), (2,0,0,-\tfrac{1}{2}), \\
+    &\phantom{= \{} (2,1,-1,+\tfrac{1}{2}), (2,1,0,+\tfrac{1}{2})\} \quad \text{(Hund's rule configuration)}
+\end{align}
+
+\textbf{Properties from partition geometry}:
+\begin{itemize}
+    \item Core: Complete $n = 1$ shell (2 states)
+    \item Valence: 4 states in $n = 2$ ($2s^2 2p^2$)
+    \item Binding energy (first valence): $\approx 11.3$ eV
+    \item Four valence bonds possible (tetrahedral geometry)
+\end{itemize}
+\end{theorem}
+
+\begin{theorem}[Synthesising $Z = 26$ (Iron-like)]
+\label{thm:synth_z26}
+\textbf{Target}: 26-partition configuration
+
+\textbf{Specification}:
+\begin{align}
+    Z &= 26 \\
+    \mathcal{E}_{26} &= [\text{Ar}]_{18} + 3d^6 4s^2
+\end{align}
+
+\textbf{Detailed coordinate list}:
+\begin{itemize}
+    \item $n = 1$: 2 states (complete)
+    \item $n = 2$: 8 states (complete)
+    \item $n = 3$: $3s^2 3p^6 3d^6 = 8 + 6 = 14$ states ($3d$ partially filled)
+    \item $n = 4$: $4s^2 = 2$ states
+\end{itemize}
+
+\textbf{Properties from partition geometry}:
+\begin{itemize}
+    \item Transition element (partial $d$-subshell)
+    \item Multiple oxidation states (variable $d$-occupancy)
+    \item Magnetic: unpaired $d$-boundary chiralities
+\end{itemize}
+\end{theorem}
+
+\subsection{Property Prediction from Coordinates}
+
+\begin{theorem}[Properties from Signature]
+\label{thm:property_prediction}
+Given an element signature $\mathcal{E}_Z$, all properties can be predicted:
+
+\paragraph{Binding energy:}
+\begin{equation}
+    E_B^{(i)} = \frac{E_0 \cdot Z_{\text{eff},i}^2}{n_i^2}
+\end{equation}
+
+\paragraph{Characteristic radius:}
+\begin{equation}
+    r_Z = \frac{a_0 \cdot n_{\text{max}}^2}{Z_{\text{eff}}}
+\end{equation}
+
+\paragraph{Boundary affinity:}
+\begin{equation}
+    \chi = \frac{E_B + E_A}{2}
+\end{equation}
+
+\paragraph{Valence:}
+\begin{equation}
+    V = \min(N_{\text{valence}}, 8 - N_{\text{valence}})
+\end{equation}
+where $N_{\text{valence}}$ is the count of states in the outermost incomplete shell.
+\end{theorem}
+
+\subsection{Synthesis Constraints}
+
+\begin{theorem}[Realisability Constraints]
+\label{thm:realisability}
+Not all coordinate specifications are physically realisable:
+\begin{enumerate}
+    \item \textbf{Geometric constraints}: $l < n$, $|m| \leq l$, $s = \pm\frac{1}{2}$
+    \item \textbf{Exclusion}: No duplicate coordinates
+    \item \textbf{Energy ordering}: Ground state follows $(n + l)$ rule
+    \item \textbf{Stability}: $Z \leq Z_{\text{max}} \approx 118$ (beyond this, binding insufficient)
+\end{enumerate}
+\end{theorem}
+
+\begin{theorem}[Excited State Synthesis]
+\label{thm:excited_states}
+Non-ground-state configurations can be synthesised by violating the energy ordering:
+\begin{equation}
+    \mathcal{E}_Z^* = \mathcal{E}_Z \text{ with one or more coordinates promoted}
+\end{equation}
+These excited states have higher energy and decay to ground state by emitting spectral radiation.
+\end{theorem}
+
+\subsection{Multi-Element Systems}
+
+\begin{theorem}[Molecular Synthesis]
+\label{thm:molecular_synthesis}
+Multiple elements can be combined by coupling their outermost partition boundaries:
+\begin{equation}
+    \mathcal{M} = \mathcal{E}_{Z_1} \cup \mathcal{E}_{Z_2} + \text{coupling terms}
+\end{equation}
+
+Coupling occurs when:
+\begin{itemize}
+    \item Boundaries from different elements overlap
+    \item Chiralities pair (opposite $s$ values)
+    \item Energy is lowered by sharing boundaries
+\end{itemize}
+\end{theorem}
+
+\begin{remark}[Structural Similarity]
+The categorical state synthesiser provides:
+\begin{itemize}
+    \item \textbf{Element construction}: Build any element by specifying its electron configuration
+    \item \textbf{Property prediction}: Calculate all properties from the configuration
+    \item \textbf{Molecular design}: Combine elements through boundary coupling
+\end{itemize}
+This mirrors computational chemistry, where electronic structure calculations predict properties from quantum mechanical wave functions. The partition coordinate approach shows that these calculations are fundamentally geometric---they map out the structure of partition space.
+\end{remark}
+

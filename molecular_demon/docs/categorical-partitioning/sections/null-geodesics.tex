@@ -1,0 +1,290 @@
+\section{Partition-Free Traversal of Continuous Intervals}
+\label{sec:null_geodesics}
+
+We analyse the thermodynamics of traversing continuous intervals without partitioning. The key result is that partition-free traversal generates zero boundary entropy and therefore experiences no temporal duration. This provides a thermodynamic characterisation of null geodesics and explains why partition-based measurement of continuous intervals requires unbounded resources.
+
+\subsection{The Measurement Problem for Continuous Intervals}
+
+\begin{definition}[Partition-Based Measurement]
+\label{def:partition_measurement}
+A \emph{partition-based measurement} of a continuous interval $[a, b]$ proceeds by:
+\begin{enumerate}[(i)]
+    \item Selecting a unit $\epsilon > 0$
+    \item Partitioning $[a, b]$ into $n = \lceil (b-a)/\epsilon \rceil$ subintervals
+    \item Counting the number of subintervals
+    \item Reporting $n \cdot \epsilon$ as the measured length
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Boundary Entropy of Measurement]
+\label{thm:measurement_entropy}
+Partition-based measurement of interval $[a, b]$ into $n$ subintervals generates boundary entropy:
+\begin{equation}
+    S_{\text{boundary}} = \kB (n-1) H_{\text{edge}}
+\end{equation}
+where $H_{\text{edge}}$ is the entropy of each partition boundary due to edge indeterminacy.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:boundary_entropy}, partitioning into $n$ parts creates $n-1$ internal boundaries. Each boundary has indeterminate location due to partition lag: the position $x_i$ separating subinterval $i$ from subinterval $i+1$ cannot be specified with arbitrary precision in finite time.
+
+Let $p(x)$ be the probability distribution over possible boundary locations. The Shannon entropy of each boundary is:
+\begin{equation}
+    H_{\text{edge}} = -\int p(x) \ln p(x) \, dx > 0
+\end{equation}
+
+The total boundary entropy is:
+\begin{equation}
+    S_{\text{boundary}} = \kB (n-1) H_{\text{edge}}
+\end{equation}
+\end{proof}
+
+\begin{theorem}[Divergence of Measurement Entropy]
+\label{thm:measurement_divergence}
+As measurement precision increases ($\epsilon \to 0$), the boundary entropy diverges:
+\begin{equation}
+    \lim_{\epsilon \to 0} S_{\text{boundary}} = \lim_{n \to \infty} \kB (n-1) H_{\text{edge}} = \infty
+\end{equation}
+Perfect measurement of a continuous interval requires infinite entropy production.
+\end{theorem}
+
+\begin{proof}
+For fixed interval length $L = b - a$ and measurement unit $\epsilon$, the number of partitions is $n = L/\epsilon$. As $\epsilon \to 0$, $n \to \infty$.
+
+Each partition boundary carries positive entropy $H_{\text{edge}} > 0$ (by Theorem~\ref{thm:measurement_entropy}). Therefore:
+\begin{equation}
+    S_{\text{boundary}} = \kB (n-1) H_{\text{edge}} \xrightarrow{n \to \infty} \infty
+\end{equation}
+
+Perfect measurement ($\epsilon \to 0$) requires infinite partitions and therefore infinite entropy.
+\end{proof}
+
+\begin{corollary}[The Measuring String Paradox]
+\label{cor:string_paradox}
+Measuring a line segment by laying unit lengths end-to-end requires a measuring instrument of unbounded extent.
+\end{corollary}
+
+\begin{proof}
+Consider a string of length $\ell$ used to measure a segment $[a, b]$ by repeated application. Each application creates a partition boundary with edge indeterminacy $\delta > 0$.
+
+After $n$ applications, the cumulative boundary indeterminacy is:
+\begin{equation}
+    \Delta_{\text{total}} = n \cdot \delta
+\end{equation}
+
+For precise measurement, we need $\Delta_{\text{total}} < \epsilon_{\text{tolerance}}$. This requires:
+\begin{equation}
+    n < \frac{\epsilon_{\text{tolerance}}}{\delta}
+\end{equation}
+
+But to measure length $L$ with unit $\ell$, we need $n = L/\ell$ applications. For $L/\ell > \epsilon_{\text{tolerance}}/\delta$, the measurement fails.
+
+Alternatively, to achieve arbitrary precision, we need $\delta \to 0$, which requires the measuring instrument to have infinite internal resolution—equivalent to containing infinite information, hence unbounded physical extent.
+\end{proof}
+
+\subsection{Partition-Free Traversal}
+
+\begin{definition}[Partition-Free Traversal]
+\label{def:partition_free}
+A \emph{partition-free traversal} of interval $[a, b]$ is a process that:
+\begin{enumerate}[(i)]
+    \item Begins at $a$ and terminates at $b$
+    \item Creates no internal categorical distinctions along $[a, b]$
+    \item Does not partition the interval into ``already traversed'' and ``not yet traversed''
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Zero Entropy of Partition-Free Traversal]
+\label{thm:zero_traversal_entropy}
+Partition-free traversal generates zero boundary entropy:
+\begin{equation}
+    S_{\text{partition-free}} = 0
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Boundary entropy arises from partition boundaries (Theorem~\ref{thm:measurement_entropy}). Partition-free traversal creates $n = 0$ internal boundaries. Therefore:
+\begin{equation}
+    S_{\text{partition-free}} = \kB (0-1) H_{\text{edge}} = 0
+\end{equation}
+(interpreting $(-1) \cdot H_{\text{edge}} = 0$ since there are no boundaries to contribute entropy).
+
+Alternatively: partition-free traversal treats the interval as a single categorical entity. The number of internal categorical distinctions is zero, hence the entropy contribution from traversal is zero.
+\end{proof}
+
+\subsection{Temporal Duration from Partition Entropy}
+
+\begin{theorem}[Time Requires Partition]
+\label{thm:time_partition}
+Experienced temporal duration is proportional to partition entropy:
+\begin{equation}
+    \Delta \tau = \frac{S_{\text{partition}}}{\kB \omega}
+\end{equation}
+where $\omega$ is a characteristic frequency relating entropy to time.
+\end{theorem}
+
+\begin{proof}
+From Section~\ref{sec:partition_lag}, partition lag $\tau_p$ generates entropy $\Delta S_p$ per partition. The total time experienced during $n$ partitions is:
+\begin{equation}
+    \Delta \tau_{\text{total}} = n \cdot \tau_p
+\end{equation}
+
+The total entropy generated is:
+\begin{equation}
+    S_{\text{total}} = n \cdot \Delta S_p
+\end{equation}
+
+Therefore:
+\begin{equation}
+    \Delta \tau_{\text{total}} = \frac{S_{\text{total}}}{\Delta S_p / \tau_p} = \frac{S_{\text{total}}}{\kB \omega}
+\end{equation}
+where $\omega = \Delta S_p / (\kB \tau_p)$ is the entropy production rate.
+
+Experienced time is directly proportional to entropy generated, which is proportional to the number of partitions.
+\end{proof}
+
+\begin{corollary}[Partition-Free Traversal Has Zero Proper Time]
+\label{cor:zero_proper_time}
+An entity undergoing partition-free traversal experiences zero proper time:
+\begin{equation}
+    \Delta \tau_{\text{partition-free}} = 0
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:zero_traversal_entropy}, partition-free traversal generates $S_{\text{partition-free}} = 0$.
+
+By Theorem~\ref{thm:time_partition}:
+\begin{equation}
+    \Delta \tau_{\text{partition-free}} = \frac{0}{\kB \omega} = 0
+\end{equation}
+\end{proof}
+
+\subsection{Maximum Speed from Partition Structure}
+
+\begin{theorem}[Maximum Speed is Partition-Free Speed]
+\label{thm:max_speed}
+The maximum speed through space is achieved by partition-free traversal. Any partition of the trajectory reduces the traversal speed.
+\end{theorem}
+
+\begin{proof}
+Consider traversing distance $L$ in coordinate time $\Delta t$. Speed is $v = L / \Delta t$.
+
+For partition-based traversal with $n$ partitions, proper time is:
+\begin{equation}
+    \Delta \tau = \frac{\kB (n-1) H_{\text{edge}}}{\kB \omega} = \frac{(n-1) H_{\text{edge}}}{\omega} > 0
+\end{equation}
+
+The Lorentz factor relates coordinate time to proper time:
+\begin{equation}
+    \Delta t = \gamma \Delta \tau
+\end{equation}
+
+For $\Delta \tau > 0$, we have $\gamma < \infty$, hence $v < c$.
+
+For partition-free traversal, $\Delta \tau = 0$. The only consistent solution is $\gamma \to \infty$, which requires $v = c$.
+
+Therefore:
+\begin{itemize}
+    \item Partition-free traversal: $v = c$ (maximum)
+    \item Partition-based traversal: $v < c$ (subluminal)
+\end{itemize}
+\end{proof}
+
+\begin{theorem}[Massive Objects Cannot Achieve Maximum Speed]
+\label{thm:mass_partition}
+Objects with nonzero rest mass cannot achieve partition-free traversal, hence cannot reach maximum speed.
+\end{theorem}
+
+\begin{proof}
+Rest mass $m > 0$ implies localisation in space—the object occupies a definite region at each moment. This localisation constitutes a partition: the object is ``here'' and not ``there.''
+
+More precisely, a massive object at position $\mathbf{x}$ creates a categorical distinction between:
+\begin{itemize}
+    \item The region containing the object
+    \item The region not containing the object
+\end{itemize}
+
+This is a binary partition of space at each instant. As the object moves, it creates a sequence of such partitions, generating boundary entropy between successive positions.
+
+The boundary entropy per unit distance is:
+\begin{equation}
+    \frac{dS}{dx} = \kB \rho_{\text{partition}}
+\end{equation}
+where $\rho_{\text{partition}}$ is the partition density (partitions per unit length) required to localise mass $m$.
+
+For $m > 0$, localisation requires $\rho_{\text{partition}} > 0$, hence $dS/dx > 0$. Total entropy for distance $L$ is:
+\begin{equation}
+    S_{\text{massive}} = \int_0^L \kB \rho_{\text{partition}} \, dx > 0
+\end{equation}
+
+This positive entropy implies positive proper time (Theorem~\ref{thm:time_partition}), hence subluminal speed (Theorem~\ref{thm:max_speed}).
+
+Only $m = 0$ allows $\rho_{\text{partition}} = 0$, enabling partition-free traversal at maximum speed.
+\end{proof}
+
+\subsection{Interaction Requires Partition}
+
+\begin{definition}[Interaction]
+\label{def:interaction}
+An \emph{interaction} between systems $A$ and $B$ is a process that creates a categorical distinction between:
+\begin{enumerate}[(i)]
+    \item The state of $A$ before interaction
+    \item The state of $A$ after interaction
+\end{enumerate}
+and similarly for $B$.
+\end{definition}
+
+\begin{theorem}[Interaction Requires Partition Capability]
+\label{thm:interaction_partition}
+For systems $A$ and $B$ to interact, at least one must be capable of partition—of creating categorical distinctions in its state.
+\end{theorem}
+
+\begin{proof}
+By Definition~\ref{def:interaction}, interaction creates a distinction between before-states and after-states. This is precisely a partition of the system's state space into ``before'' and ``after'' categories.
+
+If neither $A$ nor $B$ can partition (create categorical distinctions), then neither can transition from before-state to after-state. Without state change, there is no interaction.
+\end{proof}
+
+\begin{corollary}[Partition-Free Entities Interact Only with Partitionable Systems]
+\label{cor:partition_free_interaction}
+A partition-free entity (such as a massless particle undergoing null geodesic) can interact with a system $B$ only if $B$ is capable of partition.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:interaction_partition}, interaction requires at least one partitioning participant. If the partition-free entity cannot partition, then $B$ must partition for interaction to occur.
+
+The interaction proceeds as:
+\begin{enumerate}
+    \item Partition-free entity arrives at $B$
+    \item $B$ partitions its state space (before $\to$ after)
+    \item Partition-free entity departs
+\end{enumerate}
+
+The partition-free entity triggers the partition in $B$ without partitioning itself. Examples: photon absorption (matter partitions into ground/excited states), photon emission (matter partitions, photon created).
+\end{proof}
+
+\subsection{Resolution of the Measurement Problem}
+
+\begin{remark}[Connection to Classical Problems]
+\label{rem:measurement_paradox}
+The analysis above resolves several interconnected problems in the foundations of measurement:
+
+\textbf{The Ruler Paradox}: To measure a length $L$ with precision $\epsilon$, one needs a ruler with $L/\epsilon$ graduations. Each graduation is a partition boundary with nonzero width $\delta$. For $L/\epsilon$ large, the total boundary width $L \delta / \epsilon$ exceeds any fixed ruler length. Arbitrarily precise measurement requires an arbitrarily long ruler—or equivalently, infinite information content.
+
+\textbf{The String Paradox}: Measuring by repeated application of a unit length accumulates boundary errors. The total error after $n$ applications grows as $\sqrt{n}$ (random) or $n$ (systematic). Perfect measurement requires either infinitely many applications or an infinitely precise unit—both requiring unbounded resources.
+
+\textbf{The Photon's Perspective}: A photon experiences zero proper time not because ``time slows down'' (a coordinate effect) but because partition-free traversal generates zero entropy, and entropy generation is the physical basis of temporal duration. The photon doesn't partition its trajectory, hence has no internal before/after distinction, hence experiences no time.
+
+\textbf{The Speed Limit}: The speed of light $c$ is maximum not due to an arbitrary cosmic speed limit but because partition-free traversal is the fastest possible mode of spatial transition. Any partitioning slows traversal by generating entropy that manifests as proper time. Mass requires localisation, localisation requires partition, partition requires time, time reduces speed. Only massless, partition-free entities achieve $c$.
+
+These results follow from the thermodynamics of partition, not from postulates about spacetime structure. The structure of spacetime (null cones, proper time, Lorentz invariance) emerges from the categorical structure of partition operations.
+\end{remark}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.90\textwidth]{figures/null_geodesics_panel.png}
+\caption{\textbf{Partition-Free Traversal of Continuous Intervals.} This panel illustrates the thermodynamic basis for null geodesics and the speed of light. \textbf{(A)} Partition-based measurement: dividing an interval into $n$ segments creates $n-1$ boundaries, each with edge indeterminacy contributing entropy $H_{\text{edge}}$. \textbf{(B)} Measurement entropy divergence: as precision increases ($\epsilon \to 0$), boundary entropy diverges, demonstrating that perfect partition-based measurement requires infinite resources. \textbf{(C)} Partition-free traversal: treating the interval as a single categorical entity creates zero boundaries and zero entropy. \textbf{(D)} Time from partition entropy: experienced duration is proportional to partition entropy; partition-free traversal yields $\Delta \tau = 0$. \textbf{(E)} Maximum speed: partition-free traversal achieves speed $c$; any partitioning generates entropy/time, reducing speed below $c$. \textbf{(F)} Mass requires partition: localised mass creates spatial distinctions, generating entropy during motion; only massless entities achieve partition-free traversal.}
+\label{fig:null_geodesics_panel}
+\end{figure*}
+

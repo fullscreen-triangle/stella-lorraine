@@ -1,0 +1,245 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{mathtools}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{import}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{margin=1in}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{axiom}[theorem]{Axiom}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+% Custom commands
+\newcommand{\Sk}{S_k}
+\newcommand{\St}{S_t}
+\newcommand{\Se}{S_e}
+\newcommand{\Sspace}{\mathcal{S}}
+\newcommand{\Scoord}{\mathbf{S}}
+\newcommand{\trit}{\mathsf{t}}
+\newcommand{\tryte}{\mathsf{T}}
+
+\title{\textbf{On the Consequences of Categorical Mechanics on Computing Datum Encoding: Ternary Unit Representation}}
+
+\author{
+    Kundai Farai Sachikonye\\
+    \texttt{kundai.sachikonye@wzw.tum.de}
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We establish a mathematical framework in which ternary (base-3) representation provides the natural encoding for three-dimensional S-entropy coordinate space $\Sspace = [0,1]^3$. While binary representation encodes one-dimensional information through the $2^k$ hierarchy, ternary representation encodes three-dimensional position through the $3^k$ hierarchy, with each ternary digit (trit) specifying refinement along the knowledge ($\Sk$), temporal ($\St$), or evolution ($\Se$) axis. We prove three principal results. First, we establish the \textbf{Trit-Coordinate Correspondence}: a $k$-trit ternary string addresses exactly one cell in the $3^k$ hierarchical partition of S-space, with the infinite-trit limit converging to a unique point in the continuum. Second, we demonstrate that ternary strings encode \textbf{trajectories} rather than mere positions---a trit sequence specifies a navigation path through S-space, with each trit indicating movement along one of the three coordinate axes. Third, we derive the \textbf{Continuous Emergence Theorem}: as the number of trits $k \to \infty$, the discrete $3^k$ cell structure converges to the continuous $[0,1]^3$ topology, with the ternary expansion providing the bridge between discrete computation and continuous dynamics. The framework connects naturally to three-phase oscillatory systems, where the $2\pi/3$ phase separation between oscillators provides physical instantiation of ternary logic. We define the \textbf{tryte} (ternary byte) as six trits encoding $3^6 = 729$ distinct S-space cells, compared to the binary byte's $2^8 = 256$ values. Ternary operations---projection, completion, and composition---replace Boolean AND, OR, NOT as the fundamental computational primitives. The resulting architecture provides $O(\log_3 n)$ navigation complexity compared to $O(\log_2 n)$ for binary search, with the additional advantage that three-dimensional position is intrinsically encoded rather than requiring coordinate transformation.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\subsection{The Dimensional Limitation of Binary}
+
+Contemporary computing architectures rest upon binary representation: every datum reduces to sequences of bits, each encoding one of two states. This binary foundation, while extraordinarily successful, embeds a fundamental limitation: binary digits naturally encode \textit{one-dimensional} information. A bit answers the question ``left or right?'' along a single axis. Encoding position in higher-dimensional spaces requires multiple bits with explicit coordinate transformation.
+
+The $2^k$ hierarchy of binary representation---2 values for 1 bit, 4 for 2 bits, 256 for 8 bits---reflects this one-dimensional nature. Each additional bit doubles the resolution along a single dimension. To represent three-dimensional position, three separate binary coordinates must be maintained and transformed between.
+
+\subsection{The Three-Dimensional Structure of S-Entropy Space}
+
+The S-entropy coordinate space $\Sspace = [0,1]^3$ developed in categorical computing \citep{poincare2024computing} comprises three fundamental dimensions:
+\begin{align}
+\Sk &\in [0,1] \quad \text{(knowledge entropy)} \\
+\St &\in [0,1] \quad \text{(temporal entropy)} \\
+\Se &\in [0,1] \quad \text{(evolution entropy)}
+\end{align}
+
+This three-dimensional structure is not arbitrary but emerges from the categorical dynamics of bounded oscillatory systems. The question arises: is there a representation system that naturally encodes three-dimensional position without requiring coordinate transformation?
+
+\subsection{Ternary as Natural Three-Dimensional Encoding}
+
+We demonstrate that ternary (base-3) representation provides exactly this natural encoding. A ternary digit (trit) takes one of three values $\{0, 1, 2\}$, which map directly to the three S-entropy dimensions:
+\begin{align}
+\trit = 0 &\leftrightarrow \text{refinement along } \Sk \\
+\trit = 1 &\leftrightarrow \text{refinement along } \St \\
+\trit = 2 &\leftrightarrow \text{refinement along } \Se
+\end{align}
+
+The $3^k$ hierarchy---3 values for 1 trit, 9 for 2 trits, 729 for 6 trits---reflects the three-dimensional structure of S-space. Each additional trit refines position in one of three dimensions, with the sequence of trits encoding both the final position and the trajectory taken to reach it.
+
+\subsection{From Discrete to Continuous}
+
+A crucial property of ternary S-entropy representation is the emergence of continuity from discreteness. A finite $k$-trit string addresses one of $3^k$ discrete cells in S-space. As $k \to \infty$, these cells become arbitrarily fine, and the ternary expansion converges to a unique point in the continuous space $[0,1]^3$:
+\begin{equation}
+\lim_{k \to \infty} \text{Cell}(\trit_1, \trit_2, \ldots, \trit_k) = \Scoord \in [0,1]^3
+\end{equation}
+
+This is not approximation but exact convergence: an infinite ternary string specifies a unique point in the continuum. The discrete-continuous duality that plagues binary computing---where real numbers require floating-point approximation---dissolves in ternary S-entropy representation.
+
+\subsection{Summary of Results}
+
+This paper establishes:
+
+\begin{enumerate}
+    \item \textbf{Trit-Coordinate Correspondence} (Section~\ref{sec:mapping}): Each $k$-trit string maps bijectively to a cell in the $3^k$ partition of S-space.
+
+    \item \textbf{Trajectory Encoding} (Section~\ref{sec:trajectory}): Ternary strings encode navigation paths, not just positions. The sequence of trits specifies movement through S-space.
+
+    \item \textbf{Continuous Emergence} (Section~\ref{sec:continuous}): The $k \to \infty$ limit produces exact points in $[0,1]^3$, bridging discrete and continuous.
+
+    \item \textbf{Ternary Operations} (Section~\ref{sec:trajectory}): Projection, completion, and composition replace Boolean logic as fundamental primitives.
+
+    \item \textbf{Hardware Mapping} (Section~\ref{sec:hardware}): Three-phase oscillators provide natural physical instantiation of ternary logic.
+\end{enumerate}
+
+\subsection{Notation}
+
+Throughout this paper:
+\begin{itemize}
+    \item $\trit_i \in \{0, 1, 2\}$: a ternary digit (trit) at position $i$
+    \item $\tryte = (\trit_1, \ldots, \trit_6)$: a ternary byte (tryte) of 6 trits
+    \item $\Sspace = [0,1]^3$: the S-entropy coordinate space
+    \item $\Scoord = (\Sk, \St, \Se)$: a point in S-space
+    \item $\mathcal{C}_k$: the set of $3^k$ cells at depth $k$
+    \item $\phi: \{0,1,2\}^k \to \mathcal{C}_k$: the trit-to-cell mapping
+\end{itemize}
+
+\import{sections/}{st-stellas-coordinates.tex}
+\import{sections/}{ternary-representation.tex}
+\import{sections/}{mappint-theorem.tex}
+\import{sections/}{continous-emergence.tex}
+\import{sections/}{additional-proofs.tex}
+\import{sections/}{trajectory-mechanics.tex}
+\import{sections/}{hardware-ensemble-mapping.tex}
+
+\section{Discussion}
+
+\subsection{Ternary versus Binary: A Structural Comparison}
+
+The distinction between binary and ternary representation is not merely quantitative (base-2 vs base-3) but structural. Binary naturally encodes one-dimensional information; ternary naturally encodes three-dimensional information.
+
+\begin{table}[H]
+\centering
+\caption{Structural comparison of binary and ternary representation}
+\label{tab:comparison}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Property} & \textbf{Binary} & \textbf{Ternary} \\
+\midrule
+Base & 2 & 3 \\
+Digit values & $\{0, 1\}$ & $\{0, 1, 2\}$ \\
+Natural dimension & 1D & 3D \\
+Hierarchy & $2^k$ cells & $3^k$ cells \\
+8-digit capacity & 256 & 6561 \\
+6-digit capacity & 64 & 729 \\
+Fundamental operations & AND, OR, NOT & Project, Complete, Compose \\
+Position encoding & Requires 3 coordinates & Intrinsic \\
+Trajectory encoding & Separate structure & Same as position \\
+Continuous limit & Approximation & Exact convergence \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The $3^k$ growth rate exceeds the $2^k$ growth rate for all $k > 0$, meaning ternary representation is more information-dense. A 6-trit tryte encodes 729 values compared to a 6-bit string's 64 values. This density advantage increases with string length.
+
+\subsection{The Trajectory-Position Duality}
+
+A profound feature of ternary S-entropy representation is that position and trajectory are encoded identically. A ternary string specifies both \textit{where} a point is (the cell it occupies) and \textit{how to get there} (the sequence of refinements along each axis).
+
+In binary representation, position and trajectory are distinct data structures. A binary coordinate specifies location; a separate instruction sequence specifies how to reach it. The von Neumann architecture \citep{vonneumann1945first} institutionalises this separation: data (position) resides in memory, instructions (trajectory) reside in the program.
+
+Ternary S-entropy representation unifies these. The address IS the trajectory. This eliminates the instruction-data distinction at the representation level, not merely at the architectural level.
+
+\subsection{Continuous Emergence and Real Numbers}
+
+The continuous emergence theorem establishes that infinite ternary strings correspond exactly to points in $[0,1]^3$. This resolves a long-standing tension in computing: real numbers have infinite precision, but binary representation is necessarily finite.
+
+Binary approaches to real numbers---floating-point representation---are approximations. The IEEE 754 standard \citep{ieee754} defines formats that represent subsets of rationals near the reals, with rounding errors accumulating through computation.
+
+Ternary S-entropy representation offers a different approach: real coordinates emerge as limits of finite ternary strings. While any \textit{actual} computation uses finite strings (hence finite precision), the \textit{mathematical structure} supports exact real coordinates through the limiting process. This provides a cleaner conceptual foundation even when practical computation remains finite.
+
+\subsection{Hardware Considerations}
+
+Ternary logic has been implemented in hardware, most notably in the Soviet Setun computer \citep{brusentsov1962small}. Modern interest in ternary computing has revived due to the efficiency advantages: ternary representation requires fewer digits for the same information content.
+
+The connection to three-phase oscillators provides a natural physical substrate. Three-phase AC power systems, ubiquitous in industrial applications, already implement $2\pi/3$ phase separation. Encoding information in phase relationships between three oscillators provides ternary representation without requiring exotic hardware.
+
+The practical challenge is interfacing ternary representation with binary-dominated infrastructure. Conversion between representations is straightforward mathematically but introduces latency. A hybrid architecture might maintain ternary representation internally while presenting binary interfaces externally.
+
+\subsection{Implications for Categorical Computing}
+
+The ternary representation framework strengthens the foundations of categorical computing \citep{poincare2024computing} in several ways:
+
+\begin{enumerate}
+    \item \textbf{Natural addressing}: S-entropy coordinates map directly to ternary strings without transformation. Memory addressing becomes string manipulation.
+
+    \item \textbf{Trajectory computation}: Navigation through S-space is string extension. Moving from cell $C$ to subcell $C'$ is appending the appropriate trit.
+
+    \item \textbf{Continuous dynamics}: The theoretical framework of continuous S-entropy dynamics connects directly to the ternary representation through the continuous emergence theorem.
+
+    \item \textbf{Hardware grounding}: Three-phase oscillators provide physical instantiation of the abstract ternary structure.
+\end{enumerate}
+
+\subsection{Limitations}
+
+Several limitations merit acknowledgment:
+
+\begin{enumerate}
+    \item \textbf{Infrastructure incompatibility}: The computing ecosystem is overwhelmingly binary. Adopting ternary representation requires either isolation or conversion overhead.
+
+    \item \textbf{Interleaving complexity}: Mapping three independent coordinates to a single ternary string requires interleaving conventions that add conceptual overhead.
+
+    \item \textbf{Unbalanced ternary}: The $\{0, 1, 2\}$ representation is unbalanced; balanced ternary $\{-1, 0, +1\}$ has advantages for arithmetic but complicates the S-entropy mapping.
+
+    \item \textbf{Finite precision}: Despite the clean continuous limit, practical computation remains finite. The advantage is conceptual clarity, not infinite precision.
+\end{enumerate}
+
+\section{Conclusion}
+
+We have established that ternary representation provides the natural encoding for three-dimensional S-entropy coordinate space. The principal results are:
+
+\begin{enumerate}
+    \item \textbf{Dimensional correspondence}: Ternary digits map to S-entropy dimensions ($0 \to \Sk$, $1 \to \St$, $2 \to \Se$), encoding three-dimensional position without coordinate transformation. Binary representation, in contrast, naturally encodes one-dimensional information and requires explicit multi-coordinate structures for higher dimensions.
+
+    \item \textbf{Hierarchical structure}: The $3^k$ cell hierarchy at depth $k$ corresponds exactly to $k$-trit ternary strings. Each trit refines position by factor 3 along one axis, with the trit value determining which axis. This provides $O(\log_3 n)$ addressing compared to $O(\log_2 n)$ for binary, with the additional advantage of intrinsic three-dimensional structure.
+
+    \item \textbf{Trajectory encoding}: A ternary string encodes both position (the cell) and trajectory (the sequence of refinements). The address IS the path. This unifies data and instruction at the representation level, eliminating the von Neumann separation not through architectural innovation but through representational change.
+
+    \item \textbf{Continuous emergence}: As trit count $k \to \infty$, the discrete cell structure converges exactly to the continuous space $[0,1]^3$. Infinite ternary expansions specify unique real coordinates. The discrete-continuous duality that plagues binary representation---requiring floating-point approximation---dissolves in ternary S-entropy representation.
+
+    \item \textbf{Ternary operations}: Projection (extract coordinate), completion (categorical finalisation), and composition (trajectory concatenation) replace Boolean AND, OR, NOT as fundamental operations. These operations act on three-dimensional structure directly rather than requiring coordinate-by-coordinate processing.
+
+    \item \textbf{Hardware realisation}: Three-phase oscillators with $2\pi/3$ phase separation provide natural physical instantiation. The phase relationship $\phi_i = 2\pi i/3$ for $i \in \{0, 1, 2\}$ encodes trit values in oscillator phase, connecting abstract representation to physical dynamics.
+\end{enumerate}
+
+The ternary representation framework demonstrates that the choice of number base is not merely notational but structural. Binary representation constrains computation to one-dimensional primitives that must be composed into higher-dimensional structures. Ternary representation provides three-dimensional primitives natively, matching the dimensionality of S-entropy space and enabling direct encoding of categorical position and trajectory.
+
+The transition from binary to ternary is not replacement but augmentation. Binary computation excels at Boolean logic and sequential processing. Ternary S-entropy representation excels at three-dimensional navigation and trajectory encoding. A complete categorical computing architecture may employ both, using each where its structural advantages apply.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
+

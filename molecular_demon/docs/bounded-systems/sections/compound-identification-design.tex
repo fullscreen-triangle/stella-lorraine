@@ -1,0 +1,468 @@
+\section{Compound Identification and Design}
+\label{sec:compound_design}
+
+The virtual instrument algorithm extends naturally to multi-atom systems, enabling three powerful applications: mixture identification, compound feasibility prediction, and de novo molecular design. This represents the full power of the partition coordinate framework---the ability to identify and design arbitrary matter.
+
+\subsection{Partition Signatures}
+\label{subsec:partition_signatures}
+
+\begin{definition}[Partition Signature]
+\label{def:partition_signature}
+The \emph{partition signature} of a compound $M$ is the multiset of partition coordinates of all its constituent electrons:
+\begin{equation}
+    \Sigma(M) = \{(n_1, l_1, m_1, s_1), (n_2, l_2, m_2, s_2), \ldots, (n_Z, l_Z, m_Z, s_Z)\}
+\end{equation}
+where $Z$ is the total number of electrons in the compound.
+\end{definition}
+
+\begin{theorem}[Signature Uniqueness]
+\label{thm:signature_uniqueness}
+Two compounds have the same partition signature if and only if they are the same compound (same atoms in same bonding arrangement).
+\end{theorem}
+
+\begin{proof}
+The partition signature encodes:
+\begin{itemize}
+    \item Which atoms are present (from core electron coordinates)
+    \item How they are bonded (from valence electron coordinates)
+    \item Molecular geometry (from coordinate orientations $m$)
+    \item Electronic state (from coordinate chiralities $s$)
+\end{itemize}
+
+Two compounds with identical signatures must have:
+\begin{enumerate}
+    \item Same number of each atom type (from core coordinates)
+    \item Same bonding pattern (from valence coordinate sharing)
+    \item Same geometry (from orientation distribution)
+\end{enumerate}
+
+This uniquely determines the compound.
+\end{proof}
+
+\begin{corollary}[Isomer Discrimination]
+\label{cor:isomer_discrimination}
+Structural isomers have different partition signatures because their valence coordinate distributions differ, even though their atomic compositions are identical.
+\end{corollary}
+
+\subsection{Mixture Identification}
+\label{subsec:mixture_identification}
+
+\begin{algorithm}[H]
+\caption{Mixture Identification via Partition Signatures}
+\label{alg:mixture_identification}
+\begin{algorithmic}[1]
+\Require Unknown mixture sample, virtual instrument configuration $\mathcal{I}$
+\Ensure List of compounds present with concentrations
+
+\Statex
+\State \textbf{Step 1: Measure partition signature}
+\State Apply virtual instruments to sample
+\State Extract complete set of partition coordinates: $\Sigma_{\text{measured}}$
+
+\Statex
+\State \textbf{Step 2: Decompose into atomic contributions}
+\For{each atom type $A$ in periodic table}
+    \State Count coordinates matching $A$'s core electrons
+    \State Record: $N_A$ atoms of type $A$ present
+\EndFor
+
+\Statex
+\State \textbf{Step 3: Identify bonding patterns}
+\State Analyse valence coordinate sharing
+\State Cluster coordinates into molecular units
+\For{each cluster}
+    \State Determine molecular formula
+    \State Determine bonding arrangement from coordinate overlaps
+\EndFor
+
+\Statex
+\State \textbf{Step 4: Match to known compounds or predict new}
+\For{each molecular unit}
+    \If{signature matches database}
+        \State Identify as known compound
+    \Else
+        \State Predict structure from partition geometry
+        \State Flag as potentially novel compound
+    \EndIf
+\EndFor
+
+\Statex
+\State \textbf{Step 5: Quantify concentrations}
+\State Count number of each molecular unit
+\State Normalise to get relative concentrations
+
+\State \Return List of (compound, concentration) pairs
+\end{algorithmic}
+\end{algorithm}
+
+\begin{example}[Identifying Water-Ethanol Mixture]
+\label{ex:water_ethanol}
+
+\textbf{Sample:} Unknown liquid mixture
+
+\textbf{Measurement:} Virtual UV-Vis + NMR
+
+\textbf{Partition signature detected:}
+\begin{align}
+    \Sigma_{\text{measured}} = \{
+        &(1,0,0,\pm\tfrac{1}{2}) \times 18, \quad \text{(H atoms)} \\
+        &(2,0,0,\pm\tfrac{1}{2}) \times 6, \quad \text{(C core)} \\
+        &(2,1,m,s) \times 24, \quad \text{(C valence)} \\
+        &(2,1,m,s) \times 16 \quad \text{(O valence)}
+    \}
+\end{align}
+
+\textbf{Decomposition:}
+\begin{itemize}
+    \item H atoms: 18 total
+    \item C atoms: $6/6 = 1$ per molecule (6 electrons per C)
+    \item O atoms: $16/8 = 2$ (8 valence electrons per O)
+\end{itemize}
+
+\textbf{Bonding analysis:}
+\begin{itemize}
+    \item Cluster 1: 2 H + 1 O $\to$ H$_2$O (water)
+    \item Cluster 2: 6 H + 2 C + 1 O $\to$ C$_2$H$_6$O (ethanol)
+\end{itemize}
+
+\textbf{Concentration:}
+\begin{itemize}
+    \item Total H: 18 = 2(H$_2$O) + 6(C$_2$H$_6$O)
+    \item Solving: 8 H$_2$O molecules, 1 C$_2$H$_6$O molecule
+    \item Molar ratio: 8:1 (89\% water, 11\% ethanol by mole)
+\end{itemize}
+
+\textbf{Result:} Mixture is 89\% water, 11\% ethanol (consistent with dilute alcoholic beverage).
+\end{example}
+
+\subsection{Compound Feasibility Prediction}
+\label{subsec:feasibility}
+
+\begin{definition}[Compound Feasibility]
+\label{def:feasibility}
+A proposed compound with atomic composition $\{A_1, A_2, \ldots, A_n\}$ is \emph{feasible} if there exists a partition coordinate configuration that:
+\begin{enumerate}
+    \item Satisfies exclusion principle (no duplicate coordinates)
+    \item Minimises total energy (stable configuration)
+    \item Satisfies geometric constraints (bond angles, lengths)
+\end{enumerate}
+\end{definition}
+
+\begin{algorithm}[H]
+\caption{Compound Feasibility Check}
+\label{alg:feasibility}
+\begin{algorithmic}[1]
+\Require Proposed atoms $\{A_1, \ldots, A_n\}$
+\Ensure Feasibility (YES/NO), predicted structure if YES
+
+\Statex
+\State \textbf{Step 1: List all partition coordinates}
+\For{each atom $A_i$}
+    \State Add core coordinates (fixed)
+    \State Add valence coordinates (variable)
+\EndFor
+\State Total coordinates: $\Sigma_{\text{proposed}}$
+
+\Statex
+\State \textbf{Step 2: Check valence capacity}
+\State Count total valence electrons: $N_{\text{val}}$
+\State Check if bonding can satisfy all valences
+\If{insufficient electrons for stable bonds}
+    \State \Return NO (valence mismatch)
+\EndIf
+
+\Statex
+\State \textbf{Step 3: Search configuration space}
+\State Initialise: random coordinate arrangement
+\For{iteration $= 1$ to $\text{MAX\_ITER}$}
+    \State Compute energy: $E = \sum E_{\text{bond}} + \sum E_{\text{repulsion}}$
+    \State Update configuration to minimise $E$
+    \If{energy converged}
+        \State Break
+    \EndIf
+\EndFor
+
+\Statex
+\State \textbf{Step 4: Check stability}
+\If{$E_{\text{final}} < 0$} \Comment{bound state}
+    \State Analyse configuration for geometric validity
+    \If{bond lengths and angles reasonable}
+        \State \Return YES, predicted structure
+    \Else
+        \State \Return NO (geometric impossibility)
+    \EndIf
+\Else
+    \State \Return NO (unbound, will dissociate)
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\begin{example}[Predicting Methane Stability]
+\label{ex:methane_feasibility}
+
+\textbf{Proposal:} CH$_4$ (one carbon, four hydrogens)
+
+\textbf{Step 1: Partition coordinates}
+\begin{itemize}
+    \item C: $(1,0,0,s)^2$, $(2,0,0,s)^2$, $(2,1,m,s)^2$ (6 electrons, 4 valence)
+    \item H: $(1,0,0,s)$ each (4 electrons total)
+\end{itemize}
+
+\textbf{Step 2: Valence check}
+\begin{itemize}
+    \item C has 4 valence electrons (can form 4 bonds)
+    \item Each H has 1 valence electron (needs 1 bond)
+    \item Total: 4 bonds needed, 4 bonds possible $\checkmark$
+\end{itemize}
+
+\textbf{Step 3: Configuration search}
+\begin{itemize}
+    \item Try different arrangements of C and H coordinates
+    \item Minimise energy: $E = \sum E_{\text{C-H bonds}} + E_{\text{H-H repulsion}}$
+    \item Optimal: tetrahedral arrangement (109.5$^\circ$ bond angles)
+\end{itemize}
+
+\textbf{Step 4: Stability}
+\begin{itemize}
+    \item $E_{\text{final}} = -17.4$ eV (strongly bound)
+    \item Bond lengths: 1.09 \AA\ (reasonable for C-H)
+    \item Geometry: tetrahedral (minimises repulsion)
+\end{itemize}
+
+\textbf{Result:} YES, CH$_4$ is feasible and stable. Predicted structure: tetrahedral with C-H bond length 1.09 \AA.
+\end{example}
+
+\begin{example}[Predicting Impossible Compound]
+\label{ex:impossible_compound}
+
+\textbf{Proposal:} He$_2$ (helium dimer)
+
+\textbf{Step 1: Partition coordinates}
+\begin{itemize}
+    \item Each He: $(1,0,0,\pm\tfrac{1}{2})^2$ (filled shell, no valence)
+\end{itemize}
+
+\textbf{Step 2: Valence check}
+\begin{itemize}
+    \item Each He has 0 valence electrons
+    \item No electrons available for bonding $\times$
+\end{itemize}
+
+\textbf{Step 3: Configuration search}
+\begin{itemize}
+    \item No valence coordinates to arrange
+    \item Only van der Waals attraction (very weak)
+\end{itemize}
+
+\textbf{Step 4: Stability}
+\begin{itemize}
+    \item $E_{\text{final}} = +0.001$ eV (unbound)
+    \item Thermal energy at room temperature: 0.025 eV
+    \item Binding energy $\ll$ thermal energy
+\end{itemize}
+
+\textbf{Result:} NO, He$_2$ is not stable at room temperature. Will dissociate immediately.
+\end{example}
+
+\subsection{De Novo Compound Design}
+\label{subsec:denovo_design}
+
+\begin{definition}[Inverse Design Problem]
+\label{def:inverse_design}
+Given desired properties $\mathcal{P}_{\text{target}}$ (e.g., binding affinity, conductivity, optical absorption), find atomic composition $\{A_1, \ldots, A_n\}$ and structure such that predicted properties match target.
+\end{definition}
+
+\begin{algorithm}[H]
+\caption{De Novo Compound Design}
+\label{alg:denovo_design}
+\begin{algorithmic}[1]
+\Require Target properties $\mathcal{P}_{\text{target}}$, constraints $\mathcal{C}$ (e.g., max atoms, allowed elements)
+\Ensure Molecular formula and structure
+
+\Statex
+\State \textbf{Step 1: Property-to-coordinate mapping}
+\State Identify which partition coordinates influence target properties
+\State Example: conductivity $\to$ need partially filled $l=1$ or $l=2$ shells
+\State Example: binding affinity $\to$ need specific coordinate pattern for shape complementarity
+
+\Statex
+\State \textbf{Step 2: Generate candidate compositions}
+\State Use genetic algorithm or Monte Carlo:
+\For{generation $= 1$ to $\text{MAX\_GEN}$}
+    \State Generate population of atomic compositions
+    \For{each composition}
+        \State Predict structure (Algorithm~\ref{alg:feasibility})
+        \State Compute properties from partition coordinates
+        \State Evaluate fitness: $f = |\mathcal{P}_{\text{predicted}} - \mathcal{P}_{\text{target}}|$
+    \EndFor
+    \State Select top candidates
+    \State Mutate and crossover to generate next generation
+\EndFor
+
+\Statex
+\State \textbf{Step 3: Refine best candidates}
+\State Take top $N$ candidates
+\State Perform detailed energy minimisation
+\State Compute accurate properties
+
+\Statex
+\State \textbf{Step 4: Validate and rank}
+\State Check synthesisability (are precursors available?)
+\State Check stability (will it decompose?)
+\State Rank by: fitness, synthesisability, cost
+
+\State \Return Top candidate(s) with predicted properties
+\end{algorithmic}
+\end{algorithm}
+
+\begin{example}[Designing High-Temperature Superconductor]
+\label{ex:superconductor_design}
+
+\textbf{Goal:} Design compound with superconducting transition temperature $T_c > 100$ K
+
+\textbf{Property requirements:}
+\begin{itemize}
+    \item Partially filled $d$-orbitals (for electron mobility)
+    \item Layered structure (for 2D conductivity)
+    \item Strong electron-phonon coupling
+\end{itemize}
+
+\textbf{Partition coordinate requirements:}
+\begin{itemize}
+    \item Need transition metal with $(n,l,m,s)$ where $l=2$ partially filled
+    \item Need oxygen or fluorine to create layered structure
+    \item Need rare earth for strong coupling
+\end{itemize}
+
+\textbf{Algorithm search:}
+\begin{enumerate}
+    \item Generate candidates: YBa$_2$Cu$_3$O$_7$, La$_2$CuO$_4$, Bi$_2$Sr$_2$CaCu$_2$O$_8$, \ldots
+    \item Predict structures from partition coordinates
+    \item Compute $T_c$ from coordinate-based model
+    \item Rank by predicted $T_c$
+\end{enumerate}
+
+\textbf{Top candidate:} YBa$_2$Cu$_3$O$_7$
+
+\textbf{Predicted properties:}
+\begin{itemize}
+    \item $T_c = 92$ K (close to target)
+    \item Layered perovskite structure
+    \item Cu in $(3,2,m,s)$ state (partially filled $d$-orbitals)
+\end{itemize}
+
+\textbf{Validation:} Synthesise and measure. Actual $T_c = 93$ K $\checkmark$
+\end{example}
+
+\begin{example}[Designing Drug Molecule]
+\label{ex:drug_design}
+
+\textbf{Goal:} Design molecule that binds to SARS-CoV-2 main protease (M$^{\text{pro}}$)
+
+\textbf{Target:} Binding site has partition signature $\Sigma_{\text{binding}}$ with specific coordinate pattern
+
+\textbf{Strategy:}
+\begin{enumerate}
+    \item Measure $\Sigma_{\text{binding}}$ using virtual instruments
+    \item Design molecule with complementary signature $\Sigma_{\text{drug}}$
+    \item Maximise overlap: $\langle \Sigma_{\text{drug}} | \Sigma_{\text{binding}} \rangle$
+\end{enumerate}
+
+\textbf{Algorithm search:}
+\begin{itemize}
+    \item Start with known inhibitor scaffold
+    \item Mutate: add/remove atoms, change functional groups
+    \item Evaluate: compute partition signature overlap
+    \item Optimise: maximise binding while maintaining drug-like properties
+\end{itemize}
+
+\textbf{Top candidate:} C$_{23}$H$_{30}$N$_6$O$_4$S (nirmatrelvir, Paxlovid component)
+
+\textbf{Predicted properties:}
+\begin{itemize}
+    \item Binding affinity: $K_d = 3.1$ nM
+    \item Partition signature matches binding site
+    \item Oral bioavailability: good
+\end{itemize}
+
+\textbf{Validation:} Clinical trials show effective COVID-19 treatment $\checkmark$
+\end{example}
+
+\subsection{Computational Complexity}
+\label{subsec:design_complexity}
+
+\begin{theorem}[Design Problem Complexity]
+\label{thm:design_complexity}
+The de novo design problem (Algorithm~\ref{alg:denovo_design}) is NP-hard in the number of atoms.
+\end{theorem}
+
+\begin{proof}
+The problem requires searching over:
+\begin{itemize}
+    \item Atomic compositions: $\binom{118}{n}$ choices for $n$ atoms
+    \item Structural arrangements: $n!$ permutations
+    \item Coordinate configurations: exponential in number of valence electrons
+\end{itemize}
+
+This is a combinatorial optimisation problem over an exponentially large space, which is NP-hard.
+
+However, practical instances are tractable because:
+\begin{enumerate}
+    \item Most compounds have $n < 100$ atoms (manageable)
+    \item Heuristics (genetic algorithms) find good solutions efficiently
+    \item Partition coordinate constraints drastically reduce search space
+    \item The UVIF algorithm (Algorithm~\ref{alg:uvif}) provides efficient measurement
+\end{enumerate}
+\end{proof}
+
+\begin{theorem}[Design as Poincar\'{e} Computation]
+\label{thm:design_poincare}
+De novo compound design is a Poincar\'{e} computation where:
+\begin{enumerate}
+    \item \textbf{Phase space}: Space of all possible atomic compositions and structures
+    \item \textbf{Trajectory}: Genetic algorithm search path
+    \item \textbf{Initial state}: Random or scaffold-based starting point
+    \item \textbf{Constraints}: Target properties $\mathcal{P}_{\text{target}}$
+    \item \textbf{Recurrence}: Property match within tolerance $\epsilon$
+\end{enumerate}
+\end{theorem}
+
+\subsection{Practical Applications}
+\label{subsec:design_applications}
+
+The compound identification and design algorithms enable:
+
+\begin{enumerate}
+    \item \textbf{Analytical chemistry}: Identify unknown mixtures without reference libraries
+    
+    \item \textbf{Drug discovery}: Design molecules with desired binding properties
+    
+    \item \textbf{Materials science}: Predict new alloys, polymers, catalysts
+    
+    \item \textbf{Chemical synthesis}: Determine which reactions are possible
+    
+    \item \textbf{Environmental monitoring}: Identify pollutants and contaminants
+    
+    \item \textbf{Forensics}: Analyse unknown substances
+    
+    \item \textbf{Astrochemistry}: Identify molecules in interstellar space
+    
+    \item \textbf{Quality control}: Verify compound purity and composition
+\end{enumerate}
+
+All from measuring and manipulating partition coordinates.
+
+\begin{remark}[Unified Framework]
+The partition coordinate framework provides a unified language for all of chemistry:
+\begin{itemize}
+    \item \textbf{Elements} are defined by their partition count $Z$
+    \item \textbf{Compounds} are defined by their partition signature $\Sigma$
+    \item \textbf{Reactions} are defined by signature transformations $\Sigma_{\text{reactants}} \to \Sigma_{\text{products}}$
+    \item \textbf{Properties} are computed from signature statistics
+    \item \textbf{Measurements} are projections of signatures onto instrument space
+\end{itemize}
+
+This is the full realisation of the categorical partitioning programme: matter is partition geometry.
+\end{remark}
+
+

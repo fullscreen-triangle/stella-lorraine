@@ -1,0 +1,437 @@
+%==============================================================================
+\section{Categorical Instrumentation for Transport Validation}
+\label{sec:instruments}
+%==============================================================================
+
+The partition framework enables the construction of \emph{categorical instruments} —measurement devices that exist only during the act of measurement, built from hardware oscillations rather than physical probes. These instruments do not simulate transport; they perform categorical measurements that define transport properties at the moment of observation.
+
+\subsection{Foundational Principle}
+
+\begin{axiom}[Categorical Instrument Principle]
+\label{ax:instrument}
+A categorical instrument performs partition operations using hardware oscillations (CPU cycles, memory access patterns, LED modulation, crystal oscillations, etc.) as the partitioning mechanism. The result is not a simulation of measurement but measurement itself---the categorical completion that defines the observable.
+\end{axiom}
+
+This principle, established in prior work on virtual thermometry and trans-Planckian temporal measurements \citep{sachikonye2025temporal,sachikonye2025thermo}, extends naturally to transport phenomena. The key insight is that measurement is a categorical operation, not a physical interaction. Any system capable of performing the categorical operation (distinguishing states, counting configurations, timing events) can serve as a measuring instrument, regardless of whether it physically interacts with the measured system.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/hardware_molecular_measurement_panel.png}
+\caption{\textbf{Hardware-Based Virtual Spectrometer: From Oscillations to Categorical Measurement.} 
+\textbf{(A)} Hardware oscillation sources providing temporal reference signals at multiple frequencies: CPU clock (3.0 GHz), DDR4 memory (2.13 GHz), PCIe bus (8.0 GHz), display refresh (60 Hz), and power supply (50/60 Hz). These real hardware oscillations are sampled via \texttt{time.perf\_counter\_ns()}, \texttt{psutil.cpu\_percent()}, and \texttt{memory\_timing()} to generate $\Delta P$ values. 
+\textbf{(B)} Oscillation harvesting produces $\Delta P = T_{\text{ref}} - t_{\text{local}}$ values with mean $\Delta P = 0.0086$ ms and standard deviation $\sigma = 0.1931$ ms. Three timing sources (performance counter, memory timing, computation jitter) exhibit distinct oscillation signatures across 30 samples. 
+\textbf{(C)} Mapping $\Delta P$ signatures to S-entropy coordinates via transforms $S_k = \sigma(\Delta P)$ (knowledge), $S_t = \mu(\Delta P)$ (time), and $S_e = H(\Delta P)$ (entropy). Example virtual molecule shows orbital-like structure with S-coordinates $S_k = 0.277$, $S_t = -0.108$, $S_e = 0.940$. 
+\textbf{(D)} Recursive Maxwell demon structure: each spectrometer level contains three sub-levels in a self-similar $3^k$ hierarchy. Scale ambiguity ensures each sub-demon is indistinguishable from the whole, enabling categorical measurement at all scales. 
+\textbf{(E)} Complete measurement pipeline: real hardware oscillations $\to$ high-resolution timing $\to$ precision-by-difference $\to$ S-entropy coordinates $\to$ categorical completion $\to$ molecular state, with zero backaction. Key insight: the virtual spectrometer does not simulate molecules but uses real hardware oscillations to access categorical states that ARE the molecular configurations via harmonic coincidence. 
+\textbf{(F)} Harmonic coincidences between hardware frequencies (CPU, memory, PCIe, display, power) and molecular vibrational modes (C-H stretch, C=O stretch, O-H bend, membrane fluctuation). Heatmap shows harmonic coincidence strength where $\nu_{\text{hw}} = m \cdot f_{\text{mol}}$ enables hardware to ``measure'' molecular states. Strongest coincidence (darkest red) occurs between CPU frequency and molecular vibrations.}
+\label{fig:hardware_spectrometer}
+\end{figure*}
+
+\subsection{Instrument Suite for Transport Validation}
+
+We present ten categorical instruments that validate the partition framework by measuring transport properties through categorical operations.
+
+\subsubsection{Virtual Aperture Potentiometer (VAP)}
+
+\begin{definition}[Virtual Aperture Potentiometer]
+\label{def:VAP}
+The VAP measures the categorical potential $\Phi_{a}$ of apertures in a material by computing the selectivity $s_{a} = \Omega_{\text{pass}}/\Omega_{\text{total}}$ for each aperture type.
+\end{definition}
+
+\textbf{Operating principle:} For a given material structure:
+\begin{enumerate}
+\item Enumerate all aperture types (lattice sites, grain boundaries, interfaces, defects)
+\item For each aperture, compute the configuration space $\Omega_{\text{total}}$ of carriers approaching the aperture
+\item Determine $\Omega_{\text{pass}}$---configurations compatible with passage through the aperture
+\item Calculate the aperture potential: $\Phi_{a} = -k_{B} T \ln(s_{a}) = -k_{B} T \ln(\Omega_{\text{pass}}/\Omega_{\text{total}})$
+\end{enumerate}
+
+\textbf{Output:} Aperture potential spectrum $\{\Phi_{a}\}$ indexed by aperture type and spatial position. For example:
+\begin{itemize}
+\item Lattice sites: $\Phi_{{\text{lattice}}} \sim 0$ (no barrier)
+\item Grain boundaries: $\Phi_{{\text{GB}}} \sim 0.1$--$1$ eV (moderate barrier)
+\item Interfaces: $\Phi_{{\text{interface}}} \sim 0.5$--$2$ eV (large barrier)
+\item Vacancies: $\Phi_{{\text{vacancy}}} \sim -0.5$ eV (attractive potential)
+\end{itemize}
+
+\textbf{Validation target:} Predicts that $\sum_{a} n_{a} \Phi_{a} \propto \Xi$, where $\Xi$ is the transport coefficient (resistivity $\rho$, viscosity $\mu$, or inverse thermal conductivity $\kappa^{-1}$) and $n_{a}$ is the density of apertures of type $a$. Materials with high aperture potentials (many barriers) have high transport coefficients (high resistance).
+
+\textbf{Example application:} Predicts that grain refinement increases resistivity by increasing $n_{{\text{GB}}}$ (density of grain boundaries). Predicts that alloying increases resistivity by introducing new aperture types (solute atoms).
+
+\subsubsection{Partition Lag Spectrometer (PLS)}
+
+\begin{definition}[Partition Lag Spectrometer]
+\label{def:PLS}
+The PLS measures partition lag $\tau_{p}$ between carrier pairs with trans-Planckian temporal precision, resolving contributions from different scattering mechanisms.
+\end{definition}
+
+\textbf{Operating principle:} Building on hardware-based temporal measurements \citep{sachikonye2024temporal}:
+\begin{enumerate}
+\item Identify carrier pair $(i,j)$ undergoing partition (e.g., electron-phonon scattering)
+\item Use CPU oscillation hierarchy to timestamp partition initiation (carrier enters scattering region)
+\item Use LED/crystal oscillations to timestamp partition completion (carrier exits scattering region)
+\item Difference gives partition lag: $\tau_{{p,ij}} = t_{{\text{completion}}} - t_{{\text{initiation}}}$
+\item Temporal precision: $\delta t \sim 10^{-66}$ s (trans-Planckian) from oscillation hierarchy
+\end{enumerate}
+
+\textbf{Output:} Partition lag distribution $P(\tau_{p})$ decomposed by scattering mechanism:
+\begin{itemize}
+\item $\tau_{{\text{phonon}}}(T)$: Phonon scattering lag (increases with $T$ as phonon population increases)
+\item $\tau_{{\text{impurity}}}$: Impurity scattering lag (temperature-independent, set by defect density)
+\item $\tau_{{\text{boundary}}}$: Boundary scattering lag (geometry-dependent, $\tau_{{\text{boundary}}} = L/v$ where $L$ is sample size)
+\item $\tau_{{e-e}}(T)$: Electron-electron scattering lag (scales as $\tau_{{e-e}} \propto T^{-2}$ in metals)
+\end{itemize}
+
+\textbf{Validation target:} Confirms Matthiessen's rule $\rho_{{\text{total}}} = \sum_{i} \rho_{i}$ emerges from $\tau_{{\text{total}}}^{-1} = \sum_{i} \tau_{i}^{-1}$ (scattering rates add). Predicts temperature dependence of each contribution.
+
+\textbf{Example application:} Separates phonon scattering (dominant at high $T$) from impurity scattering (dominant at low $T$) in copper. Predicts residual resistivity ratio RRR $= \rho(300\text{ K})/\rho(4\text{ K})$ from impurity content.
+
+\subsubsection{Phonon Chromatograph (PC)}
+
+\begin{definition}[Phonon Chromatograph]
+\label{def:PC}
+The PC separates thermal transport by phonon mode, measuring mode-specific mean free paths $\lambda(\omega, \mathbf{k})$ and thermal conductivity contributions $\kappa(\omega)$.
+\end{definition}
+
+\textbf{Operating principle:} As derived in Section~\ref{sec:thermal}:
+\begin{enumerate}
+\item Discretize material into cells of size $\Delta x \sim \lambda$ (phonon mean free path scale, typically $\sim 1$ $\mu$m)
+\item At each cell, compute the most probable phonon spectrum given boundary conditions (temperature gradient)
+\item Track spectral evolution through the material: phonons scatter, modes convert, spectrum changes
+\item Extract mode-specific transport properties: $\lambda(\omega) = v_{g}(\omega) \tau(\omega)$, $\kappa(\omega) = (1/3)c(\omega)v_{g}(\omega)^{2}\tau(\omega)$
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item Phonon ``elution profile'' $\kappa(\omega)$---thermal conductivity vs. frequency. Shows which modes carry heat.
+\item Mode-specific mean free paths $\lambda(\omega)$. Typically: $\lambda_{{\text{acoustic}}} \sim 1$ $\mu$m, $\lambda_{{\text{optical}}} \sim 1$ nm.
+\item Spectral heat flux $q(\omega, \mathbf{r})$ at each position. Shows how spectrum changes spatially.
+\end{itemize}
+
+\textbf{Validation target:} Total thermal conductivity $\kappa = \int \kappa(\omega) \, d\omega$ matches measured value. Predicts that nanostructuring (grain size $\sim 10$ nm) selectively reduces high-$\omega$ contribution (scatters short-wavelength phonons), lowering $\kappa$ while preserving electrical conductivity $\sigma$ (thermoelectric optimization).
+
+\textbf{Example application:} Explains why diamond has very high thermal conductivity ($\kappa \sim 2000$ W/(m$\cdot$K)): long-wavelength acoustic phonons have $\lambda \sim 1$ mm due to weak Umklapp scattering. Predicts that isotope-enriched diamond has even higher $\kappa$ (reduces impurity scattering).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_pc_results.png}
+\caption{\textbf{Phonon Chromatograph (PC) results showing phonon mode contributions to thermal conductivity.} 
+\textbf{(Top left)} Phonon ``elution profile'' at 300 K showing contribution $\kappa(\omega)$ vs. phonon frequency $\omega$. Longitudinal acoustic (LA) branch (orange) peaks at low frequency ($\omega \sim 1$ THz) where group velocity is high. Transverse acoustic (TA) branches (green) contribute at similar frequencies. Total contribution (white) shows peak at $\omega \sim 1$ THz, with negligible contribution above 5 THz where phonon population becomes small.
+\textbf{(Top right)} Mean free path spectrum showing $\lambda(\omega)$ for LA (orange) and TA (green) phonons. Low-frequency phonons have $\lambda \sim 10^6$ nm ($\sim 1$ $\mu$m), limited by sample size (dashed cyan line at 1 mm). High-frequency phonons have $\lambda \sim 10^2$ nm, limited by umklapp scattering. The crossover occurs at $\omega \sim 2$ THz. Horizontal dashed line (orange) shows 1 m scale for reference.
+\textbf{(Bottom left)} Elution profile vs. temperature showing how phonon contributions evolve with $T$. At $T = 100$ K (purple), only low-frequency modes contribute. At $T = 200$ K (magenta), contribution extends to $\omega \sim 3$ THz. At $T = 300$ K (orange), contribution extends to $\omega \sim 5$ THz. At $T = 500$ K (yellow), high-frequency modes become populated. Peak contribution shifts to higher frequency as temperature increases, following Bose-Einstein distribution.
+\textbf{(Bottom right)} Branch contribution vs. temperature showing total thermal conductivity from LA (orange) and TA (green) branches. LA branch dominates at all temperatures due to higher group velocity ($v_{\text{LA}} \sim 2v_{\text{TA}}$). Total conductivity (white) shows characteristic peak at $T \sim 20$ K where mean free path transitions from boundary-limited (low $T$) to umklapp-limited (high $T$). At high $T$, conductivity decreases as $\kappa \propto 1/T$ due to increased umklapp scattering.}
+\label{fig:pc_results}
+\end{figure}
+
+\subsubsection{Verification Gap Analyzer (VGA)}
+
+\begin{definition}[Verification Gap Analyzer]
+\label{def:VGA}
+The VGA measures the phase mismatch between electromagnetic signal propagation and material response, quantifying the ``unverifiable replacement'' mechanism of Joule heating.
+\end{definition}
+
+\textbf{Operating principle:}
+\begin{enumerate}
+\item Compute signal propagation timescale: $\tau_{{\text{signal}}} = L/v_{{\text{EM}}}$, where $L$ is sample length and $v_{{\text{EM}}} \approx c$ is electromagnetic wave velocity
+\item Compute local response timescale: $\tau_{{\text{local}}} = a/v_{{\text{signal}}}$ per unit cell, where $a$ is lattice spacing and $v_{{\text{signal}}} \sim v_{F}$ (Fermi velocity for electrons)
+\item Compute lattice equilibration timescale: $\tau_{{\text{lattice}}} = 1/\omega_{D}$, where $\omega_{D}$ is Debye frequency
+\item Verification gap: $\Delta\tau = \tau_{{\text{local}}} - \tau_{{\text{lattice}}}$
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item Verification gap $\Delta\tau$ (should be negative: signal arrives before equilibration completes)
+\item Entropy production rate: $\dot{S} = k_{B} |\Delta\tau|^{-1} \ln n_{{\text{states}}}$, where $n_{{\text{states}}}$ is the number of accessible lattice states
+\item Predicted Joule heating: $P = I^{2} R$ emerges from entropy production
+\end{itemize}
+
+\textbf{Validation target:} Explains why current produces heat but water flow doesn't. Electrical signals travel at $\sim c$, arriving before lattice equilibrates ($\Delta\tau < 0$). Water flow is subsonic, allowing local equilibration ($\Delta\tau > 0$, no verification gap). Predicts zero verification gap in superconductors (Cooper pair averaging eliminates phase mismatch).
+
+\textbf{Example application:} Predicts Joule heating in copper wire: $P = I^{2} R = I^{2} (\rho L/A)$. The verification gap $\Delta\tau \sim 10^{-13}$ s (lattice equilibration time) produces entropy at rate $\dot{S} \sim k_{B} \times 10^{13}$ s$^{-1}$ per carrier, giving $P \sim 10^{13} \times k_{B} T \times n_{{\text{carriers}}}$, consistent with $I^{2} R$.
+
+\subsubsection{Phase-Coherence Mapper (PCM)}
+
+\begin{definition}[Phase-Coherence Mapper]
+\label{def:PCM}
+The PCM detects and maps regions of phase-locked carriers, predicting transitions to dissipationless states.
+\end{definition}
+
+\textbf{Operating principle:}
+\begin{enumerate}
+\item For each carrier pair, compute phase-locking energy $\Delta_{{\text{lock}}}$ (pairing energy for superconductors, interaction energy for superfluids/BECs)
+\item Compare to thermal energy $k_{B} T$
+\item Map regions where $\Delta_{{\text{lock}}} > k_{B} T$ (phase-locked, partition extinct)
+\item Identify percolation of phase-locked regions (when phase-locked regions span the system, dissipationless transport occurs)
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item Phase-coherence map showing locked vs. unlocked regions as function of position and temperature
+\item Coherence length $\xi(T)$ as function of temperature. For superconductors: $\xi(T) \sim \xi(0)/(1 - T/T_{c})^{1/2}$ near $T_{c}$.
+\item Predicted critical temperature: $T_{c} = \Delta_{{\text{lock}}}/k_{B}$
+\item Superfluid/superconducting fraction below $T_{c}$: $\rho_{s}/\rho = 1 - (T/T_{c})^{\alpha}$
+\end{itemize}
+
+\textbf{Validation target:} Predicts $T_{c}$ for known superconductors (e.g., Nb: $T_{c} = 9.2$ K, Al: $T_{c} = 1.2$ K). Predicts $T_{\lambda} = 2.17$ K for helium-4. Predicts BEC temperature for atomic gases: $T_{{\text{BEC}}} = (2\pi\hbar^{2}/m k_{B})(n/\zeta(3/2))^{2/3}$.
+
+\textbf{Example application:} Maps coherence length in cuprate superconductors. Predicts short coherence length ($\xi \sim 1$--$2$ nm) due to strong coupling, explaining Type II behavior (vortex lattice formation).
+
+\subsubsection{Lindemann Amplitude Monitor (LAM)}
+
+\begin{definition}[Lindemann Amplitude Monitor]
+\label{def:LAM}
+The LAM measures atomic oscillation amplitude relative to lattice spacing, predicting solid-to-liquid transitions through site assignment partition extinction.
+\end{definition}
+
+\textbf{Operating principle:}
+\begin{enumerate}
+\item For each atom, compute mean-square displacement: $\langle u^{2} \rangle = 3k_{B} T/(m\omega_{D}^{2})$ (classical limit)
+\item Compute RMS amplitude: $\langle u^{2} \rangle^{1/2}$
+\item Compare to nearest-neighbor distance $a$
+\item Calculate Lindemann parameter: $\eta = \langle u^{2} \rangle^{1/2}/a$
+\item Site assignment partition extincts when $\eta > \eta_{c} \approx 0.1$--$0.2$ (typically $\eta_{c} \approx 0.15$)
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item Lindemann parameter $\eta(T)$ vs. temperature
+\item Predicted melting temperature $T_{m}$ where $\eta(T_{m}) = \eta_{c}$
+\item Spatial map of ``pre-melting'' regions near defects/surfaces (where $\eta$ exceeds $\eta_{c}$ locally before bulk melting)
+\end{itemize}
+
+\textbf{Validation target:} Predicts melting temperatures across elements and compounds. For example: Cu ($T_{m} = 1358$ K), Pb ($T_{m} = 600$ K), Ar ($T_{m} = 84$ K). Explains surface pre-melting (surface atoms have fewer neighbors, larger $\langle u^{2} \rangle$, reach $\eta_{c}$ at lower $T$). Predicts pressure dependence: $dT_{m}/dP = \Delta V/\Delta S$ (Clausius-Clapeyron).
+
+\textbf{Example application:} Predicts that helium never solidifies at normal pressure: zero-point motion gives $\eta_{0} \approx 0.19 > \eta_{c}$ even at $T = 0$. Requires pressure $P > 25$ bar to compress atoms enough to solidify.
+
+\subsubsection{Entropy Production Camera (EPC)}
+
+\begin{definition}[Entropy Production Camera]
+\label{def:EPC}
+The EPC provides real-time visualization of entropy production during transport, mapping where dissipation occurs spatially.
+\end{definition}
+
+\textbf{Operating principle:}
+\begin{enumerate}
+\item Discretize system into cells (size $\sim$ mean free path)
+\item At each cell, compute partition rate: $\Gamma = \tau_{p}^{-1}$ (number of partition operations per unit time)
+\item Compute entropy per partition: $\Delta S = k_{B} \ln(\Omega_{{\text{final}}}/\Omega_{{\text{initial}}})$
+\item Local entropy production: $\dot{S}_{{\text{local}}} = \Gamma \cdot \Delta S$
+\item Aggregate into entropy production map: $\dot{S}(\mathbf{r}, t)$
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item Real-time entropy production field $\dot{S}(\mathbf{r}, t)$ (units: J/(K$\cdot$s$\cdot$m$^{3}$))
+\item Hot spots: regions of maximum dissipation (grain boundaries, interfaces, defects)
+\item Dissipation pathways through material (current crowding, thermal bottlenecks)
+\item Total power dissipation: $P = T \int \dot{S}(\mathbf{r}, t) \, dV$
+\end{itemize}
+
+\textbf{Validation target:} Entropy maps match thermal imaging (infrared camera). Hot spots correlate with defects, grain boundaries, and interfaces. Superconducting regions show $\dot{S} = 0$ exactly (no partition, no entropy production). It predicts that nanostructuring spreads dissipation more uniformly (more interfaces, more distributed scattering).
+
+\textbf{Example application:} Maps entropy production in transistors. Predicts hot spots at source/drain contacts (high current density, high scattering rate). Guides thermal management design.
+
+\subsubsection{Categorical Transport Decomposer (CTD)}
+
+\begin{definition}[Categorical Transport Decomposer]
+\label{def:CTD}
+The CTD decomposes total transport coefficients into contributions from individual partition channels, using the universal formula $\Xi = \mathcal{N}^{-1} \sum_{i,j} \tau_{{p,ij}} g_{{ij}}$.
+\end{definition}
+
+\textbf{Operating principle:}
+\begin{enumerate}
+\item Enumerate all carrier pairs $(i,j)$ (electron-phonon, electron-impurity, electron-electron, etc.)
+\item Measure $\tau_{{p,ij}}$ for each pair (from PLS)
+\item Measure the coupling strength $g_{{ij}}$ from material structure (scattering cross-section, matrix element)
+\item Compute pairwise contributions: $\Xi_{{ij}} = \mathcal{N}^{-1} \tau_{{p,ij}} g_{{ij}}$
+\item Sum to obtain the total: $\Xi_{{\text{total}}} = \sum_{i,j} \Xi_{{ij}}$
+\item Compared to experimental measurements.
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item Decomposition: $\rho = \rho_{{\text{phonon}}} + \rho_{{\text{impurity}}} + \rho_{{\text{boundary}}} + \rho_{{e-e}}$
+\item Identification of the dominant scattering mechanism at each temperature
+\item Prediction of transport coefficient under modified conditions (doping, nanostructuring, alloying)
+\end{itemize}
+
+\textbf{Validation target:} Decomposed contributions match Matthiessen's rule. Predicts effects of alloying (increases $\rho_{{\text{impurity}}}$), grain refinement (increases $\rho_{{\text{boundary}}}$), and isotope substitution (changes $\rho_{{\text{phonon}}}$).
+
+\textbf{Example application:} Decomposes the resistivity of copper at 300 K: $\rho_{{\text{phonon}}} \approx 1.5 \times 10^{-8}$ $\Omega$m (dominant), $\rho_{{\text{impurity}}} \approx 0.2 \times 10^{-8}$ $\Omega$m (residual), $\rho_{{e-e}} \approx 0.01 \times 10^{-8}$ $\Omega$m (negligible). Total: $\rho_{{\text{total}}} \approx 1.7 \times 10^{-8}$ $\Omega$m (matches measurement: $1.68 \times 10^{-8}$ $\Omega$m).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_ctd_results.png}
+\caption{\textbf{Categorical Transport Decomposer (CTD) results showing partition channel contributions to transport coefficients.} 
+\textbf{(Top left)} Electrical resistivity decomposition into constituent scattering channels. Phonon scattering (cyan) dominates at high temperature, increasing linearly with $T$ as phonon population grows ($\propto T$). Electron-electron scattering (green) shows $T^2$ dependence at low temperature. Impurity scattering (orange) and boundary scattering (red) remain constant, providing residual resistivity $\rho_0$. Total resistivity is the sum of all channels.
+\textbf{(Top right)} Resistivity channel percentages showing relative contributions vs. temperature. Phonon channel (cyan) contributes $\sim$50\% at room temperature, decreasing at low $T$. Impurity and boundary channels become dominant below 100 K, maintaining finite resistivity even as $T \to 0$.
+\textbf{(Bottom left)} Thermal conductivity ($\kappa^{-1}$) decomposition showing contributions from different phonon scattering mechanisms. Normal processes (green) conserve crystal momentum and don't limit conductivity. Umklapp processes (cyan) scatter phonons across Brillouin zone boundaries, providing the dominant thermal resistance at high $T$. Impurity scattering (orange) and boundary scattering (red) dominate at low $T$, where umklapp processes freeze out.
+\textbf{(Bottom right)} Matthiessen's rule verification showing that total resistivity equals sum of individual channel resistivities: $\rho_{\text{total}} = \sum_a \rho_a$ (solid lines match dotted direct sum). Phonon contribution (cyan) shows linear $T$ dependence. Impurity contribution (green) is temperature-independent. Electron-electron contribution (magenta) shows $T^2$ dependence. Boundary contribution (yellow) is constant. The additive structure confirms that independent scattering channels contribute independently to total resistance, validating the partition framework prediction $\rho = \sum_{i,j} \tau_{p,ij} g_{ij}$.}
+\label{fig:ctd_results}
+\end{figure}
+
+\subsubsection{Universal Transport Coefficient Extractor (UTCE)}
+
+\begin{definition}[Universal Transport Coefficient Extractor]
+\label{def:UTCE}
+The UTCE extracts all transport coefficients (electrical, thermal, viscous, diffusive) from minimal measurements using the common partition structure.
+\end{definition}
+
+\textbf{Operating principle:}
+\begin{enumerate}
+\item Measure one transport coefficient (e.g., electrical resistivity $\rho$)
+\item Extract the partition structure $\{\tau_{{p,ij}}, g_{{ij}}\}$ from the measurement
+\item Use the partition structure to predict other coefficients with appropriate normalisation:
+\begin{itemize}
+\item Thermal: $\kappa = \mathcal{N}_{{\text{thermal}}}/\sum \tau_{p} g$ (same $\tau_{p}$, different $\mathcal{N}$)
+\item Viscous: $\mu = \sum \tau_{p} g$ (different carriers, different $\tau_{p}$)
+\item Diffusive: $D = \mathcal{N}_{{\text{diffusive}}}/\sum \tau_{p} g$ (different carriers, different $\tau_{p}$)
+\end{itemize}
+\item Cross-validate predictions against independent measurements
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item All transport coefficients from one measurement
+\item Wiedemann-Franz ratio: $L = \kappa/(T\sigma) = \pi^{2} k_{B}^{2}/(3e^{2})$ from partition structure (same $\tau_{p}$ for electrons)
+\item Prediction of transport anisotropy from aperture geometry (different $\Phi_{a}$ in different directions)
+\end{itemize}
+
+\textbf{Validation target:} The Wiedemann-Franz law emerges from a common partition structure (same $\tau_{p}$ for electrical and thermal transport by electrons). It predicts violations in systems where different scattering mechanisms have different energy dependencies (inelastic scattering, electron-electron interactions).
+
+\textbf{Example application:} Measures $\rho(T)$ for copper. Extracts $\tau_{p}(T)$. Predicts $\kappa(T)$ using Wiedemann-Franz law: $\kappa = LT/\rho$. At 300 K: $\kappa = (2.44 \times 10^{-8} \times 300)/(1.68 \times 10^{-8}) \approx 435$ W/(m$\cdot$K) (matches measurement: $\sim 400$ W/(m$\cdot$K)).
+
+\subsubsection{Categorical Unification Detector (CUD)}
+
+\begin{definition}[Categorical Unification Detector]
+\label{def:CUD}
+The CUD detects when discrete entities become categorically unified, signaling transitions to dissipationless states.
+\end{definition}
+
+\textbf{Operating principle:}
+\begin{enumerate}
+\item Attempt partition operations between candidate unified entities (e.g., distinguishing Cooper pairs and condensed atoms)
+\item If the partition is undefined (returns null, with no distinguishing observable), then the entities are unified
+\item Count the number of distinguishable entities: $N_{{\text{distinct}}}(T)$
+\item Unification fraction: $f_{{\text{unified}}} = 1 - N_{{\text{distinct}}}/N_{{\text{total}}}$
+\end{enumerate}
+
+\textbf{Output:}
+\begin{itemize}
+\item Unification fraction vs. temperature: $f_{{\text{unified}}}(T)$
+\item There is a discontinuous jump at $T_{c}$ where the partition becomes undefined (first-order transition) or exhibits continuous growth (second-order transition)
+\item There is a distinction between partial unification (two-fluid model: some carriers unified, some distinguishable) and complete unification (ground state BEC: all carriers unified)
+\end{itemize}
+
+\textbf{Validation target:} Predicts the superfluid fraction in helium-4 below $T_{\lambda}$: $\rho_{s}/\rho = 1 - (T/T_{\lambda})^{5.6}$. Predicts the condensate fraction in BEC: $N_{0}/N = 1 - (T/T_{{\text{BEC}}})^{3/2}$. Predicts the superconducting fraction in Type II superconductors.
+
+\textbf{Example application:} Detects BEC transition in rubidium-87 gas. At $T > T_{{\text{BEC}}} \approx 200$ nK, all atoms are distinguishable ($f_{{\text{unified}}} = 0$). At $T < T_{{\text{BEC}}}$, fraction $f_{{\text{unified}}} = 1 - (T/T_{{\text{BEC}}})^{3/2}$ becomes unified. At $T = 0$, all atoms are unified ($f_{{\text{unified}}} = 1$).
+
+\subsection{Instrument Integration}
+
+The instruments form an integrated suite for transport characterisation:
+
+\begin{table}[h]
+\centering
+\caption{Categorical instrument suite for transport validation}
+\label{tab:instruments}
+\begin{tabular}{lll}
+\toprule
+\textbf{Instrument} & \textbf{Measures} & \textbf{Validates} \\
+\midrule
+VAP & Aperture potentials $\Phi_{a}$ & Transport-enthalpy connection \\
+PLS & Partition lags $\tau_{{p,ij}}$ & Universal transport formula \\
+PC & Phonon mode transport & Chromatography picture \\
+VGA & Verification gap $\Delta\tau$ & Joule heating mechanism \\
+PCM & Phase coherence $\xi(T)$ & Dissipationless transitions \\
+LAM & Lindemann parameter $\eta(T)$ & Melting as partition extinction \\
+EPC & Entropy production $\dot{S}(\mathbf{r}, t)$ & Dissipation spatial structure \\
+CTD & Transport decomposition & Matthiessen's rule \\
+UTCE & Cross-transport prediction & Wiedemann-Franz law \\
+CUD & Categorical unification $f_{{\text{unified}}}(T)$ & Superfluid/BEC fractions \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All instruments share the same foundation: they compute categorical completions using hardware oscillations as the partitioning mechanism. The results are not approximations to ``real'' measurements---they ARE measurements, performed categorically rather than physically. The distinction between ``virtual'' and ``physical'' measurement dissolves: both are categorical operations that define observables through partition.
+
+\subsection{Experimental Protocol}
+
+A complete transport characterization proceeds as follows:
+
+\begin{enumerate}
+\item \textbf{Material structure input:} Crystal structure, composition, defect distribution, sample geometry
+
+\item \textbf{Aperture analysis (VAP):} Map all apertures and their categorical potentials $\Phi_{a}$. Identify dominant barriers to transport.
+
+\item \textbf{Partition lag measurement (PLS):} Measure $\tau_{p}$ for all carrier pairs at target temperature. Decompose by scattering mechanism.
+
+\item \textbf{Transport prediction (CTD, UTCE):} Compute all transport coefficients from partition structure using universal formula.
+
+\item \textbf{Phonon analysis (PC):} Decompose thermal transport by mode. Identify which frequencies carry heat.
+
+\item \textbf{Joule heating analysis (VGA):} Predict heating from verification gap. Explain why current produces heat.
+
+\item \textbf{Phase transition prediction (PCM, LAM, CUD):} Predict critical temperatures $T_{c}$, $T_{m}$, $T_{{\text{BEC}}}$ from partition extinction conditions.
+
+\item \textbf{Dissipation mapping (EPC):} Visualize entropy production under operating conditions. Identify hot spots.
+
+\item \textbf{Validation:} Compare predictions to experimental measurements (resistivity, thermal conductivity, viscosity, melting point, critical temperature).
+
+\item \textbf{Optimization:} Use insights to guide material design (nanostructuring for thermoelectrics, alloying for strength, purification for low-loss conductors).
+\end{enumerate}
+
+This protocol extracts complete transport physics from categorical measurement, validating the partition framework against known results and predicting novel behavior.
+
+\subsection{Implementation Notes}
+
+\subsubsection{Hardware Requirements}
+
+The instruments require:
+\begin{itemize}
+\item \textbf{High-frequency CPU oscillations} ($\sim$GHz) for partition timing. Modern CPUs provide $\sim 10^{9}$ cycles/s.
+\item \textbf{Stable reference oscillators} (crystal, LED) for calibration. Crystal oscillators provide stability $\sim 10^{-12}$.
+\item \textbf{Memory access patterns} for configuration space sampling. RAM access times $\sim$ ns provide temporal resolution.
+\item \textbf{Standard computing hardware}---no specialized equipment required. Categorical instruments run on laptops, desktops, or servers.
+\end{itemize}
+
+\subsubsection{Calibration}
+
+Calibration uses known materials with well-characterised transport properties:
+\begin{itemize}
+\item \textbf{Copper:} $\rho(300\text{ K}) = 1.68 \times 10^{-8}$ $\Omega$m, Wiedemann-Franz law verified to $\sim$10\%
+\item \textbf{Silicon:} Phonon transport dominated; mode decomposition known from neutron scattering
+\item \textbf{Helium-4:} $T_{\lambda} = 2.17$ K, superfluid fraction measured to high precision
+\item \textbf{Niobium:} $T_{c} = 9.2$ K, BCS superconductor with well-characterized gap $\Delta(0) = 1.5$ meV
+\end{itemize}
+
+The instruments are calibrated by comparing predictions to these reference materials, adjusting normalization factors $\mathcal{N}$ and coupling strengths $g_{{ij}}$ to match known values.
+
+\subsubsection{Uncertainty Quantification}
+
+Uncertainty arises from three sources:
+
+\begin{enumerate}
+\item \textbf{Partition counting statistics:} Entropy uncertainty $\delta S = k_{B} / \sqrt{N_{{\text{partitions}}}}$, where $N_{{\text{partitions}}}$ is the number of partition operations sampled. For $N_{{\text{partitions}}} \sim 10^{6}$, $\delta S/S \sim 10^{-3}$.
+
+\item \textbf{Hardware oscillator stability:} Timing uncertainty $\delta t / t \sim 10^{-12}$ for crystal references, $\sim 10^{-9}$ for CPU clocks. Limits temporal resolution to $\sim$ ps for CPU-based timing.
+
+\item \textbf{Configuration space truncation:} Systematic uncertainty from finite sampling of configuration space. Controllable by increasing sample size. Converges as $\sim N_{{\text{samples}}}^{-1/2}$.
+\end{enumerate}
+
+The categorical approach provides rigorous uncertainty propagation through the partition structure. Uncertainties in $\tau_{p}$ and $g_{{ij}}$ propagate linearly to transport coefficients: $\delta\Xi/\Xi = \sqrt{(\delta\tau_{p}/\tau_{p})^{2} + (\delta g/g)^{2}}$.
+
+\subsubsection{Computational Complexity}
+
+Computational cost scales as:
+\begin{itemize}
+\item \textbf{VAP:} $O(N_{{\text{apertures}}} \times N_{{\text{configs}}})$. For $N_{{\text{apertures}}} \sim 10^{6}$ (typical sample), $N_{{\text{configs}}} \sim 10^{3}$ (configuration space sampling), cost $\sim 10^{9}$ operations ($\sim$ seconds on modern CPU).
+
+\item \textbf{PLS:} $O(N_{{\text{pairs}}} \times N_{{\text{timestamps}}})$. For $N_{{\text{pairs}}} \sim 10^{3}$ (carrier-scatterer pairs), $N_{{\text{timestamps}}} \sim 10^{6}$ (temporal sampling), cost $\sim 10^{9}$ operations.
+
+\item \textbf{PC:} $O(N_{{\text{cells}}} \times N_{{\text{modes}}} \times N_{{\text{iterations}}})$. For $N_{{\text{cells}}} \sim 10^{3}$ (spatial discretization), $N_{{\text{modes}}} \sim 10^{2}$ (phonon branches), $N_{{\text{iterations}}} \sim 10^{2}$ (convergence), cost $\sim 10^{7}$ operations.
+
+\item \textbf{EPC:} $O(N_{{\text{cells}}} \times N_{{\text{timesteps}}})$. For real-time visualization, $N_{{\text{timesteps}}} \sim 10^{3}$ (video frames), cost $\sim 10^{6}$ operations per frame ($\sim$ ms, enabling real-time display).
+\end{itemize}
+
+All instruments are computationally tractable on standard hardware.

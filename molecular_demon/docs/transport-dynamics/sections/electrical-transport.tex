@@ -1,0 +1,394 @@
+%==============================================================================
+\section{Electrical Transport}
+\label{sec:electrical}
+%==============================================================================
+
+\subsection{Electron-Lattice Partition Dynamics}
+
+In metallic conductors, conduction electrons form a dense Fermi sea with a density of $n \sim 10^{28}$ m$^{-3}$ \citep{ashcroft1976}. Under an applied electric field $\mathbf{E}$, electrons acquire a drift velocity $\mathbf{v}_d$ superimposed on their thermal motion. Resistance arises from scattering events that randomise the drift momentum, converting directed kinetic energy into thermal energy.
+
+\begin{definition}[Electron-Lattice Partition]
+\label{def:electron_lattice}
+An \emph{electron-lattice partition operation} occurs when a conduction electron interacts with a lattice ion, phonon, impurity, or defect. The partition distinguishes pre-scattering and post-scattering electron states, with the scattering time $\tau_s$ serving as the partition lag.
+\end{definition}
+
+During the scattering event, the electron's momentum state is undetermined for duration $\tau_s$. The electron is neither in its initial state (pre-scattering momentum $\mathbf{k}_i$) nor in its final state (post-scattering momentum $\mathbf{k}_f$) but in a superposition. This undetermined residue generates entropy, which manifests macroscopically as electrical resistance.
+
+For electrical transport, the carriers are electrons with charge $e$ and density $n$. The normalisation factor from the universal transport formula is $\mathcal{N} = ne^2$, giving:
+
+\begin{theorem}[Electrical Resistivity]
+\label{thm:resistivity}
+The electrical resistivity of a conductor is:
+\begin{equation}
+\rho = \frac{1}{ne^2} \sum_{i,j} \tau_{s,ij} g_{ij},
+\label{eq:resistivity_partition}
+\end{equation}
+where the sum is over electron-scatterer pairs, $\tau_{s,ij}$ is the scattering partition lag, and $g_{ij}$ is the electron-scatterer coupling strength.
+\end{theorem}
+
+\begin{proof}
+From the universal transport formula~\eqref{eq:universal_transport} with $\Xi = \rho$ and $\mathcal{N} = ne^2$, the result follows directly. The normalisation $ne^2$ arises from dimensional analysis: current density $\mathbf{J} = ne\mathbf{v}_d$ has units A/m$^2$, electric field $\mathbf{E}$ has units V/m, and resistivity $\rho = E/J$ has units $\Omega \cdot$m. The Drude relation $\mathbf{v}_d = (e\tau/m)\mathbf{E}$ gives $\rho = m/(ne^2\tau)$ in the single-relaxation-time limit, confirming the normalisation. \qed
+\end{proof}
+
+\subsection{Scattering Mechanisms}
+
+Multiple scattering mechanisms contribute to the total resistivity. When scattering processes are independent, their contributions add through Matthiessen's rule \citep{matthiessen1858}:
+\begin{equation}
+\rho_{\text{total}} = \rho_{\text{phonon}} + \rho_{\text{impurity}} + \rho_{\text{defect}} + \rho_{e-e}.
+\label{eq:matthiessen}
+\end{equation}
+
+Equivalently, the scattering rates add:
+\begin{equation}
+\tau_{\text{total}}^{-1} = \tau_{\text{phonon}}^{-1} + \tau_{\text{impurity}}^{-1} + \tau_{\text{defect}}^{-1} + \tau_{e-e}^{-1}.
+\label{eq:matthiessen_tau}
+\end{equation}
+
+Each contribution has characteristic temperature dependence determined by the underlying partition lag:
+
+\subsubsection{Phonon Scattering}
+
+Electrons scatter from lattice vibrations (phonons). The partition lag decreases with temperature as phonon population grows. At high temperatures ($T > \Theta_D$, where $\Theta_D$ is the Debye temperature), the phonon population is proportional to $T$:
+\begin{equation}
+n_{\text{ph}}(T) \approx \frac{k_B T}{\hbar \omega_D} \quad \text{for } T > \Theta_D.
+\label{eq:phonon_population_high}
+\end{equation}
+
+The scattering rate is proportional to phonon population, giving:
+\begin{equation}
+\tau_{\text{phonon}}^{-1}(T) \propto T \quad \Rightarrow \quad \rho_{\text{phonon}}(T) \propto T \quad \text{for } T > \Theta_D.
+\label{eq:rho_phonon_high}
+\end{equation}
+
+This linear temperature dependence is observed in most metals above room temperature \citep{white1959,grimvall1981}.
+
+At low temperatures ($T \ll \Theta_D$), phonon scattering is suppressed exponentially. The Bloch-Grüneisen formula gives:
+\begin{equation}
+\rho_{\text{phonon}}(T) = A \left(\frac{T}{\Theta_D}\right)^5 \int_0^{\Theta_D/T} \frac{x^5 e^x}{(e^x - 1)^2} dx \quad \text{for } T \ll \Theta_D,
+\label{eq:bloch_gruneisen}
+\end{equation}
+where $A$ is a material-specific constant. For $T \ll \Theta_D$, this reduces to $\rho_{\text{phonon}} \propto T^5$.
+
+\subsubsection{Impurity Scattering}
+
+Electrons scatter from substitutional impurities, interstitial atoms, and foreign elements. For elastic scattering from static defects, the partition lag is temperature-independent:
+\begin{equation}
+\tau_{\text{impurity}} = \text{const}.
+\label{eq:tau_impurity}
+\end{equation}
+
+This produces the \emph{residual resistivity} $\rho_0$ observed as $T \to 0$ \citep{nordheim1931}:
+\begin{equation}
+\rho(T \to 0) = \rho_0 = \frac{m}{ne^2 \tau_{\text{impurity}}}.
+\label{eq:residual_resistivity}
+\end{equation}
+
+The residual resistivity ratio (RRR), defined as $\text{RRR} = \rho(300\text{ K})/\rho_0$, is a measure of sample purity. High-purity copper can achieve RRR $> 1000$.
+
+\subsubsection{Electron-Electron Scattering}
+
+In Fermi liquids, electron-electron scattering is suppressed by the Pauli exclusion principle. An electron at the Fermi surface with energy $E_F$ can only scatter to unoccupied states, which are restricted to a shell of width $\sim k_B T$ around $E_F$. This phase-space restriction gives \citep{abrikosov1963}:
+\begin{equation}
+\tau_{e-e}^{-1}(T) \propto \left(\frac{k_B T}{E_F}\right)^2 \quad \Rightarrow \quad \rho_{e-e}(T) \propto T^2.
+\label{eq:rho_ee}
+\end{equation}
+
+This $T^2$ contribution dominates at low temperatures in high-purity metals and is the signature of Fermi liquid behavior.
+
+\subsubsection{Defect Scattering}
+
+Dislocations, grain boundaries, and other extended defects contribute to temperature-independent scattering similar to impurities. However, their cross-sections are typically larger, and their distribution is non-uniform, leading to anisotropic resistivity in polycrystalline samples.
+
+\subsection{The Newton's Cradle Mechanism}
+
+Electrical current propagates through conductors not by individual electron drift but by collective displacement, analogous to momentum transfer in a Newton's cradle \citep{drude1900a,drude1900b}. This mechanism resolves a fundamental puzzle: how can current propagate at nearly the speed of light when individual electrons move at millimetres per second?
+
+\begin{proposition}[Velocity Disparity]
+\label{prop:velocity_disparity}
+The drift velocity $v_d \sim 10^{-4}$ m/s is twelve orders of magnitude smaller than the signal velocity $v_s \sim c/\sqrt{\varepsilon_r} \sim 10^8$ m/s.
+\end{proposition}
+
+\begin{proof}
+For a copper wire with current $I = 1$ A, cross-sectional area $A = 1$ mm$^2$, and electron density $n = 8.5 \times 10^{28}$ m$^{-3}$:
+\begin{equation}
+v_d = \frac{I}{neA} = \frac{1}{(8.5 \times 10^{28}) \times (1.6 \times 10^{-19}) \times (10^{-6})} \approx 7.4 \times 10^{-5} \text{ m/s}.
+\label{eq:drift_velocity}
+\end{equation}
+
+The electromagnetic signal propagates at:
+\begin{equation}
+v_s = \frac{c}{\sqrt{\varepsilon_r \mu_r}} \approx \frac{3 \times 10^8}{\sqrt{1 \times 1}} \sim 10^8 \text{ m/s}.
+\label{eq:signal_velocity}
+\end{equation}
+
+The ratio is $v_s/v_d \sim 10^{12}$. \qed
+\end{proof}
+
+Current propagation occurs through sequential electron displacement:
+\begin{equation}
+e_1 \xrightarrow{\text{push}} e_2 \xrightarrow{\text{push}} e_3 \xrightarrow{\text{push}} \cdots \xrightarrow{\text{push}} e_N,
+\label{eq:newton_cradle}
+\end{equation}
+where each $e_i \xrightarrow{\text{push}} e_{i+1}$ represents a displacement event mediated by Coulomb repulsion, not physical electron transport between sites. When an electron enters one end of the conductor, the electric field propagates at speed $v_s$, causing an electron to exit the other end almost instantaneously. Individual electrons move at drift velocity $v_d$, but the current signal propagates at electromagnetic speed $v_s$.
+
+This is precisely analogous to a Newton's cradle: when one ball strikes the left end, the rightmost ball swings out immediately, even though no individual ball traverses the full length. The momentum propagates through the chain via local interactions.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_newton_cradle.png}
+\caption{\textbf{Newton's Cradle Model: Current as Categorical State Propagation.} 
+(\textbf{A}) Wire cross-section showing electron chain: Fixed lattice ions (red $+$ symbols) form a periodic array. Mobile electrons (blue circles) form a chain between the ions. The electrons are confined to move along the wire axis but can displace slightly in response to applied fields. 
+(\textbf{B}) Newton's cradle displacement propagation: At $t = 0$, an electron is pushed at the left end (red arrow). At $t = dt$, the displacement propagates through the chain as each electron pushes its neighbor. At $t = 2dt$, the signal exits at the right end (green arrow). The signal propagates at speed $\sim c$ while individual electrons barely move. 
+(\textbf{C}) Speed comparison: Signal speed ($\sim 3 \times 10^8$ m/s, red bar) versus drift velocity ($\sim 10^{-4}$ m/s, blue bar) on a logarithmic scale. The ratio is approximately $3 \times 10^{12}$, demonstrating that current propagation is fundamentally different from electron drift. 
+(\textbf{D}) Current as categorical state propagation: 
+\textit{Classical view} (left, marked WRONG): Electrons flow like water, with each electron physically moving from source to destination. This picture cannot explain the rapid establishment of current. 
+\textit{Categorical view} (right, marked CORRECT): Categorical states $|0\rangle$, $|1\rangle$ propagate through the electron network (gray circles). Green arrows show state propagation. Individual electrons remain nearly stationary while states propagate rapidly. This resolves the paradox between slow drift and fast signal propagation.}
+\label{fig:newton_cradle}
+\end{figure*}
+
+\subsection{Resistance from Partition Accumulation}
+
+The total resistance of a conductor of length $L$ and cross-sectional area $A$ is:
+\begin{equation}
+R = \rho \frac{L}{A} = \frac{L}{Ane^2} \sum_{i,j} \tau_{s,ij} g_{ij}.
+\label{eq:resistance_total}
+\end{equation}
+
+This can be interpreted as accumulated partition lag along the conductor. For a spatially varying resistivity $\rho(x)$:
+\begin{equation}
+R = \frac{1}{Ane^2} \int_0^L \sum_{i,j} \tau_{s,ij}(x) g_{ij}(x) \, dx.
+\label{eq:resistance_integral}
+\end{equation}
+
+For a uniform conductor, $\tau_s$ and $g$ are position-independent, recovering $R = \rho L/A$.
+
+The resistance measures the total partition lag accumulated by electrons traversing the conductor. Each scattering event contributes a partition lag $\tau_s$, and the sum over all scattering events along the path gives the total resistance.
+
+\subsection{Ohm's Law}
+
+\begin{theorem}[Ohm's Law]
+\label{thm:ohm}
+For a conductor with resistance $R$ carrying current $I$ under potential difference $V$:
+\begin{equation}
+V = IR.
+\label{eq:ohm}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The current density is $J = \sigma E = E/\rho$, where $\sigma = 1/\rho$ is conductivity and $E$ is electric field. For a uniform field $E = V/L$:
+\begin{equation}
+I = JA = \frac{EA}{\rho} = \frac{VA}{L\rho} = \frac{V}{R},
+\end{equation}
+where $R = \rho L/A$. Rearranging gives $V = IR$. \qed
+\end{proof}
+
+Ohm's law follows from the linear relation between flux (current) and driving force (electric field), which holds when partition operations are independent and the partition lag is flux-independent. Deviations from Ohm's law occur when:
+\begin{itemize}
+\item Partition lag depends on current (high-field effects, hot electrons)
+\item Partition operations are correlated (superconductivity, charge density waves)
+\item Carrier density depends on field (semiconductors, insulators)
+\end{itemize}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_ohm_kirchhoff.png}
+\caption{\textbf{Ohm's Law and Kirchhoff's Laws from Categorical Dynamics.} 
+(\textbf{A}) Ohm's law $V = IR$: Voltage versus current for four resistances: $R = 1~\Omega$ (blue), $R = 2~\Omega$ (orange), $R = 5~\Omega$ (green), and $R = 10~\Omega$ (red). All curves are linear, passing through the origin. The slope equals the resistance. The microscopic formula $V = IR = (\tau_s g L/A) I$ shows that voltage arises from scattering partition lag $\tau_s$ and coupling $g$ over length $L$ and cross-section $A$. 
+(\textbf{B}) Resistivity from scattering partition lag: Resistivity $\rho$ versus scattering time $\tau_s$ on a log-log plot. Silicon (blue) has resistivity proportional to $1/\tau_s$. Metals (copper, aluminum, iron) cluster at $\rho \sim 10^{-8}$ to $10^{-6}~\Omega\cdot$m with $\tau_s \sim 10^{-14}$ to $10^{-13}$ s. Graphite (black) has intermediate resistivity. The red dashed line shows the theoretical $\rho \propto 1/\tau_s$ relationship. 
+(\textbf{C}) Kirchhoff's current law: Conservation at a circuit node (yellow circle labeled N). Four currents meet: $I_1$ (blue, incoming), $I_2$ (blue, incoming), $I_3$ (red, outgoing), and $I_4$ (red, outgoing). The conservation law $\sum I_{\text{in}} = \sum I_{\text{out}}$ gives $I_1 + I_2 = I_3 + I_4$. This follows from categorical state conservation: states are neither created nor destroyed at junctions. 
+(\textbf{D}) Kirchhoff's voltage law: Loop closure in a circuit with voltage source $V_s$ (yellow circle) and three resistors with voltage drops $V_1$, $V_2$, $V_3$ (gray rectangles). A load (green) is included. Traversing the loop clockwise: $V_s - V_1 - V_2 - V_3 = 0$, or $\sum V_{\text{loop}} = 0$. This follows from single-valuedness of the S-potential: the potential must return to its initial value after completing a closed loop.}
+\label{fig:ohm_kirchhoff}
+\end{figure*}
+
+\subsection{Power Dissipation and Joule Heating}
+
+The power dissipated in a resistor is:
+\begin{equation}
+P = I^2 R = \frac{V^2}{R} = IV.
+\label{eq:joule_heating}
+\end{equation}
+
+This result, while algebraically simple, obscures a profound question: \textit{Why does electrical current produce heat when pressurized water flow does not?} Both involve carriers (electrons, molecules) moving through a medium under a driving force (electric field, pressure gradient). Yet water flowing through a pipe does not spontaneously heat, while current through a wire always does.
+
+The answer lies in the \emph{replacement mechanism} that distinguishes electrical conduction from fluid flow.
+
+\subsubsection{The Replacement Mechanism}
+
+In fluid flow, molecules move \textit{with} the bulk motion. Each molecule is tracked continuously by its neighbors through intermolecular forces. There is no ``replacement''---the same molecules that enter a pipe segment exit it (on average, neglecting diffusion). The flow is \emph{coercive}: molecules are pushed along collectively, maintaining continuous contact.
+
+Electrical current operates on a fundamentally different principle. When an electron enters one end of a conductor, charge conservation demands that an electron exits the other end, but these are \textit{not the same electron}. The conductor maintains charge neutrality through rapid replacement:
+
+\begin{definition}[The Replacement Principle]
+\label{def:replacement}
+In electrical conduction, an electron added at one terminal causes an electron to be expelled at the opposite terminal through the Newton's cradle mechanism. The material lattice experiences no net change in electron count; only the boundary conditions change.
+\end{definition}
+
+From the perspective of the lattice atoms, ``nothing happens'' to the bulk electron density---the replacement occurs before any rectification process can detect or respond to it. The individual electron identity is lost in the collective. This is fundamentally different from fluid flow, where molecular identity is preserved (molecules can be labeled and tracked).
+
+\subsubsection{The Currency Analogy}
+
+Consider paper currency in a gold-standard economy. A banknote represents gold held in a vault, but transactions occur without verifying the gold's presence. Gold can move between vaults (or not move at all) while the paper economy continues normally. If there is a discrepancy---more or less gold than the notes represent---the note-bearers cannot trace their problems to the gold reserves. The ``friction'' in the paper economy appears as economic instability (inflation, deflation), not as missing gold bars.
+
+Conductors operate analogously. The electromagnetic signal (the ``paper economy'') propagates at nearly the speed of light, while the electron dynamics (the ``gold'') evolve on much slower timescales set by lattice vibrations and thermal motion. The material cannot ``verify'' the gold---cannot track which electron is which or confirm that the charge replacement is occurring coherently with the lattice state.
+
+\subsubsection{Phase Mismatch as Heat Origin}
+
+\begin{theorem}[Phase Mismatch Heating]
+\label{thm:phase_mismatch}
+Joule heating arises from the phase mismatch between signal propagation (electromagnetic, $v_s \sim c$) and material response (lattice vibrations, $v_{\text{ph}} \sim 10^3$ m/s; electron thermal motion, $v_F \sim 10^6$ m/s).
+\end{theorem}
+
+\begin{proof}
+The electromagnetic signal carrying current information propagates at:
+\begin{equation}
+v_{\text{signal}} = \frac{c}{\sqrt{\varepsilon_r \mu_r}} \sim 10^8 \text{ m/s}.
+\label{eq:signal_velocity_2}
+\end{equation}
+
+The lattice vibrations (phonons) propagate at the sound velocity:
+\begin{equation}
+v_{\text{phonon}} = \sqrt{\frac{K}{M}} \sim 10^3 \text{ m/s},
+\label{eq:phonon_velocity}
+\end{equation}
+where $K$ is the elastic modulus and $M$ is the atomic mass.
+
+This five-order-of-magnitude velocity disparity means the electromagnetic ``instruction'' to move charge arrives long before the lattice can respond coherently. The lattice atoms, vibrating thermally at frequency $\omega_D \sim 10^{13}$ Hz, are in random positions when the signal arrives. The electrons, occupying states near the Fermi surface with velocity $v_F \sim 10^6$ m/s, are also incoherent with the signal timing.
+
+The electromagnetic signal demands a response (electron displacement) on timescale $\tau_{\text{EM}} \sim L/v_s$. The lattice can coordinate its response on timescale $\tau_{\text{lattice}} \sim 1/\omega_D$. The mismatch $\tau_{\text{EM}} \gg \tau_{\text{lattice}}$ (for macroscopic $L$) means the lattice completes many vibration cycles during signal propagation, but cannot coordinate a coherent response to the electron displacement demand.
+
+Each electron displacement event occurs against an incoherent background of lattice positions. This creates undetermined residue: the electron's post-scattering state depends on the lattice configuration, which is undetermined during the scattering time $\tau_s$. The entropy associated with this undetermined residue is:
+\begin{equation}
+\Delta S_{\text{scatter}} = k_B \ln n_{\text{lattice configs}} \sim k_B \ln\left(\exp\left(\frac{\hbar\omega_D}{k_B T}\right)\right) = \frac{\hbar\omega_D}{T}.
+\end{equation}
+
+The power dissipation is:
+\begin{equation}
+P = \Gamma_{\text{scatter}} \times T \Delta S_{\text{scatter}} = \Gamma_{\text{scatter}} \times \hbar\omega_D,
+\end{equation}
+where $\Gamma_{\text{scatter}}$ is the scattering rate. For current $I$, the scattering rate is $\Gamma_{\text{scatter}} = I/(e\tau_s)$, giving:
+\begin{equation}
+P = \frac{I}{e\tau_s} \times \hbar\omega_D = I^2 R,
+\end{equation}
+where the resistance $R$ encapsulates the phase mismatch through partition lag accumulation. \qed
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_material_properties.png}
+\caption{\textbf{Material electrical properties from partition structure.} 
+\textbf{(Top left)} Band gap vs. resistivity showing material classification. Metals (orange: Cu, Al, Au) have zero band gap and resistivity $\rho \sim 10^{-8}$ $\Omega\cdot$m. Semimetals (yellow: Bi, Sb) have small band gaps and $\rho \sim 10^{-6}$ $\Omega\cdot$m. Semiconductors (green: Si, Ge) have moderate gaps ($E_g \sim 1$ eV) and $\rho \sim 10^{-2}$ $\Omega\cdot$m. Insulators (magenta: diamond) have large gaps ($E_g > 5$ eV) and $\rho > 10^{12}$ $\Omega\cdot$m. Resistivity increases exponentially with band gap as carrier density decreases: $n \propto \exp(-E_g/2k_B T)$.
+\textbf{(Top right)} Fermi surface topology in 2D $k$-space slice showing free electron (cyan circle), BCC metal (orange), and FCC metal (green) Fermi surfaces. Deviations from circular shape arise from lattice periodicity and determine anisotropic transport properties. Flat regions (low curvature) correspond to low Fermi velocity and high effective mass, reducing conductivity. Curved regions (high curvature) correspond to high Fermi velocity and low effective mass, enhancing conductivity.
+\textbf{(Bottom left)} Mean free path vs. temperature for different metals. Pure copper (orange) has $\lambda \sim 40$ nm at room temperature, increasing at low $T$ as phonon scattering decreases. Copper alloy (white) has shorter $\lambda \sim 10$ nm due to impurity scattering. Aluminum (cyan) and gold (yellow) show similar trends. All curves follow $\lambda \propto 1/T$ at high $T$ (phonon-limited) and saturate at low $T$ (impurity-limited).
+\textbf{(Bottom right)} Carrier mobility showing electron and hole mobilities in different semiconductors. InSb electrons (orange) have highest mobility $\mu \sim 8 \times 10^4$ cm$^2$/(V$\cdot$s) due to small effective mass and weak scattering. Germanium electrons (salmon) have $\mu \sim 4 \times 10^3$ cm$^2$/(V$\cdot$s). GaAs electrons (magenta) have $\mu \sim 9 \times 10^3$ cm$^2$/(V$\cdot$s). Silicon electrons (purple) and holes (violet) have lower mobilities $\mu \sim 10^3$ and $\sim 500$ cm$^2$/(V$\cdot$s) respectively. Mobility differences reflect differences in band structure, effective mass, and scattering rates.}
+\label{fig:material_properties}
+\end{figure}
+
+\subsubsection{The Verification Gap}
+
+\begin{proposition}[Unverifiable Replacement]
+\label{prop:unverifiable}
+The lattice cannot verify electron replacement events because the replacement timescale $\tau_{\text{replace}} \sim a/v_{\text{signal}}$ (where $a$ is the lattice spacing) is much shorter than the lattice equilibration timescale $\tau_{\text{lattice}} \sim 1/\omega_D$.
+\end{proposition}
+
+\begin{proof}
+For copper with lattice spacing $a \approx 3.6 \times 10^{-10}$ m and Debye frequency $\omega_D \approx 2\pi \times 7 \times 10^{12}$ Hz:
+\begin{align}
+\tau_{\text{replace}} &\sim \frac{a}{v_{\text{signal}}} \sim \frac{3.6 \times 10^{-10}}{10^8} = 3.6 \times 10^{-18} \text{ s} \quad (\text{attoseconds}), \\
+\tau_{\text{lattice}} &\sim \frac{1}{\omega_D} \sim \frac{1}{2\pi \times 7 \times 10^{12}} \approx 2.3 \times 10^{-14} \text{ s} \quad (\text{tens of femtoseconds}).
+\end{align}
+
+The ratio is $\tau_{\text{replace}}/\tau_{\text{lattice}} \sim 10^{-4}$. The electromagnetic signal traverses each unit cell in attoseconds, while the lattice vibrates on femtosecond timescales. The lattice cannot track local electron replacement. \qed
+\end{proof}
+
+This unverifiability generates entropy. The lattice state is undetermined during replacement, so the number of lattice configurations compatible with the replacement event is large. The entropy production per replacement event is:
+\begin{equation}
+\Delta S_{\text{replace}} = k_B \ln n_{\text{lattice configs}} \sim k_B.
+\label{eq:entropy_replace}
+\end{equation}
+
+The total power dissipation follows from the replacement rate $\Gamma_{\text{replace}} = I/e$:
+\begin{equation}
+P = \Gamma_{\text{replace}} \times T \Delta S_{\text{replace}} \sim \frac{I}{e} \times k_B T.
+\label{eq:power_replace}
+\end{equation}
+
+For typical currents and temperatures, this gives the correct order of magnitude for Joule heating.
+
+\subsubsection{Contrast with Fluid Flow}
+
+In fluid flow, there is no replacement---molecules move continuously with the flow. The ``verification'' is immediate: neighboring molecules maintain continuous contact through van der Waals forces, hydrogen bonds, and other short-range interactions. There is no gap between ``signal'' and ``response'' because there is no separate signal; the molecular motion \textit{is} the flow.
+
+Viscous heating arises only from velocity \textit{gradients}---regions where molecules slip past each other at different velocities. The entropy production is:
+\begin{equation}
+\dot{S}_{\text{viscous}} = \frac{\mu}{T} \left(\frac{\partial v}{\partial y}\right)^2,
+\label{eq:entropy_viscous}
+\end{equation}
+where $\mu$ is dynamic viscosity and $\partial v/\partial y$ is the velocity gradient. For uniform flow ($\partial v/\partial y = 0$), there is no entropy production and no heating.
+
+In contrast, electrical current generates heat even in perfectly uniform flow (constant current density $J$) because the phase mismatch between electromagnetic signal and lattice response is intrinsic to the conduction mechanism, not dependent on gradients.
+
+\subsubsection{Why Superconductors Produce No Heat}
+
+The phase mismatch mechanism immediately explains superconductivity. In a superconductor below $T_c$, electrons form Cooper pairs through phonon-mediated attraction \citep{cooper1956,bardeen1957}. These pairs are phase-locked---they maintain a fixed phase relationship with the lattice and with each other.
+
+\begin{theorem}[Superconducting Heat Elimination]
+\label{thm:super_no_heat}
+Cooper pair formation eliminates the verification gap, producing exactly zero Joule heating.
+\end{theorem}
+
+\begin{proof}
+In a normal conductor, the verification gap arises because:
+\begin{enumerate}
+\item Individual electrons are distinguishable.
+\item The electromagnetic signal outpaces lattice response.
+\item The lattice cannot track which electron is where during replacement.
+\end{enumerate}
+
+Cooper pairs eliminate this gap through three mechanisms:
+
+\textbf{(1) Categorical unification:} Paired electrons are indistinguishable. The pair wavefunction is:
+\begin{equation}
+\Psi_{\text{pair}}(\mathbf{r}_1, \mathbf{r}_2) = \phi_{\text{pair}}(\mathbf{r}_1 - \mathbf{r}_2) \cdot e^{i\mathbf{K} \cdot (\mathbf{r}_1 + \mathbf{r}_2)/2},
+\label{eq:pair_wavefunction}
+\end{equation}
+where $\phi_{\text{pair}}$ is the pair envelope (size $\sim \xi$, the coherence length) and $\mathbf{K}$ is the center-of-mass momentum. The pair has no internal structure that could be tracked.
+
+\textbf{(2) Spatial averaging:} The pair wavefunction extends over coherence length $\xi \sim 10^{-6}$ m (for conventional superconductors), encompassing $N_{\text{sites}} \sim (\xi/a)^3 \sim 10^9$ lattice sites. The pair ``sees'' the average lattice configuration over this volume, not individual atomic positions. Thermal fluctuations are suppressed by $1/\sqrt{N_{\text{sites}}} \sim 10^{-4.5}$.
+
+\textbf{(3) Phase-locking energy:} The pairing energy $\Delta$ synchronizes the electromagnetic signal with the lattice vibrations. The pair state already incorporates the lattice configuration over the coherence volume. There is no verification gap because the pair state \textit{is} the verification.
+
+The entropy production per replacement event becomes:
+\begin{equation}
+\Delta S_{\text{pair}} = k_B \ln 1 = 0,
+\end{equation}
+because there is exactly one lattice configuration compatible with the pair state---the configuration already encoded in the pair wavefunction. \qed
+\end{proof}
+
+\subsubsection{The Gold Vault Analogy Completed}
+
+Returning to the currency analogy: superconductivity is what happens when the paper notes and the gold are the same thing.
+
+In a normal conductor, the electromagnetic signal (notes) operates independently of the electron dynamics (gold). The economy runs on trust, and friction (heat) arises from the mismatch between paper transactions and gold movements.
+
+In a superconductor, Cooper pairs are both the signal and the carriers. There is no separate ``paper economy''---every transaction is a direct gold transfer. The note-bearers can always verify because they are holding the gold itself.
+
+This is why superconductors are called ``macroscopic quantum states''---the quantum coherence of the pair wavefunction means the signal IS the matter, not a representation of it.
+
+\subsubsection{Temperature Dependence of Heating}
+
+The phase mismatch picture explains the temperature dependence of resistance:
+
+\begin{enumerate}
+\item \textbf{At $T > \Theta_D$ (Debye temperature):} Lattice vibrations are fully excited. Maximum phase mismatch. $\rho \propto T$ (linear).
+
+\item \textbf{At $T < \Theta_D$:} Fewer phonons. Phase mismatch decreases. $\rho \propto T^5$ (Bloch-Grüneisen).
+
+\item \textbf{At $T \to 0$ (normal metal):} Residual impurity scattering maintains phase mismatch. $\rho \to \rho_0 > 0$ (residual resistivity).
+
+\item \textbf{At $T < T_c$ (superconductor):} Cooper pairs eliminate phase mismatch entirely. $\rho = 0$ exactly.
+\end{enumerate}
+
+The transition at $T_c$ is discontinuous because categorical unification (pairing) is discrete: electrons are either paired or unpaired, unified or distinguishable. There is no ``partial pairing'' that would give intermediate resistance. The resistivity drops from $\rho(T_c^+) > 0$ to $\rho(T_c^-) = 0$ discontinuously at $T_c$.
+
+This discontinuity is the signature of partition extinction, analyzed in detail in Section~\ref{sec:extinction}.

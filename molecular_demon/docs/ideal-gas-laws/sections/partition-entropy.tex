@@ -1,0 +1,300 @@
+\section{Partition Entropy}
+\label{sec:partition}
+
+\subsection{Partitions as Temporal Segments}
+
+From the triple equivalence (Theorem~\ref{thm:triple_equivalence}), the period of an oscillation is divided into partitions---temporal segments corresponding to categorical states. Each partition has a characteristic duration $\tau_i$ and a \textit{selectivity} $s_i$ that measures how precisely it discriminates among states.
+
+The partition perspective derives entropy by summing over these temporal segments, weighted by their selectivities.
+
+\subsection{Selectivity and Discrimination}
+
+The selectivity of a partition quantifies its discriminatory power—how finely it distinguishes among possible configurations.
+
+\begin{definition}
+The \textit{selectivity} of partition $a$ is the fraction of incoming configurations that it accepts:
+\begin{equation}
+s_a = \frac{\text{number of accepted configurations}}{\text{total number of configurations}} = \frac{1}{n_a}
+\end{equation}
+where $n_a$ is the number of distinguishable states within partition $a$.
+\end{definition}
+
+\textbf{Physical interpretation:}
+\begin{itemize}
+\item \textbf{High selectivity} ($s_a \to 1$): The partition accepts almost all configurations; low discrimination; few distinguishable states ($n_a \to 1$). Example: a coarse philtre that passes most molecules.
+\item \textbf{Low selectivity} ($s_a \to 0$): The partition accepts very few configurations; high discrimination; many distinguishable states ($n_a \to \infty$). Example: a fine philtre that passes only specific molecular velocities.
+\end{itemize}
+
+A partition's selectivity is the inverse of its categorical depth: $s_a = 1/n_a$. High categorical depth (many distinguishable states) corresponds to low selectivity (high discrimination).
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_partition.png}
+\caption{\textbf{Partition Lag Across Transport Types: Time Required for Categorical Determination.} 
+(\textbf{Electric: Partition Lag $\tau_p$}) The partition lag for electrical transport decreases with temperature for all scattering mechanisms. Phonon scattering (orange curve) shows strong decrease from $\tau_p \sim 10^2$ fs at 50 K to $\sim 10^1$ fs at 500 K—higher temperature means faster categorical determination. Impurity scattering (magenta curve) shows similar trend but with longer lag times ($\tau_p \sim 10^5$ fs at low $T$)—defects create persistent barriers that require more time to resolve. 
+(\textbf{Diffusive: Partition Lag $\tau_p$}) The partition lag for diffusive transport spans an enormous range: 15 orders of magnitude from $10^1$ fs to $10^{16}$ fs. Vacancy jump (bright green curve) shows the longest lag times ($\tau_p \sim 10^{16}$ fs at 400 K)—vacancies are rare, so waiting for a vacancy to arrive takes enormous time. Interstitial diffusion (green curve) is faster ($\tau_p \sim 10^{13}$ fs)—interstitials are more mobile. Grain boundary diffusion (dark green curve) is much faster ($\tau_p \sim 10^9$ fs)—boundaries provide fast pathways. All mechanisms show exponential decrease with temperature: $\tau_p \propto \exp(\Phi/kT)$. This demonstrates that partition lag is the microscopic origin of diffusion barriers. 
+(\textbf{Thermal: Partition Lag $\tau_p$}) The partition lag for thermal transport varies with phonon frequency and scattering mechanism. Normal scattering (green curve) shows constant lag ($\tau_p \sim 10^3$ ps) independent of frequency—normal processes conserve momentum and require no categorical determination. Umklapp scattering (orange curve) shows decreasing lag with frequency—high-frequency phonons scatter more frequently. Boundary scattering (magenta curve) shows weak frequency dependence. Impurity scattering (cyan curve) shows intermediate behavior. The dramatic difference between normal ($\tau_p \sim 10^3$ ps) and umklapp ($\tau_p \sim 10^2$ ps) explains why umklapp processes dominate thermal resistance at high temperature—they have shorter partition lag and thus higher scattering rate. 
+(\textbf{Viscous: Partition Lag $\tau_p$}) The partition lag for viscous flow decreases with temperature for all fluids. Water (cyan curve) has the shortest lag ($\tau_p \sim 10^9$ ps at 200 K, decreasing to $10^8$ ps at 600 K)—water molecules rearrange quickly. Glycerol (magenta curve) has much longer lag ($\tau_p \sim 10^{17}$ ps at 200 K)—glycerol is highly viscous and rearranges slowly. n-Hexane (green curve) shows intermediate behavior. The enormous variation (9 orders of magnitude) demonstrates that partition lag captures the microscopic origin of viscosity: $\mu \propto \tau_p \cdot g$. Longer partition lag means slower categorical determination, which manifests as higher viscosity.}
+\label{fig:partition_lag}
+\end{figure*}
+
+\subsection{Partition Lag and Transition Time}
+
+The partition lag quantifies the temporal cost of categorical transitions.
+
+\begin{definition}
+The \textit{partition lag} $\tau_p$ is the average time required to complete one partition—to transition from one categorical state to the next.
+\end{definition}
+
+From the fundamental identity (Equation~\ref{eq:fundamental}):
+\begin{equation}
+\tau_p = \frac{T}{M} = \frac{2\pi}{M\omega}
+\end{equation}
+
+where $T$ is the period, $M$ is the number of partitions, and $\omega$ is the angular frequency.
+
+\textbf{Physical interpretation:}
+\begin{itemize}
+\item Shorter partition lag ($\tau_p \to 0$): Rapid categorical transitions; high frequency; high temperature
+\item Longer partition lag ($\tau_p \to \infty$): Slow categorical transitions; low frequency; low temperature
+\end{itemize}
+
+The partition lag is inversely related to temperature:
+\begin{equation}
+T \propto \frac{1}{\langle\tau_p\rangle}
+\end{equation}
+
+This establishes a direct connexion between temporal dynamics (how fast the system transitions) and thermodynamic temperature (how energetic the system is).
+
+\subsection{Derivation of Partition Entropy}
+
+Consider a system with $M$ partitions, each with selectivity $s_a$. A configuration must pass through all $M$ partitions to complete one full cycle. The probability that a randomly chosen configuration successfully passes through all partitions is:
+\begin{equation}
+P_{\text{total}} = \prod_{a=1}^{M} s_a
+\end{equation}
+
+The information content (surprisal) of this event is:
+\begin{equation}
+I = -\ln P_{\text{total}} = -\ln\left(\prod_{a=1}^{M} s_a\right) = -\sum_{a=1}^{M} \ln s_a = \sum_{a=1}^{M} \ln\left(\frac{1}{s_a}\right)
+\end{equation}
+
+Following Shannon's information theory~\cite{shannon1948}, entropy is the expected information content. For a thermodynamic system, we multiply by Boltzmann's constant to convert from information units (nats) to thermodynamic units (J/K):
+\begin{equation}
+\boxed{S_{\text{part}} = k_B \sum_{a=1}^{M} \ln\left(\frac{1}{s_a}\right)}
+\label{eq:partition_entropy}
+\end{equation}
+
+This is the partition entropy.
+
+\textbf{Alternative form:} Since $s_a = 1/n_a$:
+\begin{equation}
+S_{\text{part}} = k_B \sum_{a=1}^{M} \ln n_a
+\end{equation}
+
+\textbf{Physical interpretation:}
+\begin{itemize}
+\item Each partition $a$ contributes $\ln(1/s_a) = \ln n_a$ to the total entropy
+\item Partitions with lower selectivity (higher discrimination) contribute more entropy
+\item The sum over partitions reflects the cumulative discriminatory power of the full temporal structure
+\end{itemize}
+
+\subsection{Equivalence with Categorical Entropy}
+
+The partition entropy is mathematically identical to the categorical entropy.
+
+Since $s_a = 1/n_a$, we have:
+\begin{equation}
+\ln\left(\frac{1}{s_a}\right) = \ln n_a
+\end{equation}
+
+The partition entropy becomes:
+\begin{equation}
+S_{\text{part}} = k_B \sum_{a=1}^{M} \ln n_a
+\end{equation}
+
+For uniform selectivity across all partitions ($n_a = n$ for all $a$):
+\begin{equation}
+S_{\text{part}} = k_B M \ln n = S_{\text{cat}}
+\end{equation}
+
+For non-uniform selectivity:
+\begin{equation}
+S_{\text{part}} = k_B \sum_{a=1}^{M} \ln n_a = k_B M \langle \ln n \rangle
+\end{equation}
+where $\langle \ln n \rangle = (1/M)\sum_a \ln n_a$ is the geometric mean of the state counts.
+
+\textbf{The partition and categorical entropies are mathematically equivalent.} The partition form emphasizes temporal structure and selectivity, while the categorical form emphasizes state counting. They are two perspectives on the same underlying quantity.
+
+\subsection{The Aperture Interpretation}
+
+A useful physical picture emerges by thinking of partitions as \textit{apertures}---selective passages through which configurations must pass.
+
+\begin{definition}
+An \textit{aperture} is a partition with selectivity $s_a < 1$ that acts as a selective filter.
+\end{definition}
+
+Each aperture accepts a fraction $s_a$ of incoming configurations and rejects the rest. The total ``filtering power'' of the system---the fraction of all possible configurations that survive passage through all apertures---is:
+\begin{equation}
+P_{\text{survive}} = \prod_{a=1}^{M} s_a = \prod_{a=1}^{M} \frac{1}{n_a} = \frac{1}{\prod_a n_a}
+\end{equation}
+
+For uniform apertures ($n_a = n$):
+\begin{equation}
+P_{\text{survive}} = \frac{1}{n^M}
+\end{equation}
+
+The inverse of this probability is the total number of distinguishable configurations:
+\begin{equation}
+W = \frac{1}{P_{\text{survive}}} = n^M
+\end{equation}
+
+Taking logarithms:
+\begin{equation}
+\ln W = M \ln n = \frac{S}{k_B}
+\end{equation}
+
+\textbf{Interpretation:} Entropy measures the total filtering power of all apertures---how many configurations could be distinguished by the full partition structure. A system with high entropy has many apertures (large $M$) or highly selective apertures (large $n$), allowing it to distinguish among many possible configurations.
+
+This aperture picture connects naturally to experimental measurement: any measurement device is effectively an aperture with finite selectivity, and the entropy quantifies the total information extractable through all such measurements.
+
+\subsection{Entropy Production from Partition Dynamics}
+
+When a system undergoes transitions, each partition completion contributes to entropy production. The rate of entropy production is:
+\begin{equation}
+\frac{dS}{dt} = k_B \sum_{a=1}^{M} \frac{1}{\tau_{p,a}} \ln\left(\frac{1}{s_a}\right)
+\end{equation}
+
+where $\tau_{p,a}$ is the lag time for partition $a$.
+
+For uniform partitions ($\tau_{p,a} = \tau_p$ and $s_a = s$ for all $a$):
+\begin{equation}
+\frac{dS}{dt} = \frac{k_B M}{\tau_p} \ln\left(\frac{1}{s}\right) = k_B \frac{M}{\tau_p} \ln n
+\end{equation}
+
+Using $M/\tau_p = dM/dt$ (the rate of partition completion):
+\begin{equation}
+\frac{dS}{dt} = k_B \ln n \cdot \frac{dM}{dt}
+\end{equation}
+
+This exactly matches the categorical entropy production rate (Section~\ref{sec:categorical}), confirming the equivalence of the two perspectives.
+
+\textbf{Physical interpretation:} Entropy increases at a rate proportional to how fast the system completes partitions (traverses categorical states). Rapid partition completion means rapid entropy production.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_partition_lag.png}
+\caption{\textbf{Partition lag $\tau_p$ across all four transport types showing universal temperature dependence.} 
+\textbf{(Top left)} Electrical partition lag showing scattering mechanism contributions. Phonon scattering (orange) dominates at high temperature with $\tau_p \sim 10^2$ fs at 500 K, decreasing from $\sim 10^3$ fs at low $T$ as phonon population increases ($\propto T$). Impurity scattering (magenta) is temperature-independent at $\tau_p \sim 10^4$ fs, providing residual scattering even at $T \to 0$. Electron-electron scattering (green) shows weak temperature dependence with $\tau_p \sim 10^4$ fs. All mechanisms contribute to total resistivity through $\rho = \mathcal{N}^{-1}\sum_{ij}\tau_{p,ij}g_{ij}$.
+\textbf{(Top right)} Diffusive partition lag showing atomic jump mechanisms. Vacancy diffusion (bright green) has longest partition lag $\tau_p \sim 10^{15}$ fs ($\sim 1$ s) at 400 K, decreasing exponentially with temperature as thermal activation enables atomic jumps: $\tau_p \propto \exp(E_a/k_B T)$. Interstitial diffusion (medium green) has shorter lag $\tau_p \sim 10^{13}$ fs ($\sim 10$ ms) due to lower activation barrier. Grain boundary diffusion (dark green) has intermediate lag $\tau_p \sim 10^7$ fs ($\sim 10$ ns) as atoms diffuse along defects with reduced barriers. The enormous range of partition lags (10$^2$--10$^{15}$ fs) reflects the wide range of diffusion timescales from fast interstitial motion to slow vacancy migration.
+\textbf{(Bottom left)} Thermal partition lag showing phonon scattering vs. frequency. Normal scattering (cyan) has constant partition lag $\tau_p \sim 10^3$ ps across all frequencies, as normal processes conserve crystal momentum and don't limit thermal transport. Umklapp scattering (orange) shows strong frequency dependence: $\tau_p \sim 10^1$ ps at low frequency ($\omega \sim 1$ THz), decreasing to $\sim 10^0$ ps at high frequency ($\omega \sim 14$ THz) as umklapp phase space increases. Boundary scattering (green) is frequency-independent at $\tau_p \sim 10^3$ ps. Impurity scattering (magenta) shows weak frequency dependence with $\tau_p \sim 10^2$ ps. The frequency-dependent partition lag determines thermal conductivity spectrum $\kappa(\omega)$.
+\textbf{(Bottom right)} Viscous partition lag showing molecular collision times. Water (cyan) has shortest partition lag $\tau_p \sim 10^0$ ps at 600 K, increasing to $\sim 10^2$ ps at 200 K as molecular collision rate decreases with temperature. Glycerol (magenta) has much longer lag $\tau_p \sim 10^{17}$ ps ($\sim 10^5$ s) at 200 K due to strong hydrogen bonding, decreasing exponentially to $\sim 10^9$ ps ($\sim 1$ s) at 600 K as bonds break. n-Hexane (green) has intermediate lag $\tau_p \sim 10^2$ ps. 
+\textbf{Universal structure:} All four transport types show partition lag decreasing with temperature (or frequency), following Arrhenius-like behavior $\tau_p \propto \exp(E_a/k_B T)$ where activation energy $E_a$ represents the energy barrier for partition operations. The universal formula $\text{Transport coefficient} \propto \sum_{ij}\tau_{p,ij}g_{ij}$ applies across all modes, with only the carrier type and coupling structure differing. This demonstrates the deep unity of transport phenomena: all arise from the same categorical partition dynamics, differing only in timescales and interaction strengths.}
+\label{fig:partition_lag_comparison}
+\end{figure}
+
+\subsection{Partition Temperature}
+
+Temperature emerges from the thermodynamic relation:
+\begin{equation}
+\frac{1}{T} = \left(\frac{\partial S}{\partial U}\right)_{V,N}
+\end{equation}
+
+Substituting $S = k_B \sum_a \ln(1/s_a) = k_B \sum_a \ln n_a$:
+\begin{equation}
+\frac{1}{T} = k_B \sum_{a=1}^{M} \frac{\partial \ln n_a}{\partial U}
+\end{equation}
+
+The key physical insight is that energy determines selectivity: higher energy allows access to more states, thus increasing $n_a$ and decreasing selectivity $s_a$.
+
+For a system where each quantum $\hbar\omega$ of energy opens one additional state per partition:
+\begin{equation}
+n_a = \frac{U_a}{\hbar\omega_a}
+\end{equation}
+
+Thus:
+\begin{equation}
+\frac{\partial \ln n_a}{\partial U_a} = \frac{1}{n_a} \cdot \frac{\partial n_a}{\partial U_a} = \frac{1}{n_a} \cdot \frac{1}{\hbar\omega_a} = \frac{\hbar\omega_a}{U_a \hbar\omega_a} = \frac{1}{U_a}
+\end{equation}
+
+For equipartition ($U_a = U/M$ for each partition):
+\begin{equation}
+\frac{1}{T} = k_B \sum_{a=1}^{M} \frac{1}{U_a} = k_B \sum_{a=1}^{M} \frac{M}{U} = \frac{k_B M}{U}
+\end{equation}
+
+Solving for $U$:
+\begin{equation}
+\boxed{U = M k_B T}
+\label{eq:partition_internal_energy}
+\end{equation}
+
+This is the equipartition result for $M$ classical degrees of freedom, recovered from the partition perspective.
+
+\textbf{Alternative interpretation:} The partition lag $\tau_p = T/M$ is related to temperature by:
+\begin{equation}
+\tau_p = \frac{T}{M} = \frac{U}{M^2 k_B T} = \frac{U/M}{M k_B T}
+\end{equation}
+
+For $U = Mk_BT$:
+\begin{equation}
+\tau_p = \frac{k_B T}{M k_B T} = \frac{1}{M\omega/2\pi}
+\end{equation}
+
+Shorter partition lag corresponds to higher temperature, confirming the inverse relationship.
+
+\subsection{Connection to Rate Theory and Chemical Kinetics}
+
+The partition perspective connects naturally to chemical kinetics and transition state theory~\cite{eyring1935}.
+
+In a chemical reaction:
+\begin{itemize}
+\item The \textbf{partition} is the transition state (activated complex)
+\item The \textbf{selectivity} $s$ is the transmission coefficient (reaction probability)
+\item The \textbf{partition lag} $\tau_p$ is the inverse attempt frequency
+\end{itemize}
+
+The reaction rate constant is:
+\begin{equation}
+k = \frac{s}{\tau_p}
+\end{equation}
+
+The entropy of activation is:
+\begin{equation}
+\Delta S^\ddagger = k_B \ln\left(\frac{1}{s}\right) = k_B \ln n
+\end{equation}
+
+This connects equilibrium thermodynamics (entropy) to non-equilibrium kinetics (rate constants) through the partition structure. The Eyring equation:
+\begin{equation}
+k = \frac{k_B T}{h} e^{\Delta S^\ddagger/k_B} e^{-\Delta H^\ddagger/k_B T}
+\end{equation}
+can be reinterpreted as:
+\begin{equation}
+k = \frac{1}{\tau_p} \cdot s \cdot e^{-\Delta H^\ddagger/k_B T}
+\end{equation}
+
+where $\tau_p = h/(k_BT)$ is the partition lag at the transition state.
+
+\textbf{Broader implications:} Any rate process—diffusion, relaxation, chemical reaction—can be viewed as partition traversal with characteristic selectivity and lag time. The partition entropy framework unifies equilibrium and non-equilibrium thermodynamics.
+
+\subsection{Summary}
+
+The partition perspective yields entropy as:
+\begin{equation}
+S_{\text{part}} = k_B \sum_{a=1}^{M} \ln\left(\frac{1}{s_a}\right) = k_B \sum_{a=1}^{M} \ln n_a
+\end{equation}
+
+Key features:
+\begin{enumerate}
+\item \textbf{Temporal foundation}: Derives from the selectivity (discrimination power) of temporal partitions
+\item \textbf{Selectivity-category duality}: Selectivity $s_a = 1/n_a$ links directly to categorical depth
+\item \textbf{Partition lag}: Determines the transition rate and connects inversely to temperature
+\item \textbf{Aperture interpretation}: Entropy measures the total filtering power of all selective passages
+\item \textbf{Rate theory connection}: Naturally connects to chemical kinetics and transition state theory
+\item \textbf{Equivalence}: Mathematically identical to categorical and oscillatory entropies
+\end{enumerate}
+
+\textbf{Triple equivalence established:}
+\begin{equation}
+S_{\text{cat}} = S_{\text{osc}} = S_{\text{part}} = k_B M \ln n
+\end{equation}
+
+With all three entropy forms derived and shown equivalent, we now demonstrate that this equivalence extends to enthalpy and all other thermodynamic quantities (Section~\ref{sec:enthalpy}).

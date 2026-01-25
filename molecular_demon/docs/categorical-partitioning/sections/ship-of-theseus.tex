@@ -1,0 +1,269 @@
+\section{Identity Persistence Under Sequential Component Exchange}
+\label{sec:identity}
+
+We analyse the thermodynamics of systems undergoing sequential component replacement. The key result is that each replacement is a partition-composition cycle that generates entropy, and accumulated entropy eventually exceeds the system's identity information content—at which point identity has been thermodynamically dissipated.
+
+\subsection{Identity as Information}
+
+\begin{definition}[Identity Information]
+\label{def:identity_info}
+The \emph{identity information} $I_{\text{id}}$ of a system $S$ is the minimum information required to distinguish $S$ from all other systems:
+\begin{equation}
+    I_{\text{id}}(S) = \min_{D} H(D(S))
+\end{equation}
+where $D$ ranges over all distinguishing functions and $H$ is Shannon entropy.
+\end{definition}
+
+\begin{theorem}[Identity Information is Finite]
+\label{thm:identity_finite}
+For any physical system $S$, the identity information is finite:
+\begin{equation}
+    I_{\text{id}}(S) < \infty
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+A physical system occupies a bounded region of phase space with finite volume $V$. Distinguishing $S$ requires specifying its location within this volume to precision $\delta$. The number of distinguishable locations is $V/\delta^d$ where $d$ is the dimensionality.
+
+The identity information is at most:
+\begin{equation}
+    I_{\text{id}}(S) \leq \ln\left(\frac{V}{\delta^d}\right) < \infty
+\end{equation}
+for any finite precision $\delta > 0$.
+\end{proof}
+
+\begin{definition}[Identity Entropy]
+\label{def:identity_entropy}
+The \emph{identity entropy} of a system is:
+\begin{equation}
+    S_{\text{id}} = \kB I_{\text{id}}
+\end{equation}
+This is the thermodynamic entropy associated with the system's distinguishability.
+\end{definition}
+
+\subsection{Component Replacement as Partition-Composition}
+
+\begin{definition}[Component Replacement]
+\label{def:replacement}
+A \emph{component replacement} operation on system $S$ consists of:
+\begin{enumerate}[(i)]
+    \item Partition: Remove component $c_{\text{old}}$ from $S$, creating $S' = S \setminus \{c_{\text{old}}\}$
+    \item Composition: Add component $c_{\text{new}}$ to $S'$, creating $S'' = S' \cup \{c_{\text{new}}\}$
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Replacement Generates Entropy]
+\label{thm:replacement_entropy}
+Each component replacement generates entropy:
+\begin{equation}
+    \Delta S_{\text{replacement}} = S_{\text{partition}} + S_{\text{composition}} > 0
+\end{equation}
+where $S_{\text{partition}}$ is the entropy of removing the old component and $S_{\text{composition}}$ is the entropy of adding the new component.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:irreversibility}, partition generates undetermined residue with positive entropy:
+\begin{equation}
+    S_{\text{partition}} = \kB H_{\text{boundary}}(\text{removal})
+\end{equation}
+
+The composition operation does not generate new entropy but also does not recover the partition entropy. The new component $c_{\text{new}}$ is not identical to $c_{\text{old}}$, so additional distinguishing information is required:
+\begin{equation}
+    S_{\text{composition}} = \kB I(c_{\text{new}} \neq c_{\text{old}})
+\end{equation}
+
+The total entropy generated per replacement is:
+\begin{equation}
+    \Delta S_{\text{replacement}} = S_{\text{partition}} + S_{\text{composition}} > 0
+\end{equation}
+\end{proof}
+
+\subsection{Cumulative Identity Loss}
+
+\begin{theorem}[Cumulative Entropy from Sequential Replacements]
+\label{thm:cumulative}
+After $n$ component replacements, the cumulative entropy generated is:
+\begin{equation}
+    S_{\text{cumulative}}(n) = \sum_{i=1}^{n} \Delta S_i = n \cdot \langle \Delta S \rangle
+\end{equation}
+where $\langle \Delta S \rangle$ is the average entropy per replacement.
+\end{theorem}
+
+\begin{proof}
+Each replacement $i$ generates entropy $\Delta S_i$. These contributions are additive because each replacement is an independent operation on the current state of the system. The cumulative entropy is the sum over all replacements.
+
+If all replacements are statistically similar, then $\langle \Delta S \rangle = \Delta S_{\text{replacement}}$ is constant, and:
+\begin{equation}
+    S_{\text{cumulative}}(n) = n \cdot \Delta S_{\text{replacement}}
+\end{equation}
+\end{proof}
+
+\begin{theorem}[Identity Dissipation Threshold]
+\label{thm:threshold}
+The original identity of system $S$ is thermodynamically dissipated when the cumulative replacement entropy exceeds the identity entropy:
+\begin{equation}
+    S_{\text{cumulative}}(n^*) \geq S_{\text{id}}(S)
+\end{equation}
+The threshold number of replacements is:
+\begin{equation}
+    n^* = \frac{S_{\text{id}}(S)}{\langle \Delta S \rangle} = \frac{I_{\text{id}}(S)}{\langle \Delta I \rangle}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Identity information $I_{\text{id}}(S)$ is the total information required to distinguish the original system $S$ from all others. Each replacement dissipates some of this information—the information about the original components is lost to undetermined residue.
+
+When the cumulative information loss equals the total identity information:
+\begin{equation}
+    n \cdot \langle \Delta I \rangle = I_{\text{id}}(S)
+\end{equation}
+the system no longer contains sufficient information to be identified as the original $S$. From a thermodynamic perspective, the identity has been completely dissipated.
+
+Solving for $n$:
+\begin{equation}
+    n^* = \frac{I_{\text{id}}(S)}{\langle \Delta I \rangle}
+\end{equation}
+\end{proof}
+
+\subsection{The Vagueness of Identity Boundaries}
+
+\begin{theorem}[Edge Indeterminacy of Identity]
+\label{thm:identity_edge}
+The boundary at which original identity is lost is fundamentally vague, with uncertainty:
+\begin{equation}
+    \Delta n \geq \frac{\kB T}{|\Delta S_{\text{replacement}}|}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:edge_indeterminacy}, partition boundaries have irreducible uncertainty due to partition lag. The identity threshold $n^*$ is itself determined by a partition process—the conceptual division between ``same identity'' and ``different identity.''
+
+The uncertainty in this boundary is proportional to thermal fluctuations:
+\begin{equation}
+    \Delta n \cdot \Delta S_{\text{replacement}} \geq \kB T
+\end{equation}
+
+Solving:
+\begin{equation}
+    \Delta n \geq \frac{\kB T}{|\Delta S_{\text{replacement}}|}
+\end{equation}
+
+This uncertainty is irreducible—there is no sharp boundary between ``same system'' and ``different system.''
+\end{proof}
+
+\subsection{Case Study: Sequential Plank Replacement}
+
+Consider a wooden structure (e.g., a vessel) composed of $N$ planks. Each plank is sequentially replaced over time.
+
+\begin{theorem}[Vessel Identity Analysis]
+\label{thm:vessel}
+For a vessel with $N$ planks, each carrying identity fraction $1/N$:
+\begin{enumerate}[(i)]
+    \item After replacing $k$ planks, the fractional identity remaining is $(N-k)/N$
+    \item The identity entropy remaining is $S_{\text{id}} \cdot (N-k)/N$
+    \item Complete replacement ($k = N$) dissipates all original identity entropy
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Assume identity is uniformly distributed among planks (each plank carries $I_{\text{id}}/N$ identity information). After replacing $k$ planks:
+\begin{itemize}
+    \item $N - k$ original planks remain, carrying $(N-k)/N \cdot I_{\text{id}}$ identity
+    \item $k$ new planks carry zero original identity
+\end{itemize}
+
+The fractional identity is:
+\begin{equation}
+    f(k) = \frac{N - k}{N}
+\end{equation}
+
+When $k = N$ (all planks replaced):
+\begin{equation}
+    f(N) = 0
+\end{equation}
+
+All original identity has been dissipated.
+\end{proof}
+
+\begin{theorem}[Gradual vs. Sudden Replacement]
+\label{thm:gradual}
+Gradual replacement (one plank at a time) and sudden replacement (all planks at once) yield the same final identity entropy, but gradual replacement distributes the identity loss over time while sudden replacement concentrates it.
+\end{theorem}
+
+\begin{proof}
+Let $S_0 = S_{\text{id}}(S)$ be the original identity entropy.
+
+\textbf{Gradual replacement}: After $k$ replacements, identity entropy remaining is:
+\begin{equation}
+    S_k = S_0 \cdot \frac{N - k}{N}
+\end{equation}
+At $k = N$, $S_N = 0$.
+
+\textbf{Sudden replacement}: All $N$ planks are replaced simultaneously. Identity entropy immediately drops to:
+\begin{equation}
+    S_{\text{sudden}} = 0
+\end{equation}
+
+Both processes result in zero remaining identity entropy. The difference is the time profile of the loss, not the final state.
+\end{proof}
+
+\subsection{The Two-Vessel Problem}
+
+Consider a scenario where the replaced planks are preserved and reassembled into a second structure.
+
+\begin{theorem}[Conservation of Identity Entropy]
+\label{thm:conservation}
+When replaced components are preserved and reassembled, the total identity entropy is conserved:
+\begin{equation}
+    S_{\text{id}}(\text{modified}) + S_{\text{id}}(\text{reassembled}) + S_{\text{dissipated}} = S_{\text{id}}(\text{original})
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The original identity entropy $S_{\text{id}}(\text{original})$ cannot be created or destroyed—only redistributed.
+
+After complete replacement:
+\begin{itemize}
+    \item Modified structure: Contains new components, zero original identity
+    \item Reassembled structure: Contains original components, partial original identity
+    \item Environment: Contains dissipated entropy from partition boundaries
+\end{itemize}
+
+The sum is conserved:
+\begin{equation}
+    0 + S_{\text{reassembled}} + S_{\text{dissipated}} = S_{\text{id}}(\text{original})
+\end{equation}
+
+The reassembled structure has identity $S_{\text{reassembled}} = S_{\text{id}}(\text{original}) - S_{\text{dissipated}}$, which is less than the original due to partition entropy losses during removal and reassembly.
+\end{proof}
+
+\begin{corollary}[Neither Vessel is Identical to Original]
+\label{cor:neither}
+After complete replacement with reassembly:
+\begin{enumerate}[(i)]
+    \item Modified vessel: $S_{\text{id}} = 0$ (contains no original identity)
+    \item Reassembled vessel: $S_{\text{id}} < S_{\text{original}}$ (contains most but not all)
+\end{enumerate}
+Neither vessel is fully identical to the original.
+\end{corollary}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/ship_theseus_panel.png}
+\caption{\textbf{Identity Persistence Under Sequential Component Exchange.} \textbf{(A)} Sequential component exchange: each replacement cycle consists of partition (remove old component) and composition (add new component), each generating entropy. \textbf{(B)} Hardware-measured identity dissipation: identity remaining fraction decays exponentially with number of exchanges; 50\% threshold crossed after sufficient replacements. \textbf{(C)} Cumulative entropy from exchanges: monotonically increasing, verifying Second Law—each cycle irreversibly dissipates identity information. \textbf{(D)} Entropy per exchange cycle: each replacement generates measurable positive entropy. \textbf{(E)} Identity-entropy relationship: identity decays as $I \propto e^{-S/k_B}$, showing thermodynamic relationship between information and entropy. \textbf{(F)} Connection to Ship of Theseus: the paradox dissolves when identity is recognized as finite information that is progressively dissipated through sequential partition-composition cycles—no sharp boundary exists, only gradual transition governed by $S_{\text{cumulative}}/S_{\text{id}}$.}
+\label{fig:ship_theseus}
+\end{figure*}
+
+\subsection{Resolution of the Traditional Puzzle}
+
+\begin{remark}[Historical Note]
+This analysis provides the thermodynamic structure underlying the Ship of Theseus paradox. The traditional question—``If every plank is replaced, is it the same ship?''—dissolves under thermodynamic analysis:
+\begin{itemize}
+    \item Identity is information, which has finite quantity $I_{\text{id}}$
+    \item Each replacement dissipates identity information (entropy to environment)
+    \item After sufficient replacements, no original identity remains
+    \item The boundary is fuzzy due to edge indeterminacy at partition boundaries
+\end{itemize}
+The question ``is it the same ship?'' presupposes a sharp identity boundary. The thermodynamic answer: identity is progressively dissipated through sequential partition-composition cycles, with no sharp threshold but a gradual transition from ``same'' to ``different'' governed by the ratio $S_{\text{cumulative}}/S_{\text{id}}$.
+\end{remark}
+

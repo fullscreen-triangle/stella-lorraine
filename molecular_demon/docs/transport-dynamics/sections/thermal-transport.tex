@@ -1,0 +1,590 @@
+%==============================================================================
+\section{Thermal Transport}
+\label{sec:thermal}
+%==============================================================================
+
+\subsection{Heat Carrier Partition Dynamics}
+
+Thermal transport is the flow of heat driven by temperature gradients. Heat is carried by phonons (quantized lattice vibrations) in insulators and by both phonons and electrons in metals \citep{kittel2005,ziman1960}. Unlike electrical, viscous, and diffusive transport, thermal transport involves multiple carrier types with vastly different properties, making it the most complex transport phenomenon.
+
+\begin{definition}[Thermal Partition]
+\label{def:thermal_partition}
+A \emph{thermal partition operation} occurs when a heat carrier (phonon or electron) scatters, randomizing its direction and equilibrating its energy with the local temperature. The scattering time $\tau_{\kappa}$ serves as the partition lag.
+\end{definition}
+
+During a scattering event, the carrier's momentum and energy are undetermined for duration $\tau_{\kappa}$. The carrier is neither in its pre-scattering state (momentum $\mathbf{k}_{i}$, energy $E_{i}$) nor in its post-scattering state (momentum $\mathbf{k}_{f}$, energy $E_{f}$) but in a superposition. This undetermined residue generates entropy, which manifests macroscopically as thermal resistance (inverse thermal conductivity).
+
+For thermal transport, Fourier's law states that the heat flux is given by:
+\begin{equation}
+\mathbf{q} = -\kappa \nabla T,
+\label{eq:fourier_law}
+\end{equation}
+where $\mathbf{q}$ is the heat flux (W/m$^{2}$), $\kappa$ is the thermal conductivity (W/(m$\cdot$K)), and $T$ is temperature. The transport coefficient is the inverse thermal conductivity $\Xi = \kappa^{-1}$.
+
+\begin{theorem}[Thermal Conductivity]
+\label{thm:thermal_conductivity}
+The thermal conductivity of a material is:
+\begin{equation}
+\kappa = \frac{\mathcal{N}}{\sum_{i,j} \tau_{{\kappa,ij}} g_{{ij}}},
+\label{eq:thermal_partition}
+\end{equation}
+where $\mathcal{N}$ is the normalisation factor (heat capacity per unit volume times characteristic velocity squared), $\tau_{{\kappa,ij}}$ is the scattering partition lag, and $g_{{ij}}$ is the carrier-scatterer coupling strength.
+\end{theorem}
+
+\begin{proof}
+From the universal transport formula~\eqref{eq:universal_transport}, the inverse thermal conductivity is:
+\begin{equation}
+\kappa^{-1} = \frac{1}{\mathcal{N}} \sum_{i,j} \tau_{{\kappa,ij}} g_{{ij}}.
+\end{equation}
+
+The normalisation $\mathcal{N}$ has units W/(m$\cdot$K). From kinetic theory, thermal conductivity is $\kappa = (1/3)C_{v} v \lambda$, where $C_{v}$ is volumetric heat capacity (J/(m$^{3}\cdot$K)), $v$ is carrier velocity (m/s), and $\lambda$ is mean free path (m). The partition lag is $\tau = \lambda/v$, giving:
+\begin{equation}
+\kappa = \frac{1}{3}C_{v} v \lambda = \frac{1}{3}C_{v} v^{2} \tau.
+\end{equation}
+
+Identifying $\mathcal{N} = (1/3)C_{v} v^{2}$ and $g = 1$ (dimensionless coupling) gives $\kappa = \mathcal{N}/\tau$, consistent with the universal formula. \qed
+\end{proof}
+
+\subsection{Phonon Thermal Conductivity}
+
+In insulators, heat is carried exclusively by phonons. The kinetic theory expression is \citep{debye1914}:
+\begin{equation}
+\kappa_{{\text{ph}}} = \frac{1}{3} C_{v} v_{s} \lambda,
+\label{eq:kappa_phonon}
+\end{equation}
+where $C_{v}$ is the volumetric heat capacity, $v_{s}$ is the sound velocity (phonon group velocity), and $\lambda$ is the phonon mean free path.
+
+The phonon partition lag is:
+\begin{equation}
+\tau_{{\text{ph}}} = \frac{\lambda}{v_{s}}.
+\label{eq:tau_phonon_th}
+\end{equation}
+
+With coupling $g = C_{v} v_{s}^{2}/3$ (from dimensional analysis):
+\begin{equation}
+\kappa = \frac{g}{\tau} = \frac{(C_{v} v_{s}^{2}/3) \cdot \lambda}{v_{s}} = \frac{1}{3} C_{v} v_{s} \lambda,
+\label{eq:kappa_derived}
+\end{equation}
+reproducing the result of kinetic theory.
+
+\subsection{Phonon Scattering Mechanisms}
+
+The phonon mean free path $\lambda$ is limited by several scattering mechanisms, each contributing to the total scattering rate through Matthiessen's rule:
+\begin{equation}
+\tau_{{\text{total}}}^{-1} = \tau_{U}^{-1} + \tau_{{\text{boundary}}}^{-1} + \tau_{{\text{imp}}}^{-1} + \tau_{{\text{defect}}}^{-1}.
+\label{eq:matthiessen_phonon}
+\end{equation}
+
+\subsubsection{Umklapp Scattering}
+
+\emph{Umklapp scattering} is phonon-phonon scattering that does not conserve crystal momentum \citep{peierls1929}. Three phonons interact:
+\begin{equation}
+\mathbf{k}_{1} + \mathbf{k}_{2} = \mathbf{k}_{3} + \mathbf{G},
+\label{eq:umklapp_conservation}
+\end{equation}
+where $\mathbf{G}$ is a reciprocal lattice vector. The Umklapp scattering rate is:
+\begin{equation}
+\tau_{U}^{-1} \propto T^{3} \exp\left(-\frac{\Theta_{D}}{bT}\right),
+\label{eq:umklapp}
+\end{equation}
+where $\Theta_{D}$ is the Debye temperature and $b \approx 2$--$3$ is a material-dependent constant.
+
+At high temperatures ($T > \Theta_{D}$), the exponential factor approaches unity, giving $\tau_{U}^{-1} \propto T^{3}$. This dominates thermal resistance in pure crystals at high temperatures.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_phonon_analysis.png}
+\caption{\textbf{Phonon transport mode analysis showing normal vs. umklapp scattering.} 
+\textbf{(Top left)} Phonon mode-matching network showing connections between acoustic (green nodes) and optical (orange nodes) phonon modes. Network structure determines which scattering processes are allowed. Edges (yellow/orange lines) represent allowed transitions satisfying energy and momentum conservation. Dense connectivity indicates strong mode coupling and efficient thermal transport. Sparse connectivity indicates weak coupling and reduced transport.
+\textbf{(Top right)} Umklapp scattering in $k$-space showing difference between normal and umklapp processes. First Brillouin zone (cyan square) contains all unique phonon states. Normal process (green arrows): $\mathbf{k}_1 + \mathbf{k}_2 = \mathbf{k}_3$ conserves crystal momentum within first zone, preserving thermal current. Umklapp process (red/yellow/orange arrows): $\mathbf{k}_1 + \mathbf{k}_2 = \mathbf{k}_3 + \mathbf{G}$ scatters phonon across zone boundary by reciprocal lattice vector $\mathbf{G}$, reversing momentum and providing thermal resistance. Umklapp processes require high-energy phonons ($\hbar\omega \gtrsim k_B\Theta_D/2$), so they freeze out at low temperature, causing thermal conductivity to increase as $T$ decreases.
+\textbf{(Bottom left)} Phonon interface scattering showing transmission and reflection at material boundary. In Material 1 (green region), incident phonon (green wave) propagates toward interface. At interface (white line), acoustic impedance mismatch causes partial reflection (red wave) and partial transmission (blue wave) into Material 2 (brown region). Transmission coefficient $T = 4Z_1Z_2/(Z_1+Z_2)^2$ depends on acoustic impedances $Z_i = \rho_i v_i$. Large impedance mismatch (e.g., metal-insulator) gives low transmission and high thermal resistance. Small mismatch gives high transmission and low resistance.
+\textbf{(Bottom right)} Phonon wavepacket showing localized phonon excitation in 3D $k$-space. Wavepacket (red peak) is localized in both real space and momentum space, with width $\Delta k$ satisfying uncertainty relation $\Delta x \cdot \Delta k \sim 1$. Blue regions show negative amplitude. Wavepacket propagates with group velocity $\mathbf{v}_g = \nabla_{\mathbf{k}}\omega(\mathbf{k})$, carrying thermal energy. Wavepacket spreading (dispersion) occurs when group velocity is frequency-dependent, limiting coherent transport length.}
+\label{fig:phonon_analysis}
+\end{figure}
+
+
+\subsubsection{Boundary Scattering}
+
+In samples of finite size $L$, phonons scatter at boundaries (surfaces, grain boundaries). For diffuse boundary scattering:
+\begin{equation}
+\lambda_{{\text{boundary}}} \approx L.
+\label{eq:boundary_scatter}
+\end{equation}
+
+The boundary scattering rate is:
+\begin{equation}
+\tau_{{\text{boundary}}}^{-1} = \frac{v_{s}}{L}.
+\label{eq:tau_boundary}
+\end{equation}
+
+This dominates at low temperatures where intrinsic scattering is weak. The thermal conductivity becomes size-dependent: $\kappa \propto L$ for $L < \lambda_{{\text{intrinsic}}}$.
+
+\subsubsection{Impurity Scattering}
+
+Mass defects (isotopes, substitutional impurities) scatter phonons through local perturbations to the lattice potential. The scattering rate is \citep{klemens1955}:
+\begin{equation}
+\tau_{{\text{imp}}}^{-1} \propto \omega^{4},
+\label{eq:impurity_phonon}
+\end{equation}
+where $\omega$ is phonon frequency. This strong frequency dependence means high-frequency phonons are scattered much more effectively than low-frequency phonons, a key principle in thermoelectric engineering.
+
+\subsubsection{Defect Scattering}
+
+Dislocations, vacancies, and other point defects scatter phonons with rates that depend on defect concentration and phonon wavelength. For point defects:
+\begin{equation}
+\tau_{{\text{defect}}}^{-1} \propto n_{{\text{defect}}} \omega^{4},
+\label{eq:defect_phonon}
+\end{equation}
+similar to impurity scattering.
+
+\subsection{Temperature Dependence of Phonon Conductivity}
+
+The thermal conductivity of insulators shows characteristic temperature dependence arising from the competition between heat capacity (which increases with $T$) and mean free path (which decreases with $T$):
+
+\subsubsection{High Temperature ($T > \Theta_{D}$)}
+
+At high temperatures, Umklapp scattering dominates. The heat capacity saturates at the Dulong-Petit value $C_{v} \approx 3Nk_{B}$ (where $N$ is the atom density), while the mean free path decreases as:
+\begin{equation}
+\lambda \propto \frac{1}{T} \quad \text{(from Umklapp rate } \tau_{U}^{-1} \propto T\text{)}.
+\end{equation}
+
+Therefore:
+\begin{equation}
+\kappa(T) \propto C_{v} v_{s} \lambda \propto \frac{1}{T} \quad \text{for } T > \Theta_{D}.
+\label{eq:kappa_high_T}
+\end{equation}
+
+This $\kappa \propto T^{-1}$ behavior is observed in most crystalline insulators above room temperature.
+
+\subsubsection{Low Temperature ($T \ll \Theta_{D}$)}
+
+At low temperatures, boundary scattering dominates ($\lambda \approx L$), and the heat capacity follows the Debye $T^{3}$ law:
+\begin{equation}
+C_{v} = \frac{12\pi^{4}}{5} Nk_{B} \left(\frac{T}{\Theta_{D}}\right)^{3}.
+\label{eq:debye_cv}
+\end{equation}
+
+Therefore:
+\begin{equation}
+\kappa(T) \propto C_{v} v_{s} L \propto T^{3} \quad \text{for } T \ll \Theta_{D}.
+\label{eq:kappa_low_T}
+\end{equation}
+
+This $\kappa \propto T^{3}$ behavior is observed in high-purity crystals at temperatures below $\sim \Theta_{D}/10$.
+
+\subsubsection{Conductivity Peak}
+
+The competition between increasing $C_{v}$ (which enhances $\kappa$) and decreasing $\lambda$ (which reduces $\kappa$) produces a conductivity maximum at $T_{{\text{peak}}} \sim \Theta_{D}/10$. For high-purity crystals, this peak can be very sharp, with $\kappa_{{\text{peak}}}$ exceeding $\kappa(300\text{ K})$ by factors of 10–100.
+
+\subsection{Electronic Thermal Conductivity}
+
+In metals, electrons carry heat as well as charge. The electronic thermal conductivity is \citep{sommerfeld1928}:
+\begin{equation}
+\kappa_{e} = \frac{\pi^{2}}{3} \frac{k_{B}^{2} T}{e^{2}} \sigma = \frac{\pi^{2}}{3} \frac{k_{B}^{2} T}{e^{2}} \cdot \frac{1}{\rho},
+\label{eq:kappa_electron}
+\end{equation}
+where $\sigma = 1/\rho$ is electrical conductivity and $\rho$ is resistivity.
+
+\begin{proof}
+From kinetic theory, the electronic thermal conductivity is:
+\begin{equation}
+\kappa_{e} = \frac{1}{3} C_{v} v_{F} \lambda,
+\end{equation}
+where $C_{v} = (\pi^{2}/3)n k_{B}^{2} T/E_{F}$ is the electronic heat capacity (Sommerfeld model), $v_{F}$ is the Fermi velocity, and $\lambda = v_{F} \tau$ is the mean free path. Substituting:
+\begin{equation}
+\kappa_{e} = \frac{1}{3} \cdot \frac{\pi^{2}}{3} \frac{n k_{B}^{2} T}{E_{F}} \cdot v_{F} \cdot v_{F} \tau = \frac{\pi^{2}}{9} \frac{n k_{B}^{2} T v_{F}^{2} \tau}{E_{F}}.
+\end{equation}
+
+Using $E_{F} = (1/2)m v_{F}^{2}$ and the Drude conductivity $\sigma = ne^{2}\tau/m$:
+\begin{equation}
+\kappa_{e} = \frac{\pi^{2}}{3} \frac{k_{B}^{2} T}{e^{2}} \sigma.
+\end{equation}
+\qed
+\end{proof}
+
+\subsection{Wiedemann-Franz Law}
+
+The ratio of electronic thermal conductivity to electrical conductivity is \citep{wiedemann1853}:
+\begin{equation}
+\frac{\kappa_{e}}{\sigma T} = L = \frac{\pi^{2} k_{B}^{2}}{3e^{2}} = 2.44 \times 10^{-8} \text{ W}\cdot\Omega/\text{K}^{2},
+\label{eq:wiedemann_franz}
+\end{equation}
+where $L$ is the Lorenz number.
+
+\begin{theorem}[Partition Origin of Wiedemann-Franz]
+\label{thm:wf_partition}
+The Wiedemann-Franz law follows from the common partition structure of electrical and thermal transport by electrons.
+\end{theorem}
+
+\begin{proof}
+Both electrical conductivity $\sigma$ and electronic thermal conductivity $\kappa_{e}$ involve the same carriers (electrons) and the same scattering mechanisms (phonons, impurities, and defects). The partition lag $\tau$ is identical for both:
+\begin{align}
+\sigma &= \frac{ne^{2}\tau}{m}, \\
+\kappa_{e} &= \frac{\pi^{2} k_{B}^{2} T}{3} \frac{n\tau}{m}.
+\end{align}
+
+The ratio:
+\begin{equation}
+\frac{\kappa_{e}}{\sigma T} = \frac{(\pi^{2} k_{B}^{2} T/3)(n\tau/m)}{(ne^{2}\tau/m) \cdot T} = \frac{\pi^{2} k_{B}^{2}}{3e^{2}} = L
+\end{equation}
+is independent of $\tau$, $n$, $m$, and all material-specific properties. The ratio depends only on fundamental constants. \qed
+\end{proof}
+
+The Wiedemann-Franz law holds when the same partition operations limit both electrical and thermal transport. Deviations occur when:
+\begin{itemize}
+\item Different scattering mechanisms have different energy dependencies (inelastic scattering)
+\item Electron-electron scattering contributes (violates the independent-particle approximation)
+\item Temperature is very low ($T \ll T_{F}$, where Fermi-Dirac statistics matter)
+\end{itemize}
+
+Experimentally, the Wiedemann-Franz law holds to within $\sim$10\% for most metals at room temperature and at very low temperatures, but can deviate significantly in the intermediate regime \citep{kumar1993}.
+
+\subsection{Fourier's Law}
+
+\begin{theorem}[Fourier's Law]
+\label{thm:fourier}
+The heat flux is proportional to the temperature gradient:
+\begin{equation}
+\mathbf{q} = -\kappa \nabla T.
+\label{eq:fourier}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fourier's law is a constitutive relation analogous to Ohm's law ($\mathbf{J} = -\sigma\nabla V$), Newton's law of viscosity ($\boldsymbol{\tau} = -\mu\nabla\mathbf{v}$), and Fick's law ($\mathbf{J} = -D\nabla c$). It states that heat flows down temperature gradients at a rate proportional to the magnitude of the gradient. The proportionality constant $\kappa$ is the thermal conductivity, which measures how readily heat responds to temperature differences. \qed
+\end{proof}
+
+All four constitutive relations (Ohm, Newton, Fick, Fourier) have the same partition structure: flux proportional to the gradient, with the transport coefficient determined by partition lag. This universality reflects the common categorical origin of all transport phenomena.
+
+\subsection{Phonon Diversity: Sizes, Shapes, and Phases}
+
+The treatment above uses a single phonon mean free path $\lambda$, but this obscures the rich internal structure of phonon transport. Phonons are not a homogeneous population—they vary in ``size'' (energy capacity), ``shape'' (polarisation and wavevector), and phase relationship.
+
+\subsubsection{Phonon Spectrum}
+
+A crystal with $N$ atoms per unit cell supports $3N$ phonon branches \citep{ashcroft1976}:
+
+\begin{enumerate}
+\item \textbf{Acoustic branches (3):} Atoms in a unit cell move in phase. Low frequency, $\omega \to 0$ as $\mathbf{k} \to 0$. These are sound waves.
+
+\item \textbf{Optical branches ($3N-3$):} Atoms in a unit cell move out of phase. Finite frequency at $\mathbf{k} = 0$. These can be excited by infrared light (hence ``optical'').
+\end{enumerate}
+
+Each branch further divides by polarisation:
+\begin{itemize}
+\item \textbf{Longitudinal (L):} Displacement parallel to the propagation direction (compression waves)
+\item \textbf{Transverse (T):} Displacement perpendicular to the propagation direction (shear waves)
+\end{itemize}
+
+The phonon ``size''---its energy capacity---is $\hbar\omega(\mathbf{k})$, which varies from zero (long-wavelength acoustic) to $\sim k_{B} \Theta_{D}$ (zone boundary).
+
+\subsubsection{Mode-Dependent Transport}
+
+Different phonon modes carry heat with vastly different efficiencies. The total thermal conductivity is a sum over all phonon modes:
+
+\begin{theorem}[Mode-Dependent Thermal Conductivity]
+\label{thm:mode_kappa}
+The total thermal conductivity is:
+\begin{equation}
+\kappa = \sum_{\lambda} \int \frac{d^{3}k}{(2\pi)^{3}} \, c_{\lambda}(\mathbf{k}) \, v_{\lambda}(\mathbf{k})^{2} \, \tau_{\lambda}(\mathbf{k}),
+\label{eq:mode_kappa}
+\end{equation}
+where $\lambda$ labels branches (LA, TA1, TA2, LO, TO, etc.), $c_{\lambda}(\mathbf{k})$ is the mode-specific heat capacity, $v_{\lambda}(\mathbf{k}) = \partial\omega_{\lambda}/\partial\mathbf{k}$ is the group velocity, and $\tau_{\lambda}(\mathbf{k})$ is the mode lifetime (partition lag).
+\end{theorem}
+
+The mode lifetime $\tau_{\lambda}(\mathbf{k})$ varies by orders of magnitude:
+\begin{itemize}
+\item \textbf{Long-wavelength acoustic phonons:} $\tau \sim 10^{-9}$ s (weak scattering, long mean free path $\lambda \sim 1$ mm)
+\item \textbf{Zone-boundary phonons:} $\tau \sim 10^{-12}$ s (strong Umklapp, short mean free path $\lambda \sim 1$ nm)
+\item \textbf{Optical phonons:} $\tau \sim 10^{-13}$ s (rapid decay to acoustic modes via anharmonic coupling)
+\end{itemize}
+
+This six-order-of-magnitude variation means that thermal transport is dominated by a small subset of modes (long-wavelength acoustic), while most modes contribute negligibly.
+
+\subsubsection{Heat Transfer Chain: A to B to C}
+
+Consider heat flowing through a chain of molecules A $\to$ B $\to$ C. The vibrational energy passed from A to B is \textit{not} the same as that transmitted from B to C:
+
+\begin{proposition}[Non-Uniform Energy Transfer]
+\label{prop:nonuniform}
+Each pair of coupled oscillators has different frequency matching and coupling strength. Energy transfer depends on:
+\begin{enumerate}
+\item \textbf{Mode overlap:} Which frequencies A and B share (phonon density of states matching)
+\item \textbf{Coupling strength:} How strongly those modes interact (anharmonic matrix elements)
+\item \textbf{Phase relationship:} Whether A and B vibrate in phase or out of phase
+\end{enumerate}
+\end{proposition}
+
+The energy in mode $\omega_{1}$ at site A may transfer to mode $\omega_{2}$ at site B (mode conversion), then to mode $\omega_{3}$ at site C. The path through phonon frequency space is tortuous, not direct. This mode conversion is a key source of thermal resistance.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_thermal_vibrational.png}
+\caption{\textbf{Thermal transport vibrational dynamics showing atomic-scale heat flow mechanisms.} 
+\textbf{(Top left)} Vibrational field under heat flow conditions showing vector field of atomic displacements. Hot region (right, red arrows) has large-amplitude vibrations. Cold region (left, white/yellow arrows) has small-amplitude vibrations. Arrow color indicates temperature (red = hot, yellow = warm, white = cold). Arrow direction shows instantaneous displacement direction. Heat flows from hot to cold (right to left) through phonon propagation. Coherent wave patterns visible in intermediate region show phonon transport. Random patterns in hot region show increased disorder at high temperature.
+\textbf{(Top right)} Vibration amplitude vs. temperature showing classical and quantum regimes. Classical prediction (yellow line) gives $u_{\text{RMS}} \propto \sqrt{T}$ at all temperatures. Quantum prediction (white line) shows deviation at low temperature: $u_{\text{RMS}}$ saturates at zero-point motion as $T \to 0$. Crossover occurs at Debye temperature $\Theta_D \sim 350$ K (yellow dotted line). Above $\Theta_D$, classical mechanics is valid. Below $\Theta_D$, quantum effects are essential. At room temperature ($T \sim 300$ K), most materials are in crossover regime.
+\textbf{(Bottom left)} Phonon dispersion surface showing 3D frequency landscape $\omega(\mathbf{k})$ in momentum space. Surface height (color: blue = low frequency, yellow/red = high frequency) represents phonon frequency. Acoustic branches start at $\omega = 0$ at zone center ($\mathbf{k} = 0$). Optical branches (not shown) start at finite frequency. Group velocity $\mathbf{v}_g = \nabla_{\mathbf{k}}\omega$ is perpendicular to surface, pointing in direction of steepest ascent. Flat regions (low gradient) have low group velocity and contribute little to thermal transport. Steep regions (high gradient) have high group velocity and dominate thermal transport.
+\textbf{(Bottom right)} Interatomic force network showing spring-like connections between atoms. Atoms (magenta spheres) are connected by bonds (colored lines: blue = weak force, yellow = moderate force, orange = strong force). Bond color indicates force magnitude. Network topology determines phonon dispersion and thermal conductivity. Regular network (crystalline) supports long-range phonon propagation. Disordered network (amorphous) scatters phonons strongly, reducing conductivity. Force constants determine phonon frequencies: strong forces give high frequencies (optical modes), weak forces give low frequencies (acoustic modes).}
+\label{fig:thermal_vibrational}
+\end{figure}
+
+\subsubsection{Phase Incoherence}
+
+At finite temperature, each oscillator vibrates with a random phase relative to its neighbours. This phase incoherence is fundamental:
+\begin{equation}
+\langle e^{i(\phi_{A} - \phi_{B})} \rangle = 0 \quad (T > 0).
+\label{eq:phase_incoherence}
+\end{equation}
+
+Phase-matched transfer (constructive interference) occurs only transiently. Most transfer events are phase-mismatched, reducing efficiency.
+
+This contrasts sharply with electrical conduction, where the electromagnetic signal imposes global phase coherence. In heat conduction, there is no analogous coordinating field---each oscillator has its own independent phase. This is why thermal transport is fundamentally more complex than electrical transport.
+
+\subsubsection{Selective Excitation}
+
+Not all modes are equally accessible at a given temperature:
+
+\begin{enumerate}
+\item \textbf{Threshold effects:} Optical phonons require $k_{B} T > \hbar\omega_{{\text{opt}}}$ for significant population. Below this temperature, optical modes are frozen out.
+
+\item \textbf{Symmetry selection:} Some modes couple strongly to certain excitations, others weakly. Selection rules (from crystal symmetry) forbid certain transitions.
+
+\item \textbf{Resonance conditions:} Energy transfer peaks when $\omega_{A} \approx \omega_{B}$ (resonant coupling). Off-resonance transfer is suppressed.
+\end{enumerate}
+
+At low temperature, only long-wavelength acoustic phonons are populated ($\hbar\omega \ll k_{B} T$). As temperature rises, higher-frequency modes become available, but they also scatter more strongly ($\tau^{-1} \propto \omega^{4}$ for impurity scattering).
+
+\subsection{Thermal Transport as Chromatography}
+
+The partition framework reveals a deep analogy between thermal transport and chromatography.
+
+\begin{definition}[Thermal Chromatography]
+\label{def:thermal_chrom}
+Heat flow through a material is analogous to chromatography: a mixture of phonon modes (the ``analyte'') propagates through a scattering medium (the ``column''), with different modes experiencing different partition and retention.
+\end{definition}
+
+The analogy is precise:
+
+\begin{table}[h]
+\centering
+\caption{Chromatography-thermal transport correspondence}
+\label{tab:chromatography}
+\begin{tabular}{ll}
+\toprule
+\textbf{Chromatography} & \textbf{Thermal Transport} \\
+\midrule
+Analyte mixture & Phonon population \\
+Different molecular species & Different phonon modes ($\omega$, $\mathbf{k}$, $\lambda$) \\
+Mobile phase & Propagating phonons \\
+Stationary phase & Lattice (scattering centers) \\
+Partition coefficient & Mode-dependent scattering rate $\tau^{-1}(\omega)$ \\
+Retention time & Mode mean free path $\lambda(\omega) = v(\omega)\tau(\omega)$ \\
+Elution profile & Spectral heat flux $q(\omega)$ \\
+Column efficiency & Thermal conductivity $\kappa$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Mode Separation}
+
+Just as chromatography separates molecules by their differential affinity for the stationary phase, thermal transport ``separates'' phonon modes by their differential scattering:
+
+\begin{itemize}
+\item \textbf{Long-wavelength acoustic:} Weak scattering ($\tau \sim 10^{-9}$ s), long mean free path ($\lambda \sim$ mm), ``elutes'' quickly (carries heat far)
+
+\item \textbf{High-frequency acoustic:} Strong Umklapp ($\tau \sim 10^{-12}$ s), short mean free path ($\lambda \sim$ nm), ``retained'' (carries heat short distances)
+
+\item \textbf{Optical:} Very short lifetime ($\tau \sim 10^{-13}$ s), almost zero mean free path, ``stuck'' at injection point (carries almost no heat)
+\end{itemize}
+
+This explains why thermal conductivity depends so sensitively on material structure. The ``column'' (crystal structure, defects, boundaries) determines how each mode is partitioned between propagating and scattering states.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/panel_pc_results.png}
+\caption{\textbf{Phonon Chromatograph (PC) results showing phonon mode contributions to thermal conductivity.} 
+\textbf{(Top left)} Phonon ``elution profile'' at 300 K showing contribution $\kappa(\omega)$ vs. phonon frequency $\omega$. Longitudinal acoustic (LA) branch (orange) peaks at low frequency ($\omega \sim 1$ THz) where group velocity is high. Transverse acoustic (TA) branches (green) contribute at similar frequencies. Total contribution (white) shows peak at $\omega \sim 1$ THz, with negligible contribution above 5 THz where phonon population becomes small.
+\textbf{(Top right)} Mean free path spectrum showing $\lambda(\omega)$ for LA (orange) and TA (green) phonons. Low-frequency phonons have $\lambda \sim 10^6$ nm ($\sim 1$ $\mu$m), limited by sample size (dashed cyan line at 1 mm). High-frequency phonons have $\lambda \sim 10^2$ nm, limited by umklapp scattering. The crossover occurs at $\omega \sim 2$ THz. Horizontal dashed line (orange) shows 1 m scale for reference.
+\textbf{(Bottom left)} Elution profile vs. temperature showing how phonon contributions evolve with $T$. At $T = 100$ K (purple), only low-frequency modes contribute. At $T = 200$ K (magenta), contribution extends to $\omega \sim 3$ THz. At $T = 300$ K (orange), contribution extends to $\omega \sim 5$ THz. At $T = 500$ K (yellow), high-frequency modes become populated. Peak contribution shifts to higher frequency as temperature increases, following Bose-Einstein distribution.
+\textbf{(Bottom right)} Branch contribution vs. temperature showing total thermal conductivity from LA (orange) and TA (green) branches. LA branch dominates at all temperatures due to higher group velocity ($v_{\text{LA}} \sim 2v_{\text{TA}}$). Total conductivity (white) shows characteristic peak at $T \sim 20$ K where mean free path transitions from boundary-limited (low $T$) to umklapp-limited (high $T$). At high $T$, conductivity decreases as $\kappa \propto 1/T$ due to increased umklapp scattering.}
+\label{fig:pc_results}
+\end{figure}
+
+\subsubsection{The Phonon Spectrum as Analyte}
+
+A temperature gradient injects a non-equilibrium spectrum of phonons at the hot end. This spectrum contains an excess of phonons at all frequencies:
+\begin{equation}
+\Delta n(\omega) = \frac{\partial n_{{\text{BE}}}}{\partial T} \Delta T = \frac{\hbar\omega}{k_{B} T^{2}} \frac{e^{\hbar\omega/k_{B} T}}{(e^{\hbar\omega/k_{B} T} - 1)^{2}} \Delta T,
+\label{eq:injected_spectrum}
+\end{equation}
+where $n_{{\text{BE}}}(\omega, T) = 1/(e^{\hbar\omega/k_{B} T} - 1)$ is the Bose-Einstein distribution.
+
+This ``injected'' population propagates through the crystal. Each mode scatters at its own rate $\tau^{-1}(\omega)$. The ``elution profile''---the spectrum of phonons arriving at the cold end---is depleted in high-frequency modes relative to low-frequency modes, because high-frequency modes scatter more frequently and travel shorter distances.
+
+\subsubsection{Why Thermal Conductivity is Harder Than Electrical}
+
+The chromatographic picture explains why thermal transport is fundamentally more complex than electrical transport:
+
+\begin{enumerate}
+\item \textbf{Single carrier vs. spectrum:} Electrical current involves one carrier type (electrons) with approximately one relaxation time. Thermal current involves a continuous spectrum of phonon modes, each with its own dynamics.
+
+\item \textbf{Global phase vs. incoherence:} The electromagnetic field coordinates electron motion globally, imposing phase coherence. Phonons have no such coordinator---each mode propagates independently with random phase.
+
+\item \textbf{Conserved charge vs. non-conserved phonons:} Electrons are conserved (charge conservation). Phonons are created and destroyed continuously (thermal equilibration). The ``analyte'' changes composition during transit.
+
+\item \textbf{Simple scattering vs. mode conversion:} Electrons scatter but remain electrons (elastic scattering dominates). Phonons can convert between modes (anharmonic coupling), transferring energy across the spectrum.
+\end{enumerate}
+
+This is why the Wiedemann-Franz law is so remarkable: it says that \textit{for electrons}, thermal and electrical partition are the same (same $\tau$). For phonons, no such simplification exists---each mode has its own partition lag.
+
+\subsubsection{Nanostructures as Column Engineering}
+
+The chromatographic perspective suggests a design principle: engineer the ``column'' to control phonon separation. This is the basis of thermoelectric engineering.
+
+\begin{itemize}
+\item \textbf{Nanoparticle inclusions:} Scatter high-frequency phonons (mass mismatch, size comparable to wavelength), transmit low-frequency phonons (wavelength larger than particle size)
+
+\item \textbf{Superlattices:} Create phonon bandgaps through periodic structure, blocking certain frequency ranges entirely
+
+\item \textbf{Grain boundaries:} Scatter phonons with mean free path $\lambda > d_{{\text{grain}}}$, where $d_{{\text{grain}}}$ is grain size
+
+\item \textbf{Isotope disorder:} Scatter high-frequency phonons preferentially ($\tau^{-1} \propto \omega^{4}$), leaving low-frequency phonons unaffected
+\end{itemize}
+
+The goal is to reduce $\kappa$ (by scattering phonons) while preserving $\sigma$ (by not scattering electrons). This maximises the thermoelectric figure of merit $ZT = \sigma S^{2} T/\kappa$, where $S$ is the Seebeck coefficient.
+
+\subsection{Partition Structure of Phonon Transport}
+
+From the partition framework, each phonon mode represents a distinct partition channel:
+\begin{equation}
+\kappa^{-1} = \frac{1}{\mathcal{N}} \sum_{{\text{modes}}} \tau_{\omega} g_{\omega},
+\label{eq:kappa_partition_modes}
+\end{equation}
+where the sum runs over all phonon modes, each with its own partition lag $\tau_{\omega}$, coupling $g_{\omega}$, and normalisation $\mathcal{N}$ (absorbed into the sum for simplicity).
+
+The chromatographic analogy makes clear that thermal transport is \textit{not} a single phenomenon but a superposition of many parallel partition processes, each with its own characteristics. Understanding thermal conductivity requires understanding this entire spectrum of partition channels—which is why it remains one of the most challenging transport properties to predict from first principles.
+
+\subsection{Post-Hoc Phonon Characterisation}
+
+A fundamental feature of phonon transport emerges from the partition framework: phonons can only be characterised \textit{after} measurement, not before.
+
+\subsubsection{Measurement-Defined Phonons}
+
+\begin{theorem}[Phonon Measurement Identity]
+\label{thm:phonon_measurement}
+A phonon is not a pre-existing entity that is subsequently measured. The phonon population at any point is defined by the act of measurement—the categorical partition that distinguishes phonon states.
+\end{theorem}
+
+\begin{proof}
+This follows from the Measurement-Partition Identity \citep{sachikonye2025loschmidt}. Before measurement, there is no fact about ``which phonons are present.'' The question is undefined because no partition has occurred to distinguish phonon states. The measurement apparatus performs a partition operation (e.g., Raman scattering selects phonons by frequency; neutron scattering selects by momentum), and this partition \textit{creates} the phonon characterisation.
+
+In practice, phonon spectroscopy creates the partition that defines the phonon population. The result depends on:
+\begin{itemize}
+\item The measurement technique (what partition operation is performed)
+\item The measurement location (where the partition occurs)
+\item The measurement timing (when the partition occurs)
+\end{itemize}
+
+Different measurements yield different phonon characterisations—not because they reveal different aspects of the same underlying reality, but because they perform different partition operations. \qed
+\end{proof}
+
+\subsubsection{Most Probable Pathways}
+
+Heat does not flow through the ``optimal'' pathway---it flows through the \textit{most probable} pathway:
+
+\begin{definition}[Thermal Path Probability]
+\label{def:path_prob}
+The probability of heat flowing through a particular sequence of phonon modes is:
+\begin{equation}
+P[\text{path}] = \prod_{{\text{steps}}} p(\omega_{{i+1}} | \omega_{i}, T_{i}),
+\label{eq:path_probability}
+\end{equation}
+where $p(\omega_{{i+1}} | \omega_{i}, T_{i})$ is the conditional probability of transitioning from mode $\omega_{i}$ to mode $\omega_{{i+1}}$ at local temperature $T_{i}$.
+\end{definition}
+
+The transition probability is determined by:
+\begin{itemize}
+\item \textbf{Mode overlap:} Phonon density of states matching (are there available final states?)
+\item \textbf{Coupling strength:} Anharmonic matrix elements (how strongly do modes interact?)
+\item \textbf{Phase space availability:} Bose-Einstein statistics (are final states occupied or empty?)
+\item \textbf{Energy conservation:} Within thermal fluctuations $\sim k_{B} T$ (is energy conserved?)
+\end{itemize}
+
+The actual path taken is sampled from this probability distribution. It is not the path of minimum resistance, nor the path of maximum efficiency, but a typical sample from the ensemble of possible paths.
+
+\subsubsection{Sequential Most-Probable-State Computation}
+
+\begin{theorem}[Discretized Thermal Transport]
+\label{thm:discrete_thermal}
+Thermal transport can be computed as a sequence of most-probable-state determinations:
+\begin{enumerate}
+\item Divide the spatial domain into increments $\Delta x$ (comparable to the phonon mean free path)
+\item At each increment, given the incoming phonon spectrum and local conditions, compute the most probable outgoing spectrum
+\item The heat flux is the energy carried by this most-probable spectrum
+\item Iterate to obtain the steady-state temperature profile
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For increment $i$ with incoming spectrum $n_{{\text{in}}}(\omega)$, the outgoing spectrum maximises the entropy subject to energy conservation:
+\begin{equation}
+n_{{\text{out}}}(\omega) = \argmax_{n} S[n] \quad \text{subject to} \quad \int \hbar\omega \, n(\omega) \, d\omega = Q_{i},
+\label{eq:max_entropy_spectrum}
+\end{equation}
+where $Q_{i}$ is the heat flux through increment $i$ and $S[n]$ is the entropy of the phonon distribution.
+
+The solution is a Bose-Einstein distribution at the local temperature $T_{i}$:
+\begin{equation}
+n_{{\text{out}}}(\omega) = \frac{1}{e^{\hbar\omega/k_{B} T_{i}} - 1}.
+\label{eq:local_equilibrium}
+\end{equation}
+
+However, this local equilibrium is only achieved if the increment $\Delta x$ exceeds the phonon mean free path $\lambda$. For $\Delta x < \lambda$, non-equilibrium distributions persist, and the spectrum must be computed from the Boltzmann transport equation or equivalent. \qed
+\end{proof}
+
+\subsubsection{The Cascade Picture}
+
+Heat transport through a material is a cascade of partition events:
+\begin{equation}
+\text{Hot} \xrightarrow{\tau_{1}} \text{State}_{1} \xrightarrow{\tau_{2}} \text{State}_{2} \xrightarrow{\tau_{3}} \cdots \xrightarrow{\tau_{n}} \text{Cold}.
+\label{eq:thermal_cascade}
+\end{equation}
+
+Each arrow represents a partition operation with lag $\tau_{i}$. The state at each step is the most probable state given:
+\begin{enumerate}
+\item The preceding state (boundary condition)
+\item The local temperature (thermodynamic constraint)
+\item The local lattice structure (scattering environment)
+\item The scattering mechanisms present (partition operations available)
+\end{enumerate}
+
+This cascade picture explains several phenomena:
+
+\textbf{Thermal relaxation:} The system ``forgets'' the initial phonon distribution over a relaxation length $\ell_{{\text{relax}}} \sim \lambda$. Beyond this distance, only the total energy (temperature) is remembered, not the spectral details.
+
+\textbf{Ballistic-to-diffusive transition:} For sample size $L < \lambda$, phonons traverse the sample without scattering (ballistic regime). For $L \gg \lambda$, many partition events occur (diffusive regime). The transition occurs when $L \sim \lambda$.
+
+\textbf{Kapitza resistance:} At interfaces between dissimilar materials, the lattice structure changes abruptly. The most-probable-state on each side may not match (different phonon spectra), creating thermal resistance even without bulk scattering.
+
+
+\subsubsection{Implications for Thermal Conductivity Prediction}
+
+The sequential most-probable-state picture suggests a computational approach:
+
+\begin{enumerate}
+\item Discretise the material into cells of size $\Delta x \sim \lambda$ (phonon mean free path)
+\item For each cell, characterise the local lattice structure and scattering mechanisms
+\item Compute the most probable phonon spectrum in each cell given the neighboring cells
+\item Extract the heat flux from the spectral flow between cells: $q = \int \hbar\omega v_{g} n(\omega) D(\omega) d\omega$
+\item Sum to obtain total thermal conductivity: $\kappa = -q/\nabla T$
+\end{enumerate}
+
+This approach naturally handles:
+\begin{itemize}
+\item \textbf{Inhomogeneous materials:} Different cell properties (composition, structure)
+\item \textbf{Nanostructures:} Cell size comparable to feature size ($\Delta x \sim d_{{\text{feature}}}$)
+\item \textbf{Interfaces:} Boundary conditions between dissimilar cells (Kapitza resistance)
+\item \textbf{Non-equilibrium effects:} Cells not at local equilibrium ($\Delta x < \lambda$)
+\end{itemize}
+
+The key insight is that we need not track individual phonon trajectories (computationally intractable for $\sim 10^{23}$ phonons). We need only find the most probable state at each spatial increment---a much more tractable problem that aligns with the categorical measurement framework.

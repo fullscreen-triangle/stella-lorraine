@@ -1,0 +1,619 @@
+\section{Mass Spectrometry as Partition Coordinate Measurement}
+
+\subsection{Measurement as Partition Coordinate Extraction}
+
+In Section 4, we derived the partition coordinate system $(n, \ell, m, s)$ from geometric constraints on the bounded phase space. In Section 5, we showed that charged particles (ions) occupy these same partition states, with charge $q$ affecting transition rates and electromagnetic coupling.
+
+We now demonstrate that mass spectrometry directly measures these partition coordinates. A mass spectrometer is not merely an analytical instrument—it is a physical implementation of partition coordinate extraction from charged particle ensembles.
+
+\subsubsection{The Measurement Problem}
+
+Given a gas of ions, each occupying some partition state $(n_i, \ell_i, m_i, s_i)$ with charge $q_i$ and mass $m_i$, how do we determine these coordinates?
+
+Direct observation is impossible—we cannot "see" which partition cell an ion occupies. Instead, we apply electromagnetic fields that couple to the partition coordinates, causing ions with different coordinates to respond differently. By measuring these responses, we extract the coordinates.
+
+This is the principle of mass spectrometry: electromagnetic fields act as partition coordinate filters, separating ions by their $(n, \ell, m, s)$ values.
+
+\subsubsection{Hardware Mapping Principle}
+
+\begin{principle}[Hardware Mapping]
+\label{prin:hardware_mapping}
+Every mass spectrometry platform implements a physical mapping from partition coordinates $(n, \ell, m, s)$ to measurable quantities (voltages, frequencies, times, positions).
+
+The mapping is platform-dependent but always extracts the same underlying geometric structure.
+\end{principle}
+
+We now derive these mappings for five major MS platforms.
+
+\subsection{Quadrupole Mass Filter: Stability Zone Mapping}
+
+\subsubsection{Mathieu Equation from Partition Dynamics}
+
+A quadrupole mass philtre applies a 2D RF field to ions traversing the device. The field is:
+\begin{equation}
+\Phi(x, y, t) = \frac{U - V\cos(\Omega t)}{r_0^2}(x^2 - y^2)
+\end{equation}
+
+where $U$ is DC voltage, $V$ is RF amplitude, $r_0$ is field radius, and $\Omega$ is RF frequency.
+
+The equations of motion for an ion with charge $q$ and mass $m$ are:
+\begin{align}
+\frac{d^2x}{dt^2} &= -\frac{q}{m} \frac{\partial\Phi}{\partial x} = -\frac{2q}{mr_0^2}[U - V\cos(\Omega t)] x \\
+\frac{d^2y}{dt^2} &= -\frac{q}{m} \frac{\partial\Phi}{\partial y} = +\frac{2q}{mr_0^2}[U - V\cos(\Omega t)] y
+\end{align}
+
+Introducing dimensionless time $\xi = \Omega t/2$ and Mathieu parameters:
+\begin{align}
+a_x &= -a_y = \frac{8qU}{mr_0^2\Omega^2} \\
+q_x &= -q_y = \frac{4qV}{mr_0^2\Omega^2}
+\end{align}
+
+The equations become:
+\begin{equation}
+\frac{d^2u}{d\xi^2} + [a_u - 2q_u\cos(2\xi)]u = 0
+\end{equation}
+
+for $u \in \{x, y\}$. This is the Mathieu equation.
+
+\subsubsection{Stability Zones as Partition Depths}
+
+The Mathieu equation has stable solutions only for certain regions of the $(a, q)$ parameter space. These are the stability zones.
+
+The first stability zone occupies $0 < q < 0.908$ with $a \approx 0$. Higher stability zones exist at larger $q$ values, but are rarely used in practice.
+
+\begin{proposition}[Stability Zone = Partition Depth]
+\label{prop:stability_partition}
+The stability zone index corresponds to the principal partition coordinate $n$:
+\begin{equation}
+\text{Stability zone } k \leftrightarrow n = k
+\end{equation}
+
+The first stability zone ($k=1$) corresponds to $n=1$ (ground state). Higher zones correspond to excited partition states.
+\end{proposition}
+
+\begin{proof}
+The stability condition arises from boundedness of the ion trajectory. For stability zone $k$, the trajectory has $k-1$ nodes in the secular motion—exactly matching the constraint $\ell \leq n-1$ from Section 4.
+
+The secular frequency in stability zone $k$ is:
+\begin{equation}
+\omega_{\text{sec}} = \frac{\Omega}{2}\beta_k
+\end{equation}
+
+where $\beta_k$ is the Mathieu characteristic exponent. For the first zone, $\beta_1 \approx \sqrt{a + q^2/2}$.
+
+This secular frequency corresponds to the oscillation frequency of a particle in partition state $n=k$, confirming the identification.
+\end{proof}
+
+\subsubsection{Angular Momentum from Secular Nodes}
+
+Within a stability zone, the secular motion can have different numbers of nodes. A node is a point where the amplitude passes through zero.
+
+\begin{proposition}[Secular Nodes = Angular Momentum]
+\label{prop:nodes_angular}
+The number of nodes in the secular motion corresponds to the secondary partition coordinate $\ell$:
+\begin{equation}
+\text{Number of nodes} = \ell
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The secular motion is a superposition of harmonics:
+\begin{equation}
+x(\xi) = \sum_{k=-\infty}^{\infty} C_{2k} e^{i(2k+\beta)\xi}
+\end{equation}
+
+The number of nodes in one RF cycle is determined by the highest harmonic with significant amplitude. This corresponds to the angular momentum quantum number $\ell$ from Section 4.
+
+For the fundamental mode ($\ell=0$), there are no nodes. For the first excited mode ($\ell=1$), there is one node per cycle. And so on.
+\end{proof}
+
+\subsubsection{Phase Relationship = Magnetic Quantum Number}
+
+The $x$ and $y$ secular motions have a phase relationship. Define:
+\begin{equation}
+\phi_{xy} = \arg\left(\frac{x(\xi)}{y(\xi)}\right)
+\end{equation}
+
+\begin{proposition}[Phase = Magnetic Quantum Number]
+\label{prop:phase_magnetic}
+The phase relationship between $x$ and $y$ secular motions corresponds to the tertiary partition coordinate $m$:
+\begin{equation}
+m = \left\lfloor \frac{\phi_{xy}}{2\pi/(2\ell+1)} \right\rfloor - \ell
+\end{equation}
+
+This gives $m \in \{-\ell, -\ell+1, \ldots, \ell-1, \ell\}$ as required.
+\end{proposition}
+
+\begin{proof}
+The phase relationship determines the orientation of the ion trajectory in the $xy$ plane. For $\ell=1$, there are three distinguishable orientations ($m \in \{-1, 0, 1\}$): ellipse with major axis along $x$ ($m=-1$), circular ($m=0$), ellipse with major axis along $y$ ($m=1$).
+
+This matches the magnetic quantum number from Section 4, which specifies the $z$-component of angular momentum. In the quadrupole, the "z-axis" is the direction perpendicular to both $x$ and $y$.
+\end{proof}
+
+\subsubsection{Quadrupole Mapping Summary}
+
+\begin{theorem}[Quadrupole Partition Mapping]
+\label{thm:quadrupole_mapping}
+The quadrupole mass filter extracts partition coordinates as:
+\begin{align}
+n &: \text{Stability zone index (from } a/q \text{ ratio)} \\
+\ell &: \text{Number of secular nodes (from harmonic content)} \\
+m &: \text{Phase between } x \text{ and } y \text{ motions (from trajectory shape)} \\
+s &: \text{Not directly measured (requires supplementary technique)}
+\end{align}
+\end{theorem}
+
+The spin coordinate $s$ is not accessible from quadrupole measurements alone. It requires chiral selection (e.g., circularly polarized photoionization) or spin-dependent scattering.
+
+\subsection{Linear Ion Trap: Frequency Hierarchy Mapping}
+
+\subsubsection{Trap Potential and Secular Frequencies}
+
+A linear ion trap confines ions using a combination of RF radial confinement and DC axial confinement. The effective potential is:
+\begin{equation}
+\Phi_{\text{eff}}(r, z) = \frac{q^2V^2}{4m\Omega^2 r_0^2}r^2 + \frac{qU_z}{2L^2}z^2
+\end{equation}
+
+where $r = \sqrt{x^2 + y^2}$ is the radial coordinate and $z$ is the axial coordinate.
+
+The secular frequencies are:
+\begin{align}
+\omega_r &= \frac{q\Omega}{2\sqrt{2}} \quad \text{(radial)} \\
+\omega_z &= \sqrt{\frac{qU_z}{mL^2}} \quad \text{(axial)}
+\end{align}
+
+These frequencies are independently tunable by adjusting $V$ (RF amplitude) and $U_z$ (DC axial voltage).
+
+\subsubsection{Frequency Ratios as Partition Coordinates}
+
+\begin{proposition}[Frequency Hierarchy = Partition Hierarchy]
+\label{prop:frequency_hierarchy}
+The hierarchy of secular frequencies maps to the partition coordinate hierarchy:
+\begin{align}
+n &: \text{Axial frequency ratio } \omega_z/\omega_0 \\
+\ell &: \text{Radial frequency ratio } \omega_r/\omega_z \\
+m &: \text{Micromotion phase relative to RF drive} \\
+s &: \text{Rotation sense under tickle excitation}
+\end{align}
+
+where $\omega_0$ is a reference frequency (typically the RF frequency $\Omega$).
+\end{proposition}
+
+\begin{proof}
+The axial frequency $\omega_z$ determines the "depth" of confinement—ions with larger $\omega_z$ are more tightly bound, corresponding to larger $n$. The ratio $\omega_z/\omega_0$ is dimensionless and directly comparable across different trap configurations.
+
+The radial frequency $\omega_r$ determines the angular momentum—ions with larger $\omega_r/\omega_z$ have more radial motion relative to axial motion, corresponding to larger $\ell$.
+
+The micromotion phase is the phase of the ion's RF-driven oscillation relative to the applied RF field. This phase determines the orientation of the ion trajectory, corresponding to $m$.
+
+The rotation sense is determined by applying a "tickle" excitation (a weak dipole field at frequency $\omega_{\text{tickle}}$). Ions rotate either clockwise or counterclockwise, corresponding to $s = \pm 1/2$.
+\end{proof}
+
+\subsubsection{Ion Cloud Collective Modes}
+
+For multiple ions in the trap, collective modes emerge. The ions form a Coulomb crystal with discrete vibrational modes.
+
+\begin{proposition}[Collective Modes = Multi-Particle Partition States]
+\label{prop:collective_modes}
+The collective vibrational modes of an ion cloud correspond to multi-particle partition states. The mode frequencies are:
+\begin{equation}
+\omega_{\text{mode}} = \sqrt{\omega_{\text{sec}}^2 + \omega_{\text{Coulomb}}^2}
+\end{equation}
+
+where $\omega_{\text{sec}}$ is the single-ion secular frequency and $\omega_{\text{Coulomb}}$ is the Coulomb coupling frequency.
+\end{proposition}
+
+This enables measurement of partition coordinates for ion ensembles, not just single ions.
+
+\subsection{Orbitrap: Fourier Analysis of Image Current}
+
+\subsubsection{Orbitrap Geometry and Axial Oscillation}
+
+The Orbitrap uses an electrostatic field with cylindrical symmetry. Ions orbit around a central electrode while oscillating axially. The axial oscillation frequency is:
+\begin{equation}
+\omega = \sqrt{\frac{qk}{m}}
+\end{equation}
+
+where $k$ is the electrode curvature parameter (units: V/m²).
+
+This frequency is independent of the ion's energy and radial position—a key advantage for high-resolution mass measurement.
+
+\subsubsection{Image Current and Fourier Transform}
+
+As ions oscillate, they induce an image current in the outer electrodes. This current is amplified and digitized, producing a time-domain signal (transient):
+\begin{equation}
+I(t) = \sum_{i=1}^{N} A_i \cos(\omega_i t + \phi_i)
+\end{equation}
+
+where $N$ is the number of ion species, $A_i$ is the amplitude (proportional to ion abundance), $\omega_i$ is the frequency (proportional to $\sqrt{q/m}$), and $\phi_i$ is the initial phase.
+
+Fourier transform converts this to a frequency-domain spectrum:
+\begin{equation}
+\tilde{I}(\omega) = \int_0^T I(t) e^{-i\omega t} dt
+\end{equation}
+
+Peaks in $\tilde{I}(\omega)$ correspond to different ion species.
+
+\subsubsection{Harmonic Content as Angular Momentum}
+
+The Fourier spectrum contains not only the fundamental frequency $\omega$ but also harmonics $2\omega, 3\omega, \ldots$. The amplitude of these harmonics depends on the ion trajectory shape.
+
+\begin{proposition}[Harmonics = Angular Momentum]
+\label{prop:harmonics_angular}
+The harmonic content of the image current spectrum corresponds to the secondary partition coordinate $\ell$:
+\begin{equation}
+\ell = \text{highest harmonic with amplitude } > \text{noise threshold}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+An ion with $\ell=0$ (purely axial motion, no radial excursion) produces a pure sinusoidal signal with only the fundamental frequency.
+
+An ion with $\ell=1$ (small radial excursion) produces a signal with fundamental plus second harmonic.
+
+An ion with $\ell=2$ (larger radial excursion) produces fundamental plus second and third harmonics.
+
+The harmonic content directly encodes the angular momentum quantum number.
+\end{proof}
+
+\subsubsection{Injection Phase as Magnetic Quantum Number}
+
+Ions are injected into the Orbitrap at a specific phase relative to the electrode potential. This injection phase determines the initial position and velocity, hence the trajectory orientation.
+
+\begin{proposition}[Injection Phase = Magnetic Quantum Number]
+\label{prop:injection_magnetic}
+The injection phase $\phi_{\text{inj}}$ corresponds to the tertiary partition coordinate $m$:
+\begin{equation}
+m = \left\lfloor \frac{\phi_{\text{inj}}}{2\pi/(2\ell+1)} \right\rfloor - \ell
+\end{equation}
+\end{proposition}
+
+This is analogous to the quadrupole phase relationship (Proposition \ref{prop:phase_magnetic}).
+
+\subsubsection{Orbital Plane as Spin}
+
+Ions in the Orbitrap orbit in a plane. The orientation of this plane (relative to the laboratory frame) can be measured by analyzing the image current on multiple electrode segments.
+
+\begin{proposition}[Orbital Plane = Spin]
+\label{prop:orbital_spin}
+The orbital plane orientation corresponds to the quaternary partition coordinate $s$:
+\begin{equation}
+s = \begin{cases}
++1/2 & \text{if orbital plane tilted clockwise} \\
+-1/2 & \text{if orbital plane tilted counterclockwise}
+\end{cases}
+\end{equation}
+\end{proposition}
+
+This requires segmented electrodes and multi-channel detection, which are not standard in commercial Orbitraps. However, the principle is sound.
+
+\subsection{Time-of-Flight: Discretized Flight Time}
+
+\subsubsection{TOF Principle}
+
+A time-of-flight (TOF) mass analyzer accelerates ions through a potential $V$, then measures the time $t$ required to traverse a field-free region of length $L$.
+
+The flight time is:
+\begin{equation}
+t = L\sqrt{\frac{m}{2qV}}
+\end{equation}
+
+Ions with different $m/q$ ratios arrive at different times.
+
+\subsubsection{Flight Time Bins as Principal Coordinate}
+
+The detector has finite time resolution $\Delta t$. Flight times are discretized into bins:
+\begin{equation}
+t_k = k\Delta t, \quad k \in \{1, 2, 3, \ldots\}
+\end{equation}
+
+\begin{proposition}[Flight Time Bin = Principal Coordinate]
+\label{prop:tof_principal}
+The flight time bin index corresponds to the principal partition coordinate $n$:
+\begin{equation}
+n = \left\lfloor \frac{t}{\Delta t} \right\rfloor
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The flight time $t \propto \sqrt{m/q}$ is a monotonic function of mass-to-charge ratio. Larger $m/q$ gives larger $t$, hence larger bin index $k$.
+
+The bin index $k$ is the discrete analog of the continuous partition coordinate $n$ from Section 4. The discretization arises from finite detector resolution $\Delta t$.
+\end{proof}
+
+\subsubsection{Spatial Focusing as Angular Momentum}
+
+TOF analyzers use reflectrons or ion mirrors to correct for energy spread. Ions with different energies (but same $m/q$) are focused to arrive at the same time.
+
+The focusing quality depends on the ion's initial angular distribution. Ions with large transverse velocity (high $\ell$) are poorly focused.
+
+\begin{proposition}[Focusing Aberration = Angular Momentum]
+\label{prop:tof_angular}
+The spatial focusing aberration corresponds to the secondary partition coordinate $\ell$:
+\begin{equation}
+\ell = \text{order of aberration (0 = perfect focus, 1 = first-order, etc.)}
+\end{equation}
+\end{proposition}
+
+This is measured by analyzing the peak shape: Gaussian peaks indicate $\ell=0$, asymmetric peaks indicate $\ell > 0$.
+
+\subsubsection{Angular Distribution as Magnetic Quantum Number}
+
+Ions arrive at the detector with some angular distribution. This can be measured using a position-sensitive detector (e.g., microchannel plate with delay-line anode).
+
+\begin{proposition}[Angular Distribution = Magnetic Quantum Number]
+\label{prop:tof_magnetic}
+The angular distribution at the detector corresponds to the tertiary partition coordinate $m$:
+\begin{equation}
+m = \text{angular bin index (from position-sensitive detection)}
+\end{equation}
+\end{proposition}
+
+\subsection{Ion Mobility Spectrometry: Collisional Cross Section}
+
+\subsubsection{IMS Principle}
+
+Ion mobility spectrometry (IMS) measures the drift velocity $v_d$ of ions in a buffer gas under an electric field $E$:
+\begin{equation}
+v_d = K \cdot E
+\end{equation}
+
+where $K$ is the mobility. The mobility is related to the collisional cross section $\Omega_D$ by:
+\begin{equation}
+K = \frac{3q}{16N} \sqrt{\frac{2\pi}{\mu k_B T}} \frac{1}{\Omega_D}
+\end{equation}
+
+where $N$ is the buffer gas number density, $\mu$ is the reduced mass, and $T$ is temperature.
+
+\subsubsection{Cross Section Bins as Principal Coordinate}
+
+The collisional cross section $\Omega_D$ is discretized by the drift cell resolution. Define bins:
+\begin{equation}
+\Omega_k = k\Delta\Omega, \quad k \in \{1, 2, 3, \ldots\}
+\end{equation}
+
+\begin{proposition}[Cross Section Bin = Principal Coordinate]
+\label{prop:ims_principal}
+The cross section bin index corresponds to the principal partition coordinate $n$:
+\begin{equation}
+n = \left\lfloor \frac{\Omega_D}{\Delta\Omega} \right\rfloor
+\end{equation}
+\end{proposition}
+
+\subsubsection{Shape Anisotropy as Angular Momentum}
+
+Ions with spherical shape have isotropic collisional cross sections. Ions with elongated or flattened shapes have anisotropic cross sections.
+
+\begin{proposition}[Shape Anisotropy = Angular Momentum]
+\label{prop:ims_angular}
+The shape anisotropy corresponds to the secondary partition coordinate $\ell$:
+\begin{equation}
+\ell = \text{deviation from spherical symmetry}
+\end{equation}
+
+Quantitatively:
+\begin{equation}
+\ell \propto \frac{\Omega_{\max} - \Omega_{\min}}{\Omega_{\text{avg}}}
+\end{equation}
+
+where $\Omega_{\max}, \Omega_{\min}$ are the maximum and minimum cross sections over all orientations.
+\end{proposition}
+
+\subsubsection{Orientation Distribution as Magnetic Quantum Number}
+
+Ions drift through the buffer gas with some orientation distribution. This distribution affects the measured cross section.
+
+\begin{proposition}[Orientation Distribution = Magnetic Quantum Number]
+\label{prop:ims_magnetic}
+The orientation distribution relative to the drift axis corresponds to the tertiary partition coordinate $m$:
+\begin{equation}
+m = \text{orientation bin (from angle-resolved IMS)}
+\end{equation}
+\end{proposition}
+
+This requires specialized IMS configurations (e.g., field asymmetric IMS, FAIMS) that separate ions by orientation.
+
+\subsubsection{Chiral Drift Time as Spin}
+
+Chiral ions (molecules with handedness) can be separated by IMS using a chiral buffer gas or chiral drift cell geometry.
+
+\begin{proposition}[Chiral Drift Time = Spin]
+\label{prop:ims_spin}
+The chiral drift time separation corresponds to the quaternary partition coordinate $s$:
+\begin{equation}
+s = \begin{cases}
++1/2 & \text{if right-handed (D-enantiomer)} \\
+-1/2 & \text{if left-handed (L-enantiomer)}
+\end{cases}
+\end{equation}
+\end{proposition}
+
+\subsection{Unified Hardware Mapping Table}
+
+\begin{table}[h]
+\centering
+\caption{Partition coordinate extraction by MS platform}
+\label{tab:hardware_mapping}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Platform} & $n$ source & $\ell$ source & $m$ source & $s$ source \\
+\midrule
+Quadrupole & Stability zone & Secular nodes & $xy$ phase & --- \\
+Ion Trap & $\omega_z/\omega_0$ & $\omega_r/\omega_z$ & Micromotion phase & Tickle rotation \\
+Orbitrap & $\omega$ (fundamental) & Harmonics & Injection phase & Orbital plane \\
+TOF & Flight time bin & Aberration order & Angular dist. & --- \\
+IMS & $\Omega_D$ bin & Shape anisotropy & Orientation & Chiral drift \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The dashes indicate that the platform does not directly measure that coordinate. Supplementary techniques are required:
+\begin{itemize}
+    \item Spin ($s$) for quadrupole/TOF: requires chiral chromatography, circularly polarized photoionization, or spin-polarized electron impact
+    \item All coordinates for any platform: can be enhanced by hyphenation (e.g., IMS-MS, LC-MS, MS/MS)
+\end{itemize}
+
+\subsection{Charge Partition Spaces}
+
+\subsubsection{Configuration Space for Charged Systems}
+
+In Section 5, we treated charge as a property of particles occupying partition states. We now formalize this using charge configuration spaces.
+
+\begin{definition}[Charge Configuration]
+\label{def:charge_config}
+A charge configuration on a bounded region $\Omega \subset \mathbb{R}^3$ is a signed measure $\rho: \Omega \to \mathbb{R}$ satisfying:
+\begin{equation}
+Q = \int_\Omega \rho(\mathbf{r}) \, d^3r
+\end{equation}
+
+where $Q$ is the total charge.
+\end{definition}
+
+\begin{definition}[Configuration Space]
+\label{def:config_space}
+The configuration space $\mathcal{C}(Q)$ is the set of all charge configurations with total charge $Q$:
+\begin{equation}
+\mathcal{C}(Q) = \left\{ \rho: \Omega \to \mathbb{R} \,\middle|\, \int_\Omega \rho \, d^3r = Q \right\}
+\end{equation}
+\end{definition}
+
+This space has metric structure induced by electrostatic energy.
+
+\begin{definition}[Electrostatic Distance]
+\label{def:electrostatic_distance}
+The electrostatic distance between configurations $\rho_1, \rho_2 \in \mathcal{C}(Q)$ is:
+\begin{equation}
+d_E(\rho_1, \rho_2) = \left( \int_\Omega \int_\Omega \frac{(\rho_1(\mathbf{r}) - \rho_2(\mathbf{r}))(\rho_1(\mathbf{r}') - \rho_2(\mathbf{r}'))}{4\pi\epsilon_0|\mathbf{r} - \mathbf{r}'|} \, d^3r \, d^3r' \right)^{1/2}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Configuration Space is Metric Space]
+\label{thm:config_metric}
+The pair $(\mathcal{C}(Q), d_E)$ is a complete metric space.
+\end{theorem}
+
+\begin{proof}
+\textbf{Positive definiteness:} $d_E(\rho_1, \rho_2) \geq 0$ with equality iff $\rho_1 = \rho_2$ almost everywhere. This follows from the uniqueness of the Coulomb potential for a given charge distribution.
+
+\textbf{Symmetry:} Immediate from the definition—the integrand is symmetric under exchange of $\rho_1 \leftrightarrow \rho_2$.
+
+\textbf{Triangle inequality:} Follows from the Minkowski inequality for the $L^2$ norm weighted by the Coulomb kernel $1/|\mathbf{r} - \mathbf{r}'|$.
+
+\textbf{Completeness:} $\mathcal{C}(Q)$ is a closed subset of $L^2(\Omega)$, which is complete. Any Cauchy sequence in $\mathcal{C}(Q)$ converges to a limit in $L^2(\Omega)$, and the charge conservation constraint $\int \rho \, d^3r = Q$ is preserved in the limit.
+\end{proof}
+
+\subsubsection{Partition Operators on Charge Configurations}
+
+\begin{definition}[Partition Operator]
+\label{def:partition_operator}
+A partition operator $\Pi: \mathcal{C}(Q) \to \mathcal{C}(Q_1) \times \mathcal{C}(Q_2)$ maps a configuration to a pair of daughter configurations:
+\begin{equation}
+\Pi(\rho) = (\rho_1, \rho_2)
+\end{equation}
+
+subject to conservation:
+\begin{equation}
+\rho_1 + \rho_2 = \rho, \quad Q_1 + Q_2 = Q
+\end{equation}
+\end{definition}
+
+\begin{definition}[Partition Axis]
+\label{def:partition_axis}
+The partition axis $\mathbf{a} \in S^2$ specifies the direction of charge separation. For a partition with axis $\mathbf{a}$ and offset $c$:
+\begin{align}
+\rho_1(\mathbf{r}) &= \rho(\mathbf{r}) \cdot \Theta(\mathbf{a} \cdot \mathbf{r} - c) \\
+\rho_2(\mathbf{r}) &= \rho(\mathbf{r}) \cdot \Theta(c - \mathbf{a} \cdot \mathbf{r})
+\end{align}
+
+where $\Theta$ is the Heaviside function.
+\end{definition}
+
+\subsubsection{Partition Energy Cost}
+
+\begin{proposition}[Partition Energy]
+\label{prop:partition_energy}
+The electrostatic energy cost of partition $\Pi$ is:
+\begin{equation}
+\Delta E_\Pi = E(\rho_1) + E(\rho_2) + \frac{Q_1 Q_2}{4\pi\epsilon_0|\mathbf{r}_1 - \mathbf{r}_2|} - E(\rho)
+\end{equation}
+
+where $E(\rho) = \frac{1}{2}\int\int \frac{\rho(\mathbf{r})\rho(\mathbf{r}')}{4\pi\epsilon_0|\mathbf{r}-\mathbf{r}'|} d^3r d^3r'$ is the self-energy and $\mathbf{r}_1, \mathbf{r}_2$ are the centroids.
+\end{proposition}
+
+For a sharp partition (where $\rho_1$ and $\rho_2$ are well-separated), the self-energies approximately sum: $E(\rho_1) + E(\rho_2) \approx E(\rho)$. Therefore:
+\begin{equation}
+\Delta E_\Pi \approx \frac{Q_1 Q_2}{4\pi\epsilon_0|\mathbf{r}_1 - \mathbf{r}_2|}
+\end{equation}
+
+\begin{corollary}[Partition Favorability]
+\label{cor:partition_favorable}
+Partition $\Pi$ is energetically favorable if:
+\begin{equation}
+\frac{Q_1 Q_2}{4\pi\epsilon_0|\mathbf{r}_1 - \mathbf{r}_2|} < E_{\text{int}}(\rho)
+\end{equation}
+
+where $E_{\text{int}}(\rho)$ is the internal electrostatic energy. Partitions creating large spatial separation $|\mathbf{r}_1 - \mathbf{r}_2|$ are favored.
+\end{corollary}
+
+\subsubsection{Sequential Partitions and Fragmentation}
+
+In tandem mass spectrometry (MS/MS), ions undergo sequential partitions through collision-induced dissociation (CID).
+
+\begin{definition}[Partition Sequence]
+\label{def:partition_sequence}
+A partition sequence of depth $n$ is an ordered sequence of partition operators:
+\begin{equation}
+\mathcal{S}_n = (\Pi_1, \Pi_2, \ldots, \Pi_n)
+\end{equation}
+
+The $n$-fold composition $\mathcal{S}_n(\rho_0)$ generates a tree of $2^n$ terminal configurations.
+\end{definition}
+
+\begin{definition}[Partition Tree]
+\label{def:partition_tree}
+The partition tree $\mathcal{T}(\rho_0, \mathcal{S}_n)$ is the directed graph where:
+\begin{itemize}
+    \item Nodes are configurations reached during the sequence
+    \item Edges are partition operations
+    \item Root is the precursor configuration $\rho_0$
+    \item Leaves are product configurations at depth $n$
+\end{itemize}
+\end{definition}
+
+\begin{proposition}[Leaf Count]
+\label{prop:leaf_count}
+The partition tree has at most $2^n$ leaves for depth $n$. The actual number may be smaller due to convergent pathways (different partition sequences yielding the same product).
+\end{proposition}
+
+\subsubsection{Physical Interpretation: Molecular Fragmentation}
+
+In molecular ion fragmentation:
+\begin{itemize}
+    \item Parent charge configuration $\rho_0$ = precursor ion
+    \item Partition operator $\Pi$ = bond cleavage
+    \item Daughter configurations $(\rho_1, \rho_2)$ = fragment ions and neutrals
+    \item Partition axis $\mathbf{a}$ = breaking bond direction
+    \item Charge separation $\Delta Q$ = typically $\pm e$ for singly charged systems
+\end{itemize}
+
+The partition energy $\Delta E_\Pi$ is the dissociation energy. Favorable partitions (low $\Delta E_\Pi$) correspond to weak bonds or stable fragment ions.
+
+\subsection{Summary: MS as Partition Coordinate Measurement}
+
+We have established that mass spectrometry directly measures partition coordinates $(n, \ell, m, s)$:
+
+\textbf{Quadrupole:} Stability zones → $n$, secular nodes → $\ell$, phase → $m$
+
+\textbf{Ion Trap:} Frequency ratios → $(n, \ell)$, micromotion → $m$, tickle → $s$
+
+\textbf{Orbitrap:} Fundamental frequency → $n$, harmonics → $\ell$, injection phase → $m$, orbital plane → $s$
+
+\textbf{TOF:} Flight time bins → $n$, aberration → $\ell$, angular distribution → $m$
+
+\textbf{IMS:} Cross section bins → $n$, shape anisotropy → $\ell$, orientation → $m$, chiral drift → $s$
+
+All platforms measure the same underlying geometric structure—the partition coordinate system derived in Section 4 from bounded phase space (Axiom \ref{axiom:bounded}) and finite resolution (Axiom \ref{axiom:resolution}).
+
+Charge partition spaces formalize the fragmentation process: sequential bond cleavages are sequential partition operators, generating a tree of product configurations. The energy cost of each partition determines fragmentation favorability.
+
+Mass spectrometry is not merely an analytical technique—it is a physical implementation of partition coordinate extraction from charged particle ensembles. Every MS measurement is a direct probe of the geometric structure of bounded phase space.

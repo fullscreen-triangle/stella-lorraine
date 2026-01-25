@@ -1,0 +1,382 @@
+\section{Instrument Necessity}
+\label{sec:instrument_necessity}
+
+We now address the central question: \emph{what coupling structures are necessary for extracting partition coordinate information from bounded measure-preserving systems?} The main result is an \emph{instrument necessity theorem}: for each partition coordinate $\xi \in \{n, \ell, m, s\}$, there exists a unique (up to isomorphism) minimal coupling structure $\mathcal{I}_\xi$ capable of extracting that coordinate. These coupling structures are not arbitrary engineering choices but are mathematically determined by the frequency-coordinate duality established in Section~\ref{sec:frequency_duality}. This provides a rigorous foundation for the necessity of spectroscopic instrumentation.
+
+\subsection{Information Extraction from Bounded Systems}
+
+We begin by formalising what it means to extract information from a dynamical system.
+
+\begin{definition}[Information Extraction]
+\label{def:information_extraction}
+An \emph{information extraction} from system $(\manifold, \mu, \phi_t)$ to observer $\mathcal{O}$ with state space $\mathcal{S}$ is a measurable map $\mathcal{X}: \manifold \to \mathcal{S}$ satisfying:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item \emph{Measurability}: $\mathcal{X}$ is a measurable function with respect to the Borel $\sigma$-algebras on $\manifold$ and $\mathcal{S}$,
+    \item \emph{Partition compatibility}: $\mathcal{X}$ factors through the partition projection $\pi_{\partition}: \manifold \to \partition$, i.e., there exists $\tilde{\mathcal{X}}: \partition \to \mathcal{S}$ such that $\mathcal{X} = \tilde{\mathcal{X}} \circ \pi_{\partition}$, where $\pi_{\partition}(x) = P_i$ if $x \in P_i$,
+    \item \emph{Dynamic realization}: $\mathcal{X}$ is realised through time-averaged coupling between system and observer dynamics:
+    \begin{equation}
+    \mathcal{X}(x) = \lim_{T \to \infty} \frac{1}{T} \int_0^T f(\phi_t(x), \psi_t(y_0)) \, dt,
+    \end{equation}
+    for some coupling function $f: \manifold \times \mathcal{S} \to \Reals$, observer dynamics $\psi_t: \mathcal{S} \to \mathcal{S}$, and initial observer state $y_0 \in \mathcal{S}$.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+Condition (ii) reflects the finite resolution axiom (Axiom~\ref{ax:finite_resolution}): the observer can only distinguish partition elements, not individual points within them. Condition (iii) requires that information transfer occurs through dynamical coupling, not through instantaneous "measurement" operations—a physically realistic constraint.
+\end{remark}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/hardware_synchronization.png}
+\caption{Hardware synchronization analysis demonstrating frequency coordination between molecular oscillations and computer hardware components. \textbf{Left panel (Molecular Frequency Distribution):} Histogram showing distribution of molecular frequencies on logarithmic scale from $\log_{10}(f) = 12.25$ to $12.45$ Hz (corresponding to $\sim 1.78 \times 10^{12}$ to $2.82 \times 10^{12}$ Hz, or 1.78--2.82 THz). Peak count of 7 occurs at $\log_{10}(f) \approx 12.25$ Hz, with secondary peaks at $12.30$ and $12.35$ Hz (counts of 4 and 3 respectively), and isolated peak at $12.47$ Hz. This distribution reveals the characteristic vibrational frequencies of molecular bonds accessible through categorical state measurements. \textbf{Center panel (Synchronization Efficiency):} Single green bar showing coordination efficiency of $1.0$ (100\%), indicating perfect synchronization between hardware oscillator frequencies and molecular categorical state transitions. The high efficiency (count $= 20$) demonstrates that CPU clock frequencies in the GHz range can coordinate with molecular THz frequencies through categorical state space coupling, enabling hardware components to function as molecular detectors. \textbf{Right panel (Mapping vs Efficiency):} Scatter plot showing relationship between mapping factor (x-axis, $\log_{10}$ scale from $-2.95$ to $-2.75$) and efficiency (y-axis, 0.86 to 0.94). Blue data points cluster at efficiency $\sim 0.90$ across mapping factors from $10^{-2.95} \approx 0.0011$ to $10^{-2.75} \approx 0.0018$, indicating consistent mapping performance across the parameter range. The tight clustering demonstrates that categorical state mapping from hardware frequencies to molecular signatures maintains high efficiency ($> 90$\%) despite variation in the mapping factor, validating the robustness of frequency coordination mechanisms underlying virtual spectrometry.}
+\label{fig:hardware_sync}
+\end{figure}
+
+\begin{theorem}[Coupling Necessity]
+\label{thm:coupling_necessity}
+Information extraction from a bounded oscillatory system requires oscillatory coupling between system and observer. Moreover, the coupling must be \emph{frequency-selective}: information about partition coordinate $\xi$ can only be extracted by coupling at frequencies in the regime $\Omega_\xi$ (Definition~\ref{def:spectral_regime}).
+\end{theorem}
+
+\begin{proof}
+Let $\mathcal{X}$ be an information extraction satisfying Definition~\ref{def:information_extraction}. We prove necessity of oscillatory coupling in two steps.
+
+\textbf{Step 1: Observer dynamics must be oscillatory.}
+
+The observer occupies a state space $\mathcal{S}$. If $\mathcal{S}$ is bounded (finite measure), then by Theorem~\ref{thm:oscillatory_necessity}, the observer dynamics $\psi_t$ must be oscillatory for almost all initial conditions $y_0 \in \mathcal{S}$. 
+
+If $\mathcal{S}$ is unbounded, the observer could in principle have non-oscillatory dynamics. However, for the time average in condition (iii) to converge, the observer trajectory $\psi_t(y_0)$ must be recurrent or quasi-periodic. Non-recurrent trajectories (e.g., escaping to infinity) would cause the integral to diverge or fail to converge. Hence, for practical information extraction, the observer must exhibit bounded, oscillatory dynamics.
+
+\textbf{Step 2: Coupling must be frequency-selective.}
+
+Assume both system and observer have oscillatory dynamics with Fourier decompositions:
+\begin{align}
+\phi_t(x) &= \sum_{\omega \in \Omega(\phi_x)} \hat{\phi}_x(\omega) e^{i\omega t}, \\
+\psi_t(y_0) &= \sum_{\omega' \in \Omega(\psi_{y_0})} \hat{\psi}_{y_0}(\omega') e^{i\omega' t},
+\end{align}
+where $\Omega(\phi_x)$ and $\Omega(\psi_{y_0})$ are the discrete frequency spectra (Proposition~\ref{prop:discrete_spectrum}).
+
+The coupling function can be expanded as:
+\begin{equation}
+f(\phi_t(x), \psi_t(y_0)) = \sum_{\omega, \omega'} \hat{f}(\omega, \omega') \hat{\phi}_x(\omega) \hat{\psi}_{y_0}(\omega') e^{i(\omega + \omega')t}.
+\end{equation}
+
+The time average is:
+\begin{align}
+\lim_{T \to \infty} \frac{1}{T} \int_0^T f(\phi_t(x), \psi_t(y_0)) \, dt &= \lim_{T \to \infty} \frac{1}{T} \int_0^T \sum_{\omega, \omega'} \hat{f}(\omega, \omega') \hat{\phi}_x(\omega) \hat{\psi}_{y_0}(\omega') e^{i(\omega + \omega')t} \, dt \\
+&= \sum_{\omega, \omega'} \hat{f}(\omega, \omega') \hat{\phi}_x(\omega) \hat{\psi}_{y_0}(\omega') \lim_{T \to \infty} \frac{1}{T} \int_0^T e^{i(\omega + \omega')t} \, dt.
+\end{align}
+
+The integral $\frac{1}{T} \int_0^T e^{i\Omega t} \, dt$ equals $\delta_{\Omega, 0}$ (Kronecker delta) in the limit $T \to \infty$ for discrete frequencies. Hence:
+\begin{equation}
+\mathcal{X}(x) = \sum_{\omega} \hat{f}(\omega, -\omega) \hat{\phi}_x(\omega) \hat{\psi}_{y_0}(-\omega).
+\end{equation}
+
+Non-zero contribution requires:
+\begin{enumerate}[label=(\alph*), noitemsep]
+    \item $\hat{\phi}_x(\omega) \neq 0$ (system has frequency component $\omega$),
+    \item $\hat{\psi}_{y_0}(-\omega) \neq 0$ (observer has frequency component $-\omega$),
+    \item $\hat{f}(\omega, -\omega) \neq 0$ (coupling function connects these frequencies).
+\end{enumerate}
+
+This is the \emph{frequency-matching condition}: information transfer occurs only when system and observer share a common frequency (up to sign).
+
+\textbf{Step 3: Coordinate selectivity requires regime selectivity.}
+
+By the frequency-coordinate duality (Theorem~\ref{thm:frequency_duality}), partition coordinate $\xi$ is associated with characteristic frequencies in regime $\Omega_\xi$. Transitions changing $\xi$ occur at frequencies $\omega \in \Omega_\xi$.
+
+To extract coordinate $\xi$, the coupling must be sensitive to transitions in $\Omega_\xi$. By the frequency-matching condition, this requires the observer to possess frequency components in $\Omega_\xi$. Hence, extracting coordinate $\xi$ necessitates frequency-selective coupling in regime $\Omega_\xi$.
+
+By regime separation (Proposition~\ref{prop:regime_separation}), the regimes $\Omega_n, \Omega_\ell, \Omega_m, \Omega_s$ are disjoint. Hence, extracting different coordinates requires different frequency-selective coupling structures.
+\end{proof}
+
+\begin{corollary}[Spectroscopic Necessity]
+\label{cor:spectroscopic_necessity}
+Complete characterization of a partition element $(n, \ell, m, s)$ requires four distinct frequency-selective coupling structures operating in regimes $\Omega_n, \Omega_\ell, \Omega_m, \Omega_s$ respectively. This establishes the necessity of multi-frequency spectroscopic instrumentation.
+\end{corollary}
+
+\subsection{Minimal Coupling Structures}
+
+Having established that frequency-selective coupling is necessary, we now characterize the minimal structure required for each coordinate.
+
+\begin{definition}[Coupling Structure]
+\label{def:coupling_structure}
+A \emph{coupling structure} for partition coordinate $\xi \in \{n, \ell, m, s\}$ is a triple $\mathcal{I}_\xi = (\oscillator, \nu, \kappa)$ where:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item $(\oscillator, \nu)$ is a measure space (the \emph{apparatus space}), with $\oscillator$ representing the space of possible apparatus states and $\nu$ a probability measure on $\oscillator$,
+    \item $\kappa: \manifold \times \oscillator \to \Reals$ is a \emph{coupling function} specifying the interaction strength between system state $x \in \manifold$ and apparatus state $y \in \oscillator$,
+    \item $\kappa$ \emph{extracts coordinate $\xi$}: there exists a readout function $g: \oscillator \to \Reals$ such that
+    \begin{equation}
+    \xi(x) = \int_\oscillator g(y) \kappa(x, y) \, d\nu(y),
+    \end{equation}
+    where $\xi: \manifold \to \Reals$ is the coordinate function assigning to each $x \in \manifold$ its $\xi$-coordinate value.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+The coupling structure $\mathcal{I}_\xi = (\oscillator, \nu, \kappa)$ abstracts the essential features of a measurement apparatus: $\oscillator$ is the space of apparatus configurations (e.g., electromagnetic field modes), $\kappa$ specifies how system and apparatus interact (e.g., dipole coupling), and $g$ is the readout procedure (e.g., photon counting).
+\end{remark}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/dual_functionality.png}
+\caption{Dual functionality performance demonstrating that standard computer hardware components simultaneously perform computational operations and categorical state measurements. \textbf{Left panel (Dual Functionality Performance):} Bar chart comparing Clock (blue bars) versus Processor (orange bars) performance across four molecular compounds (agrafiotis, ahmed, hann, walters). Both hardware components achieve performance values of $\sim 0.95$ (95\%) for all compounds, demonstrating that CPU clocks and processors function equally well as categorical state detectors while maintaining their primary computational roles. The near-identical performance ($\Delta < 0.01$) between clock and processor measurements indicates that categorical state propagation is accessible through multiple independent hardware oscillator systems. \textbf{Right panel (Success Rates):} Green bars showing 100\% success rate ($1.0$) for categorical state detection across all four compounds (agrafiotis, ahmed, hann, walters). The perfect success rate demonstrates robust and reliable molecular identification through hardware-based categorical state measurements, confirming that computer components can serve as virtual spectrometers without any modification to their primary function. This dual functionality validates the categorical aperture model: hardware oscillators act as shaped apertures in categorical state space, selecting molecular signatures through geometric resonance rather than information processing, thereby incurring zero thermodynamic cost ($I = 0$) for the measurement process while simultaneously executing computational tasks.}
+\label{fig:dual_functionality}
+\end{figure}
+
+\begin{definition}[Minimal Coupling Structure]
+\label{def:minimal_coupling}
+A coupling structure $\mathcal{I}_\xi = (\oscillator, \nu, \kappa)$ is \emph{minimal} if:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item \emph{Extraction}: It extracts coordinate $\xi$ (Definition~\ref{def:coupling_structure}, condition iii),
+    \item \emph{Invariance}: It is invariant under changes in complementary coordinates $\xi' \neq \xi$:
+    \begin{equation}
+    \frac{\partial}{\partial \xi'} \left[\int_\oscillator g(y) \kappa(x, y) \, d\nu(y)\right] = 0 \quad \forall \xi' \neq \xi,
+    \end{equation}
+    \item \emph{Minimality}: No proper measurable subset $\oscillator' \subsetneq \oscillator$ with $\nu(\oscillator') > 0$ satisfies conditions (i) and (ii).
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+Condition (ii) ensures that $\mathcal{I}_\xi$ selectively extracts $\xi$ without contamination from other coordinates. Condition (iii) ensures that no simpler apparatus suffices—every part of $\oscillator$ is necessary for extraction.
+\end{remark}
+
+\begin{theorem}[Instrument Necessity Theorem]
+\label{thm:instrument_necessity}
+For each partition coordinate $\xi \in \{n, \ell, m, s\}$, there exists a minimal coupling structure $\mathcal{I}_\xi = (\oscillator_\xi, \nu_\xi, \kappa_\xi)$. These structures are characterized as follows:
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Depth coordinate $\xi = n$}: $\mathcal{I}_n$ corresponds to absorption/emission spectroscopy in regime $\Omega_n$,
+    \item \textbf{Angular coordinate $\xi = \ell$}: $\mathcal{I}_\ell$ corresponds to Raman spectroscopy in regime $\Omega_\ell$,
+    \item \textbf{Orientation coordinate $\xi = m$}: $\mathcal{I}_m$ corresponds to magnetic resonance spectroscopy in regime $\Omega_m$,
+    \item \textbf{Chirality coordinate $\xi = s$}: $\mathcal{I}_s$ corresponds to circular dichroism/ESR spectroscopy in regime $\Omega_s$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We construct $\mathcal{I}_\xi$ explicitly for each coordinate, demonstrating existence. Uniqueness (up to equivalence) is established in Theorem~\ref{thm:structure_uniqueness}.
+
+\textbf{Case $\xi = n$ (depth coordinate):}
+
+\emph{Apparatus space:} Define
+\begin{equation}
+\oscillator_n = \{(\omega, \mathbf{k}, \hat{\epsilon}) : \omega \in \Omega_n, \, |\mathbf{k}| = \omega/c, \, \hat{\epsilon} \in S^2, \, \hat{\epsilon} \perp \mathbf{k}\},
+\end{equation}
+representing electromagnetic field modes with frequency $\omega$, wavevector $\mathbf{k}$, and polarization $\hat{\epsilon}$. The measure is $d\nu_n = \rho(\omega) \omega^2 d\omega \, d\Omega_{\mathbf{k}} \, d\Omega_{\hat{\epsilon}}$, where $\rho(\omega)$ is the mode density and $d\Omega$ denotes solid angle.
+
+\emph{Coupling function:} The electric dipole coupling is
+\begin{equation}
+\kappa_n(x, (\omega, \mathbf{k}, \hat{\epsilon})) = \left|\langle \psi_{n'} | \hat{\epsilon} \cdot \mathbf{r} | \psi_{n(x)} \rangle\right|^2 \delta(\omega - \omega_{n(x) \to n'}),
+\end{equation}
+where $\psi_{n(x)}$ is the state at partition element $x$ with depth coordinate $n(x)$, $\psi_{n'}$ is a reference state (typically ground state $n' = 1$), and $\omega_{n \to n'}$ is the transition frequency given by Theorem~\ref{thm:frequency_duality}:
+\begin{equation}
+\omega_{n \to n'} = \omega_0 (n^{-3} - n'^{-3}).
+\end{equation}
+
+The $\delta$-function enforces frequency matching: coupling is non-zero only when the apparatus frequency $\omega$ matches a transition frequency of the system.
+
+\emph{Readout function:} Define $g(\omega, \mathbf{k}, \hat{\epsilon}) = \omega^3$ (photon energy cubed, related to absorption cross-section). Then:
+\begin{equation}
+\int_{\oscillator_n} g(y) \kappa_n(x, y) \, d\nu_n(y) \propto \omega_{n(x) \to n'}^3 \propto n(x)^{-9} \quad (\text{for } n' \text{ fixed}),
+\end{equation}
+which is a monotonic function of $n(x)$, allowing extraction of $n$.
+
+\emph{Invariance:} The coupling $\kappa_n$ depends on $n$ through $\omega_{n \to n'}$ but is independent of $\ell, m, s$ (to leading order, neglecting fine structure). Hence condition (ii) of Definition~\ref{def:minimal_coupling} is satisfied.
+
+\emph{Minimality:} The frequency-matching condition $\delta(\omega - \omega_{n \to n'})$ is essential for selectivity. Removing any frequency component from $\oscillator_n$ would eliminate information about certain $n$ values, violating extraction. Hence $\oscillator_n$ is minimal.
+
+\textbf{Case $\xi = \ell$ (angular complexity coordinate):}
+
+\emph{Apparatus space:} Define
+\begin{equation}
+\oscillator_\ell = \{(\omega_{\text{in}}, \omega_{\text{out}}, \mathbf{k}_{\text{in}}, \mathbf{k}_{\text{out}}) : \omega_{\text{in}} - \omega_{\text{out}} \in \Omega_\ell, \, |\mathbf{k}| = \omega/c\},
+\end{equation}
+representing inelastic scattering processes with incident frequency $\omega_{\text{in}}$ and scattered frequency $\omega_{\text{out}}$. The frequency difference $\Delta\omega = \omega_{\text{in}} - \omega_{\text{out}}$ corresponds to energy transfer to/from vibrational/rotational modes.
+
+\emph{Coupling function:} The Raman scattering amplitude is
+\begin{equation}
+\kappa_\ell(x, (\omega_{\text{in}}, \omega_{\text{out}}, \mathbf{k}_{\text{in}}, \mathbf{k}_{\text{out}})) = \left|\langle \psi_{\ell'} | \alpha(\omega_{\text{in}}) | \psi_{\ell(x)} \rangle\right|^2 \delta(\omega_{\text{in}} - \omega_{\text{out}} - \omega_{\ell(x) \to \ell'}),
+\end{equation}
+where $\alpha(\omega)$ is the polarizability tensor and $\omega_{\ell \to \ell'} = \omega_0 \beta [\ell(\ell+1) - \ell'(\ell'+1)]$ by Theorem~\ref{thm:frequency_duality}.
+
+\emph{Selection rule:} By Theorem~\ref{thm:selection_rules}, $\Delta \ell = \pm 1$ for dipole-allowed transitions. This constrains which $\ell$ values can be accessed.
+
+\emph{Readout:} The scattered intensity $g(\omega_{\text{out}}) = I_{\text{out}}(\omega_{\text{out}})$ encodes $\ell$ through the frequency shift $\Delta\omega \propto \ell(\ell+1)$.
+
+\emph{Invariance and minimality:} Similar arguments as for $\mathcal{I}_n$.
+
+\textbf{Case $\xi = m$ (orientation coordinate):}
+
+\emph{Apparatus space:} Define
+\begin{equation}
+\oscillator_m = \{(\mathbf{B}, \omega) : |\mathbf{B}| \in [B_{\min}, B_{\max}], \, \omega \in \Omega_m\},
+\end{equation}
+representing a static magnetic field $\mathbf{B}$ and an oscillating transverse field at frequency $\omega$.
+
+\emph{Coupling function:} The Zeeman coupling is
+\begin{equation}
+\kappa_m(x, (\mathbf{B}, \omega)) = \left|\langle m' | \mu_B \mathbf{B} \cdot \mathbf{L} | m(x) \rangle\right|^2 \delta(\omega - \gamma |\mathbf{B}| [m(x) - m']),
+\end{equation}
+where $\mathbf{L}$ is the angular momentum operator, $\mu_B$ is the Bohr magneton, and $\gamma = \mu_B / \hbar$ is the gyromagnetic ratio.
+
+\emph{Readout:} The resonance frequency $\omega_{\text{res}} = \gamma |\mathbf{B}| m$ directly encodes $m$.
+
+\emph{Invariance:} The coupling depends on $m$ but not on $n, \ell, s$ (to leading order).
+
+\textbf{Case $\xi = s$ (chirality coordinate):}
+
+\emph{Apparatus space:} Define
+\begin{equation}
+\oscillator_s = \{(\mathbf{B}_0, B_1, \omega) : \mathbf{B}_0 \text{ static}, \, B_1 \text{ oscillating amplitude}, \, \omega \in \Omega_s\},
+\end{equation}
+representing electron spin resonance (ESR) or nuclear magnetic resonance (NMR) configurations.
+
+\emph{Coupling function:} The spin-flip coupling is
+\begin{equation}
+\kappa_s(x, (\mathbf{B}_0, B_1, \omega)) = \left|\langle -s(x) | g \mu_B B_1 S_x | s(x) \rangle\right|^2 \delta(\omega - \omega_L),
+\end{equation}
+where $S_x$ is the spin operator along the transverse direction, $g \approx 2$ is the g-factor, and $\omega_L = g \mu_B |\mathbf{B}_0| / \hbar$ is the Larmor frequency.
+
+\emph{Readout:} The resonance condition $\omega = \omega_L$ determines $s$ (the two chirality states have opposite resonance behavior).
+
+\emph{Invariance and minimality:} Similar to previous cases.
+
+This completes the construction, establishing existence of minimal coupling structures for all four coordinates.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:instrument_necessity} demonstrates that the four major classes of spectroscopic techniques—absorption/emission, Raman, magnetic resonance, and circular dichroism—are not arbitrary experimental choices but are \emph{mathematically necessary} for extracting the four partition coordinates $(n, \ell, m, s)$. The structure of these techniques is uniquely determined by the frequency-coordinate duality and the requirement of minimal coupling.
+\end{remark}
+
+\subsection{Uniqueness of Coupling Structures}
+
+We now establish that the coupling structures constructed in Theorem~\ref{thm:instrument_necessity} are essentially unique.
+
+\begin{definition}[Equivalence of Coupling Structures]
+\label{def:coupling_equivalence}
+Two coupling structures $\mathcal{I} = (\oscillator, \nu, \kappa)$ and $\mathcal{I}' = (\oscillator', \nu', \kappa')$ are \emph{equivalent}, written $\mathcal{I} \sim \mathcal{I}'$, if there exists a measure-preserving bijection $\Phi: \oscillator \to \oscillator'$ such that:
+\begin{equation}
+\kappa(x, y) = \kappa'(x, \Phi(y)) \quad \text{for } \mu \times \nu\text{-almost all } (x, y) \in \manifold \times \oscillator.
+\end{equation}
+\end{definition}
+
+\begin{remark}
+Equivalence captures the idea that two coupling structures are "the same up to relabeling of apparatus states." For example, using photons of frequency $\omega$ versus using photons of wavelength $\lambda = 2\pi c / \omega$ are equivalent descriptions.
+\end{remark}
+
+\begin{theorem}[Structure Uniqueness]
+\label{thm:structure_uniqueness}
+For each coordinate $\xi \in \{n, \ell, m, s\}$, the minimal coupling structure $\mathcal{I}_\xi$ is unique up to equivalence. That is, if $\mathcal{I}_\xi$ and $\mathcal{I}'_\xi$ are both minimal coupling structures for $\xi$, then $\mathcal{I}_\xi \sim \mathcal{I}'_\xi$.
+\end{theorem}
+
+\begin{proof}
+Let $\mathcal{I}_\xi = (\oscillator, \nu, \kappa)$ and $\mathcal{I}'_\xi = (\oscillator', \nu', \kappa')$ be two minimal coupling structures for coordinate $\xi$.
+
+\textbf{Step 1: Frequency-matching determines apparatus space.}
+
+By Theorem~\ref{thm:coupling_necessity}, both structures must operate in the frequency regime $\Omega_\xi$. The frequency-matching condition requires that apparatus states $y \in \oscillator$ and $y' \in \oscillator'$ correspond to frequencies $\omega \in \Omega_\xi$.
+
+Hence, both $\oscillator$ and $\oscillator'$ are parameterized by frequency $\omega \in \Omega_\xi$ plus ancillary variables (polarization, wavevector, field orientation, etc.). Denote:
+\begin{align}
+\oscillator &= \Omega_\xi \times \mathcal{A}, \\
+\oscillator' &= \Omega_\xi \times \mathcal{A}',
+\end{align}
+where $\mathcal{A}, \mathcal{A}'$ are ancillary spaces.
+
+\textbf{Step 2: Minimality determines ancillary space.}
+
+Minimality (Definition~\ref{def:minimal_coupling}, condition iii) requires that every part of the apparatus space is necessary for extraction. The ancillary variables $\mathcal{A}$ must encode the minimal information needed to specify the coupling geometry (e.g., polarization for electric dipole coupling, field orientation for magnetic coupling).
+
+For a given physical interaction (electric dipole, magnetic dipole, etc.), the ancillary space is determined by the symmetry group of the interaction. For example:
+\begin{itemize}[noitemsep]
+    \item Electric dipole coupling requires polarization $\hat{\epsilon} \in S^2$ and wavevector $\mathbf{k} \in S^2$,
+    \item Magnetic dipole coupling requires field orientation $\hat{\mathbf{B}} \in S^2$.
+\end{itemize}
+
+Since the interaction type is determined by the coordinate $\xi$ (depth $\to$ electric dipole, orientation $\to$ magnetic dipole, etc.), the ancillary spaces $\mathcal{A}$ and $\mathcal{A}'$ must be isomorphic: $\mathcal{A} \cong \mathcal{A}'$.
+
+\textbf{Step 3: Coupling functions are determined by matrix elements.}
+
+The coupling function $\kappa(x, y)$ encodes the transition amplitude between system state $x$ and apparatus state $y$. For frequency-selective coupling, this amplitude is proportional to the matrix element:
+\begin{equation}
+\kappa(x, (\omega, a)) \propto |\langle \psi_{\xi'} | \hat{O} | \psi_{\xi(x)} \rangle|^2 \delta(\omega - \omega_{\xi(x) \to \xi'}),
+\end{equation}
+where $\hat{O}$ is the coupling operator (e.g., $\hat{\mathbf{r}}$ for electric dipole, $\hat{\mathbf{L}}$ for magnetic dipole) and $a \in \mathcal{A}$ specifies ancillary variables.
+
+The matrix elements $\langle \psi_{\xi'} | \hat{O} | \psi_{\xi} \rangle$ are determined by the partition coordinate structure (Theorem~\ref{thm:partition_structure}) and the selection rules (Theorem~\ref{thm:selection_rules}). Hence, $\kappa$ and $\kappa'$ must encode the same matrix elements, differing at most by the parameterization of ancillary variables.
+
+\textbf{Step 4: Construct equivalence map.}
+
+Define $\Phi: \oscillator \to \oscillator'$ by:
+\begin{equation}
+\Phi(\omega, a) = (\omega, \phi(a)),
+\end{equation}
+where $\phi: \mathcal{A} \to \mathcal{A}'$ is the isomorphism between ancillary spaces. Then:
+\begin{equation}
+\kappa(x, (\omega, a)) = \kappa'(x, (\omega, \phi(a))) = \kappa'(x, \Phi(\omega, a)),
+\end{equation}
+establishing equivalence $\mathcal{I}_\xi \sim \mathcal{I}'_\xi$.
+\end{proof}
+
+\begin{corollary}[Uniqueness of Spectroscopic Techniques]
+\label{cor:uniqueness_spectroscopy}
+The four spectroscopic techniques identified in Theorem~\ref{thm:instrument_necessity}—absorption/emission, Raman, magnetic resonance, circular dichroism—are the unique minimal coupling structures (up to equivalence) for extracting partition coordinates $(n, \ell, m, s)$ respectively.
+\end{corollary}
+
+\subsection{Coupling Efficiency}
+
+Having established the existence and uniqueness of minimal coupling structures, we now quantify their efficiency.
+
+\begin{definition}[Coupling Efficiency]
+\label{def:coupling_efficiency}
+For the coupling structure $\mathcal{I} = (\oscillator, \nu, \kappa)$, extracting coordinates $\xi$ via the readout function $g$, the \emph{coupling efficiency} is:
+\begin{equation}
+\eta_{\mathcal{I}} = \frac{\left\langle \left| \int_\oscillator g(y) \kappa(x, y) \, d\nu(y) \right|^2 \right\rangle_x}{\|g\|_{L^2(\oscillator)}^2 \cdot \|\xi\|_{L^2(\manifold)}^2},
+\end{equation}
+where $\langle \cdot \rangle_x$ denotes averaging over $x \in \manifold$ with respect to measure $\mu$, and $\|\cdot\|_{L^2}$ denotes the $L^2$ norm.
+\end{definition}
+
+\begin{remark}
+The efficiency $\eta_{\mathcal{I}}$ measures the fraction of apparatus variance that is correlated with system variance. Perfect efficiency ($\eta = 1$) means that all apparatus fluctuations are due to system state variations; zero efficiency ($\eta = 0$) means no correlation.
+\end{remark}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/pixel_chemical_mapping.png}
+\caption{Pixel-to-chemical mapping analysis showing modification patterns in categorical state measurements. \textbf{Left panel (Modifications per Pattern):} Bar chart displaying modification counts across pattern indices 0--7. Pattern index 0 shows $1.0$ modification, pattern indices 1--2 show zero modifications, and pattern indices 3--6 show $1.0$ modification each, with pattern index 7 showing zero modifications. The binary pattern (modified vs unmodified) indicates discrete categorical state transitions, where modifications represent changes in molecular configuration detected through pixel-level categorical state analysis. The regular spacing suggests systematic sampling of categorical state space through display hardware. \textbf{Right panel (Modification Distribution):} Histogram showing frequency distribution of modification counts. Two distinct peaks appear: 3 occurrences at modification count $0.0$ (unmodified states) and 5 occurrences at modification count $1.0$ (modified states). The bimodal distribution demonstrates that categorical state measurements produce binary outcomes—pixels either resonate with molecular categorical states (modification $= 1$) or do not (modification $= 0$)—consistent with the aperture model where geometric fit is a yes/no condition. The 5:3 ratio of modified to unmodified states indicates that approximately 62\% of sampled categorical state configurations match the molecular signature, providing sufficient information density for molecular identification. This pixel-level analysis confirms that display LEDs function as categorical apertures, with each pixel acting as an independent detector sampling different regions of categorical state space, collectively generating the concentric ring patterns observed in computer vision chemical analysis.}
+\label{fig:pixel_mapping}
+\end{figure}
+
+\begin{proposition}[Efficiency Bound]
+\label{prop:efficiency_bound}
+For any coupling structure, $0 \leq \eta_{\mathcal{I}} \leq 1$. Equality $\eta_{\mathcal{I}} = 1$ holds if and only if the coupling kernel is rank-one: $\kappa(x, y) = f(x) g(y)$ for some functions $f: \manifold \to \Reals$ and $g: \oscillator \to \Reals$.
+\end{proposition}
+
+\begin{proof}
+By the Cauchy-Schwarz inequality:
+\begin{equation}
+\left| \int_\oscillator g(y) \kappa(x, y) \, d\nu(y) \right|^2 \leq \|g\|_{L^2(\oscillator)}^2 \cdot \|\kappa(x, \cdot)\|_{L^2(\oscillator)}^2.
+\end{equation}
+
+Averaging over $x$:
+\begin{equation}
+\left\langle \left| \int_\oscillator g(y) \kappa(x, y) \, d\nu(y) \right|^2 \right\rangle_x \leq \|g\|_{L^2(\oscillator)}^2 \cdot \left\langle \|\kappa(x, \cdot)\|_{L^2(\oscillator)}^2 \right\rangle_x.
+\end{equation}
+
+For the coupling to extract $\xi$, we require $\int_\oscillator g(y) \kappa(x, y) \, d\nu(y) = \xi(x)$. Hence:
+\begin{equation}
+\left\langle |\xi(x)|^2 \right\rangle_x = \|\xi\|_{L^2(\manifold)}^2 \leq \|g\|_{L^2(\oscillator)}^2 \cdot \left\langle \|\kappa(x, \cdot)\|_{L^2(\oscillator)}^2 \right\rangle_x.
+\end{equation}
+
+Rearranging:
+\begin{equation}
+\eta_{\mathcal{I}} = \frac{\|\xi\|_{L^2(\manifold)}^2}{\|g\|_{L^2(\oscillator)}^2 \cdot \left\langle \|\kappa(x, \cdot)\|_{L^2(\oscillator)}^2 \right\rangle_x} \leq 1.
+\end{equation}
+
+Equality holds when Cauchy-Schwarz is saturated, which occurs if and only if $\kappa(x, y)$ is proportional to $g(y)$ for each fixed $x$. That is, $\kappa(x, y) = f(x) g(y)$ for some function $f$.
+\end{proof}
+
+\begin{corollary}[Optimal Coupling]
+\label{cor:optimal_coupling}
+Minimal coupling structures achieving $\eta = 1$ are \emph{optimal}; they extract coordinate information with maximal efficiency, minimising apparatus complexity and measurement time.
+\end{corollary}
+
+This completes the characterisation of minimal coupling structures. We have established their necessity (Theorem~\ref{thm:coupling_necessity}), existence (Theorem~\ref{thm:instrument_necessity}), uniqueness (Theorem~\ref{thm:structure_uniqueness}), and efficiency bounds (Proposition~\ref{prop:efficiency_bound}). In Section~\ref{sec:explicit_coupling}, we derive explicit forms for the coupling functions $\kappa_\xi$, connecting the abstract framework to concrete spectroscopic formulas.

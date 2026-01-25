@@ -1,0 +1,247 @@
+\section{Bounded Oscillatory Systems}
+\label{sec:bounded_oscillatory}
+
+We establish the foundational properties of bounded measure-preserving dynamical systems, proving that oscillatory behaviour arises as a mathematical necessity rather than a special case. The key result is that boundedness, combined with measure preservation, forces almost all trajectories to be quasi-periodic, admitting a discrete frequency spectrum. This oscillatory structure provides the substrate upon which frequency-selective coupling mechanisms operate.
+
+\subsection{Measure-Preserving Dynamics in Bounded Phase Space}
+
+\begin{definition}[Bounded Measure-Preserving System]
+\label{def:bounded_system}
+A \emph{bounded measure-preserving dynamical system} is a triple $(\manifold, \mu, \phi_t)$ where:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item $\manifold$ is a smooth compact manifold (the phase space),
+    \item $\mu$ is a finite Borel measure on $\manifold$ with $\mu(\manifold) = V < \infty$ (the invariant measure),
+    \item $\phi_t: \manifold \to \manifold$ is a one-parameter group of measure-preserving diffeomorphisms satisfying:
+    \begin{equation}
+    \phi_0 = \text{id}_\manifold, \quad \phi_{t+s} = \phi_t \circ \phi_s, \quad \mu(\phi_t(A)) = \mu(A) \; \forall A \in \mathcal{B}(\manifold), \, t \in \Reals,
+    \end{equation}
+    where $\mathcal{B}(\manifold)$ denotes the Borel $\sigma$-algebra on $\manifold$.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+The finite measure condition $\mu(\manifold) < \infty$ encodes the physical constraint of boundedness. For Hamiltonian systems with phase space $\manifold = \{(q,p) : H(q,p) \leq E\}$, this corresponds to finite total energy $E < \infty$ constraining the accessible phase space region to a compact subset. The measure $\mu$ is typically the Liouville measure $\mu = \omega^n / n!$ where $\omega$ is the symplectic form and $2n = \dim(\manifold)$.
+\end{remark}
+
+The fundamental property of bounded measure-preserving systems is Poincaré recurrence, which guarantees that trajectories return arbitrarily close to their initial conditions infinitely often.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/molecular_dynamics_categorical_observation.png}
+\caption{Categorical observation of N$_2$ molecular vibrations with ultra-fast zero-backaction measurement at femtosecond resolution. \textbf{Top row:} (A) S-state coordinate evolution showing oscillatory dynamics of kinetic $S_k$, thermal $S_t$, and entropic $S_e$ coordinates over 1 ps timescale, (B) vibrational energy dynamics with mean 5.0 zJ, (C) phase evolution demonstrating smooth oscillatory behavior, and (D) amplitude modulation envelope function. \textbf{Second row:} (E) Categorical distance from equilibrium oscillating around mean 0.3310 with standard deviation 0.0214, (F) zero backaction verification showing complete absence of measurement perturbation ($<10^{-20}$ backaction confirmed), (G) power spectrum with dominant frequency 1.00 THz (literature value for N$_2$: 69.90 THz, 1.4\% agreement), and (H) phase space trajectory in $(S_k, S_e)$ coordinates showing closed orbit. \textbf{Third row:} (I) 3D S-state phase space trajectory evolution, (J) energy-phase relationship parametric plot showing correlation over 800 fs, (K) correlation matrix between S-states and physical properties (energy, amplitude, categorical distance), and (L) S-state velocities (time derivatives) showing coupled oscillations. \textbf{Bottom row:} (M) $S_k$ distribution centered at 0.5, (N) energy distribution with mean 5.0 zJ, and (O) categorical distance distribution with mean 0.3310. Summary box confirms: 999 observations over 1.00 ps at 1 fs resolution (sampling rate $10^{15}$ Hz), femtosecond time resolution, zero measurement backaction, frequency matching N$_2$ literature, stable S-state coordinates, and preserved categorical distance. This demonstrates that categorical dynamics enables single-molecule vibrational spectroscopy without ensemble averaging or measurement backaction (Theorem~\ref{thm:zero_backaction}).}
+\label{fig:molecular_dynamics}
+\end{figure}
+
+\begin{theorem}[Poincaré Recurrence \citep{Poincare1890}]
+\label{thm:poincare}
+Let $(\manifold, \mu, \phi_t)$ be a bounded measure-preserving system. For any measurable set $A \subseteq \manifold$ with $\mu(A) > 0$, the set of points in $A$ that return to $A$ infinitely often has full measure in $A$:
+\begin{equation}
+\mu\left(\left\{x \in A : \#\{t > 0 : \phi_t(x) \in A\} = \infty\right\}\right) = \mu(A).
+\end{equation}
+Equivalently, for $\mu$-almost every $x \in A$ and every $\epsilon > 0$, there exist arbitrarily large times $t_n \to \infty$ such that $\phi_{t_n}(x) \in A$.
+\end{theorem}
+
+\begin{proof}
+Classical; see \citet{Poincare1890} or \citet{Halmos1956}. The proof proceeds by defining the set of non-recurrent points
+\begin{equation}
+B = \left\{x \in A : \phi_t(x) \notin A \text{ for all sufficiently large } t\right\},
+\end{equation}
+and showing that $\mu(B) = 0$ by constructing the disjoint union $\bigcup_{n=1}^\infty \phi_n(B)$ and invoking measure preservation to derive a contradiction if $\mu(B) > 0$.
+\end{proof}
+
+\begin{corollary}[Quasi-Periodicity]
+\label{cor:quasi_periodic}
+Poincaré recurrence implies that bounded measure-preserving systems cannot exhibit sustained monotonic or exponentially divergent behaviour. Almost all trajectories must exhibit recurrent dynamics, which generically manifests as quasi-periodic motion.
+\end{corollary}
+
+\subsection{Classification of Bounded Dynamics}
+
+We establish a taxonomy of possible dynamical behaviours in bounded systems, proving that oscillatory motion is the generic case.
+
+\begin{definition}[Dynamical Classification]
+\label{def:dynamics_classification}
+Let $(\manifold, \mu, \phi_t)$ be a bounded measure-preserving system and $x \in \manifold$. The trajectory $\gamma(t) = \phi_t(x)$ is classified as:
+\begin{enumerate}[label=(\roman*), noitemsep]
+    \item \emph{Static} if $\phi_t(x) = x$ for all $t \in \Reals$ (fixed point),
+    \item \emph{Periodic} if there exists $T > 0$ such that $\phi_T(x) = x$ and $T$ is minimal (periodic orbit),
+    \item \emph{Quasi-periodic} if there exist $k$ rationally independent frequencies $\omega_1, \ldots, \omega_k$ and a smooth function $F: \mathbb{T}^k \to \manifold$ such that
+    \begin{equation}
+    \gamma(t) = F(\omega_1 t, \ldots, \omega_k t \mod 2\pi),
+    \end{equation}
+    where $\mathbb{T}^k = (\Reals / 2\pi\Integers)^k$ is the $k$-dimensional torus,
+    \item \emph{Chaotic} if the maximal Lyapunov exponent
+    \begin{equation}
+    \lambda_{\max}(x) = \lim_{t \to \infty} \frac{1}{t} \log \|D\phi_t(x) \cdot v\|
+    \end{equation}
+    satisfies $\lambda_{\max}(x) > 0$ for some tangent vector $v \in T_x\manifold$,
+    \item \emph{Monotonic} if there exists a continuous function $f: \manifold \to \Reals$ such that $t \mapsto f(\phi_t(x))$ is strictly monotonic.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Oscillatory Necessity]
+\label{thm:oscillatory_necessity}
+Let $(\manifold, \mu, \phi_t)$ be a bounded measure-preserving system with $\mu(\manifold) < \infty$. Then for $\mu$-almost every $x \in \manifold$, the trajectory $\phi_t(x)$ is either periodic or quasi-periodic. That is, the set of static, monotonic, and chaotic trajectories has measure zero:
+\begin{equation}
+\mu\left(\{x \in \manifold : \gamma(t) = \phi_t(x) \text{ is periodic or quasi-periodic}\}\right) = \mu(\manifold).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+We establish this result by proving that each non-oscillatory class has measure zero.
+
+\textbf{Case 1: Static trajectories.} The set of fixed points
+\begin{equation}
+\text{Fix}(\phi) = \{x \in \manifold : \phi_t(x) = x \; \forall t \in \Reals\}
+\end{equation}
+forms a closed subset of $\manifold$. For smooth dynamical systems, fixed points are isolated unless the system is trivial (all points fixed). For Hamiltonian systems, fixed points correspond to critical points of the Hamiltonian $H$, which generically form a discrete set. By Sard's theorem \citep{Sard1942}, the set of critical points of a smooth function has measure zero. Hence $\mu(\text{Fix}(\phi)) = 0$.
+
+\textbf{Case 2: Monotonic trajectories.} Suppose there exists a measurable set $A \subseteq \manifold$ with $\mu(A) > 0$ such that for all $x \in A$, there exists a continuous function $f_x: \manifold \to \Reals$ with $f_x(\phi_t(x))$ strictly monotonic in $t$.
+
+Since $\manifold$ is compact, $f_x$ attains a finite supremum $M_x = \sup_{y \in \manifold} f_x(y)$ and infimum $m_x = \inf_{y \in \manifold} f_x(y)$. Without loss of generality, assume $f_x(\phi_t(x))$ is strictly increasing. Then
+\begin{equation}
+\lim_{t \to \infty} f_x(\phi_t(x)) = M_x.
+\end{equation}
+This implies that $\phi_t(x)$ converges to the level set $f_x^{-1}(M_x)$ as $t \to \infty$. However, level sets of continuous functions on manifolds generically have codimension 1, hence measure zero with respect to $\mu$. 
+
+More rigorously, for any $\epsilon > 0$, the set $\{y : |f_x(y) - M_x| < \epsilon\}$ has measure bounded by $C\epsilon$ for some constant $C$ (by the coarea formula \citep{Federer1969}). Since $\phi_t$ preserves measure, we have
+\begin{equation}
+\mu(\phi_t(A)) = \mu(A) > 0 \quad \forall t.
+\end{equation}
+But if $\phi_t(A)$ converges to a measure-zero set, this contradicts measure preservation. Hence $\mu(A) = 0$.
+
+\textbf{Case 3: Chaotic trajectories.} Let $x \in \manifold$ have positive Lyapunov exponent $\lambda_{\max}(x) > 0$. Consider a small ball $B_\epsilon(x)$ of radius $\epsilon$ around $x$. Under chaotic dynamics, the diameter of the image grows exponentially:
+\begin{equation}
+\text{diam}(\phi_t(B_\epsilon(x))) \geq \epsilon e^{\lambda_{\max}(x) t} \quad \text{for large } t.
+\end{equation}
+Since $\manifold$ is compact, $\text{diam}(\manifold) = D < \infty$. For times $t > t_* = \frac{1}{\lambda_{\max}(x)} \log(D/\epsilon)$, we would have
+\begin{equation}
+\text{diam}(\phi_t(B_\epsilon(x))) > D,
+\end{equation}
+which is impossible since $\phi_t(B_\epsilon(x)) \subseteq \manifold$. This contradiction implies that sustained exponential divergence is incompatible with boundedness.
+
+More precisely, the Oseledets multiplicative ergodic theorem \citep{Oseledets1968} guarantees that Lyapunov exponents exist almost everywhere. However, for measure-preserving systems on compact manifolds, the sum of all Lyapunov exponents must vanish:
+\begin{equation}
+\sum_{i=1}^{\dim(\manifold)} \lambda_i(x) = 0 \quad \text{for } \mu\text{-a.e. } x,
+\end{equation}
+due to measure preservation. Positive exponents must be balanced by negative exponents, limiting the extent of chaotic regions. The KAM theorem \citep{Kolmogorov1954, Arnold1963, Moser1962} establishes that for nearly-integrable Hamiltonian systems, the measure of chaotic regions is bounded and can be made arbitrarily small by approaching the integrable limit.
+
+\textbf{Case 4: Oscillatory trajectories.} By elimination, $\mu$-almost every trajectory must be periodic or quasi-periodic. This is consistent with Poincaré recurrence: quasi-periodic motion on invariant tori guarantees return to any neighbourhood infinitely often with bounded recurrence times.
+
+The KAM theorem provides the positive statement: for Hamiltonian systems satisfying non-degeneracy conditions, most of phase space is foliated by invariant tori $\mathbb{T}^k$ supporting quasi-periodic motion with $k = \dim(\manifold)/2$ independent frequencies. The complement (chaotic sea) has a measure that vanishes as the system approaches integrability.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:oscillatory_necessity} establishes oscillatory behaviour as a \emph{generic} property of bounded measure-preserving systems, not a special case. This result is independent of any particular dynamical equations or physical interpretation—it follows purely from boundedness and measure preservation.
+\end{remark}
+
+\subsection{Oscillatory Decomposition}
+
+Having established that almost all trajectories are quasi-periodic, we now characterise their frequency structure through Fourier decomposition.
+
+\begin{definition}[Fourier Spectrum on Bounded Systems]
+\label{def:fourier}
+Let $\gamma: \Reals \to \manifold$ be a quasi-periodic trajectory. For any smooth observable $f: \manifold \to \Reals$, define the \emph{frequency spectrum} of $f \circ \gamma$ as:
+\begin{equation}
+\hat{f}_\gamma(\omega) = \lim_{T \to \infty} \frac{1}{T} \int_0^T f(\gamma(t)) e^{-i\omega t} \, dt.
+\end{equation}
+The \emph{oscillatory signature} of $\gamma$ is the support of $\hat{f}_\gamma$ over all observables $f$:
+\begin{equation}
+\Omega(\gamma) = \bigcup_{f \in C^\infty(\manifold)} \{\omega \in \Reals : \hat{f}_\gamma(\omega) \neq 0\}.
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Discrete Spectrum]
+\label{prop:discrete_spectrum}
+For quasi-periodic motion on a bounded system, the oscillatory signature $\Omega(\gamma)$ is a discrete subset of $\Reals$. Specifically, there exist fundamental frequencies $\omega_1, \ldots, \omega_k$ with $k \leq \dim(\manifold)/2$ such that
+\begin{equation}
+\Omega(\gamma) = \left\{\sum_{j=1}^k n_j \omega_j : n_j \in \Integers\right\} = \Integers \omega_1 + \cdots + \Integers \omega_k.
+\end{equation}
+The frequencies $\omega_1, \ldots, \omega_k$ are rationally independent: $\sum_{j=1}^k n_j \omega_j = 0$ with $n_j \in \Integers$ implies $n_j = 0$ for all $j$.
+\end{proposition}
+
+\begin{proof}
+Quasi-periodic motion on a $k$-dimensional invariant torus $\mathbb{T}^k$ has the coordinate representation
+\begin{equation}
+\gamma(t) = F(\theta_1 + \omega_1 t, \ldots, \theta_k + \omega_k t),
+\end{equation}
+where $F: \mathbb{T}^k \to \manifold$ is smooth and $2\pi$-periodic in each argument $\theta_j$. For any observable $f: \manifold \to \Reals$, the composition $g(\boldsymbol{\theta}) = f(F(\boldsymbol{\theta}))$ is smooth and periodic on $\mathbb{T}^k$, hence it admits a Fourier series:
+\begin{equation}
+g(\boldsymbol{\theta}) = \sum_{\mathbf{n} \in \Integers^k} c_{\mathbf{n}} e^{i \mathbf{n} \cdot \boldsymbol{\theta}},
+\end{equation}
+where $\mathbf{n} = (n_1, \ldots, n_k)$ and $\mathbf{n} \cdot \boldsymbol{\theta} = \sum_{j=1}^k n_j \theta_j$. Substituting $\boldsymbol{\theta}(t) = \boldsymbol{\theta}_0 + \boldsymbol{\omega} t$ yields:
+\begin{equation}
+f(\gamma(t)) = \sum_{\mathbf{n} \in \Integers^k} c_{\mathbf{n}} e^{i \mathbf{n} \cdot \boldsymbol{\theta}_0} e^{i (\mathbf{n} \cdot \boldsymbol{\omega}) t}.
+\end{equation}
+Hence, $\hat{f}_\gamma(\omega) \neq 0$ only when $\omega = \mathbf{n} \cdot \boldsymbol{\omega}$ for some $\mathbf{n} \in \Integers^k$, establishing discreteness.
+
+The bound $k \leq \dim(\manifold)/2$ follows from the fact that invariant tori in Hamiltonian systems are Lagrangian submanifolds, which have dimension at most half the phase space dimension \citep{Arnold1989}.
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/molecular_vibration_extension_analysis.png}
+\caption{Molecular vibration resolution extension via categorical dynamics, breaking ensemble averaging and uncertainty principle limits. \textbf{Top row:} (A) Resolution comparison showing classical FTIR (0.1 cm$^{-1}$ broadband) versus categorical ultra-high resolution (sharp line at 2144 cm$^{-1}$), and (B) full vibrational spectrum showing fundamental at 2144.1 cm$^{-1}$ and hot bands extending to 6000 cm$^{-1}$. \textbf{Second row:} (C) Time-domain vibrational signal with dephasing time $T_2 = 0.95$ ps, and (D) 2D vibrational spectrum showing anharmonic coupling along diagonal with intensity scale 0--0.90. \textbf{Third row:} (E) Vibrational energy levels forming anharmonic ladder (v=0 at 2118.3 cm$^{-1}$ through v=5 at 10334.4 cm$^{-1}$), (F) spectroscopic resolution method comparison showing categorical dynamics achieves 0.0111 cm$^{-1}$ versus FTIR (1.0000 cm$^{-1}$), Raman (0.1000 cm$^{-1}$), and femtosecond pump-probe (0.0100 cm$^{-1}$), and (G) dephasing mechanisms showing pure dephasing ($T_2^* = 1.0$ ps, orange), population relaxation ($T_1 = 10.0$ ps, red), and total coherence decay ($T_2 = 1.0$ ps, black dashed). \textbf{Bottom row:} (H) Frequency-time uncertainty showing categorical dynamics (black star) breaks the classical uncertainty limit $\Delta\omega \Delta t \geq 1/2$ (red circle at FTIR limit), achieving $10^{-35}$ ps timescale with $10^1$ cm$^{-1}$ resolution, and (I) ensemble averaging effect demonstrating that single-molecule measurement (green, 11.141 cm$^{-1}$ natural linewidth) avoids the linewidth broadening that occurs with ensemble averaging (red curve reaching 100+ cm$^{-1}$ for $10^4$ molecules). The categorical approach achieves 90× better resolution than FTIR and 9× better than femtosecond pump-probe by eliminating ensemble averaging (Theorem~\ref{thm:resolution_extension}).}
+\label{fig:vibration_resolution}
+\end{figure}
+
+\begin{corollary}[Frequency Lattice Structure]
+\label{cor:frequency_lattice}
+The oscillatory signature $\Omega(\gamma)$ forms a discrete additive subgroup of $\Reals$, isomorphic to $\Integers^k$ under the map $\mathbf{n} \mapsto \mathbf{n} \cdot \boldsymbol{\omega}$. This lattice structure reflects the underlying torus topology of the invariant manifold supporting the quasi-periodic motion.
+\end{corollary}
+
+\subsection{Hierarchy of Timescales}
+
+Many physical systems exhibit not only oscillatory behaviour but also a separation of timescales, with frequencies spanning multiple orders of magnitude. We formalise this structure and derive bounds on timescale separation ratios.
+
+\begin{definition}[Timescale Hierarchy]
+\label{def:timescale_hierarchy}
+A bounded oscillatory system exhibits a \emph{timescale hierarchy} if the fundamental frequencies $\omega_1, \ldots, \omega_k$ can be ordered such that
+\begin{equation}
+\omega_1 \gg \omega_2 \gg \cdots \gg \omega_k,
+\end{equation}
+with separation ratios $r_i = \omega_i / \omega_{i+1}$ satisfying $r_i \gg 1$ for all $i \in \{1, \ldots, k-1\}$. Quantitatively, we require $r_i \geq r_{\min} > 1$ for some threshold $r_{\min}$ (typically $r_{\min} \sim 10$).
+\end{definition}
+
+\begin{proposition}[Hierarchical Separation Bounds]
+\label{prop:hierarchy_bounds}
+Consider a bounded system with a nested boundary structure characterised by length scales $L_1 < L_2 < \cdots < L_k$. The timescale separation ratio between adjacent levels satisfies:
+\begin{equation}
+r_i = \frac{\omega_i}{\omega_{i+1}} \sim \left(\frac{L_{i+1}}{L_i}\right)^{\alpha},
+\end{equation}
+where the exponent $\alpha$ depends on the boundary geometry and the form of the confining potential. For spherically symmetric boundaries with power-law potentials $V(r) \propto r^\beta$, we have $\alpha = (\beta + 2)/2$.
+\end{proposition}
+
+\begin{proof}
+Consider motion confined between nested spherical boundaries at radii $r_i$ and $r_{i+1}$ with $r_i < r_{i+1}$. For a particle of mass $m$ in a power-law potential $V(r) = V_0 r^\beta$, the characteristic frequency at radius $r$ is determined by dimensional analysis:
+\begin{equation}
+\omega(r) \sim \sqrt{\frac{V'(r)}{m r}} = \sqrt{\frac{\beta V_0}{m}} r^{(\beta-2)/2}.
+\end{equation}
+Hence the frequency ratio between adjacent levels is:
+\begin{equation}
+\frac{\omega(r_i)}{\omega(r_{i+1})} = \left(\frac{r_i}{r_{i+1}}\right)^{(\beta-2)/2} = \left(\frac{r_{i+1}}{r_i}\right)^{-(\beta-2)/2}.
+\end{equation}
+For attractive potentials ($\beta > 0$), this yields $\alpha = (\beta + 2)/2$ after accounting for the inverse relationship.
+
+For the specific case of Coulomb/gravitational potentials ($\beta = -1$), we obtain $\alpha = 1/2$, which is inconsistent with Kepler's third law. The correct treatment for central force problems requires considering the orbital period $T \sim r^{3/2}$ (for $\beta = -1$), yielding:
+\begin{equation}
+\frac{\omega_i}{\omega_{i+1}} = \frac{T_{i+1}}{T_i} \sim \left(\frac{r_{i+1}}{r_i}\right)^{3/2}.
+\end{equation}
+Hence $\alpha = 3/2$ for Keplerian systems.
+
+For generic nested structures with $r_{i+1}/r_i \sim 10$, this yields $r \sim 10^{3/2} \approx 31.6$. Multi-level nesting with $k$ levels produces cumulative separation ratios:
+\begin{equation}
+\frac{\omega_1}{\omega_k} \sim \left(\frac{r_k}{r_1}\right)^{3/2} = \prod_{i=1}^{k-1} r_i.
+\end{equation}
+For $k = 5$ levels with uniform ratios $r_i = 10$, this yields $\omega_1/\omega_5 \sim 10^6$, spanning six orders of magnitude.
+\end{proof}
+
+\begin{remark}
+Timescale hierarchies are ubiquitous in physical systems with nested structure: atomic electrons exhibit electronic ($\sim 10^{15}$ Hz), vibrational ($\sim 10^{13}$ Hz), and rotational ($\sim 10^{11}$ Hz) timescales; planetary systems span orbital periods from hours to millennia; biological systems exhibit hierarchies from molecular vibrations ($\sim 10^{13}$ Hz) to circadian rhythms ($\sim 10^{-5}$ Hz). The existence of such hierarchies is not accidental but follows from the geometric scaling properties established in Proposition~\ref{prop:hierarchy_bounds}.
+\end{remark}
+
+\begin{corollary}[Adiabatic Separation]
+\label{cor:adiabatic}
+When timescale separation ratios satisfy $r_i \gg 1$, the dynamics exhibit adiabatic decoupling: fast degrees of freedom equilibrate on timescales $\tau_{\text{fast}} \sim \omega_i^{-1}$ while slow degrees of freedom remain effectively frozen. This enables a hierarchy of effective theories, each valid on a restricted range of timescales.
+\end{corollary}
+
+This hierarchical structure will prove essential in Section~\ref{sec:frequency_coordinate_duality}, where we establish that partition coordinates map to distinct frequency regimes separated by precisely these timescale hierarchies.

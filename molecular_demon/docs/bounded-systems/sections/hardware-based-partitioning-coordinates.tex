@@ -1,0 +1,122 @@
+\section{Hardware-Based Partition Coordinate Measurement}
+\label{sec:hardware_measurement}
+
+We describe a suite of virtual instruments that measure partition coordinates using real hardware oscillator timing. These instruments do not simulate partition coordinates---they create them through the act of measurement.
+
+\subsection{Measurement Philosophy}
+
+\begin{axiom}[Measurement Creates State]
+\label{ax:measurement_creates}
+A partition coordinate does not exist independently of measurement. The act of measuring partition coordinates using hardware oscillators \emph{creates} the categorical state with those coordinates.
+\end{axiom}
+
+\begin{definition}[Hardware Oscillator]
+\label{def:hardware_oscillator}
+A \emph{hardware oscillator} is a physical timing device that provides real nanosecond-precision measurements:
+\begin{equation}
+    \delta t = t_{\text{measured}} - t_{\text{reference}}
+\end{equation}
+The timing variations $\delta t$ encode genuine categorical information, not measurement noise.
+\end{definition}
+
+\subsection{The Shell Resonator}
+
+\begin{definition}[Shell Resonator]
+\label{def:shell_resonator}
+A \emph{shell resonator} is an instrument that measures partition depth $n$ by resonating with nested boundary structures. The resonance frequency scales inversely with depth squared:
+\begin{equation}
+    f_{\text{resonance}}(n) = \frac{f_0}{n^2}
+\end{equation}
+where $f_0$ is the base frequency of the instrument.
+\end{definition}
+
+\begin{theorem}[Depth Measurement]
+\label{thm:depth_measurement}
+The shell resonator determines $n$ by finding the resonance peak:
+\begin{equation}
+    n = \sqrt{\frac{f_0}{f_{\text{resonance}}}}
+\end{equation}
+Hardware timing variations determine which resonance is ``observed.''
+\end{theorem}
+
+\subsection{The Angular Analyser}
+
+\begin{definition}[Angular Analyser]
+\label{def:angular_analyser}
+An \emph{angular analyser} measures the complexity parameter $l$ by detecting phase relationships in the partition boundary. The number of phase nodes determines $l$:
+\begin{equation}
+    l = \text{(number of nodal planes in boundary)}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Complexity Constraint from Depth]
+\label{thm:complexity_from_depth}
+Given a measured depth $n$, the angular analyser can only return values $l \in \{0, 1, \ldots, n-1\}$. Hardware timing selects among these allowed values.
+\end{theorem}
+
+\subsection{The Orientation Mapper}
+
+\begin{definition}[Orientation Mapper]
+\label{def:orientation_mapper}
+An \emph{orientation mapper} measures the orientation parameter $m$ by detecting the spatial direction of the partition boundary nodes. For complexity $l$, there are $2l + 1$ possible orientations:
+\begin{equation}
+    m \in \{-l, -l+1, \ldots, 0, \ldots, l-1, l\}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Orientation Measurement]
+\label{thm:orientation_measurement}
+The orientation mapper uses vector components of hardware timing to determine $m$:
+\begin{equation}
+    m = \text{sign}(\delta t_x - \delta t_y) \cdot \left\lfloor \frac{|\delta t|}{\Delta t_{\text{resolution}}} \right\rfloor \mod (2l + 1) - l
+\end{equation}
+where $\delta t_x, \delta t_y$ are timing samples in orthogonal channels.
+\end{theorem}
+
+\subsection{The Chirality Discriminator}
+
+\begin{definition}[Chirality Discriminator]
+\label{def:chirality_discriminator}
+A \emph{chirality discriminator} measures the binary chirality parameter $s$ by detecting the handedness of the partition boundary:
+\begin{equation}
+    s = \begin{cases}
+        +\frac{1}{2} & \text{if } \delta t \text{ is even (in nanoseconds)} \\
+        -\frac{1}{2} & \text{if } \delta t \text{ is odd (in nanoseconds)}
+    \end{cases}
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Binary Measurement]
+\label{thm:binary_measurement}
+The chirality discriminator produces exactly two values with equal probability in the absence of bias. Hardware timing parity determines the measured chirality.
+\end{theorem}
+
+\subsection{The Complete Measurement Process}
+
+\begin{theorem}[Sequential Measurement]
+\label{thm:sequential_measurement}
+A complete partition coordinate measurement proceeds as:
+\begin{enumerate}
+    \item Shell resonator measures $n$
+    \item Angular analyser measures $l$ (constrained by $n$)
+    \item Orientation mapper measures $m$ (constrained by $l$)
+    \item Chirality discriminator measures $s$
+\end{enumerate}
+The resulting coordinate $(n, l, m, s)$ satisfies all geometric constraints by construction.
+\end{theorem}
+
+\subsection{Measurement Independence}
+
+\begin{theorem}[Coordinate Uniqueness from Measurement]
+\label{thm:measurement_uniqueness}
+Two independent measurement sequences that yield the same coordinate $(n, l, m, s)$ have created the same categorical state. The coordinate uniquely identifies the state.
+\end{theorem}
+
+\begin{proof}
+By the completeness theorem (Theorem~\ref{thm:completeness}), each coordinate addresses exactly one state. If two measurements yield the same coordinate, they have accessed the same point in partition space.
+\end{proof}
+
+\begin{remark}[Structural Similarity]
+This measurement process mirrors the experimental determination of quantum numbers in atomic physics. Spectroscopy determines energy levels (related to $n$ and $l$), the Zeeman effect reveals $m$, and spin measurements determine $s$. The partition coordinate framework provides a categorical foundation for these measurements.
+\end{remark}
+

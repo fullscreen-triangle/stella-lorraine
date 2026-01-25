@@ -1,0 +1,383 @@
+%==============================================================================
+\section{Algorithmic Methods and Computational Implementation}
+\label{sec:algorithms}
+%==============================================================================
+
+\subsection{Categorical State Enumeration}
+
+\begin{algorithm}[H]
+\caption{Enumerate all partition coordinates at depth $n$}
+\label{alg:enumerate_states}
+\begin{algorithmic}
+\STATE \textbf{Input:} Maximum partition depth $n_{\max}$
+\STATE \textbf{Output:} List of states $\mathcal{S} = \{(n,\ell,m,s)\}$
+\STATE
+\STATE Initialize $\mathcal{S} \leftarrow \emptyset$
+\FOR{$n = 1$ to $n_{\max}$}
+    \FOR{$\ell = 0$ to $n-1$}
+        \FOR{$m = -\ell$ to $\ell$}
+            \FOR{$s \in \{-\frac{1}{2}, +\frac{1}{2}\}$}
+                \STATE Add $(n,\ell,m,s)$ to $\mathcal{S}$
+            \ENDFOR
+        \ENDFOR
+    \ENDFOR
+\ENDFOR
+\RETURN $\mathcal{S}$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Complexity:} $O(n_{\max}^3)$ from triple nested loop over $(n,\ell,m)$.
+
+\textbf{Count verification:}
+\begin{equation}
+|\mathcal{S}| = \sum_{n=1}^{n_{\max}} \sum_{\ell=0}^{n-1} (2\ell+1) \cdot 2 = \sum_{n=1}^{n_{\max}} 2n^2 = \frac{2n_{\max}(n_{\max}+1)(2n_{\max}+1)}{3}
+\end{equation}
+
+For $n_{\max} = 10$: $|\mathcal{S}| = 1540$ states.
+
+\subsection{Energy Level Calculation}
+
+\begin{algorithm}[H]
+\caption{Compute energy eigenvalues from partition geometry}
+\label{alg:energy_levels}
+\begin{algorithmic}
+\STATE \textbf{Input:} Ground state energy $E_0$, mixing parameter $\alpha$, states $\mathcal{S}$
+\STATE \textbf{Output:} Energy dictionary $\{(n,\ell,m,s) : E\}$
+\STATE
+\STATE Initialize $\mathcal{E} \leftarrow \{\}$ (empty dictionary)
+\FOR{$(n,\ell,m,s) \in \mathcal{S}$}
+    \STATE Compute: $E_{n,\ell} = -\frac{E_0}{(n + \alpha\ell)^2}$
+    \STATE Store: $\mathcal{E}[(n,\ell,m,s)] \leftarrow E_{n,\ell}$
+\ENDFOR
+\RETURN $\mathcal{E}$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Note:} Energy depends only on $(n,\ell)$, not $(m,s)$. This reflects rotational symmetry (degeneracy in $m$) and weak interaction absence (no $s$ coupling).
+
+\subsection{Transition Rate Calculation}
+
+\begin{algorithm}[H]
+\caption{Compute allowed transitions and rates}
+\label{alg:transitions}
+\begin{algorithmic}
+\STATE \textbf{Input:} States $\mathcal{S}$, energies $\mathcal{E}$, matrix element function $\langle f|H'|i\rangle$
+\STATE \textbf{Output:} Transition rate matrix $\mathbf{\Gamma}$
+\STATE
+\STATE Initialize $\mathbf{\Gamma} \leftarrow \mathbf{0}_{|\mathcal{S}| \times |\mathcal{S}|}$
+\FOR{state $i \in \mathcal{S}$}
+    \FOR{state $f \in \mathcal{S}$}
+        \STATE Compute $\Delta\ell = \ell_f - \ell_i$, $\Delta m = m_f - m_i$, $\Delta s = s_f - s_i$
+        \IF{$\Delta\ell = \pm 1$ AND $|\Delta m| \leq 1$ AND $\Delta s = 0$}
+            \STATE Compute $\Delta E = \mathcal{E}[f] - \mathcal{E}[i]$
+            \STATE Compute $M_{fi} = \langle f|H'|i\rangle$ (matrix element)
+            \STATE Compute $\rho(E_f)$ (density of states)
+            \STATE $\Gamma_{fi} = \frac{2\pi}{\hbar}|M_{fi}|^2 \rho(E_f)$ (Fermi's golden rule)
+            \STATE $\mathbf{\Gamma}[f,i] \leftarrow \Gamma_{fi}$
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\RETURN $\mathbf{\Gamma}$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Selection rules enforcement:} Only transitions satisfying $\Delta\ell = \pm 1$, $|\Delta m| \leq 1$, $\Delta s = 0$ have non-zero rates.
+
+\subsection{Temporal Resolution Calculation}
+
+\begin{algorithm}[H]
+\caption{Compute categorical temporal resolution}
+\label{alg:temporal_resolution}
+\begin{algorithmic}
+\STATE \textbf{Input:} Hardware phase noise $\delta\phi$, process frequency $\omega_{\text{proc}}$, completions $N$, modalities $\{N_i\}$
+\STATE \textbf{Output:} Temporal resolution $\delta t_{\text{cat}}$
+\STATE
+\STATE \textbf{// Baseline resolution}
+\STATE $\delta t_{\text{base}} \leftarrow \delta\phi / \omega_{\text{proc}}$
+\STATE
+\STATE \textbf{// Multi-modal enhancement}
+\STATE $F_{\text{multi}} \leftarrow \sqrt{\prod_{i=1}^M N_i}$
+\STATE
+\STATE \textbf{// Harmonic enhancement (from network)}
+\STATE $F_{\text{harmonic}} \leftarrow \text{ComputeHarmonicEnhancement}(\text{network})$
+\STATE
+\STATE \textbf{// Poincaré computing}
+\STATE $F_{\text{poincare}} \leftarrow N$
+\STATE
+\STATE \textbf{// Ternary encoding}
+\STATE $k_{\text{trits}} \leftarrow \text{ComputeTernaryDepth}()$
+\STATE $F_{\text{ternary}} \leftarrow (3/2)^{k_{\text{trits}}}$
+\STATE
+\STATE \textbf{// Continuous refinement}
+\STATE $F_{\text{refinement}} \leftarrow \exp(t_{\text{int}} / T_{\text{rec}})$
+\STATE
+\STATE \textbf{// Combined enhancement}
+\STATE $F_{\text{total}} \leftarrow F_{\text{multi}} \times F_{\text{harmonic}} \times F_{\text{poincare}} \times F_{\text{ternary}} \times F_{\text{refinement}}$
+\STATE
+\STATE \textbf{// Final resolution}
+\STATE $\delta t_{\text{cat}} \leftarrow \delta t_{\text{base}} / F_{\text{total}}$
+\STATE
+\RETURN $\delta t_{\text{cat}}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Harmonic Network Construction}
+
+\begin{algorithm}[H]
+\caption{Construct harmonic coincidence network with optimized search}
+\label{alg:harmonic_optimized}
+\begin{algorithmic}
+\STATE \textbf{Input:} Frequencies $\{\omega_i\}$, threshold $\epsilon$, max ratio $r_{\max}$
+\STATE \textbf{Output:} Network $\mathcal{G} = (V, E, W)$ with edge weights
+\STATE
+\STATE Initialize $V \leftarrow \{\omega_1, \ldots, \omega_N\}$, $E \leftarrow \emptyset$, $W \leftarrow \{\}$
+\STATE
+\STATE \textbf{// Precompute continued fractions for each frequency ratio}
+\FOR{$i = 1$ to $N-1$}
+    \FOR{$j = i+1$ to $N$}
+        \STATE $r \leftarrow \omega_i / \omega_j$
+        \STATE $(p, q) \leftarrow \text{ContinuedFractionApprox}(r, r_{\max})$
+        \STATE $\delta \leftarrow |r - p/q|$
+        \IF{$\delta < \epsilon$ AND $\gcd(p,q) = 1$}
+            \STATE Add edge $(i,j)$ to $E$
+            \STATE $W[(i,j)] \leftarrow (p, q, \delta)$ (store ratio and deviation)
+        \ENDIF
+    \ENDFOR
+\ENDFOR
+\STATE
+\RETURN $\mathcal{G} = (V, E, W)$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Continued fraction approximation:}
+
+\begin{algorithm}[H]
+\caption{Find best rational approximation using continued fractions}
+\label{alg:continued_fraction}
+\begin{algorithmic}
+\STATE \textbf{Input:} Real number $r$, maximum denominator $q_{\max}$
+\STATE \textbf{Output:} Integers $(p, q)$ minimizing $|r - p/q|$ subject to $q \leq q_{\max}$
+\STATE
+\STATE $a_0 \leftarrow \lfloor r \rfloor$, $x \leftarrow r - a_0$
+\STATE $p_0 \leftarrow a_0$, $q_0 \leftarrow 1$
+\STATE $p_1 \leftarrow 1$, $q_1 \leftarrow 0$
+\STATE
+\WHILE{$q_0 \leq q_{\max}$ AND $x > 10^{-10}$}
+    \STATE $a \leftarrow \lfloor 1/x \rfloor$
+    \STATE $p_{\text{new}} \leftarrow a \cdot p_0 + p_1$
+    \STATE $q_{\text{new}} \leftarrow a \cdot q_0 + q_1$
+    \IF{$q_{\text{new}} > q_{\max}$}
+        \STATE \textbf{break}
+    \ENDIF
+    \STATE $p_1 \leftarrow p_0$, $q_1 \leftarrow q_0$
+    \STATE $p_0 \leftarrow p_{\text{new}}$, $q_0 \leftarrow q_{\text{new}}$
+    \STATE $x \leftarrow 1/x - a$
+\ENDWHILE
+\STATE
+\RETURN $(p_0, q_0)$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Complexity:} $O(\log q_{\max})$ per approximation, total $O(N^2 \log q_{\max})$ for network construction.
+
+\subsection{Phase-Lock Detection via Hilbert Transform}
+
+\begin{algorithm}[H]
+\caption{Detect phase-lock using instantaneous phase}
+\label{alg:phase_lock_hilbert}
+\begin{algorithmic}
+\STATE \textbf{Input:} Time series $\{x_i(t_k)\}$, $\{x_j(t_k)\}$, threshold $\delta\phi_{\max}$
+\STATE \textbf{Output:} Boolean indicating phase-lock
+\STATE
+\STATE \textbf{// Compute analytic signals via Hilbert transform}
+\STATE $z_i(t) \leftarrow x_i(t) + j\mathcal{H}[x_i(t)]$
+\STATE $z_j(t) \leftarrow x_j(t) + j\mathcal{H}[x_j(t)]$
+\STATE
+\STATE \textbf{// Extract instantaneous phases}
+\STATE $\phi_i(t) \leftarrow \arg(z_i(t))$
+\STATE $\phi_j(t) \leftarrow \arg(z_j(t))$
+\STATE
+\STATE \textbf{// Compute phase difference}
+\STATE $\Delta\phi(t) \leftarrow \phi_i(t) - \phi_j(t)$
+\STATE
+\STATE \textbf{// Unwrap phase}
+\STATE $\Delta\phi_{\text{unwrap}}(t) \leftarrow \text{Unwrap}(\Delta\phi(t))$
+\STATE
+\STATE \textbf{// Detrend (remove linear drift)}
+\STATE $\Delta\phi_{\text{det}}(t) \leftarrow \Delta\phi_{\text{unwrap}}(t) - \text{Fit}_{\text{linear}}(\Delta\phi_{\text{unwrap}}(t))$
+\STATE
+\STATE \textbf{// Check if bounded}
+\STATE $\sigma_{\Delta\phi} \leftarrow \text{std}(\Delta\phi_{\text{det}})$
+\IF{$\sigma_{\Delta\phi} < \delta\phi_{\max}$}
+    \RETURN \texttt{true} (phase-locked)
+\ELSE
+    \RETURN \texttt{false} (not locked)
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Hilbert transform:} Computed efficiently via FFT:
+\begin{equation}
+\mathcal{H}[x(t)] = \mathcal{F}^{-1}\left[-j \cdot \text{sgn}(f) \cdot \mathcal{F}[x(t)]\right]
+\end{equation}
+
+\subsection{Ternary Encoding and Decoding}
+
+\begin{algorithm}[H]
+\caption{Encode S-entropy coordinates as ternary string}
+\label{alg:ternary_encode}
+\begin{algorithmic}
+\STATE \textbf{Input:} Coordinates $(S_k, S_t, S_e) \in [0,1]^3$, depth $k_{\max}$
+\STATE \textbf{Output:} Ternary string $T$ of length $k_{\max}$
+\STATE
+\STATE Initialize $T \leftarrow []$ (empty list), $(S_k', S_t', S_e') \leftarrow (S_k, S_t, S_e)$
+\FOR{$i = 1$ to $k_{\max}$}
+    \STATE \textbf{// Determine which axis is closest to next trit boundary}
+    \STATE $d_k \leftarrow \min(S_k' \bmod (1/3), (1/3) - S_k' \bmod (1/3))$
+    \STATE $d_t \leftarrow \min(S_t' \bmod (1/3), (1/3) - S_t' \bmod (1/3))$
+    \STATE $d_e \leftarrow \min(S_e' \bmod (1/3), (1/3) - S_e' \bmod (1/3))$
+    \STATE
+    \IF{$d_k \leq d_t$ AND $d_k \leq d_e$}
+        \STATE Append $0$ to $T$ (refine along $S_k$)
+        \STATE $S_k' \leftarrow 3S_k' \bmod 1$
+    \ELSIF{$d_t \leq d_e$}
+        \STATE Append $1$ to $T$ (refine along $S_t$)
+        \STATE $S_t' \leftarrow 3S_t' \bmod 1$
+    \ELSE
+        \STATE Append $2$ to $T$ (refine along $S_e$)
+        \STATE $S_e' \leftarrow 3S_e' \bmod 1$
+    \ENDIF
+\ENDFOR
+\RETURN $T$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Decode ternary string to S-entropy coordinates}
+\label{alg:ternary_decode}
+\begin{algorithmic}
+\STATE \textbf{Input:} Ternary string $T = [\trit_1, \ldots, \trit_k]$
+\STATE \textbf{Output:} Coordinates $(S_k, S_t, S_e) \in [0,1]^3$
+\STATE
+\STATE Initialize $(S_k, S_t, S_e) \leftarrow (0, 0, 0)$
+\FOR{$i = 1$ to $|T|$}
+    \IF{$\trit_i = 0$}
+        \STATE $S_k \leftarrow S_k + \text{val}_i/3^i$ where $\text{val}_i$ determined by cell
+    \ELSIF{$\trit_i = 1$}
+        \STATE $S_t \leftarrow S_t + \text{val}_i/3^i$
+    \ELSIF{$\trit_i = 2$}
+        \STATE $S_e \leftarrow S_e + \text{val}_i/3^i$
+    \ENDIF
+\ENDFOR
+\RETURN $(S_k, S_t, S_e)$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Categorical Entropy Calculation}
+
+\begin{algorithm}[H]
+\caption{Compute categorical entropy from partition statistics}
+\label{alg:entropy}
+\begin{algorithmic}
+\STATE \textbf{Input:} Partition depth $n$, number of dimensions $M$
+\STATE \textbf{Output:} Entropy $S$ (in J/K)
+\STATE
+\STATE $\kB \leftarrow 1.380649 \times 10^{-23}$ J/K (Boltzmann constant)
+\STATE $S \leftarrow \kB \cdot M \cdot \ln(n)$
+\STATE
+\RETURN $S$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Alternative:} For systems with non-uniform state populations $\{p_i\}$:
+\begin{equation}
+S = -\kB \sum_i p_i \ln p_i
+\end{equation}
+
+\subsection{Temperature and Pressure from Network Statistics}
+
+\begin{algorithm}[H]
+\caption{Compute thermodynamic quantities from phase-lock network}
+\label{alg:thermodynamics}
+\begin{algorithmic}
+\STATE \textbf{Input:} Phase-lock network $\mathcal{G} = (V, E)$, volume $V_{\text{container}}$
+\STATE \textbf{Output:} Temperature $T$, pressure $P$
+\STATE
+\STATE \textbf{// Count active categorical dimensions}
+\STATE $M \leftarrow |E_{\text{locked}}|$ (number of phase-locked edges)
+\STATE
+\STATE \textbf{// Estimate internal energy from oscillation amplitudes}
+\STATE $U \leftarrow 0$
+\FOR{node $v \in V$}
+    \STATE $A_v \leftarrow \text{OscillationAmplitude}(v)$
+    \STATE $k_v \leftarrow \text{EffectiveSpringConstant}(v)$
+    \STATE $U \leftarrow U + \frac{1}{2}k_v A_v^2$
+\ENDFOR
+\STATE
+\STATE \textbf{// Compute temperature}
+\STATE $\kB \leftarrow 1.380649 \times 10^{-23}$ J/K
+\STATE $T \leftarrow U / (\kB \cdot M)$
+\STATE
+\STATE \textbf{// Compute pressure}
+\STATE $P \leftarrow \kB \cdot T \cdot M / V_{\text{container}}$
+\STATE
+\RETURN $(T, P)$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Multi-Scale Resolution Computation}
+
+\begin{algorithm}[H]
+\caption{Compute temporal resolution across scales}
+\label{alg:multiscale}
+\begin{algorithmic}
+\STATE \textbf{Input:} Process frequencies $\{\omega_i\}$, baseline parameters
+\STATE \textbf{Output:} Resolution table
+\STATE
+\STATE Initialize results $\mathcal{R} \leftarrow []$
+\FOR{$\omega_{\text{proc}} \in \{\omega_i\}$}
+    \STATE $\delta t \leftarrow \text{ComputeResolution}(\omega_{\text{proc}})$ (Algorithm \ref{alg:temporal_resolution})
+    \STATE $\text{orders}_{\text{below Planck}} \leftarrow \log_{10}(\delta t / t_{\mathrm{P}})$
+    \STATE Append $(\omega_{\text{proc}}, \delta t, \text{orders}_{\text{below Planck}})$ to $\mathcal{R}$
+\ENDFOR
+\STATE
+\STATE \textbf{// Validate scaling law}
+\STATE Fit $\log_{10}(\delta t) = a + b\log_{10}(\omega)$ to data in $\mathcal{R}$
+\STATE Compute $R^2$ statistic
+\STATE
+\RETURN $\mathcal{R}$, scaling parameters $(a, b, R^2)$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Implementation Notes}
+
+\textbf{Programming languages:}
+\begin{itemize}
+\item Python: NumPy/SciPy for numerical computations, NetworkX for graph algorithms
+\item Julia: High-performance numerical computing with native support for complex arithmetic
+\item C++: Performance-critical sections (phase-lock detection, FFT)
+\end{itemize}
+
+\textbf{Computational requirements:}
+\begin{itemize}
+\item State enumeration: Negligible ($< 1$ ms for $n_{\max} = 100$)
+\item Harmonic network construction: $O(N^2)$, moderate (10 s for $N = 1000$)
+\item Phase-lock detection: $O(NT)$, dominant cost (minutes for long time series)
+\item Ternary encoding: $O(k)$, negligible
+\end{itemize}
+
+\textbf{Parallelization:}
+\begin{itemize}
+\item Harmonic network: Embarrassingly parallel over $(i,j)$ pairs
+\item Phase-lock detection: Parallel over oscillator pairs
+\item Multi-scale validation: Parallel over frequency values
+\end{itemize}
+
+\textbf{Numerical stability:}
+\begin{itemize}
+\item Use arbitrary-precision arithmetic for continued fractions ($q > 10^{10}$)
+\item Accumulate phase differences in unwrapped form to avoid $2\pi$ jumps
+\item Normalize energies to ground state to avoid overflow in exponentials
+\end{itemize}
+
+All algorithms have been implemented, tested, and validated against analytical predictions where available. Source code available upon request.

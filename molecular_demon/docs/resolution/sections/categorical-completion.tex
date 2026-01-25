@@ -1,0 +1,304 @@
+%==============================================================================
+\section{Categorical Completion in Gas Dynamics}
+\label{sec:categorical}
+%==============================================================================
+
+\subsection{Categorical State Space}
+
+We now develop the categorical framework for describing gas configurations. This framework extends beyond classical phase space by incorporating phase-lock network topology and oscillatory relationships that are invisible to spatial measurements but fundamental to thermodynamic evolution.
+
+\begin{definition}[Categorical State]
+\label{def:categorical_state}
+A categorical state $C \in \catspace$ specifies the complete oscillatory and topological structure of a molecular configuration, comprising the phase-lock network topology $\phaselockgraph$, the phase relationships $\{\Delta\phi_{ij}\}$ for all locked pairs, the vibrational mode occupations $\{n_{\text{vib},i}\}$, the rotational state quantum numbers $\{J_i, M_i\}$, and the electronic configuration descriptors.
+\end{definition}
+
+\begin{remark}
+A categorical state contains strictly more information than a classical phase space point $(\mathbf{q}, \mathbf{p})$. Two configurations with identical positions and momenta can occupy different categorical states if their phase relationships or network topologies differ. This additional structure is not merely mathematical bookkeeping but reflects physical reality: molecules with identical spatial configurations but different phase relationships have different interaction energies, different spectroscopic signatures, and different dynamical evolution. The categorical state captures the full oscillatory context that determines thermodynamic behavior.
+\end{remark}
+
+\begin{definition}[Categorical State Space]
+\label{def:categorical_state_space}
+The categorical state space $\catspace$ is the set of all categorical states equipped with a partial order $\prec$ called the completion order, a completion operator $\mu: \catspace \times \mathbb{R}_{\geq 0} \to \{0, 1\}$ indicating whether state $C$ has been occupied by time $t$, and a topology $\tau$ induced by $\prec$ that makes categorical adjacency continuous.
+\end{definition}
+
+The completion operator $\mu(C, t) = 1$ indicates that categorical state $C$ has been occupied (completed) by time $t$, while $\mu(C, t) = 0$ indicates it remains unoccupied. This binary distinction captures the fundamental irreversibility of categorical completion: once a state is occupied, it remains in the system's history.
+
+\begin{axiom}[Categorical Irreversibility]
+\label{axiom:categorical_irreversibility}
+Once a categorical state $C_i$ is occupied, it cannot be re-occupied. For all $C_i \in \catspace$ and times $t_1 \leq t_2$:
+\begin{equation}
+\mu(C_i, t_1) = 1 \implies \mu(C_i, t_2) = 1
+\label{eq:irreversibility}
+\end{equation}
+Any process returning to a spatially identical configuration must occupy a new categorical state $C_j$ with $C_i \prec C_j$.
+\end{axiom}
+
+This axiom formalises the intuition that time's arrow is encoded in categorical structure. Even when spatial configurations repeat, the phase relationships and network topology have evolved, placing the system in a new categorical state. This is the microscopic origin of thermodynamic irreversibility: not spatial evolution, but categorical completion.
+
+\begin{proposition}[Monotonic Completion]
+\label{prop:monotonic_completion}
+Let $\gamma(t) = \{C \in \catspace : \mu(C, t) = 1\}$ be the set of completed states at time $t$. Then:
+\begin{equation}
+t_1 \leq t_2 \implies \gamma(t_1) \subseteq \gamma(t_2)
+\end{equation}
+The completed set grows monotonically, never contracting.
+\end{proposition}
+
+\begin{proof}
+Immediate from Axiom~\ref{axiom:categorical_irreversibility}. If $C \in \gamma(t_1)$, then $\mu(C, t_1) = 1$, which implies $\mu(C, t_2) = 1$ for all $t_2 \geq t_1$, hence $C \in \gamma(t_2)$. Therefore $\gamma(t_1) \subseteq \gamma(t_2)$. \qed
+\end{proof}
+
+\subsection{Phase-Lock Degeneracy and Categorical Richness}
+
+A crucial insight emerges from the relationship between spatial and categorical descriptions: a single spatial configuration corresponds to many categorical states. This degeneracy is not a deficiency of the categorical framework but rather reveals hidden structure invisible to spatial measurements.
+
+\begin{theorem}[Phase-Lock Degeneracy]
+\label{thm:phase_lock_degeneracy}
+For a spatial configuration $\mathbf{q} = \{\mathbf{r}_1, \ldots, \mathbf{r}_N\}$, there exist multiple categorical states producing identical spatial observables. The phase-lock degeneracy is:
+\begin{equation}
+\Omega_{\text{PL}}(\mathbf{q}) = |\{C \in \catspace : \pi_{\text{spatial}}(C) = \mathbf{q}\}|
+\label{eq:phase_lock_degeneracy}
+\end{equation}
+where $\pi_{\text{spatial}}: \catspace \to \mathbb{R}^{3N}$ is the spatial projection.
+\end{theorem}
+
+\begin{proof}
+Consider two molecules at fixed positions $\mathbf{r}_1$ and $\mathbf{r}_2$ separated by distance $r_{12}$. The same spatial configuration can be achieved through different combinations of oscillatory phases. Van der Waals interactions have no preferred angular orientation, contributing a continuous degeneracy. For molecules with permanent dipoles, the orientations $(\theta_1, \phi_1)$ and $(\theta_2, \phi_2)$ can vary while maintaining the same spatial positions, provided the molecular centers remain fixed. Vibrational phases $\phi_{\text{vib},i}$ are independent degrees of freedom not specified by spatial position. Rotational phases $\phi_{\text{rot},i}$ similarly vary independently of molecular center-of-mass location.
+
+These constitute distinct categorical states with different phase relationships $\{\Delta\phi_{ij}\}$ but identical spatial projection $\pi_{\text{spatial}}(C) = \mathbf{q}$.
+
+For $N$ molecules with $\binom{N}{2}$ pairwise interactions, each having $k$ independent phase degrees of freedom per pair, the degeneracy scales as:
+\begin{equation}
+\Omega_{\text{PL}}(\mathbf{q}) \sim (2\pi)^{k \cdot \binom{N}{2}}
+\end{equation}
+
+For typical molecular gases where $k \approx 3$ to $5$ (vibrational, rotational, and orientational phases), and $N \sim 10^{23}$ molecules in a macroscopic sample, the degeneracy is astronomical. Even for small systems with $N = 100$ molecules, $\Omega_{\text{PL}} \sim 10^6$ to $10^{12}$ per spatial configuration. \qed
+\end{proof}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/panel_s_space.png}
+\caption{\textbf{S-Entropy Space Visualization: Molecular Distribution in Configurational Entropy Coordinates.}
+\textbf{(A)} Molecular distribution in S-space. Three-dimensional visualization of molecular states projected onto entropy coordinates $(S_{\kappa}, S_{\epsilon}, S_t)$, where $S_{\kappa}$ represents kinetic entropy, $S_{\epsilon}$ represents categorical/configurational entropy, and $S_t$ represents topological entropy. Color gradient (purple to yellow) indicates progression through state space. The distribution shows clear clustering structure, with molecules occupying a bounded region of entropy space. The axes span $S_{\kappa} \in [0.96, 1.04]$, $S_{\epsilon} \in [7.5, 10.0]$, and $S_t \in [0.0, 1.0]$, revealing the natural scale separation between different entropy components.
+\textbf{(B)} Polar phase diagram: $S_t \to 0$, $S_{\epsilon} \to r$. Radial coordinate represents configurational entropy $S_{\epsilon}$ (ranging from 0 at center to 1.00 at outer edge), while angular coordinate represents phase angle. The distribution (blue line at 0°) shows strong directional preference, indicating phase-locked structure. Concentric circles mark entropy magnitude levels (0.25, 0.50, 0.75, 1.00). The highly anisotropic distribution demonstrates that molecules occupy specific phase relationships, not random orientations, confirming the phase-lock network structure.
+\textbf{(C)} Ternary composition diagram. Triangle vertices represent pure states: $S_{\kappa}$ (kinetic, top), $S_{\epsilon}$ (configurational, bottom-left), and $S_t$ (topological, bottom-right). The color bar (blue to red gradient) shows the distribution of molecular states across the three entropy components. Most molecules cluster near the $S_{\epsilon}$ vertex, indicating dominance of configurational entropy. The narrow distribution shows that entropy composition is tightly constrained, not uniformly distributed across the ternary space.
+\textbf{(D)} Density contour in $(S_{\kappa}, S_{\epsilon})$ plane. Heat map shows probability density with color scale from 0 (pale yellow) to 35 (dark red). Sharp vertical band at $S_{\kappa} \approx 1.0$ indicates that kinetic entropy is nearly constant across the distribution, while $S_{\epsilon}$ varies from 0.2 to 1.0. The intense red stripe demonstrates that molecules occupy a one-dimensional manifold in the two-dimensional entropy space, revealing strong constraint on accessible states.
+\textbf{(E)} Radial distribution function $g(r)$ versus distance from center in entropy space. Peak at $r \approx 0.72$ (height $\approx 35$) indicates strong clustering at specific entropy magnitude. Secondary peaks at $r \approx 0.76$ and $r \approx 0.84$ suggest shell structure in entropy space. The oscillatory pattern demonstrates that molecules do not uniformly fill entropy space but organize into discrete shells, analogous to electron shells in atoms.
+\textbf{(F)} Phase trajectories in $(S_{\kappa}, S_t)$ plane. Colored points (ranging from red/orange at bottom to purple at top) trace molecular evolution through entropy space. Trajectories cluster into discrete bands at $S_t \approx 0.0$, $0.2$, $0.4$, $0.6$, $0.8$, and $1.0$, showing quantized topological entropy levels. The vertical alignment indicates that $S_{\kappa}$ remains nearly constant during evolution, while $S_t$ transitions between discrete levels. This reveals that entropy dynamics are dominated by topological transitions, not kinetic changes, supporting the categorical face dominance in Maxwell's demon resolution.}
+\label{fig:s_space}
+\end{figure*}
+
+
+\begin{definition}[Categorical Equivalence Class]
+\label{def:categorical_equivalence_class}
+The categorical equivalence class of state $C$ under spatial observation is:
+\begin{equation}
+[C]_{\text{spatial}} = \{C' \in \catspace : \pi_{\text{spatial}}(C') = \pi_{\text{spatial}}(C)\}
+\end{equation}
+States in the same equivalence class are spatially indistinguishable but categorically distinct.
+\end{definition}
+
+\begin{corollary}[Categorical Richness]
+\label{cor:categorical_richness}
+The categorical richness of a spatial configuration is:
+\begin{equation}
+R(\mathbf{q}) = \log \Omega_{\text{PL}}(\mathbf{q}) = \log |[C]_{\text{spatial}}|
+\end{equation}
+This quantifies the information content of categorical specification beyond spatial description.
+\end{corollary}
+
+The categorical richness $R(\mathbf{q})$ has profound implications for entropy. Traditional statistical mechanics computes entropy by counting spatial configurations accessible at given energy. The categorical framework reveals that each spatial configuration harbors vast additional structure through phase-lock degeneracy. This hidden structure is precisely what categorical completion navigates, and what the Second Law constrains.
+
+\subsection{Categorical Completion Dynamics}
+
+\begin{definition}[Completion Rate]
+\label{def:completion_rate}
+The categorical completion rate is:
+\begin{equation}
+\dot{C}(t) = \frac{d|\gamma(t)|}{dt}
+\label{eq:completion_rate}
+\end{equation}
+measuring the rate at which new categorical states are completed.
+\end{definition}
+
+\begin{proposition}[Non-Negative Completion Rate]
+\label{prop:nonnegative_completion}
+For all times $t$:
+\begin{equation}
+\dot{C}(t) \geq 0
+\end{equation}
+with equality only when no physical processes occur.
+\end{proposition}
+
+\begin{proof}
+From Proposition~\ref{prop:monotonic_completion}, $|\gamma(t)|$ is monotonically non-decreasing, hence $\dot{C}(t) = d|\gamma(t)|/dt \geq 0$. Equality $\dot{C}(t) = 0$ requires $|\gamma(t)|$ constant, meaning no new categorical states are completed. This occurs only when the system is frozen in a single categorical state with no dynamical evolution. \qed
+\end{proof}
+
+\begin{theorem}[Categorical Completion as Physical Process]
+\label{thm:completion_physical}
+Every physical process in a gas system corresponds to categorical completion:
+\begin{equation}
+\text{Process: } \mathbf{q}(t_1) \to \mathbf{q}(t_2) \quad \Longleftrightarrow \quad \text{Completion: } C(t_1) \prec C(t_2)
+\end{equation}
+The categorical state advances along the completion order, never retreating.
+\end{theorem}
+
+\begin{proof}
+Consider a gas evolving from configuration $\mathbf{q}(t_1)$ to $\mathbf{q}(t_2)$ over time interval $\Delta t = t_2 - t_1$.
+
+\textbf{Case 1: Distinct spatial configurations where $\mathbf{q}(t_2) \neq \mathbf{q}(t_1)$.}
+The new configuration occupies categorical states not accessible from $\mathbf{q}(t_1)$ because the spatial projection differs. By Axiom~\ref{axiom:categorical_irreversibility}, these must be new completions: $C(t_2) \in \gamma(t_2) \setminus \gamma(t_1)$. The categorical state has advanced.
+
+\textbf{Case 2: Identical spatial configurations where $\mathbf{q}(t_2) = \mathbf{q}(t_1)$.}
+Even with identical spatial positions, the phase relationships have evolved. During time interval $\Delta t$, molecules undergo vibrational oscillations at frequencies $\omega_{\text{vib}} \sim 10^{13}$ to $10^{14}$ rad/s and rotational motion at frequencies $\omega_{\text{rot}} \sim 10^{11}$ to $10^{12}$ rad/s. The phase differences evolve as:
+\begin{equation}
+\Delta\phi_{ij}(t_2) = \Delta\phi_{ij}(t_1) + (\omega_i - \omega_j) \Delta t + \text{collision terms}
+\end{equation}
+
+For typical $\Delta t \sim 10^{-12}$ s (picosecond timescale), the phase evolution is:
+\begin{equation}
+|\Delta\phi_{ij}(t_2) - \Delta\phi_{ij}(t_1)| \sim \omega_{\text{vib}} \Delta t \sim 10 \text{ to } 100 \text{ radians}
+\end{equation}
+
+The phase relationships have changed substantially despite spatial identity. By Axiom~\ref{axiom:categorical_irreversibility}, return to the original categorical state $C(t_1)$ is impossible. The system occupies a new state $C(t_2)$ with $C(t_1) \prec C(t_2)$.
+
+\textbf{Case 3: Thermal fluctuations returning to previous spatial configuration.}
+Consider a molecule that moves from position $\mathbf{r}_i(t_1)$ to $\mathbf{r}_i(t')$ and then returns to $\mathbf{r}_i(t_2) = \mathbf{r}_i(t_1)$ through thermal fluctuation. Spatially, the configuration appears to have reversed. However, during the excursion, the molecule experienced different phase-lock relationships, different collision partners, and different vibrational phase evolution. The categorical state at $t_2$ differs from that at $t_1$ because the phase-lock network topology has been altered by the intervening dynamics. Even spatial recurrence produces categorical advancement.
+
+In all cases, categorical position advances monotonically. Physical processes correspond to categorical completion, never to categorical retreat. \qed
+\end{proof}
+
+
+\begin{corollary}[Entropy as Categorical Completion Count]
+\label{cor:entropy_completion}
+The entropy of a gas system is proportional to the number of completed categorical states:
+\begin{equation}
+S(t) = k_B \log |\gamma(t)|
+\end{equation}
+Entropy increase corresponds to categorical completion.
+\end{corollary}
+
+This corollary establishes the connection between categorical completion and thermodynamic entropy. The Second Law, stating that $dS/dt \geq 0$, becomes equivalent to Proposition~\ref{prop:nonnegative_completion}: the completion rate is non-negative. Entropy does not count spatial configurations but categorical states, and entropy increase is not spatial exploration but categorical completion.
+
+\subsection{Categorical Distance and Network Topology}
+
+\begin{definition}[Categorical Distance]
+\label{def:categorical_distance}
+The categorical distance between states $C_i, C_j \in \catspace$ is:
+\begin{equation}
+d_{\catspace}(C_i, C_j) = \inf_{\text{paths } C_i \to C_j} \sum_{\text{transitions}} w(C_k \to C_{k+1})
+\label{eq:categorical_distance}
+\end{equation}
+where the infimum is over all completion paths from $C_i$ to $C_j$, and $w(C_k \to C_{k+1})$ is the transition weight measuring the categorical separation between adjacent states.
+\end{definition}
+
+The transition weight $w(C_k \to C_{k+1})$ can be defined in several physically motivated ways. One natural choice is:
+\begin{equation}
+w(C_k \to C_{k+1}) = \log \frac{\Omega_{\text{PL}}(C_{k+1})}{\Omega_{\text{PL}}(C_k)}
+\end{equation}
+measuring the change in phase-lock degeneracy. Another choice weights by the number of phase-lock edges that change:
+\begin{equation}
+w(C_k \to C_{k+1}) = |E_{k+1} \triangle E_k| = |E_{k+1} \setminus E_k| + |E_k \setminus E_{k+1}|
+\end{equation}
+where $\triangle$ denotes the symmetric difference. Both definitions yield metric spaces with similar topological properties.
+
+\begin{proposition}[Metric Properties]
+\label{prop:metric_properties}
+The categorical distance $d_{\catspace}$ satisfies the metric axioms: non-negativity where $d_{\catspace}(C_i, C_j) \geq 0$, identity of indiscernibles where $d_{\catspace}(C_i, C_j) = 0$ if and only if $C_i = C_j$, symmetry where $d_{\catspace}(C_i, C_j) = d_{\catspace}(C_j, C_i)$, and the triangle inequality where $d_{\catspace}(C_i, C_k) \leq d_{\catspace}(C_i, C_j) + d_{\catspace}(C_j, C_k)$. Thus $(\catspace, d_{\catspace})$ is a metric space.
+\end{proposition}
+
+\begin{proof}
+Non-negativity follows from $w \geq 0$ and the infimum over non-negative sums. Identity holds because the only path from $C_i$ to itself has zero length. Symmetry follows from defining symmetric paths: if $C_i \to C_j$ has weight $W$, the reverse path $C_j \to C_i$ has the same weight under symmetric transition weights. The triangle inequality follows from path concatenation: any path from $C_i$ to $C_k$ through $C_j$ has length at most the sum of the shortest paths from $C_i$ to $C_j$ and from $C_j$ to $C_k$. \qed
+\end{proof}
+
+\begin{theorem}[Categorical-Physical Distance Inequivalence]
+\label{thm:distance_inequivalence}
+Categorical distance $d_{\catspace}$ is not a function of physical distance $d_{\text{phys}}$. There exists no function $f: \mathbb{R}_{\geq 0} \to \mathbb{R}_{\geq 0}$ such that:
+\begin{equation}
+d_{\catspace}(C_i, C_j) = f(d_{\text{phys}}(\mathbf{r}_i, \mathbf{r}_j))
+\label{eq:distance_inequivalence}
+\end{equation}
+for all states $C_i$ and $C_j$.
+\end{theorem}
+
+\begin{proof}
+We construct explicit counterexamples demonstrating that categorical distance and physical distance are independent.
+
+\textbf{Counterexample 1: Categorical adjacency without physical proximity.}
+Consider molecules $A$ and $B$ at positions $\mathbf{r}_A = (0, 0, 0)$ and $\mathbf{r}_B = (L, 0, 0)$ with large separation $L \gg r_{\text{lock}}$, where $r_{\text{lock}} \sim 0.5$ nm is the phase-lock distance. Direct phase-locking between $A$ and $B$ is impossible due to the exponential decay of Van der Waals forces: $U_{\text{vdW}} \propto r^{-6}$ yields $|U_{\text{vdW}}(L)| \ll k_B T$ for $L \gg r_{\text{lock}}$.
+
+However, through a chain of intermediate molecules:
+\begin{equation}
+A \leftrightarrow M_1 \leftrightarrow M_2 \leftrightarrow \cdots \leftrightarrow M_n \leftrightarrow B
+\end{equation}
+where each pair is phase-locked with a separation of $\sim r_{\text{lock}}$, molecules $A$ and $B$ belong to the same phase-lock cluster. The chain length is $n \sim L/r_{\text{lock}}$.
+
+Categorical distance: $d_{\catspace}(C_A, C_B) = n \sim L/r_{\text{lock}}$ (path length through network).
+
+Physical distance: $d_{\text{phys}}(\mathbf{r}_A, \mathbf{r}_B) = L$.
+
+The ratio is:
+\begin{equation}
+\frac{d_{\catspace}}{d_{\text{phys}}} \sim \frac{1}{r_{\text{lock}}} \sim 2 \times 10^9 \text{ m}^{-1}
+\end{equation}
+
+For macroscopic separations $L \sim 1$ cm, we have $d_{\catspace} \sim 10^7$ while $d_{\text{phys}} \sim 10^{-2}$ m. The categorical distance is enormous despite modest physical separation.
+
+\textbf{Counterexample 2: Physical proximity without categorical adjacency.}
+Consider molecules $A$ and $B$ at positions $\mathbf{r}_A = (0, 0, 0)$ and $\mathbf{r}_B = (\delta, 0, 0)$ with $\delta \to 0$, approaching contact.
+
+If $A$ and $B$ belong to different phase-lock clusters due to incompatible vibrational phases, for example if $\Delta\phi_{\text{vib}} \approx \pi$ creates destructive interference preventing phase-locking, then no edge $(A, B) \in E$ exists despite $\delta \ll r_{\text{lock}}$.
+
+If the clusters are disconnected components of $\phaselockgraph$, then:
+\begin{equation}
+d_{\catspace}(C_A, C_B) = \infty \quad \text{(no path between clusters)}
+\end{equation}
+
+Meanwhile:
+\begin{equation}
+d_{\text{phys}}(\mathbf{r}_A, \mathbf{r}_B) = \delta \to 0
+\end{equation}
+
+Here $d_{\catspace} \gg d_{\text{phys}}$ in the extreme limit.
+
+\textbf{Counterexample 3: Identical physical distance, different categorical distances.}
+Consider four molecules arranged in two pairs: $(A_1, B_1)$ and $(A_2, B_2)$, each with separation $d_{\text{phys}}(\mathbf{r}_{A_i}, \mathbf{r}_{B_i}) = r_0$ for $i = 1, 2$.
+
+For pair 1, suppose $A_1$ and $B_1$ are directly phase-locked, giving $d_{\catspace}(C_{A_1}, C_{B_1}) = 1$.
+
+For pair 2, suppose $A_2$ and $B_2$ belong to different clusters requiring a path through $n$ intermediate states, giving $d_{\catspace}(C_{A_2}, C_{B_2}) = n \gg 1$.
+
+Both pairs have identical physical distance $r_0$, but categorical distances differ by a factor of $n$. No function $f$ can map the single value $r_0$ to both $1$ and $n$.
+
+Since categorical distance can be much smaller than, much larger than, or independent of physical distance, no function $f$ satisfying~\eqref{eq:distance_inequivalence} exists. \qed
+\end{proof}
+
+\begin{corollary}[Categorical Adjacency Determines Accessibility]
+\label{cor:adjacency_accessibility}
+The set of states accessible from $C_i$ through single-step transitions is:
+\begin{equation}
+\accessible(C_i) = \{C_j \in \catspace : d_{\catspace}(C_i, C_j) = 1\}
+\end{equation}
+This is determined by phase-lock network topology, not physical proximity.
+\end{corollary}
+
+This corollary has profound implications for Maxwell's Demon. The demon manipulates spatial positions, attempting to sort molecules by velocity. However, thermodynamic evolution proceeds through categorical accessibility $\accessible(C_i)$, which is independent of spatial manipulation. The demon operates on physical distance while the Second Law constrains categorical distance. These are inequivalent quantities, explaining why the demon's spatial interventions cannot decrease entropy: spatial sorting does not correspond to categorical retreat.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/panel_arg5_dissolution_decision.png}
+\caption{\textbf{Dissolution of Decision—Categorical Completion is Automatic, Not Deliberative.}
+\textbf{(A)} No decision tree exists in phase-lock network topology. The schematic shows a molecule (top teal node) with multiple potential paths (gray dashed lines indicate non-existent alternatives). Only one path (solid green line through teal nodes) exists in the network topology, determined by categorical adjacency. Red lines with crosses mark paths that are topologically forbidden. The system has no choice points: navigation is deterministic. The caption ``Only ONE path exists in topology'' emphasizes that categorical completion requires no decision-making.
+\textbf{(B)} Automatic path following through configuration space. The trajectory (dark teal curve) shows completion progress from start (green circle, configuration $\approx 0.5$) to end (red star, categorical progress $= 1.0$). The smooth, deterministic path follows the gradient of categorical distance $\nabla d_{\text{cat}}(\mathbf{q})$ with no branching points. The system automatically follows network structure without decisions, as indicated by the annotation ``Automatic following / No decisions required.'' The configuration parameter represents position in categorical state space, not physical space.
+\textbf{(C)} No branching implies no decision. Bar plot showing the number of available options at each completion step. All bars are exactly 1.0 (marked by red dashed line), confirming ``Always exactly 1 option'' at every step. If decision-making were required, we would observe $n_{\text{options}} > 1$ at branch points. The constant value $n = 1$ proves that categorical completion is a deterministic flow, not a stochastic or deliberative process. This directly contradicts the demon's purported role as a decision-maker.
+\textbf{(D)} Deterministic reproducibility across 10 independent runs. The completion curve (dark teal) shows identical trajectories for all 10 runs, with completion increasing from 0 to 1.0 following $C(t) = 1 - \exp(-t/\tau_{\text{cat}})$ where $\tau_{\text{cat}}$ is the categorical completion timescale. Perfect overlap of all runs confirms deterministic dynamics: given the same initial categorical state, the system always follows the same path. This demonstrates that categorical completion is automatic and reproducible, requiring no agent, no information processing, and no decisions. The demon's ``choice'' to open the door is revealed as automatic topological navigation.}
+\label{fig:dissolution_decision}
+\end{figure*}
+
+\subsection{Implications for Thermodynamic Evolution}
+
+The categorical framework reveals that thermodynamic evolution is fundamentally a topological navigation through categorical state space, not a spatial exploration through configuration space. The Second Law constrains categorical completion, requiring $d|\gamma(t)|/dt \geq 0$, which is independent of spatial dynamics.
+
+This explains several puzzling features of thermodynamics. First, why is the increase in entropy irreversible when microscopic dynamics are reversible? Because categorical completion is directional by Axiom~\ref{axiom:categorical_irreversibility}, even though spatial motion is time-reversible. Second, why does entropy count configurations rather than energies? Because entropy counts categorical states $|\gamma(t)|$, which have phase-lock degeneracy $\Omega_{\text{PL}}(\mathbf{q})$ for each spatial configuration $\mathbf{q}$. Third, why can't Maxwell's Demon decrease entropy by sorting? Because sorting operates on physical distance while entropy is determined by categorical distance, and these are inequivalent by Theorem~\ref{thm:distance_inequivalence}.
+
+The categorical framework thus provides a resolution of Maxwell's Demon that requires no information-theoretic arguments, no appeal to measurement costs, and no quantum considerations. The demon is defeated by attacking the wrong quantity: it manipulates spatial configurations while the Second Law protects categorical completion.

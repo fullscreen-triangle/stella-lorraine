@@ -1,0 +1,162 @@
+\section{The Mapping Theorem}
+\label{sec:mapping}
+
+\subsection{Trit-Cell Correspondence}
+
+We now establish the fundamental correspondence between ternary strings and cells in the S-entropy hierarchy.
+
+\begin{theorem}[Trit-Cell Bijection]\label{thm:trit-cell}
+There exists a bijection:
+\begin{equation}
+\phi_k : \mathbb{T}^k \to \mathcal{C}_k
+\end{equation}
+between $k$-trit ternary strings and level-$k$ cells in the S-entropy partition.
+\end{theorem}
+
+\begin{proof}
+We construct $\phi_k$ inductively.
+
+\textbf{Base case ($k=0$):} $\mathbb{T}^0 = \{\epsilon\}$ (empty string) and $\mathcal{C}_0 = \{\Sspace\}$. The bijection $\phi_0(\epsilon) = \Sspace$ is trivial.
+
+\textbf{Inductive step:} Assume $\phi_k : \mathbb{T}^k \to \mathcal{C}_k$ is a bijection. We construct $\phi_{k+1}$.
+
+At level $k+1$, each cell $C \in \mathcal{C}_k$ is subdivided into 3 subcells along dimension $d = k \mod 3$:
+\begin{equation}
+C = C_0 \cup C_1 \cup C_2
+\end{equation}
+where $C_i$ corresponds to the $i$-th third of dimension $d$.
+
+Define:
+\begin{equation}
+\phi_{k+1}(t_1, \ldots, t_k, t_{k+1}) = (\phi_k(t_1, \ldots, t_k))_{t_{k+1}}
+\end{equation}
+where $C_{t_{k+1}}$ denotes the $t_{k+1}$-th subcell of $C = \phi_k(t_1, \ldots, t_k)$.
+
+\textbf{Bijectivity:} Each string in $\mathbb{T}^{k+1}$ is uniquely determined by its first $k$ trits (which select a cell in $\mathcal{C}_k$ by induction) and the $(k+1)$-th trit (which selects one of 3 subcells). This is a bijection since:
+\begin{equation}
+|\mathbb{T}^{k+1}| = 3^{k+1} = 3 \cdot 3^k = 3 \cdot |\mathcal{C}_k| = |\mathcal{C}_{k+1}|
+\end{equation}
+\qed
+\end{proof}
+
+\subsection{The Dimension Correspondence}
+
+\begin{theorem}[Trit-Dimension Mapping]\label{thm:trit-dimension}
+Trit $t_j$ at position $j$ refines dimension $d_j = j \mod 3$:
+\begin{equation}
+d_j = \begin{cases}
+0 \text{ (refine } \Sk\text{)} & \text{if } j \equiv 0 \pmod 3 \\
+1 \text{ (refine } \St\text{)} & \text{if } j \equiv 1 \pmod 3 \\
+2 \text{ (refine } \Se\text{)} & \text{if } j \equiv 2 \pmod 3
+\end{cases}
+\end{equation}
+(with the convention $0 \mod 3 = 0$ for positions 3, 6, 9, ...).
+\end{theorem}
+
+\begin{proof}
+This follows directly from the definition of sequential refinement in Definition 2.6. The modular arithmetic cycles through dimensions, ensuring uniform refinement across all three axes. \qed
+\end{proof}
+
+\begin{corollary}[Balanced Refinement]
+After $3m$ trits, each dimension has been refined exactly $m$ times, giving cell size $3^{-m}$ in each dimension.
+\end{corollary}
+
+\subsection{Coordinate Extraction}
+
+\begin{theorem}[Coordinate Extraction]\label{thm:coordinate-extraction}
+Given ternary string $\mathbf{t} = (t_1, t_2, \ldots, t_k)$, the cell centre coordinates are:
+\begin{align}
+\Sk(\mathbf{t}) &= \sum_{j=1}^{\lfloor k/3 \rfloor} \frac{t_{3j} + 0.5}{3^j} \\
+\St(\mathbf{t}) &= \sum_{j=0}^{\lfloor (k-1)/3 \rfloor} \frac{t_{3j+1} + 0.5}{3^{j+1}} \\
+\Se(\mathbf{t}) &= \sum_{j=0}^{\lfloor (k-2)/3 \rfloor} \frac{t_{3j+2} + 0.5}{3^{j+1}}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+Consider dimension $\Sk$, refined by trits at positions 3, 6, 9, ... (i.e., $j \equiv 0 \pmod 3$).
+
+After the $m$-th refinement (trit at position $3m$), the interval has been subdivided $m$ times. Trit value $t_{3m}$ selects subinterval $[t_{3m}/3, (t_{3m}+1)/3]$ of the current interval, whose centre is $(t_{3m} + 0.5)/3$ relative to the current interval.
+
+Composing these selections:
+\begin{equation}
+\Sk = \sum_{m=1}^{\lfloor k/3 \rfloor} \frac{t_{3m} + 0.5}{3^m}
+\end{equation}
+
+The analysis for $\St$ and $\Se$ is identical, with appropriate position offsets. \qed
+\end{proof}
+
+\begin{example}
+Consider the 6-trit string $\mathbf{t} = (1, 0, 2, 2, 1, 0)$:
+\begin{align}
+\Sk &= \frac{2 + 0.5}{3^1} + \frac{0 + 0.5}{3^2} = \frac{2.5}{3} + \frac{0.5}{9} = 0.833 + 0.056 = 0.889 \\
+\St &= \frac{1 + 0.5}{3^1} + \frac{1 + 0.5}{3^2} = \frac{1.5}{3} + \frac{1.5}{9} = 0.500 + 0.167 = 0.667 \\
+\Se &= \frac{0 + 0.5}{3^1} + \frac{2 + 0.5}{3^2} = \frac{0.5}{3} + \frac{2.5}{9} = 0.167 + 0.278 = 0.444
+\end{align}
+
+Wait, let me recalculate using the correct position mapping:
+\begin{itemize}
+    \item Position 1 ($j=1 \equiv 1 \pmod 3$): refines $\St$, value $t_1 = 1$
+    \item Position 2 ($j=2 \equiv 2 \pmod 3$): refines $\Se$, value $t_2 = 0$
+    \item Position 3 ($j=3 \equiv 0 \pmod 3$): refines $\Sk$, value $t_3 = 2$
+    \item Position 4 ($j=4 \equiv 1 \pmod 3$): refines $\St$, value $t_4 = 2$
+    \item Position 5 ($j=5 \equiv 2 \pmod 3$): refines $\Se$, value $t_5 = 1$
+    \item Position 6 ($j=6 \equiv 0 \pmod 3$): refines $\Sk$, value $t_6 = 0$
+\end{itemize}
+
+Therefore:
+\begin{align}
+\Sk &= \frac{t_3 + 0.5}{3^1} + \frac{t_6 + 0.5}{3^2} = \frac{2.5}{3} + \frac{0.5}{9} \approx 0.889 \\
+\St &= \frac{t_1 + 0.5}{3^1} + \frac{t_4 + 0.5}{3^2} = \frac{1.5}{3} + \frac{2.5}{9} \approx 0.778 \\
+\Se &= \frac{t_2 + 0.5}{3^1} + \frac{t_5 + 0.5}{3^2} = \frac{0.5}{3} + \frac{1.5}{9} \approx 0.333
+\end{align}
+
+The cell addressed by $(1, 0, 2, 2, 1, 0)$ is centred at approximately $(0.889, 0.778, 0.333)$.
+\end{example}
+
+
+\subsection{Inverse Mapping: Coordinates to Trits}
+
+\begin{theorem}[Address from Coordinates]\label{thm:address-from-coords}
+Given coordinates $\Scoord = (\Sk, \St, \Se) \in [0,1]^3$, the $k$-trit address is:
+\begin{equation}
+t_j = \lfloor 3 \cdot r_{j-1}^{(d_j)} \rfloor
+\end{equation}
+where $d_j = j \mod 3$ determines the dimension and $r_j^{(d)}$ is the remainder after $j$ refinements of dimension $d$.
+\end{theorem}
+
+\begin{proof}
+Initialize $r_0^{(0)} = \Sk$, $r_0^{(1)} = \St$, $r_0^{(2)} = \Se$.
+
+For trit $j$ with dimension $d_j = j \mod 3$:
+\begin{align}
+t_j &= \lfloor 3 \cdot r_{j-1}^{(d_j)} \rfloor \\
+r_j^{(d_j)} &= 3 \cdot r_{j-1}^{(d_j)} - t_j
+\end{align}
+
+This extracts the ternary digits of each coordinate in interleaved fashion. \qed
+\end{proof}
+
+\subsection{The Metric Correspondence}
+
+\begin{theorem}[Distance Preservation]\label{thm:distance}
+For strings $\mathbf{t}$, $\mathbf{t}'$ with first differing trit at position $j$:
+\begin{equation}
+d(\phi(\mathbf{t}), \phi(\mathbf{t}')) \leq \sqrt{3} \cdot 3^{-\lfloor j/3 \rfloor}
+\end{equation}
+where $d$ is the Euclidean metric on S-space.
+\end{theorem}
+
+\begin{proof}
+If $\mathbf{t}$ and $\mathbf{t}'$ agree on the first $j-1$ trits, they address cells in the same level-$(j-1)$ parent cell, which has diameter at most $\sqrt{3} \cdot 3^{-\lfloor (j-1)/3 \rfloor}$.
+
+The factor $\sqrt{3}$ comes from the diagonal of a unit cube; $3^{-\lfloor j/3 \rfloor}$ is the side length after $\lfloor j/3 \rfloor$ refinements of each dimension. \qed
+\end{proof}
+
+\begin{corollary}[Prefix Determines Neighbourhood]
+Strings sharing a $k$-trit prefix address cells within distance $\sqrt{3} \cdot 3^{-\lfloor k/3 \rfloor}$ of each other.
+\end{corollary}
+
+\begin{remark}
+This establishes that ternary prefix matching corresponds to spatial proximity in S-space. Nearby points have similar addresses, enabling efficient spatial queries through string prefix operations.
+\end{remark}
+
