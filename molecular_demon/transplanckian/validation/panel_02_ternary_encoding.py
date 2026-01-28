@@ -180,5 +180,5 @@ fig.text(0.5, 0.02,
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_02_ternary_encoding.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 2 saved: panel_02_ternary_encoding.png")
-plt.show()
+print("[OK] Panel 2 saved: panel_02_ternary_encoding.png")
+plt.close()

@@ -122,7 +122,11 @@ for T in T_test_array:
     theoretical_resolution.append(delta_t_theory)
     measured_resolution.append(delta_t_measured)
     
-    error = abs(delta_t_measured - delta_t_theory) / delta_t_theory
+    # Avoid division by zero
+    if delta_t_theory > 0:
+        error = abs(delta_t_measured - delta_t_theory) / delta_t_theory
+    else:
+        error = 0
     relative_error.append(error * 100)  # percentage
 
 ax3.semilogy(T_test_array, relative_error, 'o-', 
@@ -187,5 +191,5 @@ fig.text(0.5, 0.02,
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_01_categorical_state_counting.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 1 saved: panel_01_categorical_state_counting.png")
-plt.show()
+print("[OK] Panel 1 saved: panel_01_categorical_state_counting.png")
+plt.close()

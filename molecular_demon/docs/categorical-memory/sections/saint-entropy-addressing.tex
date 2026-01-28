@@ -1,0 +1,127 @@
+
+\subsection{Definition of S-Entropy Coordinates}
+
+The S-entropy coordinate system provides a three-dimensional representation of categorical position in information space. Unlike physical coordinates that specify location in Euclidean space, S-entropy coordinates specify location in a space of information-theoretic states.
+
+\begin{definition}[S-Entropy Coordinates]
+\label{def:s-entropy}
+For a system with discrete states $\{i\}$ and associated probability distributions, the S-entropy coordinates are defined as:
+\begin{align}
+\Sk &= -\sum_i p_i^{(k)} \ln p_i^{(k)} && \text{(Knowledge entropy)} \\
+\St &= -\sum_i p_i^{(t)} \ln p_i^{(t)} && \text{(Temporal entropy)} \\
+\Se &= -\sum_i p_i^{(e)} \ln p_i^{(e)} && \text{(Evolution entropy)}
+\end{align}
+where $p_i^{(\alpha)}$ denotes the probability distribution over states in dimension $\alpha \in \{k, t, e\}$.
+\end{definition}
+
+Each coordinate captures a distinct aspect of uncertainty:
+
+\begin{itemize}
+    \item $\Sk$ measures uncertainty about the current state. High $\Sk$ indicates the system could be in many possible states with similar probability; low $\Sk$ indicates concentration in a few states.
+    
+    \item $\St$ measures uncertainty about timing. High $\St$ indicates temporal spread or jitter; low $\St$ indicates precise temporal localization.
+    
+    \item $\Se$ measures uncertainty about future evolution. High $\Se$ indicates unpredictable dynamics; low $\Se$ indicates deterministic evolution.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/information_complementarity.png}
+    \caption{
+        \textbf{Information complementarity: Maxwell saw velocity (kinetic face) but missed topology (categorical face), resolving the demon paradox.} 
+        \textbf{(A)} Two faces of information (3D scatter, $n = 200$ points) shows kinetic face (orange/red cluster, left, $(x, y, z) \approx (-1, 0, 0)$) vs. categorical face (teal cluster, right, $(x, y, z) \approx (1, 0, 0)$). Kinetic face encodes velocities, temperatures, kinetic energy. Categorical face encodes phase-lock network topology, S-entropy coordinates. Annotation: ``KINETIC FACE'' (left), ``CATEGORICAL FACE'' (right). Validates two complementary representations of same physical system.
+        
+        \textbf{(B)} Ammeter/voltmeter analogy (circuit diagram) shows complementary measurements. Left circuit: Ammeter (orange circle, kinetic/current measurement). Right circuit: Voltmeter (teal circle, categorical/potential measurement). Gray resistor R (center). Annotation: ``KINETIC (Current/Flow)'' (top), ``CATEGORICAL (State/Potential)'' (right), ``Cannot measure BOTH simultaneously!'' (bottom). Validates measurement incompatibility analogous to position-momentum uncertainty.
+        
+        \textbf{(C)} Demon = projection artifact (3D diagram) shows Maxwell's observer (star, left) viewing categorical dynamics (teal plane, top) which projects to ``DEMON'' (gray shadow, bottom). Purple arrow labeled ``Projection'' connects categorical dynamics to demon shadow. Kinetic face (horizontal axis, bottom). Annotation: ``The `demon' is the SHADOW of categorical dynamics!'' Validates demon as projection artifact where observer sees only kinetic face, missing categorical structure.
+        
+        \textbf{(D)} Phase-lock network (network graph, 30 nodes) shows topology independent of temperature. Nodes colored by temperature (blue = cold, red = hot, scale not shown). Edges represent phase-lock topology (categorical structure). Network maintains connectivity despite temperature variations. Annotation: ``Topology independent of $T$ ($\partial G/\partial T = 0$)''. Colors = Temperature (kinetic), Edges = Topology (categorical). Validates categorical structure persists independent of kinetic degrees of freedom.
+    }
+    \label{fig:information_complementarity}
+\end{figure}
+
+\subsection{Coordinate Space Properties}
+
+\begin{proposition}[Boundedness]
+Each S-entropy coordinate is bounded: $0 \leq S_\alpha \leq \ln N_\alpha$ where $N_\alpha$ is the number of accessible states in dimension $\alpha$.
+\end{proposition}
+
+\begin{proof}
+The Shannon entropy $H = -\sum_i p_i \ln p_i$ achieves its minimum value of 0 when the distribution is concentrated on a single state ($p_j = 1$ for some $j$, all other $p_i = 0$). It achieves its maximum value of $\ln N$ when the distribution is uniform ($p_i = 1/N$ for all $i$). Since each $S_\alpha$ is a Shannon entropy over its respective state space, the bounds follow directly.
+\end{proof}
+
+For practical computation, we normalize coordinates to the unit interval:
+\begin{equation}
+\tilde{S}_\alpha = \frac{S_\alpha}{\ln N_\alpha} \in [0, 1]
+\end{equation}
+
+\begin{definition}[S-Entropy Distance]
+The categorical distance between two points $\Scoord_1 = (\Sk^{(1)}, \St^{(1)}, \Se^{(1)})$ and $\Scoord_2 = (\Sk^{(2)}, \St^{(2)}, \Se^{(2)})$ is:
+\begin{equation}
+d_S(\Scoord_1, \Scoord_2) = \sqrt{(\Sk^{(1)} - \Sk^{(2)})^2 + (\St^{(1)} - \St^{(2)})^2 + (\Se^{(1)} - \Se^{(2)})^2}
+\end{equation}
+\end{definition}
+
+This Euclidean metric in S-space has semantic interpretation: small distance indicates similar categorical states (similar uncertainty profiles), while large distance indicates dissimilar states.
+
+\subsection{Address Construction from Oscillation Parameters}
+
+For a memory system with oscillatory access patterns, S-entropy coordinates can be constructed from observable parameters.
+
+\begin{proposition}[Oscillation-to-S Mapping]
+\label{prop:osc-mapping}
+For an oscillatory process with frequency $\omega$, phase $\phi$, and amplitude $A$, the S-entropy coordinates are:
+\begin{align}
+\Sk &= \frac{\ln \omega}{\ln \omega_{\max}} \\
+\St &= \frac{\phi}{2\pi} \\
+\Se &= A
+\end{align}
+where $\omega_{\max}$ is a normalization constant (typically the maximum observable frequency).
+\end{proposition}
+
+This mapping has physical interpretation:
+\begin{itemize}
+    \item Frequency encodes knowledge: higher frequency oscillations sample more states per unit time, increasing knowledge entropy.
+    \item Phase encodes temporal position: the phase $\phi \in [0, 2\pi)$ specifies position within the oscillation cycle.
+    \item Amplitude encodes evolution: larger amplitude indicates greater dynamic range and thus higher evolution entropy.
+\end{itemize}
+
+\subsection{Categorical Orthogonality}
+
+A fundamental property of S-entropy coordinates is their orthogonality to physical coordinates.
+
+\begin{theorem}[Categorical-Physical Orthogonality]
+\label{thm:orthogonality}
+Let $\mathbf{x} = (x, y, z)$ denote physical position coordinates and $\Scoord = (\Sk, \St, \Se)$ denote S-entropy coordinates. These coordinate systems are orthogonal in the sense that:
+\begin{equation}
+\frac{\partial S_\alpha}{\partial x_j} = 0 \quad \text{for all } \alpha \in \{k, t, e\}, \; j \in \{1, 2, 3\}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The S-entropy coordinates are defined as functions of probability distributions over internal states. These distributions depend on the system's information-theoretic configuration, not on its physical location. Translating a system in physical space does not change its internal state probabilities, hence does not change its S-entropy coordinates.
+
+More formally, let $\rho(\mathbf{x})$ be the system's density operator at position $\mathbf{x}$. The S-entropy depends only on the diagonal elements of $\rho$ in the energy eigenbasis, which are invariant under spatial translation. Therefore:
+\begin{equation}
+\frac{\partial S_\alpha}{\partial x_j} = \frac{\partial}{\partial x_j}\left(-\sum_i p_i \ln p_i\right) = -\sum_i \frac{\partial p_i}{\partial x_j}(\ln p_i + 1) = 0
+\end{equation}
+since $\partial p_i / \partial x_j = 0$ for translation-invariant internal states.
+\end{proof}
+
+This orthogonality has a crucial consequence: measurements in S-space do not disturb physical coordinates. Information can be extracted from S-entropy observations without backaction on physical observables.
+
+\subsection{Addressing Semantics}
+
+The S-entropy coordinate system enables semantic addressing---addressing by meaning rather than position. Figure~\ref{fig:categorical_addressing}(B) demonstrates how each data node is assigned a unique range in $(S_k, S_t, S_e)$ space, with non-overlapping coordinate ranges ensuring complete addressing.
+
+\begin{definition}[Categorical Address]
+A categorical address is a point $\Scoord^* = (\Sk^*, \St^*, \Se^*)$ in S-entropy space. The address selects all memory locations within categorical distance $\epsilon$ of $\Scoord^*$:
+\begin{equation}
+\mathcal{A}(\Scoord^*, \epsilon) = \{\text{location } \ell : d_S(\Scoord_\ell, \Scoord^*) < \epsilon\}
+\end{equation}
+\end{definition}
+
+Unlike physical addresses that select exactly one location, categorical addresses select a neighborhood of locations with similar S-entropy coordinates. This fuzzy addressing reflects the semantic nature of categorical organization: data with similar meaning (similar S-coordinates) is grouped together.
+
+The resolution parameter $\epsilon$ controls the granularity of addressing. Small $\epsilon$ provides fine-grained selection (few locations); large $\epsilon$ provides coarse-grained selection (many locations). The choice of $\epsilon$ depends on the desired specificity of the query. Figure~\ref{fig:categorical_addressing}(D) visualizes the coordinate decomposition, showing how S-space partitioning corresponds to hierarchy depth.
+

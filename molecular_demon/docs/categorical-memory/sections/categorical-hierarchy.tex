@@ -1,0 +1,204 @@
+
+\subsection{Structure of the $3^k$ Hierarchy}
+
+The categorical memory is organized as a recursive tree structure where each node branches into exactly three children, corresponding to the three dimensions of S-entropy space. Figure~\ref{fig:categorical_addressing}(A) visualizes this structure for $k = 0, 1, 2$, showing how the tree expands from a single root node to $3^k$ nodes at each level.
+
+\begin{definition}[Categorical Hierarchy]
+The categorical hierarchy $\mathcal{H}$ is a rooted tree where:
+\begin{enumerate}
+    \item The root node is at depth $d = 0$.
+    \item Each internal node has exactly three children, indexed $\{0, 1, 2\}$.
+    \item At depth $d$, there are exactly $3^d$ nodes.
+    \item The maximum depth is $D$, giving a total of $\sum_{d=0}^{D} 3^d = (3^{D+1} - 1)/2$ nodes.
+\end{enumerate}
+\end{definition}
+
+The three branches at each node correspond to the precision-by-difference sign, as indicated by the branch colors in Figure~\ref{fig:categorical_addressing}(A):
+\begin{itemize}
+    \item Branch 0 (green): $\deltaP > 0$, movement in the positive direction
+    \item Branch 1 (orange): $\deltaP \approx 0$, movement along the neutral axis
+    \item Branch 2 (red): $\deltaP < 0$, movement in the negative direction
+\end{itemize}
+
+\subsection{Node Representation}
+
+Each node in the hierarchy carries data and structural information.
+
+\begin{definition}[Hierarchy Node]
+A hierarchy node $\nu$ consists of:
+\begin{align}
+\nu &= (\Scoord, d, b, \tau, \text{data}, \text{children})
+\end{align}
+where:
+\begin{itemize}
+    \item $\Scoord = (\Sk, \St, \Se)$ is the node's S-entropy coordinate
+    \item $d$ is the depth in the hierarchy
+    \item $b \in \{0, 1, 2\}$ is the branch index from parent
+    \item $\tau$ is the creation timestamp
+    \item data is the stored content (if leaf) or null (if internal)
+    \item children is a triple of child node references or null
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Node Types]
+Nodes are classified by their structure:
+\begin{itemize}
+    \item \textbf{Leaf}: No children; may hold data.
+    \item \textbf{Branch}: Has at least one child; routes navigation.
+    \item \textbf{Virtual}: Placeholder that has not been materialized; created lazily on first access.
+\end{itemize}
+\end{definition}
+
+\subsection{Coordinate Decomposition}
+
+When a node branches into children, its S-entropy coordinate decomposes following a specific rule.
+
+\begin{proposition}[Coordinate Decomposition]
+\label{prop:decomposition}
+A parent node with coordinate $\Scoord_{\text{parent}}$ produces three children with coordinates:
+\begin{align}
+\Scoord_{\text{child}}^{(0)} &= \frac{1}{3}\Scoord_{\text{parent}} + (\epsilon_k, 0, 0) \\
+\Scoord_{\text{child}}^{(1)} &= \frac{1}{3}\Scoord_{\text{parent}} + (0, \epsilon_t, 0) \\
+\Scoord_{\text{child}}^{(2)} &= \frac{1}{3}\Scoord_{\text{parent}} + (0, 0, \epsilon_e)
+\end{align}
+where $\epsilon_\alpha$ are small perturbations in each dimension.
+\end{proposition}
+
+This decomposition has two properties:
+\begin{enumerate}
+    \item Each child inherits one-third of the parent's entropy in all dimensions (the $1/3$ factor).
+    \item Each child is distinguished by a perturbation in one dimension (the $\epsilon$ terms).
+\end{enumerate}
+
+\subsection{Path Representation}
+
+A path from root to a node at depth $d$ is specified by a sequence of branch indices.
+
+\begin{definition}[Hierarchy Path]
+A path $\pi$ of length $d$ is a sequence:
+\begin{equation}
+\pi = (b_1, b_2, \ldots, b_d) \quad \text{where } b_i \in \{0, 1, 2\}
+\end{equation}
+\end{definition}
+
+\begin{proposition}[Path Uniqueness]
+Each node in the hierarchy has a unique path from the root. The path serves as the node's address.
+\end{proposition}
+
+\begin{proof}
+By construction, each node has exactly one parent (except the root), and the branch index $b_i$ distinguishes it from its siblings. The sequence of branch indices from root to node is therefore unique.
+\end{proof}
+
+\begin{proposition}[Path from Precision]
+The precision-by-difference trajectory $\mathcal{T} = \{\deltaP(1), \ldots, \deltaP(K)\}$ determines a path through the hierarchy:
+\begin{equation}
+\pi = (b_1, \ldots, b_K) \quad \text{where } b_k = \lfloor 3 |\deltaP(k) \cdot 10^9| \rfloor \mod 3
+\end{equation}
+\end{proposition}
+
+This establishes the connection between precision-by-difference values and hierarchy navigation: each precision value determines one branch decision, and the full trajectory determines the complete path.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/categorical_memory_panel.png}
+    \caption{
+        \textbf{Categorical memory implements S-entropy addressing where access history forms the address via precision-by-difference trajectories.} 
+        \textbf{(A)} S-entropy space (3D scatter, $S_k$ vs. $S_t$ vs. $S_e$, range 0--1) shows navigation path (red line) through coordinate space. Colored spheres represent memory access events. Red star marks completion point (predicted endpoint). Trajectory converges toward high-entropy region ($S_e \to 1$). 
+        \textbf{(B)} Precision-by-difference trajectory (time series, 0--100 samples) shows $\Delta P = T_{\text{ref}} - t_{\text{local}}$ oscillating $\pm 0.06$ units. Blue shaded region represents accumulated precision difference. Orange dashed lines mark hash boundaries ($b=0, b+1$) where trajectory transitions between hierarchy nodes. 
+        \textbf{(C)} $3^k$ hierarchy (tree diagram) shows root node ($d=0$, purple) branching to 3 children (blue, level $d=1$), each branching to 3 children (green, level $d=2$), totaling $3^d$ nodes at depth $d$. Yellow leaf nodes at $d=3$ represent storage locations. 
+        \textbf{(D)} Memory tiers (bar chart, log scale) show capacity growth: L1 Cache ($\sim 10^0$ items, red), L2 Cache ($\sim 10^1$, orange), RAM ($\sim 10^3$, yellow), SSD ($\sim 10^7$, green), Archive ($\sim 10^9$, teal). Red line shows exponential growth trend. 
+        \textbf{(E)} Cache performance (line plot) shows hit rate (green shaded area) vs. access count (0--50). Hit rate increases from 86\% to 100\% (red dashed target) as categorical clustering improves over time. 
+        \textbf{(F)} Maxwell demon controller (schematic) shows Fast tier (blue, left, filled circles = hot data) and Slow tier (red, right, empty circles = cold data). Orange oval (center) represents Maxwell demon performing promote/demote operations based on categorical distance.
+    }
+    \label{fig:categorical_memory}
+\end{figure}
+
+\subsection{Navigation Operations}
+
+\begin{definition}[Navigate to Path]
+Given a path $\pi = (b_1, \ldots, b_d)$, navigation proceeds:
+\begin{algorithmic}[1]
+\State $\nu \gets$ root
+\For{$i = 1$ to $d$}
+    \If{$\nu$.children[$b_i$] is null}
+        \If{create mode}
+            \State Create child at branch $b_i$
+        \Else
+            \State \Return null (path does not exist)
+        \EndIf
+    \EndIf
+    \State $\nu \gets \nu$.children[$b_i$]
+\EndFor
+\State \Return $\nu$
+\end{algorithmic}
+\end{definition}
+
+Navigation can be performed in two modes:
+\begin{itemize}
+    \item \textbf{Read mode}: Returns null if any node on the path does not exist.
+    \item \textbf{Create mode}: Creates missing nodes as needed, always reaching the target depth.
+\end{itemize}
+
+\begin{proposition}[Navigation Complexity]
+Navigation to depth $d$ requires $O(d)$ operations. For a hierarchy of maximum depth $D$, this is $O(D) = O(\log_3 N)$ where $N = 3^D$ is the number of leaf positions.
+\end{proposition}
+
+\subsection{Nearest Neighbor Search}
+
+Finding data near a target position requires searching the neighborhood.
+
+\begin{definition}[Categorical Neighborhood]
+The $\delta$-neighborhood of a path $\pi$ consists of all nodes reachable by modifying at most $\delta$ branch indices:
+\begin{equation}
+\mathcal{N}_\delta(\pi) = \{\pi' : d_H(\pi, \pi') \leq \delta\}
+\end{equation}
+where $d_H$ is the Hamming distance between paths.
+\end{definition}
+
+\begin{proposition}[Neighborhood Size]
+The $\delta$-neighborhood contains at most $\sum_{k=0}^{\delta} \binom{d}{k} 2^k$ paths, where $d$ is the path length.
+\end{proposition}
+
+Nearest neighbor search explores this neighborhood, collecting data from all nodes within categorical distance $\delta$ of the target.
+
+\subsection{Compression}
+
+The hierarchy can be compressed by removing unused branches.
+
+\begin{definition}[Hierarchy Compression]
+Compression removes all nodes that:
+\begin{enumerate}
+    \item Hold no data, and
+    \item Have no descendants that hold data.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Compression Ratio]
+If $N_{\text{data}}$ nodes hold data out of $N_{\text{total}}$ total nodes, the compression ratio is:
+\begin{equation}
+R = \frac{N_{\text{total}}}{N_{\text{compressed}}} \geq \frac{N_{\text{total}}}{N_{\text{data}} \cdot D}
+\end{equation}
+where $D$ is the maximum depth and $N_{\text{compressed}}$ is the number of nodes after compression.
+\end{proposition}
+
+Compression preserves all stored data while eliminating structural overhead. For sparse storage patterns (few data items in a large potential space), compression can achieve high ratios.
+
+\subsection{Scale Ambiguity}
+
+The hierarchy exhibits scale ambiguity: the local structure is identical at every depth.
+
+\begin{theorem}[Scale Invariance]
+\label{thm:scale-invariance}
+For any depth $d$, the sub-hierarchy rooted at depth $d$ is isomorphic to the full hierarchy rooted at depth 0:
+\begin{equation}
+\mathcal{H}_d \cong \mathcal{H}_0
+\end{equation}
+where $\mathcal{H}_d$ denotes the hierarchy structure starting from any node at depth $d$.
+\end{theorem}
+
+\begin{proof}
+Both structures are infinite $3$-ary trees. The isomorphism is given by the identity map on the branching structure. Coordinate values differ by the depth-dependent scaling factor $3^{-d}$, but this is a uniform rescaling that preserves all structural relationships.
+\end{proof}
+
+Scale ambiguity means that an observer at depth $d$ cannot determine their absolute depth from local measurements alone. The coordinate system looks the same at every scale.
+

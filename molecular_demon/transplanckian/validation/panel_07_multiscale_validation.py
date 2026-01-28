@@ -221,5 +221,5 @@ fig.text(0.5, 0.02,
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_07_multiscale_validation.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 7 saved: panel_07_multiscale_validation.png")
-plt.show()
+print("[OK] Panel 7 saved: panel_07_multiscale_validation.png")
+plt.close()

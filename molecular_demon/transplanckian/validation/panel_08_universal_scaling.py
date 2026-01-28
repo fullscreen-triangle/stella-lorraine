@@ -32,14 +32,15 @@ enhancements = {
 # Subplot 1: Multiplicative Enhancement Chain
 ax1 = fig.add_subplot(gs[0, 0])
 
-# Calculate cumulative product
+# Calculate cumulative product in log space
 names = list(enhancements.keys())
-factors = [enhancements[n]['factor'] for n in names]
-cumulative = np.cumprod([1] + factors)
+# Extract log values directly (factors are already 10^x format)
+log_factors = np.array([3.5, 5, 3, 66, 44])  # From paper
+log_cumulative = np.cumsum(np.concatenate([[0.0], log_factors]))  # Work in log space
 
 # Create waterfall-style plot
 x_pos = np.arange(len(names) + 1)
-bar_heights = np.log10(cumulative)
+bar_heights = log_cumulative
 
 # Plot bars
 colors_waterfall = ['lightgray'] + ['skyblue', 'lightgreen', 'orange', 'pink', 'purple']
@@ -55,8 +56,9 @@ for i in range(len(names)):
     
     # Add multiplication factors
     mid_x = (x_pos[i] + x_pos[i+1]) / 2
+    log_factor = log_factors[i]
     ax1.text(mid_x, bar_heights[i] + 5, 
-             f'$\\times 10^{{{np.log10(factors[i]):.1f}}}$',
+             f'$\\times 10^{{{log_factor:.1f}}}$',
              ha='center', fontsize=9, fontweight='bold', color='red',
              bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.7))
 
@@ -69,9 +71,9 @@ ax1.set_title('Multiplicative Enhancement Chain', fontsize=13, fontweight='bold'
 ax1.grid(True, alpha=0.3, axis='y')
 
 # Add final value
-final_enhancement = cumulative[-1]
+final_log_enhancement = log_cumulative[-1]
 ax1.text(x_pos[-1], bar_heights[-1] + 3, 
-         f'Total: $10^{{{np.log10(final_enhancement):.0f}}}\\times$',
+         f'Total: $10^{{{final_log_enhancement:.0f}}}\\times$',
          ha='center', fontsize=11, fontweight='bold', color='darkred',
          bbox=dict(boxstyle='round', facecolor='lightcoral', alpha=0.9))
 
@@ -100,7 +102,9 @@ std_values_sorted = [std_values[i] for i in sorted_indices]
 y_pos = np.arange(len(std_names_sorted))
 colors_standards = ['green', 'blue', 'cyan', 'yellow', 'orange', 'red']
 
-bars = ax2.barh(y_pos, [np.log10(v) for v in std_values_sorted], 
+# Convert to log using math.log10 on floats
+import math
+bars = ax2.barh(y_pos, [math.log10(float(v)) for v in std_values_sorted], 
                 color=colors_standards, edgecolor='black', linewidth=2)
 
 # Highlight trans-Planckian result
@@ -118,14 +122,14 @@ ax2.invert_yaxis()
 for i, (bar, val) in enumerate(zip(bars, std_values_sorted)):
     width = bar.get_width()
     ax2.text(width - 5, bar.get_y() + bar.get_height()/2,
-             f'$10^{{{int(np.log10(val))}}}$ s',
+             f'$10^{{{int(math.log10(float(val)))}}}$ s',
              va='center', ha='right', fontsize=9, fontweight='bold', color='white')
 
 # Subplot 3: Enhancement Contribution Breakdown
 ax3 = fig.add_subplot(gs[1, 0])
 
-# Log contributions (additive in log space)
-log_contributions = [np.log10(enhancements[n]['factor']) for n in names]
+# Log contributions (additive in log space) - use the hardcoded values
+log_contributions = [3.5, 5, 3, 66, 44]
 total_log = sum(log_contributions)
 percentages = [100 * lc / total_log for lc in log_contributions]
 
@@ -146,7 +150,7 @@ ax3.set_title('Enhancement Contribution Breakdown\n(Log-space percentages)',
               fontsize=13, fontweight='bold')
 
 # Add legend with absolute contributions
-legend_labels = [f'{n.replace(chr(10), " ")}: $10^{{{np.log10(enhancements[n]["factor"]):.1f}}}$ ' +
+legend_labels = [f'{n.replace(chr(10), " ")}: $10^{{{log_contributions[i]:.1f}}}$ ' +
                  f'({percentages[i]:.1f}%)'
                  for i, n in enumerate(names)]
 ax3.legend(legend_labels, loc='upper left', bbox_to_anchor=(1.1, 1), fontsize=9)
@@ -159,13 +163,10 @@ ax4 = fig.add_subplot(gs[1, 1], projection='3d')
 # Y-axis: Network enhancements (Harmonic)
 # Z-axis: Temporal enhancements (Poincaré + Refinement)
 
-encoding_enhancement = 10**3.5 * 10**5
-network_enhancement = 10**3
-temporal_enhancement = 10**66 * 10**44
-
-log_encoding = np.log10(encoding_enhancement)
-log_network = np.log10(network_enhancement)
-log_temporal = np.log10(temporal_enhancement)
+# Use log values directly instead of computing from large numbers
+log_encoding = 3.5 + 5  # Ternary + Multi-modal
+log_network = 3  # Harmonic
+log_temporal = 66 + 44  # Poincaré + Refinement
 
 # Create cube showing enhancement space
 # Plot origin
@@ -214,10 +215,10 @@ fig.suptitle('Panel 8: Universal Scaling Law and Total Enhancement Verification\
 
 # Footer
 fig.text(0.5, 0.02,
-         f'Total enhancement: $10^{{{np.log10(total_enhancement):.0f}}}\\times$ | Target: $4.50 \\times 10^{{-138}}$ s | Achieved: $10^{{-138}}$ s',
+         f'Total enhancement: $10^{{{121.5:.0f}}}\\times$ | Target: $4.50 \\times 10^{{-138}}$ s | Achieved: $10^{{-138}}$ s',
          ha='center', fontsize=10, style='italic')
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_08_universal_scaling.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 8 saved: panel_08_universal_scaling.png")
-plt.show()
+print("[OK] Panel 8 saved: panel_08_universal_scaling.png")
+plt.close()

@@ -135,11 +135,12 @@ completions_mesh = freq_mesh * time_mesh
 log_completions_mesh = np.log10(completions_mesh)
 
 # Plot surface
-surf = ax4.plot_surface(log_freq_array, time_mesh, log_completions_mesh, 
+log_freq_mesh_2d, time_mesh_2d = np.meshgrid(log_freq_array, time_array_mesh)
+surf = ax4.plot_surface(log_freq_mesh_2d, time_mesh_2d, log_completions_mesh, 
                         cmap='plasma', alpha=0.9, edgecolor='none')
 
 # Add contour projection on bottom
-contour = ax4.contour(log_freq_array, time_mesh, log_completions_mesh, 
+contour = ax4.contour(log_freq_mesh_2d, time_mesh_2d, log_completions_mesh, 
                       10, cmap='plasma', linestyles='solid', alpha=0.4,
                       offset=np.min(log_completions_mesh) - 1)
 
@@ -166,5 +167,5 @@ fig.text(0.5, 0.02,
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_05_poincare_computing.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 5 saved: panel_05_poincare_computing.png")
-plt.show()
+print("[OK] Panel 5 saved: panel_05_poincare_computing.png")
+plt.close()

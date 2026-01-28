@@ -1,0 +1,200 @@
+
+\subsection{Memory Architecture Overview}
+
+The categorical memory system integrates the S-entropy addressing, precision-by-difference navigation, hardware oscillation capture, and hierarchical storage into a complete memory architecture.
+
+\begin{definition}[Categorical Memory System]
+A categorical memory system $\mathcal{M}$ consists of:
+\begin{enumerate}
+    \item An oscillator capture module $\mathcal{O}$ that samples hardware timing
+    \item A precision calculator $\mathcal{P}$ that computes precision-by-difference values
+    \item A categorical hierarchy $\mathcal{H}$ that provides the storage structure
+    \item A memory controller $\mathcal{C}$ that manages data placement and retrieval
+\end{enumerate}
+\end{definition}
+
+\subsection{Address Space}
+
+The address space of categorical memory is the S-entropy coordinate space.
+
+\begin{definition}[S-Entropy Address]
+An S-entropy address $\mathcal{A}$ consists of:
+\begin{enumerate}
+    \item A precision-by-difference trajectory $\mathcal{T} = \{\deltaP(1), \ldots, \deltaP(K)\}$
+    \item A trajectory hash $h = \mathcal{H}(\mathcal{T})$ providing a compact identifier
+    \item The current S-coordinate $\Scoord = (\Sk, \St, \Se)$
+    \item The hierarchy path $\pi$ derived from the trajectory
+\end{enumerate}
+\end{definition}
+
+Unlike conventional addresses that are assigned externally, S-entropy addresses emerge from the access pattern itself. The trajectory of precision-by-difference values accumulated during access operations determines the address.
+
+\begin{proposition}[Address Uniqueness]
+Two S-entropy addresses are equal if and only if their trajectories are identical:
+\begin{equation}
+\mathcal{A}_1 = \mathcal{A}_2 \iff \mathcal{T}_1 = \mathcal{T}_2
+\end{equation}
+\end{proposition}
+
+\subsection{Storage Operations}
+
+\subsubsection{Write Operation}
+
+Storing data at a categorical address proceeds as follows:
+
+\begin{algorithmic}[1]
+\Require Data $D$, key $\kappa$
+\State Create new S-entropy address $\mathcal{A}$
+\State Record initial precision sample: $\deltaP(1) \gets$ precision\_sample()
+\State Update address with sample: $\mathcal{A}$.record($\deltaP(1)$)
+\State Repeat sampling to build trajectory of length $K$
+\State Compute hierarchy path: $\pi \gets$ path\_from\_trajectory($\mathcal{T}$)
+\State Navigate to node: $\nu \gets$ navigate($\mathcal{H}$, $\pi$, create=true)
+\State Store data: $\nu$.data $\gets D$
+\State Store key: $\nu$.key $\gets \kappa$
+\State Index by key: key\_index[$\kappa$] $\gets \nu$
+\State \Return $\mathcal{A}$
+\end{algorithmic}
+
+The trajectory is built dynamically during the write operation. The hardware timing during the write process determines the address.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/categorical_addressing_panel.png}
+    \caption{
+        \textbf{Categorical addressing via $3^k$ hierarchy structure: S-entropy navigation and coordinate decomposition enable trajectory-based memory access.} 
+        \textbf{(A)} $3^k$ tree structure ($k = 0, 1, 2$) shows exponential branching. Root node ($k = 0$, $3^0 = 1$, blue oval, top). First level ($k = 1$, $3^1 = 3$, three ovals). Second level ($k = 2$, $3^2 = 9$, nine ovals). Branch colors indicate $\Delta P$ sign: Branch 0 (green edges, $\Delta P > 0$), Branch 1 (orange edges, $\Delta P = 0$), Branch 2 (red edges, $\Delta P < 0$). Total nodes at depth $k$: $N_k = 3^k$. Total addressable nodes: $\sum_{i=0}^{k} 3^i = \frac{3^{k+1} - 1}{2}$. Validates ternary branching structure where each node has exactly 3 children.
+        
+        \textbf{(B)} Node representation with S-coordinate ranges (bar chart, 12 nodes) shows unique coordinate assignment. Y-axis: data nodes (data\_0 to data\_11). X-axis: coordinate range [0, 1]. Each node displays three bars: $S_k$ (blue, knowledge entropy), $S_t$ (purple, temporal entropy), $S_e$ (orange, evolution entropy). Depth labels (right): $d = 6$ to $d = 17$. Coordinate ranges non-overlapping, validating unique addressing. Example: data\_0 ($d = 6$): $S_k \in [0.0, 0.2]$, $S_t \in [0.0, 0.2]$, $S_e \in [0.0, 0.2]$. Validates S-coordinate space provides complete addressing scheme.
+        
+        \textbf{(C)} Path decomposition (trajectory $\to$ node sequence) shows address construction. Address: "alpha" (trajectory hash: 3b224a503f8397ec). 8 steps (0-7) with branch selection at each step. Step 0: Branch 0 (green), Path: [0], Region: $3^{-1}$. Step 1: Branch 2 (red), Path: [02], Region: $3^{-2}$. Step 2: Branch 2 (red), Path: [022], Region: $3^{-3}$. Step 3: Branch 1 (orange), Path: [0221], Region: $3^{-4}$. Step 4: Branch 0 (green), Path: [02210], Region: $3^{-5}$. Step 5: Branch 2 (red), Path: [022102], Region: $3^{-6}$. Step 6: Branch 2 (red), Path: [0221022], Region: $3^{-7}$. Step 7: Branch 1 (orange), Path: [02210221], Region: $3^{-8}$. Legend: $\Delta P$ branch selection (0 = $\Delta P > 0$, 1 = $\Delta P = 0$, 2 = $\Delta P < 0$). Gray arrows indicate sequential progression. Validates trajectory-based addressing where path history uniquely identifies location.
+        
+        \textbf{(D)} Coordinate decomposition (S-space partitioning, 3D scatter) shows 30 points in $(S_k, S_t, S_e)$ space. Axes: $S_k$ (Knowledge, 0-1), $S_t$ (Temporal, 0-1), $S_e$ (Entropy, 0-1). Points colored by hierarchy depth (0.0-20.0 scale, blue to yellow gradient). Points cluster along trajectory path, forming curved structure in 3D space. Validates S-space partitioning where categorical distance (depth) corresponds to Euclidean distance in coordinate space.
+    }
+    \label{fig:categorical_addressing}
+\end{figure}
+
+
+
+
+\subsubsection{Read Operation}
+
+Retrieving data by S-entropy address:
+
+\begin{algorithmic}[1]
+\Require S-entropy address $\mathcal{A}$
+\State Extract path: $\pi \gets \mathcal{A}$.hierarchy\_path
+\State Navigate to node: $\nu \gets$ navigate($\mathcal{H}$, $\pi$, create=false)
+\If{$\nu$ is null or $\nu$.data is null}
+    \State \Return null (data not found)
+\EndIf
+\State Update access count: $\nu$.access\_count $\gets \nu$.access\_count $+ 1$
+\State \Return $\nu$.data
+\end{algorithmic}
+
+\subsubsection{Read by Key}
+
+For applications requiring key-based access, a supplementary index provides $O(1)$ lookup:
+
+\begin{algorithmic}[1]
+\Require Key $\kappa$
+\State $\nu \gets$ key\_index[$\kappa$]
+\If{$\nu$ is null}
+    \State \Return null
+\EndIf
+\State \Return $\nu$.data
+\end{algorithmic}
+
+The key index provides conventional access semantics while the categorical structure provides semantic organization.
+
+\subsection{Memory Tiers}
+
+The categorical memory system supports multiple storage tiers with different performance characteristics. Figure~\ref{fig:categorical_memory}(D) visualizes the exponential capacity growth across tiers, from L1 cache ($\sim 10^0$ items) to Archive ($\sim 10^9$ items).
+
+\begin{definition}[Memory Tier]
+A memory tier $\mathcal{T}_i$ is characterized by:
+\begin{itemize}
+    \item Access latency $\ell_i$
+    \item Capacity $C_i$
+    \item Energy cost per access $E_i$
+\end{itemize}
+\end{definition}
+
+Standard tiers in order of decreasing performance:
+\begin{enumerate}
+    \item L1 Cache: $\ell \approx 1$ ns, $C \approx 64$ KB
+    \item L2 Cache: $\ell \approx 10$ ns, $C \approx 256$ KB
+    \item RAM: $\ell \approx 100$ ns, $C \approx$ GB
+    \item SSD: $\ell \approx 10^5$ ns, $C \approx$ TB
+    \item Archive: $\ell \approx 10^8$ ns, $C \approx$ unlimited
+\end{enumerate}
+
+Figure~\ref{fig:categorical_memory_operations}(A) demonstrates the operational tier hierarchy, showing how categorical prefetching achieves 100\% L1 hit rate by placing data in the correct tier before access.
+
+\begin{definition}[Tier Assignment]
+The tier of a datum is determined by its categorical position relative to the current access position:
+\begin{equation}
+\text{tier}(D) = f(d_S(\Scoord_D, \Scoord_{\text{current}}))
+\end{equation}
+where $d_S$ is the S-entropy distance and $f$ is a monotonically increasing function mapping distance to tier index.
+\end{definition}
+
+Data categorically close to current access patterns resides in fast tiers; data categorically distant resides in slow tiers.
+
+\subsection{Prediction and Prefetching}
+
+The trajectory completion mechanism enables predictive data movement.
+
+\begin{definition}[Access Prediction]
+Given the current trajectory $\mathcal{T}$, the predicted future accesses are data items whose S-coordinates are close to the trajectory completion point:
+\begin{equation}
+\text{predicted} = \{D : d_S(\Scoord_D, \Scoord^*) < \epsilon\}
+\end{equation}
+where $\Scoord^*$ is the predicted completion point.
+\end{definition}
+
+\begin{algorithmic}[1]
+\Function{Prefetch}{$\mathcal{T}$, $n$}
+    \State $\Scoord^* \gets$ predict\_completion($\mathcal{T}$)
+    \State candidates $\gets$ find\_nearest($\Scoord^*$, $n$)
+    \For{each $D$ in candidates}
+        \If{tier($D$) $>$ 0} \Comment{Not already in fastest tier}
+            \State promote($D$, tier=0)
+        \EndIf
+    \EndFor
+\EndFunction
+\end{algorithmic}
+
+Prefetching moves predicted data to fast tiers before it is actually accessed, reducing access latency.
+
+\subsection{Automatic Clustering}
+
+A key property of categorical memory is automatic semantic clustering.
+
+\begin{proposition}[Clustering Property]
+Data accessed in similar patterns will have similar S-entropy addresses and thus reside in nearby positions in the hierarchy.
+\end{proposition}
+
+\begin{proof}
+Similar access patterns produce similar precision-by-difference trajectories (the timing environment during access is similar). Similar trajectories produce similar paths through the hierarchy (each precision value maps deterministically to a branch index). Similar paths lead to nearby nodes in the hierarchy. Therefore, data with similar access patterns clusters spatially in the hierarchy.
+\end{proof}
+
+This clustering emerges without explicit indexing or classification. The hierarchical structure induced by precision-by-difference navigation naturally organizes data by access pattern similarity.
+
+\subsection{Statistics and Monitoring}
+
+The memory system maintains statistics for performance monitoring.
+
+\begin{definition}[Memory Statistics]
+Key statistics include:
+\begin{itemize}
+    \item Tier occupancy: number of items in each tier
+    \item Hit rates: fraction of accesses satisfied from each tier
+    \item Navigation depth: average path length to accessed data
+    \item Prediction accuracy: fraction of predicted accesses that occur
+    \item Clustering quality: intra-cluster vs. inter-cluster distance ratio
+\end{itemize}
+\end{definition}
+
+These statistics enable tuning of tier capacities, prediction parameters, and prefetch aggressiveness.
+

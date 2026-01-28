@@ -160,5 +160,5 @@ fig.text(0.5, 0.02,
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_06_continuous_refinement.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 6 saved: panel_06_continuous_refinement.png")
-plt.show()
+print("[OK] Panel 6 saved: panel_06_continuous_refinement.png")
+plt.close()

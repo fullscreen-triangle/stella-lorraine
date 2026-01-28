@@ -182,5 +182,5 @@ fig.text(0.5, 0.02,
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_03_multimodal_synthesis.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 3 saved: panel_03_multimodal_synthesis.png")
-plt.show()
+print("[OK] Panel 3 saved: panel_03_multimodal_synthesis.png")
+plt.close()

@@ -201,5 +201,5 @@ fig.text(0.5, 0.02,
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.96])
 plt.savefig('panel_04_harmonic_coincidence.png', dpi=300, bbox_inches='tight')
-print("✓ Panel 4 saved: panel_04_harmonic_coincidence.png")
-plt.show()
+print("[OK] Panel 4 saved: panel_04_harmonic_coincidence.png")
+plt.close()
