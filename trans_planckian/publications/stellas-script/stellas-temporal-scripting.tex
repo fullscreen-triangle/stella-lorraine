@@ -1,0 +1,414 @@
+\documentclass[twocolumn,10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{authblk}
+
+% CatScript language definition for listings
+\lstdefinelanguage{CatScript}{
+  keywords={resolve, time, at, entropy, of, oscillators, with, states, temperature, from, to, steps, spectrum, raman, ftir, enhance, all, ternary, multimodal, harmonic, poincare, refinement, validate, simulate, heat, death, show, set, compute, print},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={Hz, kHz, MHz, GHz, THz, K, vanillin},
+  ndkeywordstyle=\color{teal},
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  morestring=[b]",
+  morestring=[b]',
+}
+
+\lstset{
+  language=CatScript,
+  basicstyle=\ttfamily\small,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=5pt,
+  backgroundcolor=\color{white},
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  frame=single,
+  rulecolor=\color{black},
+  tabsize=2,
+  captionpos=b,
+  breaklines=true,
+  breakatwhitespace=false,
+  escapeinside={\%*}{*)},
+  morekeywords={*,...}
+}
+
+\title{CatScript: A Domain-Specific Language for Trans-Planckian Temporal Resolution Calculations}
+
+\author[1]{K. Shumba}
+\affil[1]{Department of Geosciences, Stella-Lorraine Research Institute}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present CatScript, a domain-specific language (DSL) designed for categorical state counting and trans-Planckian temporal resolution calculations. CatScript provides a natural-language-like syntax that enables researchers to perform complex thermodynamic and spectroscopic calculations without requiring deep programming expertise. The language implements the theoretical framework of categorical state counting in bounded phase space, including the five-mechanism enhancement chain ($10^{120.95}$ total enhancement), triple equivalence theorem validation, and spectroscopic mode prediction. We describe the language design, formal grammar, runtime semantics, and demonstrate its application through representative examples. CatScript achieves temporal resolution calculations of $\delta t = 6.03 \times 10^{-165}$ s through simple declarative statements, making trans-Planckian physics accessible to the broader scientific community.
+\end{abstract}
+
+\section{Introduction}
+
+The theoretical framework for categorical state counting in bounded phase space has demonstrated the possibility of achieving temporal resolution far below the Planck time \cite{shumba2026counting}. However, the computational implementation of this framework requires significant programming expertise, limiting its accessibility to researchers across disciplines.
+
+Domain-specific languages (DSLs) offer a solution by providing specialized syntax tailored to specific problem domains \cite{fowler2010dsl}. Unlike general-purpose programming languages, DSLs encode domain knowledge directly into the language constructs, enabling users to express computations in terms familiar to the domain.
+
+We introduce CatScript, a DSL for categorical state counting that:
+\begin{enumerate}
+    \item Provides natural-language-like syntax for temporal resolution calculations
+    \item Implements the complete five-mechanism enhancement chain
+    \item Supports entropy calculations using the triple equivalence theorem
+    \item Enables spectroscopic validation (Raman and FTIR)
+    \item Offers temperature evolution simulations including heat death scenarios
+\end{enumerate}
+
+\section{Language Design}
+
+\subsection{Design Philosophy}
+
+CatScript follows three core design principles:
+
+\textbf{Domain Alignment}: Language constructs map directly to physical concepts. The statement \texttt{resolve time at 5.13e13 Hz} directly expresses the intent to calculate temporal resolution at a molecular vibration frequency.
+
+\textbf{Minimal Boilerplate}: Users express what they want to compute, not how to compute it. The runtime handles unit conversions, enhancement chain application, and result formatting automatically.
+
+\textbf{Progressive Disclosure}: Simple calculations require simple syntax, while advanced features are available when needed.
+
+\subsection{Lexical Structure}
+
+CatScript source code consists of statements separated by newlines. Comments begin with \texttt{\#} and extend to end of line. The lexer recognizes the following token categories:
+
+\begin{itemize}
+    \item \textbf{Keywords}: Commands (\texttt{resolve}, \texttt{entropy}, \texttt{spectrum}), connectors (\texttt{at}, \texttt{of}, \texttt{with}), and domain terms (\texttt{oscillators}, \texttt{states})
+    \item \textbf{Units}: Frequency (\texttt{Hz}, \texttt{kHz}, \texttt{THz}), temperature (\texttt{K})
+    \item \textbf{Literals}: Numbers (including scientific notation), strings
+    \item \textbf{Operators}: Arithmetic (\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{\^{}})
+\end{itemize}
+
+\subsection{Grammar}
+
+The CatScript grammar is defined by the following productions (in EBNF notation):
+
+\begin{verbatim}
+program     := statement*
+statement   := resolve_stmt | entropy_stmt
+             | temp_stmt | spectrum_stmt
+             | enhance_stmt | validate_stmt
+
+resolve_stmt := "resolve" ["time"] "at"
+                NUMBER UNIT
+
+entropy_stmt := "entropy" "of" NUMBER
+                "oscillators" "with"
+                NUMBER "states"
+
+temp_stmt   := "temperature" "from"
+               TEMP "to" TEMP
+               ["steps" NUMBER]
+
+spectrum_stmt := "spectrum"
+                 ("raman"|"ftir")
+                 "of" COMPOUND
+
+enhance_stmt := "enhance" "with"
+                mechanism+
+
+mechanism   := "ternary" | "multimodal"
+             | "harmonic" | "poincare"
+             | "refinement" | "all"
+\end{verbatim}
+
+\section{Semantic Model}
+
+\subsection{Temporal Resolution}
+
+The \texttt{resolve} statement calculates categorical temporal resolution using:
+\begin{equation}
+    \delta t = \frac{t_P}{\mathcal{E} \cdot (\nu / \nu_P)}
+\end{equation}
+
+where $t_P = 5.391 \times 10^{-44}$ s is the Planck time, $\mathcal{E}$ is the total enhancement factor, $\nu$ is the process frequency, and $\nu_P = 1/t_P$ is the Planck frequency.
+
+\subsection{Enhancement Chain}
+
+The enhancement factor $\mathcal{E}$ is computed as:
+\begin{equation}
+    \mathcal{E} = \mathcal{E}_T \times \mathcal{E}_M \times \mathcal{E}_H \times \mathcal{E}_P \times \mathcal{E}_R
+\end{equation}
+
+where the individual mechanisms contribute:
+\begin{align}
+    \mathcal{E}_T &= (3/2)^{20} \approx 10^{3.52} & \text{(Ternary)} \\
+    \mathcal{E}_M &= \sqrt{100^5} = 10^{5} & \text{(Multi-modal)} \\
+    \mathcal{E}_H &= 10^{3} & \text{(Harmonic)} \\
+    \mathcal{E}_P &= 10^{66} & \text{(Poincar\'{e})} \\
+    \mathcal{E}_R &= e^{100} \approx 10^{43.43} & \text{(Refinement)}
+\end{align}
+
+The total enhancement is $\mathcal{E} \approx 10^{120.95}$.
+
+\subsection{Entropy Calculation}
+
+The \texttt{entropy} statement implements the triple equivalence theorem:
+\begin{equation}
+    S = k_B M \ln(n)
+\end{equation}
+
+where $M$ is the number of oscillators and $n$ is the number of accessible states per oscillator.
+
+\subsection{Spectroscopic Validation}
+
+The \texttt{spectrum} statement validates categorical predictions against reference data. For Raman spectroscopy of vanillin (C$_8$H$_8$O$_3$):
+
+\begin{table}[H]
+\centering
+\caption{Raman Reference Modes}
+\begin{tabular}{@{}lc@{}}
+\toprule
+Mode & Expected (cm$^{-1}$) \\
+\midrule
+C=O stretch & 1715 \\
+C=C ring & 1600 \\
+C-O stretch & 1267 \\
+Ring breathing & 1000 \\
+C-H stretch & 2940 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Implementation}
+
+\subsection{Architecture}
+
+CatScript is implemented in Python with a three-stage architecture:
+
+\begin{enumerate}
+    \item \textbf{Lexer}: Tokenizes source code into a stream of typed tokens
+    \item \textbf{Parser}: Constructs an Abstract Syntax Tree (AST) from tokens
+    \item \textbf{Runtime}: Executes AST nodes using the trans-Planckian framework
+\end{enumerate}
+
+\subsection{Type System}
+
+CatScript uses dynamic typing with implicit unit handling. Numeric values carry associated units that are automatically converted as needed:
+
+\begin{lstlisting}
+resolve time at 51.3 THz    # THz -> Hz
+resolve time at 5.13e13 Hz  # Same result
+\end{lstlisting}
+
+\subsection{Error Handling}
+
+The interpreter provides informative error messages with line and column numbers:
+
+\begin{verbatim}
+Syntax Error at L3:15:
+  Expected 'oscillators', got NUMBER
+\end{verbatim}
+
+\section{Examples}
+
+\subsection{Basic Temporal Resolution}
+
+\begin{lstlisting}[caption={Calculating trans-Planckian resolution}]
+# Calculate resolution at CO vibration frequency
+resolve time at 5.13e13 Hz
+
+# Output:
+# Process frequency:      5.130e+13 Hz
+# Enhancement applied:    10^120.95
+# Categorical resolution: 2.181e-135 s
+# Orders below Planck:    91.39
+# Trans-Planckian:        YES
+\end{lstlisting}
+
+\subsection{Entropy Calculation}
+
+\begin{lstlisting}[caption={Triple equivalence entropy}]
+# Calculate entropy for 5 oscillators, 4 states
+entropy of 5 oscillators with 4 states
+
+# Output:
+# Oscillators (M):    5
+# States per osc (n): 4
+# Microstates (Omega): 1024
+# Entropy (S):        9.569930e-23 J/K
+\end{lstlisting}
+
+\subsection{Multi-Scale Analysis}
+
+\begin{lstlisting}[caption={Frequency scaling validation}]
+# Apply full enhancement
+enhance with all
+
+# Molecular scale
+resolve time at 5.13e13 Hz
+
+# Electronic scale
+resolve time at 2.47e15 Hz
+
+# Nuclear scale
+resolve time at 1.24e20 Hz
+
+# Planck scale
+resolve time at 1.855e43 Hz
+\end{lstlisting}
+
+\subsection{Spectroscopic Validation}
+
+\begin{lstlisting}[caption={Raman spectroscopy}]
+spectrum raman of vanillin
+
+# Output:
+# Mode          Expected  Measured  Error
+# C=O_stretch    1715.0    1707.5   0.44%
+# C=C_ring       1600.0    1596.4   0.23%
+# ...
+# Max error: 0.44% - VALIDATED
+\end{lstlisting}
+
+\subsection{Heat Death Simulation}
+
+\begin{lstlisting}[caption={Temperature evolution}]
+# Simulate approach to heat death
+simulate heat death
+
+# Or with explicit range:
+temperature from 300K to 1e-15K steps 200
+
+# Output:
+# Initial temperature: 3.00e+02 K
+# Final temperature:   1.00e-15 K
+# Final cat. states:   20100
+# Resolution:          6.031e-165 s
+# Orders below Planck: 120.95
+\end{lstlisting}
+
+\section{Interactive Environment}
+
+CatScript includes a Read-Eval-Print Loop (REPL) for interactive exploration:
+
+\begin{verbatim}
+$ python -m catscript --repl
+CatScript v1.0.0
+Type 'help' for commands, 'quit' to exit
+
+cat> resolve time at 1e15 Hz
+============================================
+TEMPORAL RESOLUTION CALCULATION
+============================================
+Process frequency:      1.000e+15 Hz
+Categorical resolution: 1.118e-136 s
+Orders below Planck:    92.68
+Trans-Planckian:        YES
+============================================
+
+cat> entropy of 10 oscillators with 10 states
+...
+\end{verbatim}
+
+\section{Comparison with Alternatives}
+
+Table~\ref{tab:comparison} compares CatScript with alternative approaches.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of calculation approaches}
+\label{tab:comparison}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Feature & Python & Mathematica & CatScript \\
+\midrule
+Lines for resolution & 15+ & 8+ & 1 \\
+Unit handling & Manual & Manual & Automatic \\
+Enhancement chain & Explicit & Explicit & Built-in \\
+Learning curve & High & Medium & Low \\
+Domain alignment & Low & Medium & High \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Applications}
+
+\subsection{Educational Use}
+
+CatScript enables students to explore trans-Planckian physics without programming barriers:
+
+\begin{lstlisting}
+# Explore entropy scaling
+entropy of 1 oscillators with 2 states
+entropy of 2 oscillators with 2 states
+entropy of 3 oscillators with 2 states
+# Observe linear scaling with M
+\end{lstlisting}
+
+\subsection{Research Validation}
+
+Researchers can quickly validate theoretical predictions:
+
+\begin{lstlisting}
+# Validate multi-scale scaling law
+enhance with all
+resolve time at 5.13e13 Hz   # Molecular
+resolve time at 2.47e15 Hz   # Electronic
+resolve time at 1.24e20 Hz   # Nuclear
+resolve time at 1.86e43 Hz   # Planck
+# Verify slope = -1.000 scaling
+\end{lstlisting}
+
+\subsection{Spectroscopic Analysis}
+
+Rapid validation of spectroscopic predictions:
+
+\begin{lstlisting}
+spectrum raman of vanillin
+spectrum ftir of vanillin
+# Compare IR vs Raman mode predictions
+\end{lstlisting}
+
+\section{Future Directions}
+
+Planned extensions to CatScript include:
+
+\begin{enumerate}
+    \item \textbf{Molecular Definition}: User-defined compounds with custom vibrational modes
+    \item \textbf{Batch Processing}: Parallel execution across parameter ranges
+    \item \textbf{Visualization}: Built-in plotting for resolution landscapes
+    \item \textbf{Export}: JSON/CSV output for integration with other tools
+\end{enumerate}
+
+\section{Conclusion}
+
+CatScript demonstrates that domain-specific languages can effectively democratize access to advanced theoretical frameworks. By encoding the categorical state counting framework directly into language constructs, CatScript enables researchers to perform trans-Planckian temporal resolution calculations through intuitive, declarative statements.
+
+The language achieves its design goals of domain alignment, minimal boilerplate, and progressive disclosure. A single statement like \texttt{resolve time at 5.13e13 Hz} encapsulates the complete enhancement chain calculation, unit conversions, and result formatting that would otherwise require dozens of lines of general-purpose code.
+
+CatScript is available as open-source software and integrates with the Stella-Lorraine trans-Planckian validation framework.
+
+\section*{Availability}
+
+CatScript source code and documentation are available at the Stella-Lorraine Research Institute repository.
+
+\begin{thebibliography}{99}
+\bibitem{shumba2026counting} K. Shumba, ``Categorical State Counting for Trans-Planckian Temporal Resolution,'' Stella-Lorraine Technical Report (2026).
+\bibitem{fowler2010dsl} M. Fowler, \emph{Domain-Specific Languages} (Addison-Wesley, 2010).
+\end{thebibliography}
+
+\end{document}
