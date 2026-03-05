@@ -9,8 +9,13 @@ import Mobilemenu from "../src/layout/mobilemenu";
 import Modalbox from "../src/layout/modalbox";
 import TopBar from "../src/layout/top-bar";
 import Service from "../src/components/service/service-particle";
-import AuthorDefault from "../src/components/author/author-particle";
 
+const AuthorDefault = dynamic(
+  () => import("../src/components/author/author-particle"),
+  {
+    ssr: false,
+  }
+);
 const AboutDefault = dynamic(
   () => import("../src/components/about/about-particle"),
   {
