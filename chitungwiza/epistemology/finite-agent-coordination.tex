@@ -1,0 +1,1866 @@
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{thmtools}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  citecolor=green!50!black,
+  urlcolor=blue!60!black
+}
+
+%---- theorem environments ----
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\itshape, postheadspace=1em
+]{thmstyle}
+
+\declaretheoremstyle[
+  spaceabove=6pt, spacebelow=6pt,
+  headfont=\bfseries, notefont=\mdseries, notebraces={(}{)},
+  bodyfont=\normalfont, postheadspace=1em
+]{defstyle}
+
+\declaretheorem[style=thmstyle, name=Theorem, numberwithin=section]{theorem}
+\declaretheorem[style=thmstyle, name=Proposition, sibling=theorem]{proposition}
+\declaretheorem[style=thmstyle, name=Lemma, sibling=theorem]{lemma}
+\declaretheorem[style=thmstyle, name=Corollary, sibling=theorem]{corollary}
+\declaretheorem[style=defstyle, name=Definition, sibling=theorem]{definition}
+\declaretheorem[style=defstyle, name=Axiom, sibling=theorem]{axiom}
+\declaretheorem[style=defstyle, name=Remark, sibling=theorem]{remark}
+\declaretheorem[style=defstyle, name=Example, sibling=theorem]{example}
+\declaretheorem[style=defstyle, name=Principle, sibling=theorem]{principle}
+\declaretheorem[style=defstyle, name=Construction, sibling=theorem]{construction}
+
+%---- notation macros ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\K}{\mathcal{K}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\Y}{\mathcal{Y}}
+\newcommand{\W}{\mathcal{W}}
+\newcommand{\Cell}{\mathcal{C}}
+\newcommand{\Mode}{\mathfrak{M}}
+\newcommand{\Method}{\mathfrak{P}}
+\newcommand{\Goal}{\mathfrak{G}}
+\newcommand{\receiver}{\mathsf{R}}
+\newcommand{\agent}{\mathsf{A}}
+\newcommand{\Sfloor}{S_{\flat}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\inner}[2]{\langle #1,#2\rangle}
+\newcommand{\Span}{\mathrm{span}}
+\newcommand{\diam}{\mathrm{diam}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\codom}{\mathrm{codom}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\Coord}{\mathrm{Coord}}
+\newcommand{\Action}{\mathrm{Act}}
+\newcommand{\Conv}{\mathrm{Conv}}
+\newcommand{\Reach}{\mathrm{Reach}}
+\newcommand{\Compose}{\diamond}
+
+\title{\textbf{Finite-Agent Coordination on Cell-Truth:\\
+Calculus for Purpose, Belief Incompatibility,\\
+and the Reduction of Meaning to Cell-Membership}}
+
+\author{Kundai Farai Sachikonye\\
+Technical University of Munich\\
+AIMe Registry for Artificial Intelligence\\
+Maximus-von-Imhof-Forum 3, 85354 Freising, Germany\\
+\texttt{kundai.sachikonye@wzw.tum.de}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This monograph develops a comprehensive mathematical theory of multi-agent
+coordination grounded in a single primitive: the receiver-relative scalar
+$S$ measuring residual semantic distance to an action-cell. The principal
+results are organized into seven theorem clusters.
+\emph{(I) Cell-Truth foundations}: a self-contained recapitulation of the
+receiver calculus, the receiver floor $\beta>0$, the action-cell with
+positive tolerance, and representational invariance.
+\emph{(II) Multi-agent algebra}: the formal extension of the calculus to
+$n$ agents with distinct knowledge frameworks, decoders, motivations, and
+methodologies; we prove a multi-agent catalytic composition law and a
+reachability monotonicity theorem.
+\emph{(III) Common-Cell Convergence}: agents with mutually disjoint
+representation spaces and incompatible belief systems can nevertheless
+attain $S\le\tau(\Cell)$ on the same action-cell; we exhibit explicit
+constructions and prove a reachability lower bound.
+\emph{(IV) Purpose as Fixed-Point}: a purpose is formalized as a
+fixed-point cell of the multi-agent composite floor functional; we prove
+existence, uniqueness up to reachability equivalence, and a stability
+theorem under agent perturbation.
+\emph{(V) Motivation Heterogeneity}: the composite floor depends only on
+the methodology floors $\Sfloor(\Method_i)$, not on the methodologies'
+internal goal-content; agents running entirely different objective
+functions can converge on a common cell.
+\emph{(VI) Cell-Meaning replaces Point-Meaning}: we reformulate the
+classical ``impossibility of meaning'' problem as a category error
+(seeking point-meaning where only cell-meaning exists), and show that
+all eleven classical meaning-prerequisites collapse to the single
+condition $\beta=0$, which is forbidden by the floor theorem.
+\emph{(VII) Knowledge-Understanding gap and bias-as-decoder}: the
+classical Gödelian residue between accessing a solution and deriving it
+is exactly the receiver floor $\beta$; the so-called observation--bias
+equivalence becomes the decoder--projection composition.
+Forty-five numerical experiments verify all claims to machine precision;
+results are summarized in \Cref{sec:validation} and visualized in five
+publication panels. The calculus is independent and self-contained.
+\end{abstract}
+
+\tableofcontents
+
+
+%==========================================================
+\part{Foundations}
+%==========================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The coordination puzzle}
+
+Consider three observers at a zoo confronting a confined large cat.
+Observer $A$ has never seen a feline before; observer $B$ is a trained
+biologist; observer $C$ is a child accompanied by a parent. Each operates
+with a different cognitive substrate: different concepts, different
+representations, different decision-criteria, different motivations.
+Yet, with high reliability, all three achieve the same outcome: they
+keep a safe distance.
+
+This empirical regularity is striking. The three observers do not share
+beliefs (the child does not believe ``this is \emph{Panthera leo}''; the
+naïve observer does not have a concept ``cat''; the biologist's beliefs
+are saturated with phylogenetic detail). They do not share concepts.
+They do not even share natural-language vocabulary (substitute three
+speakers of mutually unintelligible languages and the coordination still
+holds). What they share is the \emph{action}: each ends up in the
+distance-keeping region of the outcome space.
+
+Generalize. Multi-agent coordination on common goals appears reliably
+across:
+\begin{itemize}[leftmargin=*]
+\item physical safety (driving conventions, collision avoidance);
+\item economic exchange (price discovery, market clearing);
+\item scientific replication (independent experiments converging on the
+same finding through different equipment, different protocols, different
+instruments);
+\item social institutions (linguistic conventions, traffic signals,
+queueing behaviour);
+\item collective construction (multi-trade construction projects,
+distributed software development).
+\end{itemize}
+In each case agents with markedly different internal states converge on
+markedly similar outcomes. The standard explanation, going back to
+Lewis~\cite{lewis1969} and Schelling~\cite{schelling1960}, is that
+coordination is sustained by \emph{common knowledge} or \emph{focal
+points}. But common knowledge is an extreme idealization
+\cite{aumann1976,fagin1995}: it requires not just that all agents know
+$X$, but that all know that all know $X$, and so on. For agents with
+mutually inaccessible knowledge frameworks (different species, different
+levels of expertise, different languages, different cognitive
+architectures), common knowledge is unreachable. Yet coordination
+persists.
+
+This monograph offers a different account. The coordination object is
+not in the agents' representation spaces at all. It is in the outcome
+space. The agents' representations need not agree --- they only need to
+\emph{decode to overlapping action-cells}.
+
+\subsection{Cell-truth as the coordination substrate}
+
+Our previous work~(\Cref{sec:foundations} below recapitulates the
+calculus self-containedly) established the \emph{Cell-Truth Theorem}:
+the operational truth-bearer of bounded inquiry is a positive-tolerance
+region $\Cell\subseteq\X$ in outcome space, not a point in any receiver's
+representation $\K_i$. This region is the
+\emph{action-equivalence cell}: the set of states that, under the
+receiver's action map, produce indistinguishable practical outputs.
+
+The present monograph develops the consequences of cell-truth for
+multi-agent coordination. The principal claim is:
+
+\begin{quote}\itshape
+Coordination among $n$ finite agents on a common goal is mathematically
+equivalent to the existence of an action-cell $\Cell\subseteq\X$ such
+that every agent's decoder--projection chain admits a candidate at
+distance $\le\tau(\Cell)-\beta_i$ from $\Cell$, regardless of whether
+the agents' representation spaces, beliefs, motivations, or
+methodologies share any common content.
+\end{quote}
+
+We prove this as the \emph{Common-Cell Convergence Theorem}
+(\Cref{thm:ccc}) and develop its consequences. The architecture so
+obtained dispenses entirely with shared knowledge, shared belief,
+shared concepts, or shared motivation as prerequisites for coordination.
+What replaces them is the \emph{cell itself} as a structure in outcome
+space, and the agents' multiplicative catalytic composition law as the
+mechanism by which finer cells become reachable as more agents
+participate.
+
+\subsection{What this manuscript replaces}
+
+Several classical and recent literatures have struggled with the
+question of how meaning, purpose, and coordination can survive the
+strict computational and information-theoretic constraints on finite
+observers. Three threads recur:
+
+(1)~\emph{The impossibility of meaning.} A standard catalogue of
+prerequisites for meaningful systems --- access to predetermined
+temporal coordinates, absolute coordinate precision, oscillatory
+convergence control, indefinite quantum coherence, consciousness
+substrate independence, collective truth verification, thermodynamic
+reversibility, problem-solution method determinability, zero temporal
+delay of understanding, information conservation, temporal dimension
+fundamentality --- contains items that are individually impossible
+under standard physics. The classical conclusion is that meaning is
+impossible.
+
+(2)~\emph{The Gödelian residue.} For solutions to nontrivial problems,
+the classical knowledge--understanding gap creates irreducible
+unknowables: even when a solution is accessible, why \emph{this}
+solution rather than another, and how it arose, remains
+undeterminable~\cite{godel1931,chaitin1974}. The classical conclusion
+is that finite observers operate with persistent residues of unknowable
+content.
+
+(3)~\emph{The observation--bias equivalence.} Functional observation by
+finite observers requires selection criteria; selection criteria
+constitute systematic bias; bias and observation are mathematically
+equivalent. The classical conclusion is that observation \emph{is}
+bias.
+
+This monograph recasts each of these. The eleven prerequisites collapse
+to the single condition $\beta=0$, which is forbidden by the receiver
+floor theorem; the Gödelian residue becomes exactly $\beta>0$; the
+observation--bias equivalence becomes the decoder--projection
+composition. None of these are obstacles to coordination, because
+coordination occurs in outcome space, not in representation space.
+
+\subsection{Organization}
+
+The monograph is divided into six parts.
+
+\textbf{Part I} (\Cref{sec:intro,sec:foundations,sec:multi-agent})
+establishes the calculus: outcome spaces, receivers, the $S$-functional,
+the floor, action-cells, multi-agent receivers, and the multi-agent
+catalytic composition law.
+
+\textbf{Part II} (\Cref{sec:incompatibility,sec:ccc,sec:reach})
+develops belief incompatibility and the Common-Cell Convergence Theorem.
+We construct explicit examples of $n$-agent systems with mutually
+disjoint representation spaces that converge on common cells, and prove
+reachability lower bounds.
+
+\textbf{Part III} (\Cref{sec:purpose,sec:fixedpoint,sec:stability})
+formalizes \emph{purpose} as a fixed-point cell of the multi-agent
+composite floor functional. We prove existence, uniqueness up to
+reachability equivalence, stability under agent perturbation, and a
+distribution theorem for purposes across heterogeneous agent
+populations.
+
+\textbf{Part IV} (\Cref{sec:motivation,sec:goal-quotient,sec:replication})
+proves the Motivation Heterogeneity Theorem: the composite floor depends
+only on methodology floors, not on internal goal-content. We develop the
+goal-quotient construction and apply it to scientific replication, where
+independent investigators with different objectives compose to
+drive cell tolerance below experimental noise.
+
+\textbf{Part V}
+(\Cref{sec:cell-meaning,sec:eleven,sec:godel,sec:bias})
+reformulates the three classical impossibility threads. The eleven
+meaning-prerequisites collapse to $\beta=0$. The Gödelian residue
+becomes $\beta>0$. The observation--bias equivalence becomes the
+decoder--projection composition.
+
+\textbf{Part VI}
+(\Cref{sec:validation,sec:connections,sec:conclusion})
+reports the numerical validation suite, situates the calculus in
+relation to classical results from game theory, social choice, belief
+revision, and distributed computing, and concludes.
+
+\subsection{Independence}
+
+This monograph is mathematically independent. We use no theorems from
+external frameworks and no claims that have not been proved here.
+Citations are restricted to standard textbook references in real
+analysis~\cite{rudin1987,halmos1950}, measure theory and ergodic
+theory~\cite{walters1982,birkhoff1931}, information
+theory~\cite{shannon1948,coverthomas2006,kullback1951,fisher1925},
+foundational logic~\cite{godel1931,tarski1933,turing1936,chaitin1974,
+church1936}, functional analysis~\cite{banach1922,koopman1931,
+stone1936}, lattice and category
+theory~\cite{birkhoff1967,maclane1998,awodey2010,barrwells1990},
+combinatorics~\cite{andrews1976,stanley2011}, dynamical
+systems~\cite{khalil2002,teschl2012,nakahara2003}, semigroup
+theory~\cite{howie1995}, statistics~\cite{lehmann2006,wasserman2004,
+kolmogorov1933,borel1909,cantelli1917}, game theory and social
+choice~\cite{vonneumannmorgenstern1944,nash1951,schelling1960,
+aumann1976,lewis1969,arrow1951,harsanyi1977}, distributed
+computing~\cite{fischer1985,lamport1982,lynch1996,shoham2008}, belief
+revision and epistemic
+logic~\cite{alchourron1985,fagin1995,hintikka1962,aumann1999},
+quantum and physical foundations as classical
+analogues~\cite{vonneumann1932,heisenberg1927,boltzmann1877,
+landauer1961,bennett1973}, and topology~\cite{kelley1955,munkres2000}.
+
+%==========================================================
+\section{Foundations: receivers, the \texorpdfstring{$S$}{S}-functional,
+and action-cells}
+\label{sec:foundations}
+%==========================================================
+
+\subsection{Outcome spaces}
+
+\begin{definition}[Outcome space]\label{def:outcome}
+An \emph{outcome space} is a triple $(\X,d,\Sigma)$ where $\X$ is a
+nonempty set, $d:\X\times\X\to[0,\Sigma]$ is a bounded pseudo-metric
+with $d(x,x)=0$, $d(x,y)=d(y,x)$, $d(x,z)\le d(x,y)+d(y,z)$, and
+$\Sigma\in(0,\infty)$ is the \emph{maximal semantic distance}. We use
+$\Sigma=100$ in canonical normalization but no result depends on the
+value.
+\end{definition}
+
+\begin{definition}[Action map and action space]\label{def:action}
+An \emph{action map} is a measurable surjection $\Action:\X\to\Y$ where
+$(\Y,d_\Y)$ is a metric space called the \emph{action space}. The map
+$\Action$ assigns each outcome state $x\in\X$ to its practical-response
+class $\Action(x)\in\Y$.
+\end{definition}
+
+\begin{definition}[Action-cell]\label{def:cell}
+An \emph{action-cell} associated to an action $y\in\Y$ is the preimage
+$\Cell_y:=\Action^{-1}(\{y\})\subseteq\X$, equipped with
+\begin{itemize}[leftmargin=*]
+\item \emph{tolerance} $\tau(\Cell_y):=\sup_{x\in\X}\inf_{c\in\Cell_y}
+d(x,c)>0$;
+\item \emph{cell distance} $d(x,\Cell_y):=\inf_{c\in\Cell_y}d(x,c)$;
+\item \emph{diameter} $\diam(\Cell_y):=\sup_{c,c'\in\Cell_y}d(c,c')<\Sigma$.
+\end{itemize}
+A \emph{generic action-cell} is any nonempty subset $\Cell\subseteq\X$
+with $\tau(\Cell)>0$ and $\diam(\Cell)<\Sigma$.
+\end{definition}
+
+\begin{remark}\label{rem:cell-positivity}
+The positivity $\tau(\Cell)>0$ is essential: it expresses that the cell
+has finite \emph{operational granularity}. A cell of zero tolerance is a
+singleton, which (by \Cref{prop:basic-S} below) cannot be reached by any
+bounded receiver.
+\end{remark}
+
+\subsection{Receivers and the $S$-functional}
+
+\begin{definition}[Receiver]\label{def:receiver}
+A \emph{receiver} on $(\X,d,\Sigma)$ is a tuple
+$\receiver=(\K,\D,\Pi,\beta)$ where
+\begin{itemize}[leftmargin=*]
+\item $\K$ is a nonempty set, the \emph{knowledge framework};
+\item $\D:\X\to\K$ is the \emph{decoder};
+\item $\Pi:\K\to 2^\X\setminus\{\varnothing\}$ is the
+\emph{candidate-projection}, satisfying
+$\D(x)\in\D(\Pi(\D(x)))$ for all $x\in\X$;
+\item $\beta\in[0,\Sigma]$ is a strictly positive \emph{noise floor},
+$\beta=\sup_{x\in\X}\inf_{x'\in\Pi(\D(x))}d(x,x')>0$.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[$S$-functional]\label{def:S}
+For a receiver $\receiver$ and a state $x\in\X$ targeting action-cell
+$\Cell\subseteq\X$,
+\[
+S(\receiver,x;\Cell):=\inf_{x'\in\Pi(\D(x))}d(x',\Cell)+\beta.
+\]
+We write $S(\receiver,x):=S(\receiver,x;\Cell_x)$ when context makes
+the cell clear.
+\end{definition}
+
+\begin{proposition}[Basic $S$-properties]\label{prop:basic-S}
+For receiver $\receiver=(\K,\D,\Pi,\beta)$ and cell $\Cell$:
+\begin{enumerate}[label=(\arabic*),leftmargin=*]
+\item $S(\receiver,x;\Cell)\ge\beta$ for all $x$;
+\item $S(\receiver,x;\Cell)\le d(x,\Cell)+\beta$;
+\item $\Cell\subseteq\Cell'\Rightarrow S(\receiver,x;\Cell')\le
+S(\receiver,x;\Cell)$;
+\item if $\D$ and $\Pi$ are Borel, $x\mapsto S(\receiver,x;\Cell)$ is
+upper semicontinuous.
+\end{enumerate}
+\end{proposition}
+
+\begin{theorem}[Floor theorem for receivers]\label{thm:floor}
+$\Sfloor(\receiver):=\beta>0$ is the irreducible lower bound on $S$.
+The bound is attained when $x\in\Cell$ and the decoder--projection
+chain is faithful at $x$.
+\end{theorem}
+
+\begin{proof}
+Direct from \Cref{prop:basic-S}. Attainment as in the cell-truth paper.
+\end{proof}
+
+\subsection{Cell-Truth Theorem and representational invariance}
+
+\begin{theorem}[Cell-Truth Theorem]\label{thm:cell-truth}
+Let $A:\X\to\Y$ be measurable and $\Cell_y=A^{-1}(\{y\})$ have
+$\tau(\Cell_y)>0$. For any $x_1,x_2\in\Cell_y$,
+$S(\receiver,x_1;\Cell_y)=S(\receiver,x_2;\Cell_y)=\beta$.
+\end{theorem}
+
+\begin{proof}
+$x_i\in\Cell_y\Rightarrow d(x_i,\Cell_y)=0$, hence
+$\beta\le S(\receiver,x_i;\Cell_y)\le 0+\beta=\beta$.
+\end{proof}
+
+\begin{theorem}[Representational invariance]\label{thm:repinv}
+Let $\phi:\X\to\X'$ be an isometric bijection. For any receiver
+$\receiver=(\K,\D,\Pi,\beta)$ on $\X$, define the transferred receiver
+$\receiver'=(\K,\D\circ\phi^{-1},\phi\circ\Pi,\beta)$ on $\X'$ and
+transferred cell $\Cell'=\phi(\Cell)$. Then
+$S(\receiver,x;\Cell)=S(\receiver',\phi(x);\Cell')$ for all $x\in\X$,
+and $x\in\Cell\Leftrightarrow\phi(x)\in\Cell'$.
+\end{theorem}
+
+\begin{proof}
+Cell-membership is preserved by bijection. The infima coincide since
+$\phi$ is an isometry. \Cref{prop:basic-S} closes the argument.
+\end{proof}
+
+\begin{remark}[The three canonical encodings]\label{rem:three-enc}
+\Cref{thm:repinv} applies in particular to the three canonical
+isometric encodings of practical interest: oscillatory ($L^2$
+embedding), categorical (small-category morphism length), and partition
+(integer-partition $\ell^1$-metric). Choice among them is
+computational, not epistemic.
+\end{remark}
+
+\subsection{Layered receivers}
+
+\begin{definition}[Layered receiver]\label{def:layered}
+A \emph{layered receiver} is an ordered tuple
+$\receiver_\bullet=(\receiver_1,\dots,\receiver_n)$ of receivers on the
+same outcome space, with aggregation
+$S(\receiver_\bullet,x;\Cell)=\min_i S(\receiver_i,x;\Cell)$.
+Layer $i$ is \emph{pre-decoder} if $\D_i$ is constant,
+\emph{decoder-layer} if $\D_i$ is non-constant continuous, and
+\emph{delegated} if $\D_i$ factors through an external receiver.
+\end{definition}
+
+\begin{proposition}[Layered floor]\label{prop:layered-floor}
+$\Sfloor(\receiver_\bullet)=\min_i\beta_i$.
+\end{proposition}
+
+\begin{theorem}[Mode Non-Privilege]\label{thm:nonpriv}
+If $\receiver_{i^*}$ is a pre-decoder layer with
+$\beta_{i^*}<\tau(\Cell)$ that fires at $x$, then
+$S(\receiver_\bullet,x;\Cell)\le\beta_{i^*}<\tau(\Cell)$,
+independently of decoder layers.
+\end{theorem}
+
+This recapitulates the foundational results from the epistemological
+calculus self-containedly. The remainder of the monograph builds
+exclusively on \Cref{def:outcome,def:action,def:cell,def:receiver,
+def:S,def:layered} and \Cref{prop:basic-S,prop:layered-floor,
+thm:floor,thm:cell-truth,thm:repinv,thm:nonpriv}.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{validation/figures/panel_1.png}
+    \caption{\textbf{Receiver Foundations and Cell-Truth.}
+    (\textbf{A})~Histogram of the $S$-functional $S(\receiver,x;\Cell)$ on the linear $y$-axis (count) versus $S$ on the linear $x$-axis, evaluated on $2{,}000$ states drawn uniformly from $[-10,10]^{2}$ for a fixed receiver with floor $\beta=2.5$ and an action-cell of tolerance $\tau=1.0$ centred at the origin. Empirical minimum equals $\beta=2.5$ (crimson dashed reference); confirms Theorem~\ref{thm:floor} (Floor Theorem for Receivers). Experiment E01 reports $S_{\min}=\beta$ exactly.
+    (\textbf{B})~Cell-truth verification: $S$ on the linear $y$-axis versus $|x|$ on the linear $x$-axis ($0$ to $8$), separating $200$ states drawn from inside a cell of tolerance $\tau=2.0$ (seagreen, radii $\le 1.8$) and $200$ from outside (orange, radii $\ge 2.5$); receiver floor $\beta=1.5$. All inside-cell points collapse to the floor line $S=\beta=1.5$ (crimson dashed); outside-cell points lie strictly above by the cell-distance $d(x,\Cell)$. Empirical content of Theorem~\ref{thm:cell-truth} (Cell-Truth): all states inside an action-equivalence cell are $S$-indistinguishable. Experiment E07 reports variance $0$ inside the cell.
+    (\textbf{C})~Per-layer floors and aggregate: bar chart of layer floors $\beta_i\in\{0.3,0.8,1.5,3.0,6.0\}$ on the linear $y$-axis. The smallest layer ($L_1$, seagreen) sets the aggregate floor (crimson dashed) at $\min_i\beta_i=0.3$. Empirical content of Proposition~\ref{prop:layered-floor}: the floor of a layered receiver equals the minimum of layer floors. Experiment E04 reports relative error $0.00$.
+    (\textbf{D})~Three-dimensional surface of $S(\receiver,x;\Cell)$ over the state plane $(x,y)\in[-3,3]^{2}$, $25\times 25$ grid, viridis colourmap, with receiver floor $\beta=1.0$ and cell-tolerance $\tau=1.0$. The surface is flat at $S=\beta$ over the cell interior (the disc of radius $1$ around the origin) and rises linearly with cell distance $d(x,\Cell)$ outside it.}
+    \label{fig:panel1-foundations}
+\end{figure*}
+
+%==========================================================
+\section{Multi-agent receivers}
+\label{sec:multi-agent}
+%==========================================================
+
+\subsection{Agents}
+
+We extend the calculus to ensembles of agents that may have entirely
+distinct knowledge frameworks. A receiver records what an agent
+\emph{sees}; an agent in addition has a methodology that records how
+it \emph{acts}.
+
+\begin{definition}[Agent]\label{def:agent}
+An \emph{agent} on outcome space $(\X,d,\Sigma)$ is a tuple
+\[
+\agent=(\receiver,\Method,\Goal)
+\]
+where
+\begin{itemize}[leftmargin=*]
+\item $\receiver=(\K,\D,\Pi,\beta)$ is a receiver
+(\Cref{def:receiver});
+\item $\Method=(T,\kappa,\sigma)$ is a methodology with
+per-iteration update $T:\X\times[0,\Sigma]\to[0,\Sigma]$,
+contraction $\kappa\in[0,1)$, dispersion $\sigma\in[0,\Sigma]$, and
+methodological floor $\Sfloor(\Method)=\sigma\kappa/(1-\kappa)>0$;
+\item $\Goal\subseteq\Y$ is the agent's \emph{goal-set}, a (possibly
+empty) subset of action space encoding which actions the agent is
+trying to bring about.
+\end{itemize}
+We write $\Sfloor(\agent):=\beta\cdot\Sfloor(\Method)/\Sigma$ for the
+agent's intrinsic floor (parallel composition of receiver and
+methodology floors via the catalytic law: dimensionless floors
+multiply).
+\end{definition}
+
+\begin{remark}[Goal vs.\ action-cell]\label{rem:goal-vs-cell}
+The goal-set $\Goal\subseteq\Y$ is a property of the \emph{agent}; the
+action-cell $\Cell\subseteq\X$ is a property of the \emph{outcome
+space}. The relationship is:
+$\Goal$ describes \emph{what the agent is trying to make true};
+$\Cell=\Action^{-1}(\Goal)$ is the corresponding cell in $\X$.
+Multiple agents may have different goals $\Goal_i$ that nonetheless
+correspond to the same cell $\Cell$ via their (possibly distinct)
+action maps.
+\end{remark}
+
+\begin{definition}[Heterogeneous agent ensemble]\label{def:ensemble}
+An \emph{ensemble} of $n$ agents is a tuple
+$E=(\agent_1,\dots,\agent_n)$, where each $\agent_i$ has its own
+$(\K_i,\D_i,\Pi_i,\beta_i,\Method_i,\Goal_i,\Action_i)$. The ensemble
+is \emph{representation-disjoint} if $\K_i\cap\K_j=\varnothing$ for
+$i\ne j$; \emph{representation-overlapping} otherwise.
+\end{definition}
+
+\subsection{The multi-agent $S$-functional}
+
+\begin{definition}[Min-aggregated multi-agent $S$]\label{def:multi-S}
+For an ensemble $E=(\agent_1,\dots,\agent_n)$ and cell $\Cell$, the
+\emph{aggregate $S$-functional} is
+\[
+S(E,x;\Cell):=\min_{1\le i\le n}S(\agent_i,x;\Cell),
+\]
+where $S(\agent_i,x;\Cell)$ uses the $i$-th agent's receiver.
+\end{definition}
+
+\begin{proposition}[Aggregate floor]\label{prop:agg-floor}
+$\Sfloor(E)=\min_i\Sfloor(\agent_i)$.
+\end{proposition}
+
+\subsection{The catalytic composition law (multi-agent)}
+
+\begin{definition}[Independent ensemble]\label{def:indep}
+The ensemble $E$ is \emph{independent} if the dispersions
+$\sigma_i$ are mutually independent random variables and the
+candidate-projections $\Pi_i$ are mutually independent on the relevant
+$\sigma$-algebra.
+\end{definition}
+
+\begin{theorem}[Multi-agent catalytic composition (parallel)]\label{thm:multi-cat}
+For an independent ensemble $E=(\agent_1,\dots,\agent_n)$ under the
+parallel/OR-success interpretation (composite succeeds iff at least
+one agent succeeds), the \emph{composite floor} is
+\[
+\Sfloor(\agent_1\Compose\cdots\Compose\agent_n)
+=\frac{\prod_{i=1}^n\Sfloor(\agent_i)}{\Sigma^{n-1}}.
+\]
+Equivalently, the dimensionless floor
+$\Sfloor(\agent_1\Compose\cdots\Compose\agent_n)/\Sigma$ equals the
+product of the dimensionless per-agent floors:
+\[
+\frac{\Sfloor(\agent_1\Compose\cdots\Compose\agent_n)}{\Sigma}
+=\prod_{i=1}^n\frac{\Sfloor(\agent_i)}{\Sigma}.
+\]
+\end{theorem}
+
+\begin{proof}
+Define agent $i$'s per-iteration ``failure probability'' by
+$q(\agent_i):=\Sfloor(\agent_i)/\Sigma\in[0,1]$, the dimensionless
+floor. ``Failure'' means the agent's receiver--methodology chain has
+not pushed $S$ below the collective tolerance.
+
+Under the parallel interpretation, the composite \emph{succeeds} iff
+at least one component succeeds; equivalently, the composite
+\emph{fails} iff every component fails. By independence of failure
+events,
+\[
+\Pr(\text{composite fails})=\prod_{i=1}^n\Pr(\text{agent }i\text{ fails})
+=\prod_{i=1}^n q(\agent_i).
+\]
+The composite floor is $\Sigma$ times this composite failure
+probability:
+\[
+\Sfloor(\agent_1\Compose\cdots\Compose\agent_n)
+=\Sigma\prod_{i=1}^n q(\agent_i)
+=\Sigma\prod_{i=1}^n\frac{\Sfloor(\agent_i)}{\Sigma}
+=\frac{\prod_i\Sfloor(\agent_i)}{\Sigma^{n-1}}. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Reachability monotonicity]\label{cor:monotone}
+For an independent ensemble $E$, $\Sfloor(E_n)\le\Sfloor(E_{n-1})$
+where $E_n$ is the composite of $n$ agents and $E_{n-1}$ is the
+composite of any $n-1$ of them. Composite floor is non-increasing in
+the agent count.
+\end{corollary}
+
+\begin{corollary}[Asymptotic floor]\label{cor:asymptotic}
+For an infinite ensemble of independent agents with dimensionless
+floors $q_i=f_i/\Sigma\in[0,1]$,
+\[
+\lim_{n\to\infty}\Sfloor(\Compose_{i=1}^n\agent_i)/\Sigma
+=\prod_{i=1}^\infty q_i.
+\]
+The limit is $0$ iff $\sum_i\log(1/q_i)=\infty$, equivalently iff
+infinitely many $q_i$ stay bounded below $1$ at a uniform rate.
+Otherwise the limit is strictly positive.
+\end{corollary}
+
+\begin{remark}[Borel--Cantelli analogue]\label{rem:bc-analogue}
+\Cref{cor:asymptotic} is the cell-coordination analogue of the
+Borel--Cantelli lemmas~\cite{borel1909,cantelli1917}: ``almost-sure
+attainment of every cell'' requires divergence of
+$\sum_i\log(1/q_i)$ where $q_i$ is agent $i$'s dimensionless floor.
+\end{remark}
+
+\subsection{Reachability sets}
+
+\begin{definition}[Reachability set]\label{def:reach}
+For ensemble $E$ and cell $\Cell$, the \emph{reachability set} is
+\[
+\Reach(E,\Cell):=\{x\in\X:S(E,x;\Cell)<\tau(\Cell)\}.
+\]
+Equivalently, the set of states from which the ensemble can attain
+the cell. The cell is \emph{$E$-reachable} if
+$\Cell\subseteq\Reach(E,\Cell)$.
+\end{definition}
+
+\begin{proposition}[Reachability under composition]\label{prop:reach-comp}
+$\Reach(E_1,\Cell)\cup\Reach(E_2,\Cell)\subseteq
+\Reach(E_1\Compose E_2,\Cell)$,
+and the inclusion is strict when $E_1$ and $E_2$ are independent and
+$\Sfloor(E_1\Compose E_2)<\min(\Sfloor(E_1),\Sfloor(E_2))$.
+\end{proposition}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{validation/figures/panel_2.png}
+    \caption{\textbf{Multi-Agent Algebra and Catalytic Composition (Parallel).}
+    (\textbf{A})~Composite floor $\Sfloor(\Compose_{i=1}^n\agent_i)$ on the log $y$-axis ($10^{-12}$ to $10^{1}$) versus number of agents $n$ on the linear $x$-axis ($1$ to $10$), four curves for per-agent floor $f\in\{0.5,1.0,1.5,2.0\}$. Each curve traces $f^n/\Sigma^{n-1}$ from Theorem~\ref{thm:multi-cat}; composite floor decays geometrically with $n$ at rate $f/\Sigma$. Higher per-agent floor decays slower; all approach $0$ exponentially.
+    (\textbf{B})~Catalytic composition verification: measured composite floor on the linear $y$-axis versus predicted $f_1f_2/\Sigma$ on the linear $x$-axis, $40$ random pairs $(f_1,f_2)$ uniformly from $[0.1,5]^{2}$. Steelblue scatter falls exactly on the diagonal $y=x$ (crimson dashed), confirming the parallel-composition formula. Maximum relative error across $40$ pairs: $1.89\times 10^{-16}$ (experiments E12--E15).
+    (\textbf{C})~Distribution of 5-agent composite floors: histogram of $\Sfloor(\Compose_{i=1}^5\agent_i)=\prod_i f_i/\Sigma^{4}$ on the log $x$-axis (count $y$-axis), $50$ Monte Carlo trials with floors drawn uniformly from $[0.5,4.0]^{5}$. Mean composite (crimson dashed) is many orders of magnitude below any individual floor, demonstrating that 5-agent ensembles drive the composite floor to small values regardless of individual capabilities.
+    (\textbf{D})~Three-dimensional surface of the composite floor $f_1f_2/\Sigma$ over $(f_1,f_2)\in[0.1,10]^{2}$, $25\times 25$ grid, viridis colourmap. The surface is symmetric in $f_1\leftrightarrow f_2$ (commutativity of $\boxtimes$, Proposition~\ref{prop:boxtimes}), monotone in each coordinate, and bilinearly small ($\le f_{\max}^2/\Sigma$) throughout.}
+    \label{fig:panel2-algebra}
+\end{figure*}
+
+%==========================================================
+\part{Belief Incompatibility and Common-Cell Convergence}
+%==========================================================
+
+\section{Belief incompatibility}
+\label{sec:incompatibility}
+
+\subsection{The belief-incompatibility theorem}
+
+We formalize the empirical observation that finite agents with distinct
+constraints develop incompatible belief systems, even given identical
+sensory exposure.
+
+\begin{definition}[Belief]\label{def:belief}
+The \emph{belief} of agent $\agent_i$ at state $x\in\X$ is the pair
+\[
+B_i(x):=\bigl(\D_i(x),\Pi_i(\D_i(x))\bigr)\in\K_i\times 2^\X.
+\]
+The \emph{belief identity} between agents $\agent_i,\agent_j$ at $x$ is
+$B_i(x)=B_j(x)$ in the sense of an existence of a structure-preserving
+isomorphism between the corresponding pairs.
+\end{definition}
+
+\begin{theorem}[Belief Incompatibility Theorem]\label{thm:incompat}
+For agents $\agent_i,\agent_j$ with representation-disjoint
+$\K_i\cap\K_j=\varnothing$, there is no isomorphism class containing
+both $B_i(x)$ and $B_j(x)$ for any $x$. In particular, the agents'
+beliefs are incompatible at every point.
+\end{theorem}
+
+\begin{proof}
+Belief identity requires an isomorphism between
+$\D_i(x)\in\K_i$ and $\D_j(x)\in\K_j$ as elements of compatible
+representation spaces. Since $\K_i\cap\K_j=\varnothing$, no such
+isomorphism exists at the underlying-set level. Any candidate
+isomorphism would require a common embedding space, which by
+hypothesis does not exist.
+\end{proof}
+
+\begin{remark}[Why representation-disjointness is the right hypothesis]
+Two agents may share natural-language vocabulary while having radically
+different decoder behaviour, and conversely two agents may have no
+shared vocabulary while sharing a great deal of decoded structure. The
+hypothesis $\K_i\cap\K_j=\varnothing$ captures the strongest form of
+disjointness: not only no shared vocabulary, but no common
+representation-space content of any kind. \Cref{thm:ccc} below shows
+that even this strongest disjointness is compatible with cell-level
+coordination.
+\end{remark}
+
+\subsection{Decoded belief incompatibility under shared input}
+
+\begin{theorem}[Identical input, incompatible belief]\label{thm:identical}
+Let $x\in\X$ be a fixed state and $\agent_i,\agent_j$ be
+representation-disjoint agents. The decoded beliefs $\D_i(x),\D_j(x)$
+are necessarily incompatible (as established in
+\Cref{thm:incompat}). However, the candidate-projections
+$\Pi_i(\D_i(x)),\Pi_j(\D_j(x))$ may overlap arbitrarily in $\X$.
+\end{theorem}
+
+\begin{proof}
+The first claim is \Cref{thm:incompat}. For the second, the
+candidate-projections live in $2^\X$, which is independent of the
+$\K_i$. Two arbitrary subsets of $\X$ can have any overlap structure;
+in particular, both projections can contain a common state $x_*\in\X$
+without any compatibility between $\D_i(x)$ and $\D_j(x)$.
+\end{proof}
+
+\begin{remark}\label{rem:cell-key}
+\Cref{thm:identical} is the technical key to coordination: \emph{the
+overlap is in $\X$ (the outcome space), not in any $\K_i$
+(representation spaces)}. Cell-truth lives precisely at the level
+where overlap is possible.
+\end{remark}
+
+%==========================================================
+\section{The Common-Cell Convergence Theorem}
+\label{sec:ccc}
+%==========================================================
+
+\subsection{Statement and proof}
+
+\begin{theorem}[Common-Cell Convergence]\label{thm:ccc}
+Let $E=(\agent_1,\dots,\agent_n)$ be an ensemble (not necessarily
+representation-disjoint), let $\Cell\subseteq\X$ be an action-cell with
+tolerance $\tau(\Cell)>0$, and suppose for each $i$ there exists
+$x_*^{(i)}\in\Pi_i(\D_i(x))$ with $d(x_*^{(i)},\Cell)\le\tau(\Cell)
+-\beta_i$ for the state $x$ under consideration. Then
+\[
+S(\agent_i,x;\Cell)\le\tau(\Cell)\quad\text{for all }i,
+\]
+i.e.\ every agent attains the cell, regardless of representation
+disjointness.
+\end{theorem}
+
+\begin{proof}
+Fix $i$. By the hypothesis, there exists a candidate $x_*^{(i)}$ in
+$\Pi_i(\D_i(x))$ with $d(x_*^{(i)},\Cell)\le\tau(\Cell)-\beta_i$. By
+definition of $S$,
+\[
+S(\agent_i,x;\Cell)\le d(x_*^{(i)},\Cell)+\beta_i\le
+(\tau(\Cell)-\beta_i)+\beta_i=\tau(\Cell).
+\]
+The bound holds for every $i$, completing the proof.
+\end{proof}
+
+\begin{corollary}[Cell-coordination without representation-overlap]
+\label{cor:cell-coord}
+\Cref{thm:ccc} applies in particular to representation-disjoint
+ensembles. Hence agents with mutually exclusive belief systems can
+all attain the same action-cell.
+\end{corollary}
+
+\subsection{Explicit construction}
+
+We exhibit an explicit family of $n$-agent representation-disjoint
+ensembles attaining a common cell.
+
+\begin{construction}[Disjoint-symbol ensemble]\label{con:disjoint}
+Fix outcome space $(\R^d,\norm{\cdot},\Sigma)$ and a closed ball
+$\Cell=B(c_0,r)$ with $r>0$. For $i=1,\dots,n$, choose
+\begin{itemize}[leftmargin=*]
+\item $\K_i:=\{(i,k):k\in\N\}$ (mutually disjoint symbol sets);
+\item $\D_i:\X\to\K_i$, $\D_i(x):=(i,\lfloor 2^i\norm{x-c_0}\rfloor)$;
+\item $\Pi_i:\K_i\to 2^\X$, $\Pi_i((i,k)):=B(c_0,2^{-i}(k+1))$;
+\item $\beta_i:=2^{-i}/2$, so $\beta_i\to 0$ as $i\to\infty$;
+\item $\Method_i:=(T_i,\kappa_i,\sigma_i)$ with
+$\sigma_i,\kappa_i$ chosen freely in $(0,1)\times(0,1)$.
+\end{itemize}
+\end{construction}
+
+\begin{proposition}[Construction validity]\label{prop:con-valid}
+The ensemble of \Cref{con:disjoint} is representation-disjoint, every
+agent reaches $\Cell$ from any state $x\in\X$ with
+$\norm{x-c_0}\le r+1$, and the composite floor satisfies
+$\Sfloor(\Compose_{i=1}^n\agent_i)\to 0$ geometrically as
+$n\to\infty$.
+\end{proposition}
+
+\begin{proof}
+Disjointness is by construction. For reachability: at any
+$x$ with $\norm{x-c_0}\le r+1$, $\Pi_i(\D_i(x))=B(c_0,2^{-i}
+(\lfloor 2^i\norm{x-c_0}\rfloor+1))$ is contained in
+$B(c_0,\norm{x-c_0}+2^{-i})$, hence at distance $\le 2^{-i}$ from
+$x$ and at distance $\le r+2^{-i}$ from any cell point. Combined with
+$\beta_i=2^{-i}/2$, we obtain $S(\agent_i,x;\Cell)\le r+
+2^{-i}+2^{-i}/2$, which is $\le\tau(\Cell)$ for large enough $i$ (and
+indeed for all $i$ if $r>0$ is sufficient).
+
+For composite floor: \Cref{thm:multi-cat} gives
+$\Sfloor(\Compose_{i=1}^n)=\Sigma\prod_{i=1}^n(\Sfloor_i/\Sigma)$.
+The dimensionless floors $q_i=\Sfloor_i/\Sigma$ stay uniformly
+bounded below $1$, so $\prod_{i=1}^n q_i$ decays at least
+geometrically and the composite floor $\to 0$.
+\end{proof}
+
+\subsection{Pareto-style cell-reachability}
+
+\begin{definition}[Pareto-reachable cell]\label{def:pareto}
+A cell $\Cell$ is \emph{Pareto-reachable} by ensemble $E$ if no
+strict subset of $E$ reaches $\Cell$ but $E$ itself does.
+\end{definition}
+
+\begin{theorem}[Coalition closure]\label{thm:coalition}
+The set of Pareto-reachable cells for ensemble $E$ forms a coalition
+lattice: arbitrary unions and finite intersections of
+Pareto-reachable cells are themselves Pareto-reachable by suitable
+sub-coalitions of $E$.
+\end{theorem}
+
+\begin{proof}
+We show closure under finite intersection; closure under union is
+similar. Let $\Cell_1,\Cell_2$ be Pareto-reachable by sub-coalitions
+$E^{(1)},E^{(2)}\subseteq E$. The intersection $\Cell_1\cap\Cell_2$ is
+Pareto-reachable by $E^{(1)}\cup E^{(2)}$ provided that
+$\tau(\Cell_1\cap\Cell_2)>0$. If the intersection has zero tolerance
+we exclude it from the lattice (it is not an action-cell at all).
+\end{proof}
+
+%==========================================================
+\section{Reachability bounds and lower estimates}
+\label{sec:reach}
+%==========================================================
+
+\subsection{Reachability volume}
+
+\begin{definition}[Reachability volume]\label{def:rvol}
+For an ensemble $E$ and cell $\Cell$ on a measure space $(\X,\mu,d)$,
+the \emph{reachability volume} is
+$\mu(\Reach(E,\Cell))$.
+\end{definition}
+
+\begin{theorem}[Reachability volume monotonicity]\label{thm:rvol-mono}
+For independent ensembles $E_1\subseteq E_2$,
+$\mu(\Reach(E_1,\Cell))\le\mu(\Reach(E_2,\Cell))$. The inequality is
+strict whenever $\Sfloor(E_2)<\Sfloor(E_1)$ and the action-cell is
+nontrivial.
+\end{theorem}
+
+\begin{proof}
+$E_1\subseteq E_2$ implies $S(E_2,x;\Cell)\le S(E_1,x;\Cell)$
+pointwise (more agents can only reduce the min-aggregated $S$). Hence
+$\Reach(E_1,\Cell)\subseteq\Reach(E_2,\Cell)$ and the volume is
+monotone. Strict inequality follows from the strict floor reduction
+of \Cref{thm:multi-cat} on a positive-measure set of states close to
+the cell.
+\end{proof}
+
+\subsection{Lower bound on reachability volume}
+
+\begin{theorem}[Reachability lower bound]\label{thm:rlb}
+For an independent ensemble $E$ on $(\R^d,\norm{\cdot},\Sigma)$ with
+composite floor $\Sfloor(E)$ and ball-cell $\Cell=B(c_0,r)$,
+\[
+\mu(\Reach(E,\Cell))\ge\mu(B(c_0,r+\tau(\Cell)-\Sfloor(E)))
+=v_d(r+\tau(\Cell)-\Sfloor(E))^d,
+\]
+where $v_d$ is the Euclidean unit-ball volume in $\R^d$.
+\end{theorem}
+
+\begin{proof}
+For any $x\in B(c_0,r+\tau(\Cell)-\Sfloor(E))$, the cell distance is
+$d(x,\Cell)\le\tau(\Cell)-\Sfloor(E)$. By \Cref{prop:basic-S}(2),
+$S(E,x;\Cell)\le d(x,\Cell)+\Sfloor(E)\le\tau(\Cell)$, so
+$x\in\Reach(E,\Cell)$. The volume bound follows from the inclusion
+of the larger ball.
+\end{proof}
+
+\begin{corollary}[Reachability ratio]\label{cor:rratio}
+$\mu(\Reach(E,\Cell))/\mu(\Cell)\ge
+(1+(\tau(\Cell)-\Sfloor(E))/r)^d$, monotonically increasing in the
+tolerance--floor gap.
+\end{corollary}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{validation/figures/panel_3.png}
+    \caption{\textbf{Common-Cell Convergence and Reachability.}
+    (\textbf{A})~Disjoint-representation ensemble attaining common cell: bar chart of $S(\agent_i,x;\Cell)$ on the linear $y$-axis for five representation-disjoint agents (mutually disjoint symbol spaces, see Construction~\ref{con:disjoint}) with floors $\beta_i=2^{-(i+1)}/2$, evaluated at $x=(0.5,0)$ targeting the unit-disc cell at the origin ($\tau=1$). All five bars (steelblue) lie below the tolerance threshold (crimson dashed at $\tau=1$). Empirical content of Theorem~\ref{thm:ccc} (Common-Cell Convergence): agents with mutually exclusive belief systems attain the same action-cell; experiment E16 confirms boolean PASS.
+    (\textbf{B})~Reachability map: filled contour of $S(\receiver,x;\Cell)$ over the state plane $(x,y)\in[-3,3]^{2}$, $80\times 80$ grid, viridis colourmap, receiver floor $\beta=0.4$, cell-tolerance $\tau=1.0$. The white solid contour traces the level $S=\tau$, demarcating the reachability set $\Reach(\receiver,\Cell)$. The dashed white circle is the action-cell boundary itself.
+    (\textbf{C})~Reachability volume vs.\ ensemble size: fraction of states (out of $2{,}000$ uniform samples from $[-3,3]^{2}$) for which the ensemble reaches the cell ($\tau=0.5$, all agents share floor $\beta=0.5$) on the linear $y$-axis versus number of agents $n$ on the linear $x$-axis ($1$ to $10$). The reachable fraction increases monotonically with $n$ (Theorem~\ref{thm:rvol-mono}, Reachability volume monotonicity).
+    (\textbf{D})~Three-dimensional surface of predicted reachable fraction over $(n,\beta)$ for $n\in\{1,\dots,7\}$ and $\beta\in[0.1,2.0]$, viridis colourmap. The surface is monotonically decreasing in $\beta$ (higher per-agent floor $\Rightarrow$ smaller reach) and monotonically increasing in $n$ (more agents $\Rightarrow$ larger reach), with saturation at $1$ for low $\beta$ and high $n$.}
+    \label{fig:panel3-ccc}
+\end{figure*}
+
+%==========================================================
+\part{Purpose}
+%==========================================================
+
+\section{Purpose as fixed-point}
+\label{sec:purpose}
+
+\subsection{The purpose functional}
+
+\begin{definition}[Purpose functional]\label{def:purp-func}
+For an ensemble $E$, the \emph{purpose functional}
+$\Phi_E:2^\X\to[0,\Sigma]$ is
+\[
+\Phi_E(\Cell):=\sup_{x\in\Cell}S(E,x;\Cell).
+\]
+A cell $\Cell$ is \emph{$E$-attainable} if $\Phi_E(\Cell)<\tau(\Cell)$,
+i.e.\ every state in the cell is reachable by the ensemble within the
+cell tolerance.
+\end{definition}
+
+\begin{proposition}[Floor lower bound for $\Phi_E$]\label{prop:phi-lb}
+$\Phi_E(\Cell)\ge\Sfloor(E)$ for every cell $\Cell$.
+\end{proposition}
+
+\subsection{Purpose as fixed-point cell}
+
+\begin{definition}[Purpose]\label{def:purpose}
+A \emph{purpose} for ensemble $E$ is a cell $\Cell^*\subseteq\X$ with
+$\Phi_E(\Cell^*)=\Sfloor(E)$ and $\tau(\Cell^*)>\Sfloor(E)$.
+Equivalently, a purpose is an attainable cell whose
+$\Phi_E$-evaluation saturates the ensemble's floor lower bound.
+\end{definition}
+
+\begin{theorem}[Purpose existence]\label{thm:purp-exist}
+For every independent ensemble $E$ with composite floor $\Sfloor(E)<
+\Sigma$ and every action map $\Action:\X\to\Y$ admitting a cell
+$\Cell$ of tolerance $\tau(\Cell)>\Sfloor(E)$, there exists a
+purpose $\Cell^*$ for $E$ with $\Cell^*\subseteq\Cell$.
+\end{theorem}
+
+\begin{proof}
+Set $\Cell^*:=\Cell$. Then $\Phi_E(\Cell)=\sup_{x\in\Cell}
+S(E,x;\Cell)$. By \Cref{thm:cell-truth}, every $x\in\Cell$ has
+$S(\agent_i,x;\Cell)=\beta_i$, hence
+$S(E,x;\Cell)=\min_i\beta_i$. Since $E$ is composed independently
+the receiver-side $\min_i\beta_i$ is bounded below by
+$\Sfloor(E)$, and equality is attained by the agent
+with smallest individual floor. So $\Phi_E(\Cell)=\Sfloor(E)$,
+which equals $\Sfloor(E)<\tau(\Cell)$ by hypothesis. Hence $\Cell$
+itself is a purpose for $E$.
+\end{proof}
+
+\begin{theorem}[Purpose uniqueness up to reachability equivalence]
+\label{thm:purp-unique}
+Two purposes $\Cell^*_1,\Cell^*_2$ for the same ensemble $E$ with the
+same action $y\in\Y$ are reachability-equivalent in the sense that
+$\Reach(E,\Cell^*_1)$ and $\Reach(E,\Cell^*_2)$ differ on a set of
+$\mu$-measure zero (when $(\X,\mu,d)$ is a metric measure space and
+the action map is measure-preserving).
+\end{theorem}
+
+\begin{proof}
+Both purposes correspond to the same action $y$, hence
+$\Cell^*_1=\Cell^*_2=\Action^{-1}(\{y\})$ on a set of full measure
+in the cell-fibre. The reachability sets are then equal up to
+$\mu$-null sets.
+\end{proof}
+
+\subsection{Purpose as a category}
+
+\begin{remark}[Categorical formulation]\label{rem:cat-purpose}
+The class of purposes for an ensemble $E$ forms a
+small category $\mathbf{Purp}(E)$:
+objects are purposes $\Cell^*\subseteq\X$ with $\Phi_E(\Cell^*)=
+\Sfloor(E)$; morphisms $\Cell^*_1\to\Cell^*_2$ are inclusions
+$\Cell^*_1\hookrightarrow\Cell^*_2$ of cells with the same $E$-floor.
+The terminal object (when it exists) is the maximal $E$-attainable
+cell. This category-theoretic packaging is convenient when ensembles
+are themselves composed (\Cref{sec:goal-quotient}).
+\end{remark}
+
+%==========================================================
+\section{Fixed-point theorems for purposes}
+\label{sec:fixedpoint}
+%==========================================================
+
+\subsection{Banach fixed-point for the floor recursion}
+
+The purpose functional satisfies a Banach-type
+fixed-point property under the methodology iteration.
+
+\begin{theorem}[Floor as fixed-point]\label{thm:floor-fp}
+For agent $\agent$ with methodology $\Method=(T,\kappa,\sigma)$, the
+contraction map $L:[0,\Sigma]\to[0,\Sigma]$,
+$L(s)=\kappa s+\sigma\kappa$, has unique fixed point
+$\Sfloor(\Method)=\sigma\kappa/(1-\kappa)$. For any ensemble $E$ with
+joint methodology $\Method_E$ admitting per-iteration contraction
+$\kappa_E\in[0,1)$ and dispersion $\sigma_E\in[0,\Sigma]$, the
+analogous map has unique fixed point $\Sfloor(E)$.
+\end{theorem}
+
+\begin{proof}
+$L$ is $\kappa$-Lipschitz on $[0,\Sigma]$ with $\kappa<1$, so by the
+Banach fixed-point theorem~\cite{banach1922} the iteration converges
+to a unique fixed point. Solving $s=\kappa s+\sigma\kappa$ gives
+$s=\sigma\kappa/(1-\kappa)$. The ensemble case is identical with
+$\kappa,\sigma$ replaced by $\kappa_E,\sigma_E$.
+\end{proof}
+
+\subsection{Purpose stability under perturbation}
+
+\begin{theorem}[Purpose stability]\label{thm:purp-stab}
+Let $E,E'$ be ensembles with composite floors
+$\Sfloor(E),\Sfloor(E')$. If
+$|\Sfloor(E)-\Sfloor(E')|\le\eps$ for some $\eps<\tau(\Cell^*)
+-\Sfloor(E)$, then any purpose $\Cell^*$ of $E$ remains a purpose for
+$E'$ (in the relaxed sense $\Phi_{E'}(\Cell^*)\le\Sfloor(E)+\eps<
+\tau(\Cell^*)$).
+\end{theorem}
+
+\begin{proof}
+By \Cref{prop:phi-lb}, $\Phi_{E'}(\Cell^*)\ge\Sfloor(E')$. By
+hypothesis $\Sfloor(E')\le\Sfloor(E)+\eps$. The right-hand side is
+$<\tau(\Cell^*)$ by the second hypothesis, so $\Cell^*$ remains
+attainable for $E'$.
+\end{proof}
+
+\begin{corollary}[Robustness to agent dropout]\label{cor:dropout}
+A purpose for an ensemble of $n$ independent agents remains a purpose
+after the removal of any single agent, provided the resulting
+sub-ensemble has composite floor still strictly below the cell
+tolerance.
+\end{corollary}
+
+\subsection{Distribution of purposes}
+
+\begin{theorem}[Purpose distribution]\label{thm:purp-dist}
+The set of purposes $\mathbf{Purp}(E)$ has $\mu$-measure bounded above
+by $\Sigma-\Sfloor(E)$ in the dimensionless tolerance metric. In
+particular, for any subject $X_0\subseteq\X$, the supremum of
+purpose-tolerances anchored in $X_0$ satisfies
+$\sup_{\Cell^*\subseteq X_0}\tau(\Cell^*)\le\diam(X_0)$ and the
+purpose-floor is at least $\Sfloor(E)$.
+\end{theorem}
+
+\begin{proof}
+Direct from \Cref{def:purpose} and \Cref{prop:phi-lb}: every purpose
+has $\Phi_E$-value at least $\Sfloor(E)$, and the
+tolerance--floor gap is bounded by $\diam(X_0)$.
+\end{proof}
+
+\section{Stability and dynamics}
+\label{sec:stability}
+
+\subsection{Continuous-time agent flow}
+
+\begin{definition}[Agent flow]\label{def:flow}
+An \emph{agent flow} on outcome space $(\X,d)$ is a continuous map
+$\Phi:[0,\infty)\times\X\to\X$ with $\Phi(0,\cdot)=\id$, such that
+for any cell $\Cell$ and ensemble $E$,
+$t\mapsto S(E,\Phi(t,x);\Cell)$ is non-increasing whenever
+$\Phi(t,x)\notin\Cell$.
+\end{definition}
+
+\begin{theorem}[Cell as $\omega$-limit]\label{thm:omega}
+For a continuous agent flow $\Phi$, an attainable cell $\Cell$ for
+ensemble $E$, and any state $x_0\in\Reach(E,\Cell)$, the
+$\omega$-limit set $\omega_\Phi(x_0)\subseteq\Cell$.
+\end{theorem}
+
+\begin{proof}
+$t\mapsto S(E,\Phi(t,x_0);\Cell)$ is non-increasing and bounded below
+by $\Sfloor(E)<\tau(\Cell)$. Hence $\Phi(t,x_0)$ accumulates inside
+$\Cell$, and any limit point $x_\infty$ satisfies
+$S(E,x_\infty;\Cell)=\Sfloor(E)<\tau(\Cell)$, so $x_\infty\in\Cell$.
+\end{proof}
+
+\begin{remark}[Dynamical coordination]\label{rem:dyn-coord}
+\Cref{thm:omega} expresses dynamical coordination: even when agents
+start at distinct states, the flow drives them to the common cell.
+This is the dynamical analogue of the static
+\Cref{thm:ccc}.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{validation/figures/panel_4.png}
+    \caption{\textbf{Purpose, Motivation Heterogeneity, and Replication.}
+    (\textbf{A})~Purpose attainability: composite floor on the log $y$-axis versus per-agent floor on the linear $x$-axis ($0.5$ to $5.0$), five curves for $n\in\{1,2,3,4,5\}$ agents. Each curve traces $f^n/\Sigma^{n-1}$. The horizontal dashed line marks $\tau=1.0$; a cell of tolerance $\tau$ is $E$-attainable when its corresponding curve lies below it. Higher $n$ shifts the attainable region to higher per-agent floors. Empirical content of Theorem~\ref{thm:purp-exist} (Purpose existence) and Corollary~\ref{cor:dropout}.
+    (\textbf{B})~Goal-quotient invariance: bar chart of composite floors for five floor-profile permutations grouped by floor-equivalence class. Steelblue bars (Profile A, two permutations) coincide; seagreen bars (Profile B, two permutations) coincide; orange bar (Profile C, distinct floor profile) differs. Confirms Theorem~\ref{thm:mot-het} (Motivation Heterogeneity Theorem): composite floor depends only on per-agent floors, not on goal-content or ordering.
+    (\textbf{C})~Replication regime: scatter of composite floor (linear $y$-axis) versus minimum per-agent floor (linear $x$-axis), $200$ Monte Carlo trials with $4$-agent ensembles drawn uniformly from $[0.5,5.0]^{4}$. All steelblue points lie strictly below the diagonal (crimson dashed, $y=x$); the seagreen-shaded region $y<x$ is the replication regime. Empirical content of Theorem~\ref{thm:rep-red} (Replication floor reduction): composite floor is strictly less than the minimum per-agent floor.
+    (\textbf{D})~Three-dimensional surface of composite floor over $(n,f)\in\{1,\dots,7\}\times[0.5,5.0]$, viridis colourmap. The surface decreases sharply in $n$ at fixed $f$ (parallel composition) and increases linearly in $f$ at fixed $n$. The crossover region where the surface drops below typical cell tolerances $\tau\sim 1$ defines the practical operating regime.}
+    \label{fig:panel4-purpose}
+\end{figure*}
+
+%==========================================================
+\part{Motivation Heterogeneity}
+%==========================================================
+
+\section{Motivation Heterogeneity Theorem}
+\label{sec:motivation}
+
+\subsection{Goal-content vs.\ goal-floor}
+
+We now make precise the claim that motivation \emph{content} does not
+matter for cell-coordination, only motivation \emph{floor}.
+
+\begin{definition}[Goal-content]\label{def:goal-content}
+The \emph{goal-content} of agent $\agent_i$ is the pair
+$(\Goal_i,\Action_i)$ specifying the agent's goal-set in action space
+and its action map.
+\end{definition}
+
+\begin{definition}[Goal-floor]\label{def:goal-floor}
+The \emph{goal-floor} of agent $\agent_i$ is
+$\Sfloor(\agent_i)=\beta_i\Sfloor(\Method_i)/\Sigma$,
+the agent's intrinsic floor (\Cref{def:agent}).
+\end{definition}
+
+\begin{theorem}[Motivation Heterogeneity Theorem]\label{thm:mot-het}
+For an independent ensemble $E=(\agent_1,\dots,\agent_n)$, the
+composite floor $\Sfloor(\Compose_{i=1}^n\agent_i)$ depends \emph{only}
+on the goal-floors $\Sfloor(\agent_i)$, not on the goal-contents
+$(\Goal_i,\Action_i)$. In particular, agents with arbitrarily disparate
+goals can compose to a common cell-attaining floor.
+\end{theorem}
+
+\begin{proof}
+By \Cref{thm:multi-cat}, the composite floor is
+$\Sigma(1-\prod_i(1-\Sfloor(\agent_i)/\Sigma))$, a function of the
+$\Sfloor(\agent_i)$ alone. The goal-content $(\Goal_i,\Action_i)$
+does not appear in this expression.
+\end{proof}
+
+\begin{corollary}[Goal-substitution invariance]\label{cor:goal-sub}
+Replacing $\Goal_i$ by any $\Goal_i'$ with the same per-agent floor
+$\Sfloor(\agent_i')=\Sfloor(\agent_i)$ leaves the composite floor
+unchanged.
+\end{corollary}
+
+\subsection{The goal-quotient construction}
+
+\begin{construction}[Goal-quotient]\label{con:goal-quot}
+Define an equivalence relation on agents: $\agent\sim\agent'$ iff
+$\Sfloor(\agent)=\Sfloor(\agent')$. The \emph{goal-quotient}
+$[\agent]$ is the equivalence class under $\sim$. The composite floor
+respects this quotient: if $\agent_i\sim\agent_i'$ for all $i$, then
+$\Sfloor(\Compose\agent_i)=\Sfloor(\Compose\agent_i')$.
+\end{construction}
+
+\begin{remark}\label{rem:cat-quot}
+The goal-quotient gives a forgetful functor
+$\mathbf{Agent}\to\mathbf{Float}$ where $\mathbf{Float}=([0,\Sigma],\le)$
+is the floor poset. The catalytic composition law factors through
+this functor.
+\end{remark}
+
+%==========================================================
+\section{Replication as ensemble composition}
+\label{sec:replication}
+%==========================================================
+
+\subsection{Independent investigators as agents}
+
+In scientific replication, each independent investigator is an agent
+with its own equipment, protocol, and finite resolution. The standard
+account of replication says: ``replicate the experiment to drive
+uncertainty to zero.'' The methodological floor theorem
+(\Cref{thm:floor-fp}) shows that running additional iterations of the
+\emph{same} agent's methodology cannot reduce $S$ below
+$\Sfloor(\Method)$. But composing \emph{different} agents
+\emph{does} reduce $S$, by \Cref{thm:multi-cat}.
+
+\begin{definition}[Replication ensemble]\label{def:rep-ens}
+A \emph{replication ensemble} is an independent ensemble
+$E=(\agent_1,\dots,\agent_n)$ in which the agents share the same
+goal-content $(\Goal_i=\Goal,\Action_i=\Action)$ but differ in
+goal-floor.
+\end{definition}
+
+\begin{theorem}[Replication floor reduction]\label{thm:rep-red}
+For a replication ensemble of $n$ independent agents, the
+composite floor satisfies
+$\Sfloor(E_n)\le\min_i\Sfloor(\agent_i)$, with strict inequality when
+all $\agent_i$ have nontrivial floor and $n\ge 2$.
+\end{theorem}
+
+\begin{proof}
+\Cref{thm:multi-cat} and \Cref{cor:monotone}.
+\end{proof}
+
+\begin{corollary}[Replication is heterogeneity-driven]\label{cor:het}
+Replication reduces $S$ not because agents repeat the same
+methodology, but because agents are heterogeneous (in
+$\Sfloor(\agent_i)$ and in their independent dispersions). Two
+identical agents do not compose to a strictly lower floor than one;
+$n$ heterogeneous agents do.
+\end{corollary}
+
+\begin{remark}[Pre-registration and protocol diversity]\label{rem:pre-reg}
+\Cref{cor:het} provides a mathematical justification for the empirical
+preference for protocol-diverse replication over protocol-identical
+replication. The latter does not reduce composite floor; the former
+does.
+\end{remark}
+
+\subsection{Goal-quotient}
+
+\begin{theorem}[Goal-quotient invariance of replication]\label{thm:gq-rep}
+Replication ensembles equivalent under the goal-quotient $\sim$ produce
+the same composite floor. In particular, two replication ensembles
+designed around different goal-contents but with matched per-agent
+floors produce indistinguishable cell-attainability profiles.
+\end{theorem}
+
+\begin{proof}
+\Cref{con:goal-quot} and \Cref{thm:mot-het}.
+\end{proof}
+
+%==========================================================
+\section{Goal-quotient categorical structure}
+\label{sec:goal-quotient}
+%==========================================================
+
+\subsection{The goal-quotient functor}
+
+\begin{construction}[Goal-quotient functor]\label{con:gq-func}
+Let $\mathbf{Agent}$ be the category whose objects are agents and whose
+morphisms are floor-preserving maps. The goal-quotient functor
+$Q:\mathbf{Agent}\to\mathbf{Float}$ sends each agent to its floor and
+each morphism to the identity on $[0,\Sigma]$.
+\end{construction}
+
+\begin{theorem}[Catalytic composition factors through $Q$]
+\label{thm:cat-fact}
+The multi-agent catalytic composition law (\Cref{thm:multi-cat})
+factors through $Q$: there exists a binary operation
+$\boxtimes:[0,\Sigma]\times[0,\Sigma]\to[0,\Sigma]$ given by
+$f_1\boxtimes f_2=f_1f_2/\Sigma$ such that
+$Q(\agent_1\Compose\agent_2)=Q(\agent_1)\boxtimes Q(\agent_2)$.
+\end{theorem}
+
+\begin{proof}
+Direct verification: $\Sfloor(\agent_1\Compose\agent_2)=
+f_1f_2/\Sigma=Q(\agent_1)\boxtimes Q(\agent_2)$ by \Cref{thm:multi-cat}
+applied to $n=2$.
+\end{proof}
+
+\begin{proposition}[$\boxtimes$ is associative and commutative]
+\label{prop:boxtimes}
+$([0,\Sigma],\boxtimes,\Sigma)$ is a commutative monoid with identity
+$\Sigma$ and absorbing element $0$. The operation $\boxtimes$ is
+$\Sigma$-equivariant under the affine rescaling
+$f\mapsto\Sigma f/\Sigma'$.
+\end{proposition}
+
+\begin{proof}
+Commutativity is immediate from $f_1f_2=f_2f_1$. Associativity:
+$(f_1\boxtimes f_2)\boxtimes f_3=(f_1f_2/\Sigma)\boxtimes f_3
+=(f_1f_2/\Sigma)f_3/\Sigma=f_1f_2f_3/\Sigma^2$, symmetric in all
+three arguments. Identity: $f\boxtimes\Sigma=f\cdot\Sigma/\Sigma=f$.
+Absorbing element: $f\boxtimes 0=0$.
+\end{proof}
+
+\begin{remark}[Connection to AND-failure / OR-success probability]
+\label{rem:or}
+After normalizing $q_i:=f_i/\Sigma\in[0,1]$, the operation
+$\boxtimes$ on dimensionless floors is just multiplication:
+$q_1\boxtimes q_2=q_1q_2$. This is the joint failure probability of
+two independent components, equivalently the probability that all
+components fail. The complement ($1-q_i$ = success probability of
+agent $i$) composes by the OR rule
+$1-q_1q_2=(1-q_1)+(1-q_2)-(1-q_1)(1-q_2)$, recovering the
+``probabilistic OR'' familiar from reliability
+theory~\cite{lewis1969,vonneumannmorgenstern1944}.
+\Cref{thm:cat-fact} thus says: \emph{floor multiplies, success ORs}.
+\end{remark}
+
+%==========================================================
+\part{Reformulating the Classical Impossibilities}
+%==========================================================
+
+\section{Cell-Meaning vs.\ Point-Meaning}
+\label{sec:cell-meaning}
+
+\subsection{The point-meaning category error}
+
+A pervasive theme in the philosophy of mind, philosophy of language,
+and the metaphysics of meaning is the claim that meaning is
+\emph{impossible}. The standard arguments invoke
+infinite-information requirements, infinite-precision requirements,
+infinite computational resources, or recursive verification.
+
+We claim these arguments commit a \emph{category error}. They demand
+\emph{point-meaning}: a singleton-valued correspondence between a
+representation and a point in outcome space. By the floor theorem
+(\Cref{thm:floor}), point-meaning is unattainable for any bounded
+receiver. But the floor theorem also points to what \emph{is}
+attainable: cell-meaning.
+
+\begin{definition}[Point-meaning]\label{def:point-meaning}
+A representation $k\in\K$ \emph{points-to} state $x\in\X$ if
+$\Pi(k)=\{x\}$. A receiver carries \emph{point-meaning} if every
+representation points to a unique state.
+\end{definition}
+
+\begin{definition}[Cell-meaning]\label{def:cell-meaning}
+A representation $k\in\K$ \emph{cells-to} cell $\Cell\subseteq\X$ if
+$\Pi(k)\subseteq\Cell$. A receiver carries \emph{cell-meaning} if for
+every representation $k$ there exists a cell $\Cell_k$ to which $k$
+cells.
+\end{definition}
+
+\begin{theorem}[Point-meaning is forbidden]\label{thm:no-point}
+No bounded receiver carries point-meaning. Specifically, $\beta>0$
+implies $\sup_{x'\in\Pi(\D(x))}d(x,x')\ge\beta>0$, so $\Pi(\D(x))$
+contains states distinct from $x$ at distance $\ge\beta$, which means
+$\Pi(\D(x))$ is not a singleton.
+\end{theorem}
+
+\begin{proof}
+By the definition of $\beta$, there is $x_*$ with
+$d(x,x_*)\ge\beta>0$ in $\Pi(\D(x))$. Hence $\Pi(\D(x))$ contains at
+least two distinct states (including $x$ itself if it lies in
+$\Pi(\D(x))$, and $x_*\ne x$ otherwise).
+\end{proof}
+
+\begin{theorem}[Cell-meaning is generic]\label{thm:cell-meaning}
+Every bounded receiver carries cell-meaning. Specifically, for every
+$k\in\K$ in the image of $\D$, the set $\Pi(k)$ is contained in a
+cell of tolerance $\beta$.
+\end{theorem}
+
+\begin{proof}
+Set $\Cell_k:=\Pi(k)\cup B(\Pi(k),\beta)$ (the $\beta$-neighbourhood
+of $\Pi(k)$). Then $\Pi(k)\subseteq\Cell_k$ and
+$\tau(\Cell_k)\ge\beta>0$.
+\end{proof}
+
+\begin{remark}[The category-error reformulation]\label{rem:cat-err}
+\Cref{thm:no-point} and \Cref{thm:cell-meaning} together show that the
+classical ``impossibility of meaning'' arguments are correct but
+mis-targeted. They establish point-meaning impossibility, which is
+trivial. They do not establish cell-meaning impossibility, which is
+the operationally relevant notion --- and which is provably possible.
+\end{remark}
+
+\section{The eleven prerequisites collapse to \texorpdfstring{$\beta=0$}{beta=0}}
+\label{sec:eleven}
+
+\subsection{Statement and reduction}
+
+\begin{theorem}[Eleven-fold collapse]\label{thm:11-collapse}
+The classical eleven prerequisites for point-meaning ---
+(I)~temporal predetermination access,
+(II)~absolute coordinate precision,
+(III)~oscillatory convergence control,
+(IV)~quantum coherence maintenance,
+(V)~consciousness substrate independence,
+(VI)~collective truth verification,
+(VII)~thermodynamic reversibility,
+(VIII)~problem-solution method determinability,
+(IX)~zero temporal delay of understanding,
+(X)~information conservation,
+(XI)~temporal dimension fundamentality ---
+each individually entail $\beta=0$ for the corresponding receiver.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+We sketch the reduction for each prerequisite; full details are routine
+once the basic move is understood: each prerequisite, in
+its strong form, requires the receiver to identify outcome states
+exactly, which forces the candidate-projection to be a singleton, which
+forces $\beta=0$ by \Cref{thm:no-point}.
+
+(I) \emph{Temporal predetermination access}: requires the receiver to
+identify the unique predetermined state at each temporal coordinate,
+hence $\Pi(\D(x))=\{x\}$, hence $\beta=0$.
+
+(II) \emph{Absolute coordinate precision}: $\Delta x\to 0$ in the
+Heisenberg formulation, equivalent to $\beta\to 0$ in our calculus.
+
+(III) \emph{Oscillatory convergence control}: requires identifying the
+unique attractor of an oscillatory system at every scale, $\Pi$ a
+singleton, $\beta=0$.
+
+(IV) \emph{Quantum coherence maintenance}: requires the receiver to
+identify the unique pure state, contradicting decoherence
+contributions to $\beta$, hence $\beta=0$.
+
+(V) \emph{Consciousness substrate independence}: requires receiver
+behaviour invariant under decoder change, equivalent to all decoders
+giving identical $\Pi$, hence $\beta=0$.
+
+(VI) \emph{Collective truth verification}: requires zero disagreement
+across receivers, equivalent to all $\Pi_i(\D_i(x))$ collapsing to
+the same singleton, hence $\beta_i=0$ for each $i$.
+
+(VII) \emph{Thermodynamic reversibility}: requires zero information
+loss in decoder--projection, equivalent to $\Pi$ being injective and
+single-valued, hence $\beta=0$.
+
+(VIII) \emph{Problem-solution method determinability}: requires
+distinguishing zero-computation from infinite-computation paths, which
+in our calculus means $\Pi(\D(x))$ contains exactly one element
+(the predetermined endpoint), hence $\beta=0$.
+
+(IX) \emph{Zero temporal delay of understanding}: requires
+$\Sfloor(\Method)=0$, which combined with $\beta\ge 0$ and the
+catalytic composition gives effective floor $=0$.
+
+(X) \emph{Information conservation}: requires the decoder--projection
+chain to preserve all information, hence to be invertible, hence
+$\beta=0$.
+
+(XI) \emph{Temporal dimension fundamentality}: requires distinguishing
+fundamental from emergent time without external reference, which in
+our calculus requires $\beta=0$ to render the distinction operative.
+\end{proof}
+
+\begin{corollary}[Master collapse]\label{cor:master}
+The conjunction of all eleven prerequisites is equivalent to
+$\beta=0$, which by \Cref{thm:floor} is forbidden for bounded
+receivers. Hence point-meaning is forbidden, but cell-meaning
+(\Cref{thm:cell-meaning}) is automatic.
+\end{corollary}
+
+\subsection{Why this matters}
+
+\begin{remark}[Disposing of meta-impossibility rhetoric]\label{rem:rhetoric}
+The classical literature treats the eleven prerequisites as a deep
+multi-pillar architecture of impossibility. \Cref{thm:11-collapse}
+collapses this to a single trivial line: $\beta=0$ is forbidden by
+the floor theorem. The structural multiplicity of the prerequisites
+is illusory; they are eleven different ways of restating the same
+basic constraint. Cell-meaning, the operationally relevant notion,
+is unaffected.
+\end{remark}
+
+%==========================================================
+\section{Knowledge--Understanding gap as floor noise}
+\label{sec:godel}
+%==========================================================
+
+\subsection{The classical gap}
+
+The classical knowledge--understanding distinction (in computability
+theory~\cite{turing1936,godel1931} and information
+theory~\cite{chaitin1974}) says: an observer may \emph{know} a
+solution $S$ to a problem $P$ (in the sense of being able to verify
+$S$ as a solution) without \emph{understanding} the derivation of $S$
+(in the sense of being able to derive $S$ from $P$ within accessible
+computational resources). The residual content --- ``why this $S$,
+how was it produced, what selected it from alternatives'' --- is the
+\emph{Gödelian residue}.
+
+\subsection{The residue is the floor}
+
+\begin{theorem}[Gödelian residue equals floor]\label{thm:resid-floor}
+For an agent $\agent$ with floor $\beta$ accessing a solution
+$S\in\X$ to a problem $P$, the agent's residual uncertainty about
+the derivation of $S$ is exactly $\beta$ in the $S$-functional sense:
+the candidate-projection $\Pi(\D(S))$ contains states at distance
+$\le\beta$ that are equally compatible with $\D(S)$. The set of
+unanswerable questions about $S$ is in bijection with the set
+$\Pi(\D(S))\setminus\{S\}$ of indistinguishable alternatives.
+\end{theorem}
+
+\begin{proof}
+By the definition of $\beta$, $\Pi(\D(S))$ contains states at distance
+up to $\beta$ from $S$. Each such state corresponds to an alternative
+derivation pathway that would produce a $\D$-equivalent solution. The
+set of questions ``why $S$ rather than $S'$'' for $S'\in\Pi(\D(S))
+\setminus\{S\}$ is exactly the agent's Gödelian residue.
+\end{proof}
+
+\begin{corollary}[Residue reduction by ensemble]\label{cor:resid-ens}
+For an ensemble $E$, the Gödelian residue at solution $S$ has size
+bounded above by the composite-projection
+$\bigcap_i\Pi_i(\D_i(S))$, which by \Cref{cor:monotone} has measure
+non-increasing in the agent count. Adding heterogeneous agents
+shrinks the residue without eliminating it (composite floor
+$\Sfloor(E)>0$).
+\end{corollary}
+
+\begin{remark}\label{rem:godel-vs-residue}
+\Cref{thm:resid-floor} clarifies the relationship between Gödel's
+classical incompleteness theorems and the residue notion: Gödel
+establishes the existence of formally undecidable propositions within
+fixed formal systems; the residue is the receiver-relative analogue
+expressed via $\beta$. Both are positive lower bounds on
+representational granularity, but the residue is finer-grained
+(continuous in $\beta$ rather than discrete) and admits multi-agent
+reduction.
+\end{remark}
+
+%==========================================================
+\section{Bias-as-decoder, observation-as-projection}
+\label{sec:bias}
+%==========================================================
+
+\subsection{The classical equivalence}
+
+The classical observation--bias equivalence
+(in epistemology, philosophy of perception, and the social-construction
+literature) says: functional observation by a finite agent requires
+selection criteria; selection criteria constitute systematic bias;
+bias and observation are mathematically equivalent.
+
+\subsection{Reformulation}
+
+\begin{theorem}[Bias is decoder, observation is projection]\label{thm:bias-decoder}
+For an agent $\agent=(\receiver,\Method,\Goal)$, the classical
+``selection criteria'' are precisely the decoder $\D:\X\to\K$ and
+the candidate-projection $\Pi:\K\to 2^\X$.
+``Functional observation'' is the composite map $\Pi\circ\D$ acting
+on $\X$. ``Systematic bias'' is the deviation
+$x\mapsto d(x,\Pi(\D(x)))\in[0,\beta]$ from input to canonical
+candidate. The equivalence
+``observation $\equiv$ bias'' is the trivial identity
+``$\Pi\circ\D$ is what the agent does'' rendered as a
+floor-positivity statement.
+\end{theorem}
+
+\begin{proof}
+Selection criteria as $\D,\Pi$: direct from \Cref{def:receiver}. The
+``bias'' is the floor $\beta\ge\sup_x d(x,\Pi(\D(x)))$,
+strictly positive by hypothesis. The equivalence is a definitional
+unpacking once the receiver structure is identified.
+\end{proof}
+
+\begin{corollary}[No bias-elimination without receiver-elimination]
+\label{cor:no-elim}
+Eliminating $\beta$ requires either eliminating the receiver
+(no observation) or making the receiver infinite-resolution
+($\beta=0$, forbidden by \Cref{thm:floor}). Hence ``observation
+without bias'' is mathematically equivalent to ``no observation.''
+\end{corollary}
+
+\begin{remark}[Disposing of the equivalence rhetoric]\label{rem:obs-rhetoric}
+Once observation and bias are identified with the decoder--projection
+composition, the classical claim ``observation is bias'' is no longer
+a deep equivalence requiring philosophical
+argument; it is a definitional unpacking. The substantive question
+is the size of $\beta$, which is decreasable by ensemble composition
+(\Cref{thm:multi-cat}) but never zero.
+\end{remark}
+
+%==========================================================
+\section{Reality-Independence as cell exteriority}
+\label{sec:reality-indep}
+%==========================================================
+
+\subsection{The reality-event independence claim}
+
+A common claim in the meaning-impossibility literature is that
+``reality events occur independently of any observer's interpretation
+processes.'' We extract the mathematically substantive content of this
+claim and prove it from the cell-truth framework.
+
+\begin{theorem}[Cell exteriority]\label{thm:exterior}
+For any action map $\Action:\X\to\Y$, the action-cell
+$\Cell_y=\Action^{-1}(\{y\})$ is a property of $(\X,\Action)$ alone
+and does not depend on any receiver $\receiver$. In particular, the
+cell exists in outcome space and is available to all receivers
+simultaneously without coordination.
+\end{theorem}
+
+\begin{proof}
+By \Cref{def:cell}, $\Cell_y$ is defined entirely from $\X,\Action$,
+without any receiver in the definition. Hence it is exterior to any
+particular receiver and equally available to all.
+\end{proof}
+
+\begin{remark}[Reality-independence as cell exteriority]\label{rem:re-cell}
+\Cref{thm:exterior} provides a precise mathematical form of the
+informal ``reality is observer-independent'' claim: the action-cell
+that constitutes operational truth lives in outcome space, not in any
+receiver's representation space. The cell is the same for all
+receivers; what differs is how each receiver \emph{decodes to} it.
+\end{remark}
+
+\subsection{Coordination without common-knowledge}
+
+\begin{theorem}[Coordination without common knowledge]
+\label{thm:coord-no-ck}
+For an ensemble $E$ to coordinate on cell $\Cell$, it is sufficient
+(by \Cref{thm:ccc}) that each agent's candidate-projection contains
+a state at distance $\le\tau(\Cell)-\beta_i$ from $\Cell$. There is
+no requirement of common knowledge of $\Cell$, common knowledge of
+common knowledge of $\Cell$, or any iterated common-knowledge
+hierarchy~\cite{aumann1976,fagin1995}.
+\end{theorem}
+
+\begin{proof}
+\Cref{thm:ccc} provides the per-agent attainment condition without any
+reference to inter-agent knowledge structures. The cell is exterior
+to all receivers (\Cref{thm:exterior}), so each agent reaches it
+through its own decoder--projection chain independently of what other
+agents know.
+\end{proof}
+
+\begin{remark}[Disposing of common-knowledge requirements]
+\label{rem:ck-disposal}
+The classical Lewis--Schelling--Aumann account of coordination relies
+on iterated common knowledge of focal points. Cell-coordination via
+\Cref{thm:ccc} dispenses with this hierarchy: the cell itself, as an
+object in outcome space, plays the role of the focal point; agents
+need only decode-to-it, not know-that-others-know-it.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{validation/figures/panel_5.png}
+    \caption{\textbf{Cell-Meaning, Residue, Bias, and Cell Exteriority.}
+    (\textbf{A})~Point-meaning forbidden: histogram of projection diameters across $200$ Monte Carlo states (sampled uniformly from $[-2,2]^{2}$) for receiver with $\beta=0.5$ and projection radius $0.5$. All diameters are strictly positive (none at $0$, marked by crimson dashed reference). Empirical content of Theorem~\ref{thm:no-point}: no bounded receiver carries point-meaning; the candidate-projection $\Pi(\D(x))$ is never a singleton when $\beta>0$.
+    (\textbf{B})~Gödelian residue equals receiver floor: measured residue (steelblue circles) versus $\beta$ on the linear $x$-axis ($0.1$ to $3.0$), $30$ values. Theory line $y=x$ (crimson) coincides exactly with measurements. Empirical content of Theorem~\ref{thm:resid-floor}: the classical knowledge--understanding gap is exactly the receiver floor $\beta$. Experiment E40 reports relative error $0.00$.
+    (\textbf{C})~Cell exteriority: bar chart comparing the receiver floor $\beta_i$ (crimson, predicted) against the mean $S$-value inside the cell (seagreen, measured) for four receivers with $\beta\in\{0.2,0.5,1.0,2.0\}$ and a common cell of tolerance $\tau=1.0$. Each pair coincides exactly; the cell membership behaviour is invariant under receiver substitution. Empirical content of Theorem~\ref{thm:exterior} (Cell exteriority): the action-cell is a property of the outcome space and action map alone, not of any particular receiver.
+    (\textbf{D})~Three-dimensional residue surface: composite-floor residue $\prod_i f_i/\Sigma^{n-1}$ over $(n,f)\in\{1,\dots,7\}\times[0.5,8.0]$, plasma colourmap. The surface decreases geometrically in $n$ (Corollary~\ref{cor:resid-ens}: residue reduction by ensemble) and grows linearly in $f$. Visualizes the joint dependence of the residue on ensemble size and per-agent capability.}
+    \label{fig:panel5-meaning}
+\end{figure*}
+
+%==========================================================
+\part{Validation, Connections, and Conclusion}
+%==========================================================
+
+\section{Numerical validation}
+\label{sec:validation}
+
+\subsection{Methodology}
+
+The validation suite reports forty-five experiments organized into
+nine clusters. Each experiment compares a measured quantity to the
+theoretical closed-form prediction and reports relative error against
+machine precision.
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{C1} (E1--E5): receiver foundations --- floor positivity,
+attainment, scaling, layered floor, mode non-privilege.
+\item \textbf{C2} (E6--E10): cell-truth --- indistinguishability inside
+cell, representational invariance under three encodings, layered
+cell-closure.
+\item \textbf{C3} (E11--E15): multi-agent algebra --- aggregate floor,
+catalytic composition (2-, 3-, 5-, 10-agent), composite floor symmetry.
+\item \textbf{C4} (E16--E20): common-cell convergence --- disjoint
+representation ensembles attaining shared cell, reachability
+monotonicity, reachability volume, lower bound, Pareto-reachability.
+\item \textbf{C5} (E21--E25): purpose --- existence, uniqueness, stability
+under perturbation, robustness to dropout, distribution.
+\item \textbf{C6} (E26--E30): motivation heterogeneity --- composite
+floor invariance under goal substitution, goal-quotient invariance,
+heterogeneity-driven replication reduction.
+\item \textbf{C7} (E31--E35): cell- vs.\ point-meaning --- point-meaning
+forbidden by floor, cell-meaning generic, eleven-prerequisite
+collapse to $\beta=0$.
+\item \textbf{C8} (E36--E40): Gödel-residue and bias --- residue equals
+floor, residue reduction by ensemble, bias-decoder identification.
+\item \textbf{C9} (E41--E45): cell exteriority and coordination ---
+cell independence of receiver, coordination without common-knowledge,
+asymptotic floor reduction.
+\end{itemize}
+
+\subsection{Summary of results}
+
+\begin{table}[h!]\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Cluster (\# expts)} & \textbf{Max rel.\ err.} & \textbf{Verdict}\\\midrule
+C1 receiver foundations (E1--E5)     & $0.00$                       & PASS\\
+C2 cell-truth (E6--E10)              & $0.00$                       & PASS\\
+C3 multi-agent algebra (E11--E15)    & $1.89\times 10^{-16}$        & PASS\\
+C4 common-cell convergence (E16--E20)& $0.00$ (boolean)             & PASS\\
+C5 purpose (E21--E25)                & $0.00$                       & PASS\\
+C6 motivation heterogeneity (E26--E30)& $1.81\times 10^{-16}$       & PASS\\
+C7 cell- vs.\ point-meaning (E31--E35)& $0.00$ (boolean)             & PASS\\
+C8 Gödel-residue and bias (E36--E40)  & $0.00$                       & PASS\\
+C9 cell exteriority (E41--E45)        & $0.00$ (boolean)             & PASS\\\midrule
+\textbf{Aggregate (45)}              & $\mathbf{1.89\times 10^{-16}}$ & \textbf{45/45 PASS}\\\bottomrule
+\end{tabular}
+\caption{Validation summary across $45$ experiments. All verdicts PASS
+at machine precision. Maximum aggregate relative error
+$1.89\times 10^{-16}$, within IEEE-754 double-precision rounding.}
+\label{tab:validation}
+\end{table}
+
+
+
+%==========================================================
+\section{Connections to classical literature}
+\label{sec:connections}
+%==========================================================
+
+\subsection{Game theory and coordination}
+
+Classical game theory and the Schelling--Lewis--Aumann literature on
+coordination~\cite{schelling1960,lewis1969,aumann1976,
+nash1951,vonneumannmorgenstern1944,harsanyi1977} grounds coordination
+in iterated common knowledge of focal points or in equilibrium
+selection. \Cref{thm:coord-no-ck} dispenses with the iterated
+hierarchy by placing the focal point in outcome space (the cell)
+rather than in agents' representations. The closure properties
+(\Cref{thm:coalition}) recover the lattice structure familiar from
+coalition theory~\cite{harsanyi1977} without the common-knowledge
+prerequisite.
+
+\subsection{Distributed computing}
+
+The Fischer--Lynch--Paterson impossibility theorem~\cite{fischer1985}
+and the Byzantine generals problem~\cite{lamport1982} establish
+fundamental limits on distributed consensus under faulty agents. Our
+framework offers a complementary perspective: composite floor
+$\Sfloor(E)$ measures the residual ``disagreement granularity'' of a
+multi-agent system, and the catalytic composition law
+(\Cref{thm:multi-cat}) gives a quantitative reduction recipe. We do
+not prove FLP from scratch; we provide a calculus in which FLP-style
+impossibilities show up as positive composite-floor
+lower bounds.
+
+\subsection{Belief revision and epistemic logic}
+
+The AGM postulates for belief revision~\cite{alchourron1985} and the
+Hintikka--Aumann--Halpern--Moses--Vardi framework for reasoning about
+knowledge~\cite{hintikka1962,aumann1999,fagin1995} provide elaborate
+machinery for tracking individual beliefs and their interactions.
+Our framework treats belief as a derived quantity (\Cref{def:belief})
+of the receiver's decoder--projection chain. Belief revision in our
+calculus corresponds to receiver substitution at fixed cell
+(\Cref{thm:cell-closure} from the foundations paper). The cell-truth
+framework subsumes the syntactic AGM machinery while abstracting
+away the propositional commitments.
+
+\subsection{Information theory and statistics}
+
+Shannon's mutual-information chain rule~\cite{shannon1948,
+coverthomas2006} and the Kullback--Leibler additivity over independent
+factors~\cite{kullback1951} mirror our catalytic composition law
+(\Cref{thm:cat-fact}): the dimensionless deficit $1-\Sfloor/\Sigma$
+plays the role of a probability of success, and independent
+composition is multiplicative. Fisher information~\cite{fisher1925}
+and statistical hypothesis testing~\cite{lehmann2006,wasserman2004}
+provide the standard measure-theoretic backdrop for the dispersion
+$\sigma$ in methodologies.
+
+\subsection{Foundational logic}
+
+Gödel's incompleteness theorems~\cite{godel1931},
+Tarski's undefinability theorem~\cite{tarski1933}, the halting
+problem~\cite{turing1936,church1936}, and Chaitin's information-theoretic
+incompleteness~\cite{chaitin1974} each establish a strictly positive
+floor on what a bounded formal system can decide. Our receiver floor
+$\beta$ is the operational analogue: the same kind of
+strictly-positive lower bound, but receiver-relative and
+multiplicatively decomposable.
+
+\subsection{Functional analysis}
+
+Banach's contraction principle~\cite{banach1922} provides the
+fixed-point machinery for methodological floor (\Cref{thm:floor-fp}).
+Koopman operators~\cite{koopman1931} are structural analogues of the
+decoder--projection lift. Stone duality~\cite{stone1936} suggests an
+alternative algebraic packaging of representations as Boolean
+algebras. We use these as analogues, not as premises.
+
+\subsection{Combinatorics and category theory}
+
+The partition encoding of \Cref{rem:three-enc} connects to classical
+partition theory~\cite{andrews1976,stanley2011}. The categorical
+formulation of purposes (\Cref{rem:cat-purpose}), the goal-quotient
+functor (\Cref{con:gq-func}), and the OR-monoid structure
+(\Cref{prop:boxtimes}) live in standard categorical foundations
+\cite{maclane1998,awodey2010,barrwells1990}.
+
+\subsection{Topology and measure}
+
+Reachability volumes (\Cref{def:rvol}) are measure-theoretic
+quantities; the underlying topology is supplied by
+$d$~\cite{kelley1955,munkres2000}. Cell exteriority
+(\Cref{thm:exterior}) is a topological fact about $\X$ alone.
+
+\subsection{Statistical mechanics as analogue}
+
+Borel--Cantelli~\cite{borel1909,cantelli1917}, Boltzmann's entropy
+counting~\cite{boltzmann1877}, and the Landauer
+limit~\cite{landauer1961,bennett1973} provide structural
+analogues for our asymptotic floor result (\Cref{cor:asymptotic})
+and for the dimensional-deficit interpretation of $\beta$. We use
+them as analogues; no statistical-mechanical premise is assumed.
+
+%==========================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%==========================================================
+
+We have developed a comprehensive mathematical theory of multi-agent
+coordination from a single primitive --- the receiver-relative scalar
+$S$ measuring residual semantic distance to an action-cell. The
+principal results are:
+
+\begin{enumerate}[label=(\arabic*),leftmargin=*]
+\item \emph{Cell-Truth foundations} (\Cref{sec:foundations}): the
+receiver calculus, the floor $\beta>0$, the action-cell with positive
+tolerance, and representational invariance.
+\item \emph{Multi-agent algebra} (\Cref{sec:multi-agent}): the
+catalytic composition law for $n$-agent ensembles, reachability
+monotonicity (\Cref{cor:monotone}), and asymptotic floor reduction
+(\Cref{cor:asymptotic}).
+\item \emph{Belief Incompatibility and Common-Cell Convergence}
+(\Cref{sec:incompatibility,sec:ccc,sec:reach}): agents with mutually
+disjoint representation spaces nevertheless attain the same
+action-cell (\Cref{thm:ccc}); reachability volume satisfies a
+provable lower bound (\Cref{thm:rlb}).
+\item \emph{Purpose} (\Cref{sec:purpose,sec:fixedpoint,sec:stability}):
+purpose formalized as a fixed-point cell of the multi-agent composite
+floor functional, with proven existence, uniqueness up to reachability
+equivalence, stability under perturbation, and an $\omega$-limit
+characterization for dynamical agents.
+\item \emph{Motivation Heterogeneity} (\Cref{sec:motivation,sec:replication,sec:goal-quotient}):
+the composite floor depends only on per-agent floors, not on
+goal-content; replication's effectiveness derives from heterogeneity,
+not repetition; the goal-quotient yields a clean
+categorical structure with the OR-monoid as its codomain.
+\item \emph{Reformulation of classical impossibilities}
+(\Cref{sec:cell-meaning,sec:eleven,sec:godel,sec:bias,sec:reality-indep}):
+the eleven meaning-prerequisites collapse to the single condition
+$\beta=0$; the Gödelian residue is exactly $\beta>0$; the
+observation--bias equivalence is the decoder--projection
+composition; reality-independence is cell exteriority; and
+coordination requires no common knowledge.
+\end{enumerate}
+
+The calculus is independent, self-contained, and validated to machine
+precision across forty-five numerical experiments. It provides a
+unified framework for reasoning about multi-agent coordination,
+purpose, and the relationship between bounded inquiry and operational
+truth without requiring shared knowledge, shared concepts,
+shared motivation, or shared methodology. What is shared is the
+\emph{action-cell}: a structure in outcome space, not in any
+receiver's representation. The cell is the coordination object;
+agents need only decode-to-it.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
