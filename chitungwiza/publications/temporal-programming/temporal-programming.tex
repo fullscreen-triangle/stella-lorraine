@@ -23,7 +23,7 @@
 \usepackage{graphicx}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
 \usepackage{enumitem}
-\usepackage{microtype}
+\usepackage[expansion=false]{microtype}
 \usepackage{xcolor}
 \usepackage{fancyhdr}
 \usepackage{abstract}
@@ -538,7 +538,7 @@ $\{\chi_1, \ldots, \chi_d\}$ with $d \geq 1$.
 A \emph{labeled timing event} is a pair $e = (\chi_i, \DP)$ where
 $\chi_i$ is the channel and $\DP \in \calD_i$ is the timing
 deviation on that channel. The event time is implicitly
-$\trec = \Tref_i - \DP$.
+$\trec = T_{\mathrm{ref},i} - \DP$.
 \end{definition}
 
 \begin{definition}[Trajectory]
@@ -1005,16 +1005,16 @@ $n$ \textbackslash $d$ & 1 & 2 & 3 & 4 & 8 \\
 \label{thm:mono-partition}
 Let $M_0 \leq M_1$ be two cycle counts with $M_0 \neq M_1$.
 Let a signal be emitted at cycle $M_0$ with timing deviation
-$\DP_0 = \Tref(M_0) - \trec_0$. If the same physical signal
+$\DP_0 = \Tref(M_0) - t_{\mathrm{rec},0}$. If the same physical signal
 is replayed at cycle $M_1 > M_0$, the resulting timing deviation
-is $\DP_1 = \Tref(M_1) - \trec_0 \neq \DP_0$.
+is $\DP_1 = \Tref(M_1) - t_{\mathrm{rec},0} \neq \DP_0$.
 \end{theorem}
 \begin{proof}
 By Definition~\ref{def:oscillator},
 $\Tref(M) = M / \fref$ for integer $M$.
 \begin{align}
-  \DP_0 &= M_0/\fref - \trec_0, \label{eq:dp0} \\
-  \DP_1 &= M_1/\fref - \trec_0. \label{eq:dp1}
+  \DP_0 &= M_0/\fref - t_{\mathrm{rec},0}, \label{eq:dp0} \\
+  \DP_1 &= M_1/\fref - t_{\mathrm{rec},0}. \label{eq:dp1}
 \end{align}
 Subtracting: $\DP_1 - \DP_0 = (M_1 - M_0)/\fref$.
 Since $M_1 > M_0$ and $\fref > 0$, we have $\DP_1 - \DP_0 > 0$,
@@ -1138,15 +1138,15 @@ $(M_1 - M_0)/\fref < \min_i \mathrm{width}(\calC_i)$.
 \begin{proof}
 At replay time, the reference oscillator has advanced to cycle $M_1$.
 The $j$-th replayed pulse has the same physical arrival time
-$\trec_j = \Tref_j^* - \DP_j^*$ (since it is a physical replay).
+$t_{\mathrm{rec},j} = T_{\mathrm{ref},j}^* - \DP_j^*$ (since it is a physical replay).
 But the current reference time for the $j$-th expected pulse is
-$\Tref'_j = \Tref_j^* + (M_1 - M_0)/\fref$, since the oscillator
+$T_{\mathrm{ref},j}' = T_{\mathrm{ref},j}^* + (M_1 - M_0)/\fref$, since the oscillator
 has advanced by $M_1 - M_0$ additional cycles.
 Thus:
 \begin{align}
-  \DP_j' &= \Tref'_j - \trec_j \notag \\
-         &= \left[\Tref_j^* + \frac{M_1 - M_0}{\fref}\right]
-            - \left[\Tref_j^* - \DP_j^*\right] \notag \\
+  \DP_j' &= T_{\mathrm{ref},j}' - t_{\mathrm{rec},j} \notag \\
+         &= \left[T_{\mathrm{ref},j}^* + \frac{M_1 - M_0}{\fref}\right]
+            - \left[T_{\mathrm{ref},j}^* - \DP_j^*\right] \notag \\
          &= \DP_j^* + \frac{M_1 - M_0}{\fref}.
   \label{eq:replay-shift}
 \end{align}
