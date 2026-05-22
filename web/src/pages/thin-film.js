@@ -333,7 +333,7 @@ export default function ThinFilm() {
             </p>
           </div>
           <div className="text-xs tracking-widest uppercase opacity-40 hover:opacity-80 transition-opacity">
-            <Link href="/polymorphism">← Polymorphism</Link>
+            <Link href="/bioreactor">Bioreactor →</Link>
           </div>
         </header>
 

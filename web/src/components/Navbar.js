@@ -45,6 +45,7 @@ export default function Navbar() {
       <nav className="flex items-center gap-10">
         <NavLink href="/polymorphism" label="Polymorphism" />
         <NavLink href="/thin-film" label="Thin Film" />
+        <NavLink href="/bioreactor" label="Bioreactor" />
       </nav>
 
       {/* Right: theme toggle */}

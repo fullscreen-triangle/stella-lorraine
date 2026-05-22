@@ -7,6 +7,8 @@ export default function EscapementViewer() {
     let animId;
     let renderer;
     let mounted = true;
+    let mixer;
+    let clock;
 
     const init = async () => {
       const THREE = await import("three");
@@ -16,6 +18,7 @@ export default function EscapementViewer() {
       const { OrbitControls } = await import(
         "three/examples/jsm/controls/OrbitControls.js"
       );
+      clock = new THREE.Clock();
 
       if (!mounted || !mountRef.current) return;
       const mount = mountRef.current;
@@ -90,6 +93,13 @@ export default function EscapementViewer() {
           });
 
           scene.add(model);
+
+          if (gltf.animations && gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(model);
+            gltf.animations.forEach((clip) => {
+              mixer.clipAction(clip).play();
+            });
+          }
         },
         undefined,
         (err) => console.error("GLB load error:", err)
@@ -108,6 +118,8 @@ export default function EscapementViewer() {
       const animate = () => {
         if (!mounted) return;
         animId = requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        if (mixer) mixer.update(delta);
         controls.update();
         renderer.render(scene, camera);
       };
