@@ -47,6 +47,7 @@ export default function Navbar() {
         <NavLink href="/thin-film" label="Thin Film" />
         <NavLink href="/bioreactor" label="Bioreactor" />
         <NavLink href="/ritonavir" label="Synthesis" />
+        <NavLink href="/psdr" label="PSDR" />
       </nav>
 
       {/* Right: theme toggle */}
