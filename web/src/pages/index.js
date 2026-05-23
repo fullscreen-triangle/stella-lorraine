@@ -78,6 +78,21 @@ export default function Home() {
           >
             Bioreactor
           </Link>
+          <Link
+            href="/ritonavir"
+            style={{
+              color: "#f5f5f5",
+              fontSize: "0.68rem",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              opacity: 0.55,
+              textDecoration: "none",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = 0.55)}
+          >
+            Synthesis
+          </Link>
         </nav>
       </div>
     </>

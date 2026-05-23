@@ -46,6 +46,7 @@ export default function Navbar() {
         <NavLink href="/polymorphism" label="Polymorphism" />
         <NavLink href="/thin-film" label="Thin Film" />
         <NavLink href="/bioreactor" label="Bioreactor" />
+        <NavLink href="/ritonavir" label="Synthesis" />
       </nav>
 
       {/* Right: theme toggle */}
