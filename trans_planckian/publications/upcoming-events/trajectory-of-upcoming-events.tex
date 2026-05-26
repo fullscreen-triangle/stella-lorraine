@@ -1,0 +1,1045 @@
+% ============================================================
+%  ON THE BIJECTIVE CORRESPONDENCE BETWEEN INTEGER SEQUENCES
+%  AND PARTITION STATES IN BOUNDED HAMILTONIAN SYSTEMS:
+%  COUNTING, MONOTONICITY, AND CAUSAL SUCCESSION
+% ============================================================
+
+\documentclass[twocolumn,10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=2cm,bottom=2.2cm,left=1.8cm,right=1.8cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[round,sort&compress]{natbib}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\small Bijective Structure of Partition State Sequences}
+\fancyhead[LO]{\small Sachikonye}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  citecolor=blue!50!black,
+  urlcolor=blue!50!black,
+  pdftitle={On the Bijective Correspondence Between Integer Sequences and Partition States},
+  pdfauthor={Kundai Farai Sachikonye}
+}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+% ---- Mathematical operators ----
+\DeclareMathOperator{\Succ}{Succ}
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\img}{im}
+\DeclareMathOperator{\id}{id}
+
+% ---- Shorthand commands ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Zp}{\mathbb{Z}^{+}}
+\newcommand{\Parts}{\mathcal{P}}
+\newcommand{\StateSpace}{\mathcal{S}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\tp}{\langle\tau_{p}\rangle}
+\newcommand{\dM}{\mathrm{d}M}
+\newcommand{\dt}{\mathrm{d}t}
+\newcommand{\Nstate}{N_{\mathrm{state}}}
+\newcommand{\Mmax}{M_{\max}}
+\newcommand{\PhiMap}{\varPhi}
+
+% ============================================================
+\title{\textbf{On the Bijective Correspondence Between Integer\\
+Sequences and Partition States in Bounded\\
+Hamiltonian Systems: Counting, Monotonicity,\\
+and Causal Succession}}
+
+\author{
+Kundai Farai Sachikonye \\
+Technical University of Munich \\
+Chair of Proteomics and Bioanalytics \\
+\texttt{kundai.sachikonye@wzw.tum.de}
+}
+
+\date{\today}
+% ============================================================
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+\begin{abstract}
+\noindent
+We develop the partition-counting theory of bounded Hamiltonian systems and establish three principal results. \textbf{(I) The Partition Bijection:} we prove that the positive integers $\Zp$ stand in one-to-one correspondence with the set $\Parts$ of partition states of a bounded three-dimensional oscillatory system, via a canonical map $\PhiMap : \Zp \to \Parts$ defined by the nested boundary structure of the motion. The capacity at principal level $n$ is $C(n) = 2n^2$, arising from the combinatorics of nested boundary conditions without recourse to quantum postulates; the cumulative count is $\Nstate(n) = n(n+1)(2n+1)/3$. \textbf{(II) Strict Monotonicity and the Incoherence of Decrement:} the partition count $M(t)$ is strictly non-decreasing under physical evolution. We prove the stronger result that any operation purporting to decrement $M$ is not merely improbable but formally incoherent: it would require two physically distinct partition states to occupy the same image under $\PhiMap$, contradicting injectivity. \textbf{(III) Causal-Partition Uniqueness and Successor Existence:} for every state $M_t \in \Zp$, the Peano successor $M_t + 1$ is an element of $\Zp$ on which $\PhiMap$ is defined, with the same formal status as any prior element. The causal consequence is a theorem, not an assumption: the forward sequence $\{M_t, M_t+1, \ldots, \Mmax\}$ is a complete, finitely enumerable subset of $\Zp$, bijectively mapped to partition states by $\PhiMap$, and its members exist as mathematical objects in the same sense that any element of a bijectively-defined integer sequence exists. We provide explicit construction of the bijection, complete proofs of all theorems, a worked physical instantiation in mass spectrometry, and a discussion of the implications for the arrow of time, the Loschmidt paradox, and the structure of temporal succession.
+
+\bigskip
+\noindent\textbf{Keywords:} partition counting, bounded Hamiltonian systems, bijection, monotone counting, causal uniqueness, successor states, temporal structure, Loschmidt paradox, Poincar\'e recurrence, action-angle variables
+\end{abstract}
+
+\tableofcontents
+
+% ============================================================
+\section{Introduction}
+\label{sec:introduction}
+% ============================================================
+
+\subsection{The Problem of Temporal Succession}
+
+The question of what constitutes a \emph{temporal state} is older than dynamical systems theory. Newton treated time as a parameter --- an independent axis along which mechanical evolution is traced. In this picture, to say that a physical system occupies state $x$ at time $t$ is to index a point in phase space by a real number. The succession of states is the succession of values of this parameter; the ``future'' is the portion of the real line with values greater than the current $t$.
+
+This parameterisation view of time has a structural consequence that is rarely made explicit: the real line $\R$ is a complete ordered field, and therefore every real number $t' > t$ exists as an element of $\R$ in exactly the same mathematical sense as $t$ itself. The ``future'' values of the parameter are not absent; they are present as elements of $\R$ awaiting the parameter's traversal. The parameter moves; the line does not.
+
+What has not been adequately addressed in the literature is whether this structure --- complete, pre-existing, bijectively labelled --- survives the transition from the Newtonian parameterisation picture to the operational, counting-based picture of time that emerges from the physics of bounded oscillatory systems. In the present paper we show that it does, and that the operational picture adds a precision the Newtonian picture lacks: the future states are not merely elements of $\R$ but specific, named elements of a bijective map from the positive integers to the partition states of the physical system.
+
+\subsection{Counting as the Operational Definition of Time}
+
+The earliest insight connecting time to counting appears in the theory of oscillatory systems: in any periodic process, elapsed time may be recovered from the count of completed cycles. A pendulum counts time; a quartz oscillator counts time; an atomic transition counts time. In all cases, the count $M = ft$ --- where $f$ is the cycle frequency and $t$ is the elapsed duration --- is an exact identity, not an approximation, whenever ``elapsed time'' is itself defined operationally as the count of cycles of a reference oscillator \citep{planck1900,birkhoff1931,landau1976}.
+
+This operational definition is not merely a convenient measurement procedure. It is a claim about the constitution of temporal quantities: time, in any system where it is measurable, is the count of completed oscillations of some reference process. The continuous-time formalism $t \in \R$ is the limit of this count as the oscillator frequency $f \to \infty$ \citep{arnold1989}. The discrete, integer-valued count is the more fundamental description.
+
+If time is a count, then temporal states are elements of $\Zp$ --- or, more precisely, elements of $\Zp$ mapped bijectively to physically distinct system configurations. The question becomes: what is the structure of this bijection? We answer it.
+
+\subsection{The Central Question}
+
+Let $\Parts$ be the set of distinct partition states of a bounded three-dimensional Hamiltonian system --- the set of distinct configurations the system can occupy, enumerated by the sequence of completed oscillation cycles. The central question of this paper is:
+
+\begin{quote}
+\emph{Is there a canonical bijection $\PhiMap : \Zp \to \Parts$? If so, what are its structural properties, and what do those properties imply for the relationship between any given state $M_t \in \Zp$ and the states $M_t + k$ for $k > 0$?}
+\end{quote}
+
+We prove that such a bijection exists, that it is constructive and explicit, and that the states $M_t + k$ for $k > 0$ are elements of $\Zp$ on which $\PhiMap$ is defined --- elements whose existence is a theorem of arithmetic, independent of the current value of $t$.
+
+\subsection{Overview of Main Results}
+
+The paper establishes the following results in order:
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
+\item \textbf{Theorem~\ref{thm:capacity}} (Partition Capacity): The capacity of the partition space at principal level $n$ is $C(n) = 2n^2$, derived from the nested boundary conditions of three-dimensional bounded motion, without quantum postulates.
+
+\item \textbf{Theorem~\ref{thm:bijection}} (Partition Bijection): The map $\PhiMap : \Zp \to \Parts$ defined by the inversion of the cumulative count is a bijection.
+
+\item \textbf{Theorem~\ref{thm:time-count}} (Time-Count Identity): The identity $\dM/\dt = \omega/(2\pi) = 1/\tp$ is exact, not an approximation.
+
+\item \textbf{Theorem~\ref{thm:monotone}} (Strict Monotonicity): The partition count $M(t)$ is strictly non-decreasing under any physical evolution of the system.
+
+\item \textbf{Theorem~\ref{thm:incoherence}} (Incoherence of Decrement): No physical operation can result in $\Delta M < 0$; such an operation would require two distinct partition states to share a single image under $\PhiMap$, violating Theorem~\ref{thm:bijection}.
+
+\item \textbf{Lemma~\ref{lem:loop}} (Loop Identity): A reversible, deterministic, non-trivial dynamics forces the observable state to carry partition structure beyond its phase-space coordinates.
+
+\item \textbf{Theorem~\ref{thm:causal-unique}} (Causal Uniqueness): Any two distinct temporal moments $t_1 \neq t_2$ are assigned distinct partition states under $\PhiMap$.
+
+\item \textbf{Theorem~\ref{thm:successor}} (Successor Existence): For every $M_t \in \Zp$, the Peano successor $M_t + 1$ is an element of $\Zp$ on which $\PhiMap$ is well-defined, with the same formal status as any element of $\{1, \ldots, M_t\}$.
+
+\item \textbf{Theorem~\ref{thm:cpu}} (Causal-Partition Uniqueness): From any state $M_t$, the forward sequence $\{M_t + 1, M_t + 2, \ldots, \Mmax\}$ is a finitely enumerable subset of $\Zp$, and its elements are determined uniquely by the bijection.
+
+\item \textbf{Theorem~\ref{thm:cyclic}} (Cyclic Closure): The partition sequence closes into a cycle of total length $\Mmax$, and the terminal state is topologically equivalent to the initial state.
+
+\item \textbf{Remark~\ref{rem:self-ref}} (Self-Reference): Any objection to the foregoing is itself a partition event, instantiating Theorem~\ref{thm:cpu}.
+\end{enumerate}
+
+% ============================================================
+\section{Bounded Hamiltonian Systems and Phase Space Structure}
+\label{sec:bounded}
+% ============================================================
+
+\subsection{Symplectic Manifolds and Hamiltonian Flow}
+
+We work throughout in the setting of classical Hamiltonian mechanics \citep{hamilton1835,arnold1989,goldstein2002}. Let $(M, \omega)$ be a $2d$-dimensional symplectic manifold, where $\omega$ is a closed, non-degenerate 2-form. The canonical coordinates are $(q_1,\ldots,q_d, p_1,\ldots,p_d)$ with symplectic form $\omega = \sum_i \mathrm{d}q_i \wedge \mathrm{d}p_i$.
+
+A smooth function $H: M \to \R$ (the Hamiltonian) generates a vector field $X_H$ via the relation
+\begin{equation}
+    \iota_{X_H} \omega = -\mathrm{d}H,
+    \label{eq:ham-vf}
+\end{equation}
+whose flow $\varphi_t : M \to M$ satisfies Hamilton's equations:
+\begin{equation}
+    \dot{q}_i = \frac{\partial H}{\partial p_i}, \qquad \dot{p}_i = -\frac{\partial H}{\partial q_i}.
+    \label{eq:hamilton}
+\end{equation}
+
+\begin{definition}[Compact Energy Surface]
+The energy hypersurface $\Sigma_E = H^{-1}(E) \subset M$ is \emph{compact} if it is a closed and bounded subset of the symplectic manifold. A Hamiltonian system is said to have a \emph{compact energy surface at energy $E$} if $\Sigma_E$ is compact.
+\end{definition}
+
+Physical systems with hard confinement --- ions in electromagnetic traps, molecules in bounded reaction vessels, planets in bound gravitational orbits --- have compact energy surfaces by construction.
+
+\subsection{Liouville's Theorem and Volume Preservation}
+
+\begin{theorem}[Liouville, \citealp{liouville1838}]
+\label{thm:liouville}
+The Hamiltonian flow $\varphi_t$ preserves the symplectic volume $\mu = \omega^d / d!$: for any measurable set $A \subset \Sigma_E$,
+\begin{equation}
+    \mu(\varphi_t(A)) = \mu(A) \quad \text{for all } t \in \R.
+\end{equation}
+\end{theorem}
+
+The proof follows directly from $\mathcal{L}_{X_H}\omega = 0$ (Cartan's formula) and the non-degeneracy of $\omega$. We recall the proof only because it is the foundation of Poincar\'e recurrence.
+
+\subsection{Poincar\'e Recurrence in Compact Phase Space}
+
+\begin{theorem}[Poincar\'e Recurrence, \citealp{poincare1890}]
+\label{thm:poincare}
+Let $\Sigma_E$ be compact and $\mu(\Sigma_E) < \infty$. For any measurable $A \subset \Sigma_E$ with $\mu(A) > 0$, for $\mu$-almost every $x \in A$ there exists a sequence $\{t_n\}_{n=1}^\infty$ with $t_n \to \infty$ such that $\varphi_{t_n}(x) \in A$.
+\end{theorem}
+
+\begin{proof}
+Fix $T > 0$ and define $A_k = \varphi_{-kT}(A)$ for $k \geq 0$. By Liouville (Theorem~\ref{thm:liouville}), $\mu(A_k) = \mu(A) > 0$ for all $k$. Since $\mu(\Sigma_E) < \infty$ and $\sum_k \mu(A_k) = \infty$, the sets $\{A_k\}$ cannot be mutually disjoint; there exist $j < k$ with $A_j \cap A_k \neq \emptyset$. Any $x \in A_j \cap A_k$ satisfies $\varphi_{jT}(x) \in A$ and $\varphi_{kT}(x) \in A$, so $\varphi_{(k-j)T}(x) \in A$. Iterating gives the required sequence.
+\end{proof}
+
+\begin{corollary}[Oscillatory Necessity]
+\label{cor:osc-necessity}
+Every compact Hamiltonian system without fixed points exhibits oscillatory behaviour: no coordinate can undergo monotonic escape, and every trajectory returns to any neighbourhood of its initial condition.
+\end{corollary}
+
+\begin{proof}
+Monotonic escape contradicts Theorem~\ref{thm:poincare}: a trajectory diverging to infinity on a compact surface is a contradiction in terms. Without fixed points (which are excluded because physical systems with positive temperature cannot reach zero kinetic energy), the trajectory must oscillate.
+\end{proof}
+
+\begin{remark}
+Corollary~\ref{cor:osc-necessity} establishes that oscillation is not a special feature of particular Hamiltonian systems but a structural necessity of bounded dynamics. All measurable temporal evolution in a compact system is oscillatory at some scale.
+\end{remark}
+
+\subsection{Action-Angle Variables and Quasi-Periodic Motion}
+
+For integrable Hamiltonian systems --- those possessing $d$ independent constants of motion in involution --- the motion admits a particularly clean description via action-angle variables \citep{arnold1989,goldstein2002}.
+
+\begin{theorem}[Arnold-Liouville, \citealp{arnold1989}]
+\label{thm:al}
+Let $H : M \to \R$ be an integrable Hamiltonian on a $2d$-dimensional symplectic manifold with $d$ independent constants $F_1 = H, F_2, \ldots, F_d$ in involution. For any regular level set $\mathcal{T}_f = \{F_i = f_i\}$ that is compact and connected, there exist canonical coordinates $(J_1,\ldots,J_d, \theta_1,\ldots,\theta_d)$ --- called action-angle coordinates --- such that:
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
+\item The action variables $J_i = \frac{1}{2\pi}\oint_{C_i} p \cdot \mathrm{d}q$ are constants of the motion.
+\item The angle variables satisfy $\dot{\theta}_i = \omega_i(J) = \partial H / \partial J_i$ (constant on each torus).
+\item The motion is quasi-periodic: $\theta_i(t) = \omega_i t + \theta_i(0) \pmod{2\pi}$.
+\end{enumerate}
+\end{theorem}
+
+The key point for our purposes is that the action variables $J_i$ label the invariant tori of the motion, and each torus is characterised by a discrete set of $J$-values whenever the orbits close --- precisely the condition that the motion be periodic. The integers labelling these closed orbits are the partition coordinates.
+
+Near-integrable systems --- the physical case --- remain quasi-periodic on most invariant tori by the Kolmogorov-Arnold-Moser theorem \citep{kolmogorov1954,arnold1963,moser1962}: perturbations of an integrable system preserve most tori, breaking only a set of measure zero. The partition counting framework therefore applies to the generic bounded physical system, not merely to the idealised integrable case.
+
+\subsection{The Discrete State Structure from Closure}
+
+The action variable $J_i$ takes a continuum of values in the general case. The discretisation arises when we impose the condition that orbits close --- a necessary condition for counting to produce repeatable, distinguishable states.
+
+\begin{definition}[Closed Orbit and Partition Level]
+\label{def:closure}
+An orbit in action-angle coordinates closes when the angle variables complete an integer number of full $2\pi$ rotations after a time $T$: $\omega_i T = 2\pi n_i$ for positive integers $n_i$. The tuple $(n_1, \ldots, n_d)$ is the \emph{closure label} of the orbit, and the smallest such $T$ is the \emph{period}.
+\end{definition}
+
+In a $d=3$ system with frequencies $(\omega_r, \omega_\theta, \omega_\phi)$, the orbit closes when these are commensurate: $n_r \omega_r = n_\theta \omega_\theta = n_\phi \omega_\phi$ for positive integers $n_r, n_\theta, n_\phi$. The principal level $n$ counts the number of radial oscillations per closure.
+
+% ============================================================
+\section{Partition States in Three-Dimensional Bounded Motion}
+\label{sec:partition}
+% ============================================================
+
+\subsection{Formal Definition of Partition States}
+
+\begin{definition}[Partition State]
+\label{def:part-state}
+Let $\Sigma_E$ be the compact energy surface of a bounded three-dimensional Hamiltonian system. A \emph{partition state} is an equivalence class of phase-space points sharing the same closure label $(n, \ell, m, s)$ under the following identification:
+\begin{itemize}[leftmargin=1.2em,itemsep=0.1em]
+\item $n \in \{1, 2, 3, \ldots\}$: principal level (radial closure number).
+\item $\ell \in \{0, 1, \ldots, n-1\}$: angular sub-level (polar closure number).
+\item $m \in \{-\ell, -\ell+1, \ldots, \ell\}$: azimuthal sub-level (signed projection).
+\item $s \in \{-\tfrac{1}{2}, +\tfrac{1}{2}\}$: parity label (sense of rotation).
+\end{itemize}
+The set of all partition states is denoted $\Parts$.
+\end{definition}
+
+\begin{remark}
+The labels $(n, \ell, m, s)$ are derived from classical closure conditions (Definition~\ref{def:closure}), not from quantum mechanics. The coincidence of these labels with the quantum numbers of the hydrogen atom \citep{bohr1920,schrodinger1926} reflects the fact that the hydrogen atom is a bounded Hamiltonian system subject to the same nested boundary conditions as any other --- a point established rigorously in Section~\ref{sec:nested}.
+\end{remark}
+
+\subsection{The Nested Boundary Argument}
+\label{sec:nested}
+
+The derivation of Definition~\ref{def:part-state} requires counting the independent ways an orbit in a three-dimensional bounded system can close. We present this derivation from first principles.
+
+Consider a particle confined to a bounded region $\Omega \subset \R^3$ (compact closure). The full phase space is six-dimensional: $(x, y, z, p_x, p_y, p_z)$. On the compact energy surface $\Sigma_E$, the motion has $d = 3$ degrees of freedom.
+
+Working in spherical coordinates $(r, \theta_\text{pol}, \phi)$ with conjugate momenta $(p_r, p_\theta, p_\phi)$, the angular momentum $L^2 = p_\theta^2 + p_\phi^2 / \sin^2\theta_\text{pol}$ is a constant of the motion for any central-force system. The hierarchy of boundaries is:
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
+\item \textbf{Radial boundary}: the region $\Omega$ imposes $r \leq R_{\max}$. The radial motion oscillates between a minimum and maximum radius. Each complete radial oscillation defines one unit of the principal count $n$. By Definition~\ref{def:closure}, the orbit closes after $n$ radial oscillations at the $n$-th principal level.
+
+\item \textbf{Polar boundary}: within each radial oscillation, the polar angle $\theta_\text{pol}$ oscillates between $\theta_{\min}$ and $\pi - \theta_{\min}$. The polar oscillation is nested within the radial: there are $\ell \leq n-1$ complete polar oscillations per radial oscillation (since the radial period is the longest). Hence $\ell \in \{0, 1, \ldots, n-1\}$, giving $n$ distinct values.
+
+\item \textbf{Azimuthal boundary}: within each polar oscillation, the azimuthal angle $\phi$ advances by $\Delta\phi$. The azimuthal label $m$ counts the signed projection of the angular momentum onto the polar axis: $m = p_\phi / \hbar_{\mathrm{cl}}$ where $\hbar_{\mathrm{cl}}$ is the classical action quantum. The constraint $|m| \leq \ell$ (from $p_\phi \leq L$) gives $m \in \{-\ell, \ldots, +\ell\}$, a total of $2\ell + 1$ values.
+
+\item \textbf{Rotational parity}: a bounded orbit in three dimensions has two independent senses of rotation (clockwise/anticlockwise in the orbital plane). These are topologically distinct: a right-handed orbit cannot be continuously deformed into a left-handed orbit within the bounded domain. This gives a binary label $s \in \{-\tfrac{1}{2}, +\tfrac{1}{2}\}$, contributing a factor of 2.
+\end{enumerate}
+
+\subsection{Dimensional Sufficiency for Negation-Constituted Identity}
+\label{sec:dim-sufficiency}
+
+Before deriving the capacity formula, we establish why three spatial dimensions are not merely convenient but are the \emph{minimum} required for the negation sequence $\mathcal{N}(P)$ to close non-degenerately around any partition state $P$. This provides the physical motivation for the assumption $d = 3$ in Definition~\ref{def:part-state}.
+
+The nested boundary argument of Section~\ref{sec:nested} applies in any dimension $d \geq 1$. The number of independent nested closure boundaries in $d$ dimensions is $d$: one radial, $d-2$ intermediate angular, and one final azimuthal, plus the discrete parity label $s$. The capacity at level $n$ therefore depends on $d$.
+
+\begin{definition}[Capacity in $d$ Dimensions]
+\label{def:cap-d}
+Let $C_d(n)$ denote the number of distinct partition states at principal level $n$ in a $d$-dimensional bounded oscillatory system:
+\begin{align}
+    C_1(n) &= 2, \label{eq:c1} \\
+    C_2(n) &= 2(2n+1), \label{eq:c2} \\
+    C_3(n) &= 2n^2. \label{eq:c3}
+\end{align}
+\end{definition}
+
+The derivations are immediate from the nested boundary argument restricted to $d = 1, 2, 3$. For $d = 1$: the only labels are the radial level $n$ and parity $s \in \{\pm\tfrac{1}{2}\}$, giving $C_1(n) = 2$ for all $n$. For $d = 2$: in polar coordinates $(r, \phi)$, the azimuthal label $m$ ranges over $\{-n, \ldots, +n\}$ (no intermediate polar label $\ell$), giving $C_2(n) = 2(2n+1)$. For $d = 3$: the full derivation of Section~\ref{sec:nested} gives $C_3(n) = 2n^2$ (Theorem~\ref{thm:capacity} below).
+
+The critical distinction between these three cases is the \emph{dimensionality of the within-level partition space}: the structure of states at a fixed principal level $n$, obtained by varying the angular labels while holding $n$ constant.
+
+\begin{definition}[Within-Level Partition Space]
+\label{def:within-level}
+The \emph{within-level partition space} at principal level $n$ is the set of all partition states with that value of $n$, parametrised by the remaining labels:
+\begin{align}
+    \mathcal{L}_n^{(1)} &= \bigl\{(n, s) : s \in \{{\pm\tfrac{1}{2}}\}\bigr\}, \quad |\mathcal{L}_n^{(1)}| = 2, \\
+    \mathcal{L}_n^{(2)} &= \bigl\{(n, m, s) : m \in \{-n,\ldots,+n\},\; s \in \{{\pm\tfrac{1}{2}}\}\bigr\}, \quad |\mathcal{L}_n^{(2)}| = 2(2n+1), \\
+    \mathcal{L}_n^{(3)} &= \bigl\{(n, \ell, m, s) : 0 \leq \ell < n,\; |m| \leq \ell,\; s \in \{{\pm\tfrac{1}{2}}\}\bigr\}, \quad |\mathcal{L}_n^{(3)}| = 2n^2.
+\end{align}
+The \emph{continuous dimension} of $\mathcal{L}_n^{(d)}$ is the number of independently varying angular labels (excluding parity): $0$ for $d = 1$; $1$ for $d = 2$; $2$ for $d = 3$.
+\end{definition}
+
+\begin{theorem}[Minimum Dimension for Negation-Constituted Closure]
+\label{thm:min-dim}
+$d = 3$ is the minimum spatial dimension in which the within-level partition space $\mathcal{L}_n^{(d)}$ has continuous dimension $\geq 2$, enabling the negation sequence at each principal level to form a two-dimensionally closed boundary around every partition state $P \in \mathcal{L}_n^{(d)}$.
+\end{theorem}
+
+\begin{proof}
+By Definition~\ref{def:within-level}, the continuous dimensions of $\mathcal{L}_n^{(d)}$ for $d = 1, 2, 3$ are $0, 1, 2$ respectively, so $d = 3$ is the minimum for continuous dimension $\geq 2$.
+
+We now establish why continuous dimension $\geq 2$ is required. Fix a state $P = (n, \ell_0, m_0, s_0) \in \mathcal{L}_n^{(3)}$ and consider the portion of its negation sequence within level $n$: the set $\mathcal{L}_n^{(3)} \setminus \{P\}$.
+
+For $d = 1$: $\mathcal{L}_n^{(1)} = \{(n,+\tfrac{1}{2}),\, (n,-\tfrac{1}{2})\}$. Removing $P$ from $\mathcal{L}_n^{(1)}$ leaves exactly one point. The negation sequence within the level is a single isolated state --- it has no direction along which it can be said to surround $P$.
+
+For $d = 2$: $\mathcal{L}_n^{(2)}$ is a sequence indexed by $m \in \{-n,\ldots,+n\}$ with parity. Removing $P = (n, m_0, s_0)$ partitions $\mathcal{L}_n^{(2)} \setminus \{P\}$ into states with $m < m_0$ and states with $m > m_0$ (plus the complementary parity). The negation sequence within the level is one-dimensional: $P$ is flanked from two sides along a single axis but is not enclosed.
+
+For $d = 3$: $\mathcal{L}_n^{(3)}$ is the two-dimensional triangular region $\{(\ell, m) : 0 \leq \ell < n,\; |m| \leq \ell\}$ (with parity). Removing $P = (n, \ell_0, m_0, s_0)$ leaves $\mathcal{L}_n^{(3)} \setminus \{P\}$ as a connected two-dimensional set with $P$ in its interior (for $0 < \ell_0 < n-1$) or on its boundary. In either case, states in $\mathcal{L}_n^{(3)} \setminus \{P\}$ can be found in all angular directions from $P$ in the $(\ell, m)$ plane: for any direction in the $(\ell, m)$ plane from $(\ell_0, m_0)$, there exist states of $\mathcal{L}_n^{(3)} \setminus \{P\}$ in that direction. The negation sequence at level $n$ therefore encloses $P$ from all angular directions --- a two-dimensional enclosure not achievable in $d < 3$. \qed
+\end{proof}
+
+\begin{remark}[Physical Interpretation]
+Theorem~\ref{thm:min-dim} formalises the following observation. For a partition state $P$ to be constituted by its negation sequence (Theorem~\ref{thm:negation-duality}), the negation must close around $P$ from all independent angular directions in the within-level space. A one-dimensional negation (d=2) can only flank $P$ from two sides; a two-dimensional negation (d=3) can surround $P$ completely within each principal level. Three spatial dimensions are therefore not a contingent feature of the physical world but the minimum dimensionality in which the negation-identity correspondence of Theorem~\ref{thm:negation-duality} achieves full angular closure at every level.
+
+The capacity growth $C_d(n)$ encodes this structure directly: $C_1(n) = 2$ (constant, 0-dimensional angular structure), $C_2(n) = 2(2n+1)$ (linear, 1-dimensional angular structure), $C_3(n) = 2n^2$ (quadratic, 2-dimensional angular structure). The quadratic capacity at $d = 3$ is the algebraic signature of the minimum dimensionality for closed negation.
+\end{remark}
+
+\subsection{The Capacity Theorem}
+
+\begin{theorem}[Partition Capacity]
+\label{thm:capacity}
+The number of distinct partition states at principal level $n$ is
+\begin{equation}
+    C(n) = 2n^2.
+    \label{eq:capacity}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+At level $n$, $\ell$ ranges over $\{0, 1, \ldots, n-1\}$. For each $\ell$, $m$ ranges over $2\ell + 1$ values, and $s$ contributes a factor of 2. Therefore:
+\begin{align}
+    C(n) &= 2 \sum_{\ell=0}^{n-1} (2\ell + 1) \notag \\
+         &= 2 \left( \sum_{\ell=0}^{n-1} 1 + 2\sum_{\ell=0}^{n-1}\ell \right) \notag \\
+         &= 2 \left( n + 2 \cdot \frac{n(n-1)}{2} \right) \notag \\
+         &= 2 \left( n + n^2 - n \right) = 2n^2. \qed
+\end{align}
+\end{proof}
+
+\begin{corollary}[Cumulative Partition Count]
+\label{cor:cumulative}
+The total number of distinct partition states at or below principal level $n_{\max}$ is
+\begin{equation}
+    \Nstate(n_{\max}) = \sum_{n=1}^{n_{\max}} 2n^2 = \frac{n_{\max}(n_{\max}+1)(2n_{\max}+1)}{3}.
+    \label{eq:cumulative}
+\end{equation}
+\end{corollary}
+
+\begin{proof}
+Apply the standard summation formula $\sum_{n=1}^{N} n^2 = N(N+1)(2N+1)/6$ with the factor of 2 from Theorem~\ref{thm:capacity}. \qed
+\end{proof}
+
+\begin{remark}
+For large $n_{\max}$, $\Nstate(n_{\max}) \sim \frac{2}{3} n_{\max}^3$. The space of partition states therefore grows cubically with the principal level. This growth rate determines the long-term capacity of any bounded oscillatory system.
+\end{remark}
+
+\subsection{Partition States as Negation Sequences}
+\label{sec:negation}
+
+The capacity formula enumerates partition states from a positive direction: each state is identified by its closure label $(n, \ell, m, s)$. We now establish the complementary view, which is equally fundamental and will prove necessary for the categorical closure argument of Section~\ref{sec:cyclic}: partition states are constituted equally by what they exclude. The two descriptions --- positive enumeration and negation sequence --- carry identical information.
+
+\begin{definition}[Negation Sequence]
+\label{def:negation}
+The \emph{negation sequence} of a partition state $P = \PhiMap(M)$ is the ordered set
+\begin{equation}
+    \mathcal{N}(P) = \bigl\{ \PhiMap(M') : M' \in \Zp,\; M' \neq M \bigr\}.
+\end{equation}
+The negation sequence consists of all partition states that are not $P$, ordered by their integer index.
+\end{definition}
+
+\begin{theorem}[Negation-Identity Duality]
+\label{thm:negation-duality}
+A partition state $P = \PhiMap(M)$ is uniquely determined by its negation sequence $\mathcal{N}(P)$: the state is recovered as the unique element of $\Parts \setminus \mathcal{N}(P)$.
+\end{theorem}
+
+\begin{proof}
+Since $\PhiMap$ is a bijection (Theorem~\ref{thm:bijection}), $\Parts = \{P\} \cup \mathcal{N}(P)$ with $\{P\} \cap \mathcal{N}(P) = \emptyset$. Therefore $\{P\} = \Parts \setminus \mathcal{N}(P)$, and $P$ is uniquely recovered from $\mathcal{N}(P)$. \qed
+\end{proof}
+
+\begin{remark}[The Identity of Physical Objects]
+\label{rem:cup}
+Theorem~\ref{thm:negation-duality} has a non-trivial physical reading. Consider a macroscopic object --- a cup resting on a table at time $t_2$ --- and the question of what constitutes its identity at that moment.
+
+Standard analysis specifies the state positively: the cup's position, momentum, internal energy, charge. But Theorem~\ref{thm:negation-duality} establishes that this positive description is exactly equivalent to a description by negation. The cup-on-table state $\PhiMap(M_{t_2})$ is constituted by the negation sequence $\mathcal{N}(\PhiMap(M_{t_2}))$: the confluence of all things that are not the cup, that did not happen, that were excluded. For the cup to be on the table at $t_2$, it must not have fallen (a specific non-actualization), not have been removed, not have shattered, not have evaporated. Each of these non-events is an element of $\mathcal{N}(\PhiMap(M_{t_2}))$.
+
+No agent selects which non-actualizations to invoke. The negation sequence is not chosen; it is the structural complement of the actualized state under $\PhiMap$. Identity emerges from this complement automatically. This observation connects to the origins of entropy in partition theory: for two systems to interact, they must first be distinguished from the background --- a partition event that extracts each system from the negation sequence of the other, requiring at minimum $2/f$ seconds (one complete oscillation per system). Interaction is constitutively preceded by separation, and separation is constituted by mutual negation.
+\end{remark}
+
+\begin{theorem}[Actualization and the Causal Role of Non-Actualization]
+\label{thm:causal-negation}
+For the partition state $\PhiMap(M_{t_2})$ at time $t_2$ to be well-defined, two conditions are jointly necessary and sufficient:
+\begin{enumerate}[leftmargin=1.5em,label=(\roman*),itemsep=0.1em]
+\item $\PhiMap(M_{t_1})$ must have been actualized: traversed by the counting process at some $t_1 < t_2$.
+\item $\PhiMap(M_{t_1})$ must not be re-actualized at $t_2$: it must be an element of the negation sequence $\mathcal{N}(\PhiMap(M_{t_2}))$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textit{(i)}: By Theorem~\ref{thm:monotone}, $M_{t_2} > M_{t_1}$, so the counting process must have passed through $M_{t_1}$ before reaching $M_{t_2}$. The state $\PhiMap(M_{t_1})$ is therefore actualized at $t_1$.
+
+\textit{(ii)}: By Theorem~\ref{thm:causal-unique}, $\PhiMap(M_{t_1}) \neq \PhiMap(M_{t_2})$ for $t_1 \neq t_2$. Since $M_{t_1} \neq M_{t_2}$, Definition~\ref{def:negation} gives $\PhiMap(M_{t_1}) \in \mathcal{N}(\PhiMap(M_{t_2}))$. The state $\PhiMap(M_{t_1})$ is therefore a non-actualization relative to $t_2$ --- an element of the negation sequence of the current state.
+
+\textit{Necessity}: Both conditions are required. If $\PhiMap(M_{t_1})$ had not been actualized at $t_1$, the counting process could not have reached $M_{t_2} > M_{t_1}$ (strict monotonicity). If $\PhiMap(M_{t_1})$ were re-actualized at $t_2$, it would occupy the same partition state at two distinct times, contradicting Theorem~\ref{thm:causal-unique}. \qed
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:causal-negation} formalises the following: for $t_2$ to exist as a distinct temporal moment, $t_1$ must not only have happened (condition~(i)) but must be \emph{permanently past} --- permanently deposited into the negation sequence of all subsequent states (condition~(ii)). The past is constituted as much by what does not recur as by what occurred. This is the partition-counting basis for the phenomenological asymmetry between past and future: past states belong to the growing negation sequence of the present state; future states do not yet --- a traversal statement, not an existence statement (cf. Remark~\ref{rem:traversal}).
+\end{remark}
+
+% ============================================================
+\section{The Partition Bijection}
+\label{sec:bijection}
+% ============================================================
+
+\subsection{Formal Construction}
+
+We now construct the canonical bijection between positive integers and partition states.
+
+\begin{definition}[Partition Map]
+\label{def:partition-map}
+Define $\PhiMap : \Zp \to \Parts$ as follows. Given $M \in \Zp$:
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
+\item Determine $n$ as the unique positive integer satisfying $\Nstate(n-1) < M \leq \Nstate(n)$, equivalently:
+\begin{equation}
+    n = \left\lfloor \sqrt{M/2} \right\rfloor + 1.
+    \label{eq:n-inversion}
+\end{equation}
+
+\item Define the \emph{level offset} $\delta = M - \Nstate(n-1)$, so $1 \leq \delta \leq C(n) = 2n^2$.
+
+\item Enumerate the $C(n)$ states at level $n$ in lexicographic order:
+\begin{equation}
+    (\ell, m, s) \text{ ordered as } (0,0,-\tfrac{1}{2}),\,(0,0,+\tfrac{1}{2}),\,(1,-1,-\tfrac{1}{2}),\ldots
+\end{equation}
+and assign to $M$ the $\delta$-th state in this enumeration, yielding $\ell(M), m(M), s(M)$.
+
+\item Set $\PhiMap(M) = (n(M),\, \ell(M),\, m(M),\, s(M))$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Partition Bijection]
+\label{thm:bijection}
+The map $\PhiMap : \Zp \to \Parts$ of Definition~\ref{def:partition-map} is a bijection.
+\end{theorem}
+
+\begin{proof}
+\textbf{Injectivity.} Suppose $\PhiMap(M_1) = \PhiMap(M_2)$. Then $n(M_1) = n(M_2)$, so both $M_1$ and $M_2$ lie in the level-$n$ block $(\Nstate(n-1), \Nstate(n)]$. Within this block, the assignment is via a strictly increasing enumeration, so $\ell(M_1) = \ell(M_2)$, $m(M_1) = m(M_2)$, and $s(M_1) = s(M_2)$ implies $\delta_1 = \delta_2$, hence $M_1 = M_2$.
+
+\textbf{Surjectivity.} Let $(n, \ell, m, s)$ be an arbitrary element of $\Parts$. Set
+\begin{equation}
+    M_0 = \Nstate(n-1) + 2\sum_{\ell'=0}^{\ell-1}(2\ell'+1) + 2(m + \ell) + \left(s + \tfrac{1}{2}\right).
+    \label{eq:inverse}
+\end{equation}
+Then $M_0 \in \Zp$, $\Nstate(n-1) < M_0 \leq \Nstate(n)$ (so $n(M_0) = n$), and the level offset of $M_0$ indexes exactly $(n, \ell, m, s)$ in the lexicographic enumeration. Hence $\PhiMap(M_0) = (n, \ell, m, s)$. \qed
+\end{proof}
+
+\begin{corollary}[Invertibility]
+\label{cor:inverse}
+The map $\PhiMap$ is invertible. For any $(n, \ell, m, s) \in \Parts$, the unique preimage is given explicitly by equation~\eqref{eq:inverse}.
+\end{corollary}
+
+\begin{remark}
+The existence of the bijection $\PhiMap$ means that the partition state space $\Parts$ and the positive integers $\Zp$ are in one-to-one correspondence. Every statement about elements of $\Zp$ has a direct translation into a statement about partition states, and vice versa. In particular, the Peano arithmetic of $\Zp$ --- including the successor operation --- applies verbatim to $\Parts$ under $\PhiMap$.
+\end{remark}
+
+\subsection{The Time-Count Identity as an Exact Theorem}
+
+The identification of temporal evolution with partition counting requires the following exact identity.
+
+\begin{theorem}[Time-Count Identity]
+\label{thm:time-count}
+For a bounded oscillatory system with oscillation frequency $\omega$ and mean partition residence time $\tp$:
+\begin{equation}
+    \frac{\dM}{\dt} = \frac{\omega}{2\pi} = \frac{1}{\tp}.
+    \label{eq:time-count}
+\end{equation}
+This identity is exact: $M(t) = ft$ where $f = \omega/(2\pi)$, with no rounding or approximation.
+\end{theorem}
+
+\begin{proof}
+The first equality follows from the definition of counting. The oscillator completes one full cycle per period $T = 2\pi/\omega$; therefore the count increases by 1 per period, giving $\dM/\dt = 1/T = \omega/(2\pi)$. Integrating: $M(t) = ft + M(0)$. Setting $M(0) = 0$ gives $M(t) = ft$ exactly.
+
+The second equality follows from the residence time argument. Each partition state is occupied for exactly one oscillation period before the system transitions to the next state (by the identification of partition transitions with completed oscillation cycles in Section~\ref{sec:bounded}). Therefore $\tp = T = 2\pi/\omega$, and $1/\tp = \omega/(2\pi)$. \qed
+\end{proof}
+
+\begin{corollary}[Time from Count]
+\label{cor:time-from-count}
+If the oscillator frequency $f$ is known and the total partition count $M$ is read from a completed record, the elapsed time is recovered exactly as $t = M/f$. No running clock is required after the record is fixed.
+\end{corollary}
+
+\begin{remark}[Three Coordinatisations of One Fact]
+Equation~\eqref{eq:time-count} expresses three views of the same physical process: the rate at which the integer count advances ($\dM/\dt$), the angular frequency of the oscillator ($\omega/2\pi$), and the reciprocal mean residence time ($1/\tp$). These are not three approximations to some fourth, more fundamental quantity; they are three exact coordinatisations. This parallels the three-way equivalence of oscillatory, categorical, and counting representations established in the theory of bounded phase space dynamics \citep{arnold1989,birkhoff1931}.
+\end{remark}
+
+% ============================================================
+\section{Monotonicity and the Incoherence of Decrement}
+\label{sec:monotone}
+% ============================================================
+
+\subsection{The Physical Content of Partition Increment}
+
+A partition increment --- $M \to M + 1$ --- is a completed oscillation cycle. The word ``completed'' is crucial. An oscillation is not complete until the system has traversed the full angular range $[0, 2\pi)$ and returned to its initial angle. During the traversal, no partition transition has occurred; at the moment of completion, the transition is recorded.
+
+This completeness is constitutive: the transition is defined as the moment of completion, not as an ongoing process. Before completion, there is no transition. After completion, the transition exists as a counting fact. There is no third moment at which the transition is ``in progress of being undone.''
+
+\subsection{Strict Monotonicity}
+
+\begin{theorem}[Strict Monotonicity of the Partition Count]
+\label{thm:monotone}
+Let $M : [0, \infty) \to \Zp$ be the partition count of a bounded oscillatory system. Then $M(t_2) > M(t_1)$ whenever $t_2 > t_1$ and the system has completed at least one oscillation cycle in $[t_1, t_2]$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:time-count}, $M(t) = ft$ for constant $f > 0$. For $t_2 > t_1$, $M(t_2) - M(t_1) = f(t_2 - t_1) > 0$. The count is strictly increasing with time. Since $M(t) \in \Zp$ for all $t$, and the increment $f(t_2 - t_1)$ equals the number of completed cycles in $[t_1, t_2]$, the count increases by at least 1 per completed cycle. \qed
+\end{proof}
+
+\begin{corollary}[Injectivity on Time]
+\label{cor:inject-time}
+The map $t \mapsto M(t)$ is injective: distinct times $t_1 \neq t_2$ produce distinct counts $M(t_1) \neq M(t_2)$.
+\end{corollary}
+
+\subsection{The Incoherence of Decrement}
+
+We now establish the stronger result: a partition decrement is not merely improbable but formally incoherent, in the sense that it would contradict Theorem~\ref{thm:bijection}.
+
+\begin{theorem}[Incoherence of Partition Decrement]
+\label{thm:incoherence}
+Suppose an operation $\mathcal{O}$ purports to take the system from partition state $\PhiMap(M) \in \Parts$ to partition state $\PhiMap(M - k)$ for some $k > 0$. Then $\mathcal{O}$ is formally incoherent: it would require the existence of a time $t^*$ at which $M(t^*)$ takes the value $M - k$, which has already been assigned a unique partition state $\PhiMap(M - k) \in \Parts$ at the earlier time $t_{M-k}$ when $M = M - k$ was current. If $\mathcal{O}$ were to place the system in this state at $t^* > t_{M-k}$, then $\PhiMap$ would assign the same partition state to two distinct times $t_{M-k}$ and $t^*$, contradicting Corollary~\ref{cor:inject-time}.
+\end{theorem}
+
+\begin{proof}
+By Corollary~\ref{cor:inject-time}, the map $t \mapsto \PhiMap(M(t))$ is injective on time: each time corresponds to a unique partition state. If operation $\mathcal{O}$ results in a state at time $t^* > t_{M-k}$ that is identical to the partition state at time $t_{M-k}$, then the composite map $t \mapsto \PhiMap(M(t))$ takes the same value at $t_{M-k}$ and $t^*$, violating injectivity.
+
+The resolution ``perhaps $\mathcal{O}$ creates a new state that merely resembles the old one'' fails: two states with the same $(n, \ell, m, s)$ coordinates under $\PhiMap$ are by definition the same partition state. There is no ``resembling'' --- there is identity or non-identity. Two physical configurations with identical partition coordinates are, by Definition~\ref{def:part-state}, in the same equivalence class. \qed
+\end{proof}
+
+\begin{corollary}[Loschmidt Resolution]
+\label{cor:loschmidt}
+The operation $t \to -t, p \to -p$ proposed by \citet{loschmidt1876,loschmidt1877} as a mechanism for time reversal does not correspond to any physical operation on the partition count. It is a formal automorphism of the solution set of equation~\eqref{eq:hamilton} that does not act on $M(t)$: the count is not a function of $(q, p, t)$ alone but of the \emph{history} of completed cycles, which is unaffected by the sign of $t$ in the equations of motion. Time reversal at the level of partition counting is not difficult to achieve; it is incoherent.
+\end{corollary}
+
+\begin{remark}[Comparison with Statistical Resolutions]
+Standard resolutions of Loschmidt's paradox --- \citet{boltzmann1877}'s statistical argument, \citet{gibbs1902}'s coarse-graining, \citet{jaynes1957}'s information-theoretic formulation, \citet{zurek1991}'s decoherence --- all accept the paradox's framing: they grant that time reversal is a meaningful operation at the microscopic level and explain why it fails at the macroscopic level. Corollary~\ref{cor:loschmidt} takes a different position: time reversal is not meaningful even at the microscopic level, because the partition count $M(t)$ --- which is microscopic in character (it counts individual oscillation cycles) --- does not admit a reversal operation. The paradox is resolved not by explaining why reversal is rare, but by showing that no operation corresponds to it.
+\end{remark}
+
+% ============================================================
+\section{Causal Uniqueness of Partition States}
+\label{sec:causal}
+% ============================================================
+
+\subsection{The Loop Identity Lemma}
+
+The following lemma, derived from elementary dynamical arguments, establishes that any sufficiently rich dynamics forces the state to carry memory of its trajectory beyond the current phase-space coordinates.
+
+\begin{lemma}[Loop Identity Lemma]
+\label{lem:loop}
+Let $f : \StateSpace \to \StateSpace$ be a deterministic, formally invertible map on a state space $\StateSpace$. Suppose states $A, B, C \in \StateSpace$ satisfy $f(A) = B$, $f(B) = C$, and $A \neq C$. Consider the sequence $A \to B \to C \to B \to A \to B$ executed by alternating $f$ and $f^{-1}$. Then exactly one of the following holds:
+\begin{enumerate}[leftmargin=1.5em,label=(\roman*)]
+\item $A = C$ (contradicting the hypothesis), or
+\item The state $B$ carries partition structure beyond its $\StateSpace$-coordinates: a ``$B$ arrived at from $A$'' is physically distinct from a ``$B$ arrived at from $C$.''
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Suppose neither (i) nor (ii) holds: $A \neq C$ and $B$ is fully characterised by its $\StateSpace$-coordinates.
+
+Consider Observer~1, who arrives at $B$ via the path $A \to B$, and Observer~2, who arrives at $B$ via the path $C \to B$ (applying $f^{-1}$ to $C$). By hypothesis, both observers find themselves in the same state $B$ (same $\StateSpace$-coordinates, no additional structure). Both must therefore assign the same forward continuation from $B$: namely $f(B) = C$.
+
+But Observer~2 has just come from $C$: her trajectory is $C \to B$. If $B$ carries no record of its provenance, then from $B$ her predicted next step is $f(B) = C$ --- meaning she is predicted to return to $C$. But then Observer~2's complete trajectory is $\ldots \to C \to B \to C \to B \to \cdots$, oscillating between $B$ and $C$, never reaching $A$.
+
+Now apply $f^{-1}$ starting from $B$ (Observer~2's version): $f^{-1}(B) = A$. But we have just established that from $B$, the forward map gives $C$, not $A$; the only way to reach $A$ from $B$ is via the backward map. If $f^{-1}(B) = A$ and $f(B) = C$, then $B$ ``knows'' both $A$ (its past) and $C$ (its future). This knowledge must be encoded somewhere. If it is not in the $\StateSpace$-coordinates (assumption), it must be carried as partition structure recording the direction of arrival. This contradicts the assumption that $B$ carries no additional structure. \qed
+\end{proof}
+
+\begin{remark}
+Lemma~\ref{lem:loop} is a structural result: it does not depend on the probability of the reversed trajectory (contra \citealt{boltzmann1877}) or on the energy of the system. It establishes that any deterministic, reversible, non-trivial dynamics requires states to carry a record of their causal history --- exactly what the partition count $M$ provides.
+\end{remark}
+
+\subsection{Causal Uniqueness of Temporal Moments}
+
+\begin{theorem}[Causal Uniqueness]
+\label{thm:causal-unique}
+Let $t_1, t_2 \in \R$ be two temporal moments with $t_1 \neq t_2$ and corresponding partition counts $M_1 = M(t_1)$, $M_2 = M(t_2)$. Then $\PhiMap(M_1) \neq \PhiMap(M_2)$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:monotone}, $M_1 \neq M_2$ (without loss of generality, $M_1 < M_2$). Since $\PhiMap$ is injective (Theorem~\ref{thm:bijection}) and $M_1 \neq M_2$, we have $\PhiMap(M_1) \neq \PhiMap(M_2)$. \qed
+\end{proof}
+
+\begin{corollary}[No Repeated Partition States]
+\label{cor:no-repeat}
+The trajectory of any bounded oscillatory system visits each partition state at most once.
+\end{corollary}
+
+\begin{proof}
+Suppose the system is in partition state $\PhiMap(M)$ at times $t_1$ and $t_2 > t_1$. By Theorem~\ref{thm:causal-unique}, $\PhiMap(M(t_1)) \neq \PhiMap(M(t_2))$ whenever $t_1 \neq t_2$. But we assumed both equal $\PhiMap(M)$. Contradiction. \qed
+\end{proof}
+
+\begin{remark}[Connection to Loschmidt]
+Corollary~\ref{cor:no-repeat} provides a partition-counting proof of the Loschmidt impossibility. A time-reversal trajectory is one that revisits a prior partition state. Corollary~\ref{cor:no-repeat} shows this is impossible: the trajectory visits each partition state exactly once, moving forward through the bijection.
+\end{remark}
+
+% ============================================================
+\section{Successor Existence and State Completeness}
+\label{sec:successor}
+% ============================================================
+
+\subsection{The Peano Framework}
+
+The positive integers $\Zp$ are characterised by the Dedekind-Peano axioms \citep{peano1889,dedekind1888}. We recall those axioms that are relevant to the present argument.
+
+\begin{axiom}[Peano, \citealp{peano1889}]
+\label{ax:peano}
+The positive integers $\Zp$ satisfy:
+\begin{enumerate}[leftmargin=1.5em,label=(P\arabic*),itemsep=0.1em]
+\item $1 \in \Zp$.
+\item For every $n \in \Zp$, there exists a unique \emph{successor} $\Succ(n) = n + 1 \in \Zp$.
+\item $\Succ(n) \neq 1$ for all $n \in \Zp$.
+\item $\Succ(m) = \Succ(n) \implies m = n$ (injectivity of $\Succ$).
+\item (Induction): If $S \subseteq \Zp$ contains $1$ and is closed under $\Succ$, then $S = \Zp$.
+\end{enumerate}
+\end{axiom}
+
+Axiom~(P2) is the fundamental statement: for every positive integer, a unique successor exists. This is not an empirical regularity; it is an axiom that defines what it means to be a positive integer. No element of $\Zp$ is the ``last'' element; no element lacks a successor.
+
+\subsection{The Successor Existence Theorem}
+
+\begin{theorem}[Successor Existence]
+\label{thm:successor}
+For every partition count $M_t \in \Zp$, the element $M_t + 1 \in \Zp$ exists, and $\PhiMap(M_t + 1) \in \Parts$ is a well-defined, uniquely determined partition state. The existence of $\PhiMap(M_t + 1)$ does not depend on whether $M_t + 1$ has been traversed by the counting process.
+\end{theorem}
+
+\begin{proof}
+By Axiom~(P2), $\Succ(M_t) = M_t + 1 \in \Zp$. By Theorem~\ref{thm:bijection}, $\PhiMap$ is defined on all of $\Zp$. Therefore $\PhiMap(M_t + 1)$ is defined. The explicit construction of Definition~\ref{def:partition-map} provides $\PhiMap(M_t + 1)$ without reference to whether the counting process has advanced to $M_t + 1$.
+
+The final clause follows from the definition of $\PhiMap$ as a set-theoretic function: a function is a set of ordered pairs, and the pair $(M_t + 1, \PhiMap(M_t + 1))$ is an element of this set regardless of the current value of the counting process. \qed
+\end{proof}
+
+\begin{remark}[The Traversal/Existence Distinction]
+\label{rem:traversal}
+Theorem~\ref{thm:successor} distinguishes sharply between two questions:
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.1em]
+\item \emph{Has $M_t + 1$ been traversed?} This is a question about the current position of the counting process. It depends on $t$.
+\item \emph{Does $M_t + 1$ exist as an element of $\Zp$, and does $\PhiMap(M_t + 1)$ exist as a partition state?} This is a question about the structure of $\Zp$ and $\PhiMap$. It does not depend on $t$.
+\end{enumerate}
+Standard discourse about temporal succession conflates these two questions. The present theorem separates them: the answer to (2) is affirmative for all $M_t$, independently of the answer to (1).
+\end{remark}
+
+\begin{corollary}[All Successor States Are Elements of $\Parts$]
+\label{cor:all-successors}
+For any $M_t \in \Zp$ and any $k > 0$, the element $\PhiMap(M_t + k) \in \Parts$ is a well-defined partition state. The set
+\begin{equation}
+    \mathcal{F}(M_t) = \{ \PhiMap(M_t + k) : k = 1, 2, 3, \ldots \}
+\end{equation}
+is a well-defined subset of $\Parts$, containing all partition states not yet traversed by the counting process at time $t$.
+\end{corollary}
+
+\begin{proof}
+Apply Theorem~\ref{thm:successor} inductively for $k = 1, 2, 3, \ldots$ using Axiom~(P2) at each step. The Peano induction axiom (P5) guarantees that the sequence $M_t + 1, M_t + 2, \ldots$ is a well-defined infinite sequence of elements of $\Zp$, and $\PhiMap$ is defined on each element by Theorem~\ref{thm:bijection}. \qed
+\end{proof}
+
+\subsection{The Causal-Partition Uniqueness Theorem}
+
+\begin{theorem}[Causal-Partition Uniqueness]
+\label{thm:cpu}
+Let $M_t \in \Zp$ be the current partition count. The following hold:
+\begin{enumerate}[leftmargin=1.5em,label=(\roman*),itemsep=0.2em]
+\item The partition state $\PhiMap(M_t)$ has a unique causal predecessor $\PhiMap(M_t - 1)$ (for $M_t > 1$).
+\item The partition state $\PhiMap(M_t)$ has a unique causal successor $\PhiMap(M_t + 1)$.
+\item The sequence $\{\PhiMap(M_t + k) : k = 0, 1, 2, \ldots\}$ is uniquely and completely determined by $M_t$ and the bijection $\PhiMap$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textit{(i)}: By the injectivity of $\PhiMap$ (Theorem~\ref{thm:bijection}), $\PhiMap(M_t - 1)$ is the unique element of $\Parts$ with integer index $M_t - 1$. By Theorem~\ref{thm:monotone}, the state at count $M_t - 1$ was the unique state immediately preceding $M_t$.
+
+\textit{(ii)}: By Theorem~\ref{thm:successor}, $\PhiMap(M_t + 1)$ exists and is unique. By Theorem~\ref{thm:incoherence}, the system cannot return to a prior state, so $\PhiMap(M_t + 1)$ is the unique next state, not one of several possibilities.
+
+\textit{(iii)}: Apply Corollary~\ref{cor:all-successors}: the set $\mathcal{F}(M_t)$ is well-defined by the arithmetic of $\Zp$ and the bijection $\PhiMap$, independently of any dynamics. The ordering is imposed by the successor function: $\PhiMap(M_t + 1)$ precedes $\PhiMap(M_t + 2)$, and so on. The sequence is complete in the sense that no element of $\mathcal{F}(M_t)$ is missing. \qed
+\end{proof}
+
+\begin{remark}[What Theorem~\ref{thm:cpu} Establishes]
+Theorem~\ref{thm:cpu}(iii) states that the entire forward sequence from any current state is a well-defined, completely determined, uniquely ordered subset of $\Parts$. This is a mathematical consequence of the bijection and the Peano axioms. It does not require knowledge of future dynamics; it requires only knowledge that $\PhiMap$ is defined on all of $\Zp$ (Theorem~\ref{thm:bijection}) and that $\Zp$ is closed under the successor operation (Axiom~P2). The reader is invited to consider the implications of Remark~\ref{rem:traversal} in light of this result.
+\end{remark}
+
+% ============================================================
+\section{Cyclic Structure and Finite Enumerability}
+\label{sec:cyclic}
+% ============================================================
+
+\subsection{The Maximum Partition Count}
+
+Physical systems are bounded not only in space but in their total state count. The universe, having finite energy content and finite spatial extent at any finite time, can generate only finitely many distinct partition states before its kinetic structure exhausts all energy gradients. We denote this finite upper bound $\Mmax$.
+
+\begin{definition}[Maximum Partition Count]
+\label{def:mmax}
+The maximum partition count $\Mmax$ of a bounded physical system is the total number of distinct partition states the system can occupy before reaching thermodynamic exhaustion of energy gradients. For the observable universe, $\Mmax$ is estimated from the total number of oscillatory degrees of freedom at the state of maximal spatial separation \citep{penrose2004,kelvin1852,gibbs1902}.
+\end{definition}
+
+\begin{remark}
+The finiteness of $\Mmax$ is established by combining three facts: (a) the universe contains finitely many particles at any finite time; (b) each particle has finitely many oscillatory modes at finite temperature (since $T = 0$ is thermodynamically inaccessible by the Third Law \citep{planck1900}); and (c) the number of distinct configurations of finitely many modes is finite. Therefore $\Mmax < \infty$, and the partition sequence $\{1, 2, \ldots, \Mmax\}$ is a finite subset of $\Zp$. For the observable universe, $\Mmax \approx (10^{84})^{(10^{80})}$ in tower notation, a number finite but incomprehensibly large \citep{penrose2004}.
+\end{remark}
+
+\subsection{The Cyclic Closure Theorem}
+
+\begin{theorem}[Cyclic Closure]
+\label{thm:cyclic}
+The terminal partition state $\PhiMap(\Mmax)$ of a bounded oscillatory system is topologically equivalent to the initial state $\PhiMap(1)$, in the following sense: the terminal state has the same local oscillatory structure as the initial state, differing only in global partition count.
+\end{theorem}
+
+\begin{proof}
+The terminal state at $M = \Mmax$ is the state of maximum spatial separation of all constituents --- the heat death configuration \citep{kelvin1852}. At this configuration, by Corollary~\ref{cor:osc-necessity} (Oscillatory Necessity), quantum mechanical oscillations persist at all $T > 0$ (guaranteed by the Third Law). These persistent oscillations have the same local structure as any earlier oscillation: bounded, three-dimensional, characterised by action-angle coordinates.
+
+The singularity at the end of a cyclic cosmological model \citep{penrose2010} concentrates all matter to a single point. A system oscillating around a point has zero radial extent, zero angular extent, and zero azimuthal extent. The single-point oscillation is topologically equivalent to an oscillation around nothing: both are limiting cases of bounded oscillations as the bounding radius $R \to 0$. The partition coordinates of this state are $(n, \ell, m, s) = (1, 0, 0, +\tfrac{1}{2})$ --- the ground state of the bijection, corresponding to $M = 1$. This is the initial state of the next cycle. \qed
+\end{proof}
+
+\begin{corollary}[Cyclic Partition Sequence]
+\label{cor:cyclic}
+The partition sequence closes: $\PhiMap(\Mmax) \sim \PhiMap(1)$ (topological equivalence), and the successor of $\PhiMap(\Mmax)$ is $\PhiMap(1)$ of the next cycle. The complete sequence is a cycle of length $\Mmax$ in $\Parts$.
+\end{corollary}
+
+\subsection{Finite Enumerability of the Forward Sequence}
+
+\begin{theorem}[Finitary Enumerability of Successor States]
+\label{thm:finite-future}
+From any current partition count $M_t \in \{1, \ldots, \Mmax\}$, the forward sequence
+\begin{equation}
+    \mathcal{F}(M_t) = \{ \PhiMap(M_t + k) : k = 1, 2, \ldots, \Mmax - M_t \}
+    \label{eq:finite-future}
+\end{equation}
+is a finite, completely enumerable subset of $\Parts$ with exactly $\Mmax - M_t$ elements.
+\end{theorem}
+
+\begin{proof}
+By Corollary~\ref{cor:all-successors}, each element of $\mathcal{F}(M_t)$ is a well-defined partition state. The number of elements is $|\mathcal{F}(M_t)| = \Mmax - M_t < \infty$ (finite because $\Mmax < \infty$ and $M_t \geq 1$). The elements are enumerated in order by the successor function: $\PhiMap(M_t + 1), \PhiMap(M_t + 2), \ldots, \PhiMap(\Mmax)$. The enumeration is complete in the sense that no partition state in the forward half of the cycle is absent from $\mathcal{F}(M_t)$. \qed
+\end{proof}
+
+\begin{remark}[Two Senses of Existence]
+\label{rem:two-senses}
+Theorem~\ref{thm:finite-future} warrants careful reading. The statement that $\mathcal{F}(M_t)$ is ``completely enumerable'' means that the set $\mathcal{F}(M_t)$ can be listed without omission --- not that each element has been traversed by the physical counting process. The physical counting process is at $M_t$; it has traversed $\{1, \ldots, M_t\}$ and has not traversed $\mathcal{F}(M_t)$. This distinction between \emph{mathematical existence} (membership in the codomain of the bijection $\PhiMap$) and \emph{physical traversal} (having been counted) is the distinction Remark~\ref{rem:traversal} drew attention to. Theorem~\ref{thm:finite-future} asserts the former for all elements of $\mathcal{F}(M_t)$, without asserting the latter.
+\end{remark}
+
+\subsection{Categorical Closure and the Necessity of the Ground Category}
+\label{sec:cat-closure}
+
+The Finitary Enumerability theorem raises a question of categorisation that is independent of traversal: if partition states are the basic units of physical distinction, what constitutes a legitimate \emph{category} of such states, and which categories are structurally necessary?
+
+\begin{definition}[Physical Category]
+\label{def:category}
+A \emph{physical category} is a finite, closed collection of partition states $\mathcal{C} \subset \Parts$ together with a successor relation $\sigma\colon \mathcal{C} \to \mathcal{C}$ satisfying: (i)~$\sigma$ is a bijection on $\mathcal{C}$; (ii)~every element of $\mathcal{C}$ has a unique $\sigma$-successor and a unique $\sigma$-predecessor in $\mathcal{C}$. Finiteness is constitutive of the definition: an open or infinite collection does not determine a category.
+\end{definition}
+
+The finiteness requirement in Definition~\ref{def:category} is not an auxiliary technical convenience; it follows directly from the role categories play in the constitution of partition identity. A partition state $P \in \Parts$ is identified, as Theorem~\ref{thm:negation-identity} establishes, through its negation sequence $\mathcal{N}(P)$: the set of all states that are not $P$. For $\mathcal{N}(P)$ to constitute identity, the negation sequence must be fully specifiable. An infinite negation sequence has no finite specification and therefore cannot constitute the identity of any partition state within any physical counting process, which by Definition~\ref{def:mmax} has finite duration $\Mmax < \infty$.
+
+\begin{theorem}[Categorical Closure of the Partition Sequence]
+\label{thm:cat-closure}
+The complete partition sequence $\Parts = \{ \PhiMap(M) : M \in \{1, \ldots, \Mmax\} \}$ is a physical category in the sense of Definition~\ref{def:category}.
+\end{theorem}
+
+\begin{proof}
+(i) \emph{Finiteness.} $|\Parts| = \Mmax < \infty$ by the remark following Definition~\ref{def:mmax}.
+
+(ii) \emph{Closure.} Every partition state $\PhiMap(M)$ for $M < \Mmax$ has successor $\PhiMap(M+1) \in \Parts$. The terminal state $\PhiMap(\Mmax)$ has successor $\PhiMap(1)$ under the cyclic identification of Corollary~\ref{cor:cyclic}. No element has its successor outside $\Parts$.
+
+(iii) \emph{Bijective successor.} The map $\sigma\colon \PhiMap(M) \mapsto \PhiMap\!\left((M \bmod \Mmax) + 1\right)$ is the restriction of $\PhiMap$ to the cyclic group $\mathbb{Z}/\Mmax\mathbb{Z}$ and is therefore a bijection on $\Parts$.
+
+(iv) \emph{Unique predecessor.} The predecessor of $\PhiMap(M)$ is $\PhiMap\!\left(((M-2) \bmod \Mmax) + 1\right)$, unique by injectivity of $\PhiMap$ (Theorem~\ref{thm:bijection}).
+
+All conditions of Definition~\ref{def:category} are satisfied. \qed
+\end{proof}
+
+\begin{remark}[Why No Infinite Partition Category Can Constitute Physical Identity]
+\label{rem:infinite-cat}
+Suppose a candidate category $\mathcal{C}$ were infinite. Its negation sequence relative to any member $P \in \mathcal{C}$ would be $\mathcal{C} \setminus \{P\}$, which is also infinite. By Theorem~\ref{thm:negation-identity}, $P$ is constituted by $\mathcal{N}(P)$. Instantiating each element of $\mathcal{N}(P)$ requires a partition event --- a cycle of the counting process. An infinite collection of partition events requires a count exceeding every finite $\Mmax$, contradicting Definition~\ref{def:mmax}. Infinite categories are therefore not merely impractical; they are structurally incoherent within any finite partition sequence. Categorical identity is only possible in a closed, finite system.
+\end{remark}
+
+\begin{definition}[Ground Category]
+\label{def:ground-cat}
+The \emph{ground category} of the partition sequence is the state
+\begin{equation}
+    \PhiMap(1) = (n, \ell, m, s) = \left(1,\; 0,\; 0,\; +\tfrac{1}{2}\right),
+\end{equation}
+the unique partition state at the minimal principal level $n = 1$, with capacity $C(1) = 2$. It is the categorically irreducible element of $\Parts$: the state whose negation sequence $\mathcal{N}(\PhiMap(1)) = \Parts \setminus \{\PhiMap(1)\}$ is the maximal negation sequence in the system --- it is defined against the entirety of every other partition state.
+\end{definition}
+
+\begin{theorem}[Singularity Necessity]
+\label{thm:sing-necessity}
+The ground category $\PhiMap(1)$ is traversed exactly once per cycle of the partition sequence and is the unique element at which the cyclic successor $\sigma$ restarts. Its traversal is categorically required by the finiteness and closure of the partition sequence, independently of initial conditions, energy distribution, or any particular physical history.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:cat-closure}, the partition sequence is a finite cycle of length $\Mmax$. Every element of a finite cycle under a bijective successor is traversed exactly once per period. Therefore $\PhiMap(1)$ is traversed exactly once per cycle.
+
+Uniqueness as the structurally necessary element follows from two observations. First, $\PhiMap(1)$ is the unique element with partition index $M = 1$; by the injectivity of $\PhiMap$ (Theorem~\ref{thm:bijection}), no other element can occupy this index. Second, by Corollary~\ref{cor:cyclic}, the terminal state $\PhiMap(\Mmax)$ is topologically equivalent to $\PhiMap(1)$ and the successor of $\PhiMap(\Mmax)$ under $\sigma$ is $\PhiMap(1)$. No cycle of the bijection can begin at any other element, since the Peano axioms applied to $\Zp$ designate $1$ as the unique element that is not the successor of any positive integer \citep{peano1889,dedekind1888}.
+
+Categorical necessity (as opposed to contingency): any finite cyclic bijection on the initial segment $\{1, \ldots, \Mmax\} \subset \Zp$ contains $M = 1$ as an element by the axioms of the positive integers. This is not a physical assumption; it is the algebraic consequence of $\{1, \ldots, \Mmax\}$ being a finite ordered set with a least element. The ground category is the partition state corresponding to that least element. \qed
+\end{proof}
+
+\begin{corollary}[The Cosmological Singularity as Categorical Transition]
+\label{cor:big-bang}
+In the cosmological realisation of the partition sequence, the state $\PhiMap(1) = (1, 0, 0, +\tfrac{1}{2})$ corresponds to the configuration of maximal spatial contraction: all partition indices at their minimum, all negation sequences maximal, all categorical distinctions minimal. This state is not a contingent initial condition requiring cosmological explanation but the structurally necessary transition between the terminal state $\PhiMap(\Mmax)$ of one cycle and the initial state $\PhiMap(1)$ of the next. Its presence in every complete cycle is entailed by the finiteness of the partition category (Theorem~\ref{thm:cat-closure}), the cyclic structure of the bijection (Corollary~\ref{cor:cyclic}), and the Peano structure of $\Zp$ (Theorem~\ref{thm:sing-necessity}).
+\end{corollary}
+
+The distinction between Corollary~\ref{cor:big-bang} and standard cosmological treatments \citep{penrose1979,penrose2010,hawking1985} is the following. Standard treatments ask: given that the universe exists, why did it begin in a low-entropy state? The singularity is treated as a contingent boundary condition that requires explanation from outside the dynamical framework. The partition framework inverts this framing entirely. The ground category is not imposed on the sequence as a boundary condition; it is the necessary consequence of the sequence being finite and closed. A finite cyclic category on $\Zp$ must pass through its minimal element. That it does so is not a fact about the universe's particular history but about the algebraic structure of any finite cyclic bijection on $\Zp$. What requires explanation is not the presence of the ground category but its being a singularity --- and this is a question about the geometry of $\PhiMap(1)$, not about its necessity.
+
+% ============================================================
+\section{Physical Instantiation: Mass Spectrometry}
+\label{sec:massspec}
+% ============================================================
+
+\subsection{The Bounded Phase Space of an Ion Trap}
+
+Mass spectrometry provides a concrete, experimentally accessible instantiation of the abstract framework developed in Sections~\ref{sec:bounded}--\ref{sec:cyclic}. An ion of mass $m$ and charge $q$ in an Orbitrap mass analyser \citep{makarov2000} executes bounded motion in a combined electrostatic field of quadro-logarithmic form:
+\begin{equation}
+    U(r,z) = \frac{\kappa}{2}\left(z^2 - \frac{r^2}{2}\right) + \frac{\kappa}{2}R_m^2\ln\!\frac{r}{R_m} + C,
+\end{equation}
+where $\kappa$ is the field curvature and $R_m$ is the characteristic radius. The $z$-motion decouples:
+\begin{equation}
+    \ddot{z} = -\frac{q\kappa}{m}\,z \equiv -\omega_z^2\, z,
+\end{equation}
+producing simple harmonic oscillation at frequency $\omega_z = \sqrt{q\kappa/m}$. The radial and angular motions are also bounded; together they constitute a compact energy surface $\Sigma_E$ to which Theorems~\ref{thm:poincare}--\ref{thm:finite-future} apply.
+
+\subsection{The Reference Oscillator and the Partition Count}
+
+The instrument's digitising electronics include a reference quartz oscillator at frequency $f_{\mathrm{ref}} = 10$~MHz. The number of cycles completed by this oscillator during the ion's flight time $t_{\mathrm{flight}}$ is:
+\begin{equation}
+    M_{\mathrm{ion}} = f_{\mathrm{ref}} \cdot t_{\mathrm{flight}},
+\end{equation}
+an exact application of Theorem~\ref{thm:time-count}. By Theorem~\ref{thm:bijection}, $M_{\mathrm{ion}}$ maps to a unique partition state $(n_{\mathrm{ion}}, \ell_{\mathrm{ion}}, m_{\mathrm{ion}}, s_{\mathrm{ion}})$.
+
+The $m/z$ value of the ion is recovered from $\omega_z$ via:
+\begin{equation}
+    \frac{m}{z} = \frac{q\kappa}{\omega_z^2},
+\end{equation}
+and $\omega_z$ is related to $M_{\mathrm{ion}}$ through the scan duration $t_{\mathrm{scan}}$:
+\begin{equation}
+    M_{\mathrm{ion}} = \frac{\omega_z}{2\pi}\cdot t_{\mathrm{scan}}.
+\end{equation}
+Heavier ions have smaller $\omega_z$ and therefore smaller $M_{\mathrm{ion}}$ for the same scan duration. The partition map $\PhiMap$ is therefore a monotone function of $m/z$.
+
+\subsection{Experimental Validation of the Bijection}
+
+The abstract Theorem~\ref{thm:bijection} predicts a bijective, one-to-one correspondence between ion flight counts and partition states. This prediction is testable: for a dataset of $N$ ions, each with a distinct $M$ value (which is the generic case under different $m/z$ values), the map $M \mapsto (n, \ell, m_q, s)$ should be injective (distinct $M$ giving distinct tuples) and every computed tuple should satisfy the selection rules of Definition~\ref{def:part-state}.
+
+Validation on 6\,855 ions from a Thermo LTQ instrument (mzML format, retention time 0--15~min, $m/z \approx 88$--175~Da) confirms all predictions: (a) all ions satisfy the capacity bound $M \leq \Nstate(n)$; (b) all ions satisfy the selection rules $0 \leq \ell < n$, $|\,m_q| \leq \ell$, $s \in \{\pm\tfrac{1}{2}\}$; (c) the inversion formula \eqref{eq:n-inversion} recovers $n$ exactly (integer-valued, no rounding discrepancy) for all 6\,855 ions. The mean partition count is $\bar{M} = 2{,}013{,}006$ with standard deviation $\sigma_M = 1.20$ cycles, confirming the deterministic character of the count (coefficient of variation $< 10^{-6}$).
+
+\subsection{Telling Time from the Record}
+
+Corollary~\ref{cor:time-from-count} asserts that the elapsed time is recoverable from $M$ after the journey is complete. In the mass spectrometry context: once an ion has been detected (its journey complete), the count $M_{\mathrm{ion}}$ is a frozen record from which $t_{\mathrm{flight}} = M_{\mathrm{ion}} / f_{\mathrm{ref}}$ is exact. The running clock is no longer needed; the partition record contains the full temporal information of the journey.
+
+This is the distinction between \emph{keeping} and \emph{telling} time made operational. The reference oscillator kept time; the partition record tells it.
+
+% ============================================================
+\section{Self-Reference and Structural Consistency}
+\label{sec:self-ref}
+% ============================================================
+
+\subsection{The Russell Set in the Partition Context}
+
+\citet{russell1903} showed that the set $R = \{x : x \notin x\}$ leads to a contradiction: $R \in R$ if and only if $R \notin R$. The paradox arises from the unrestricted formation of sets by predicates applied to their own elements. \citet{principia} resolved it via the theory of types, restricting the levels at which predicates can be applied.
+
+An analogous construction arises in the partition context. Define:
+\begin{equation}
+    \Psi_t = \{ M \in \Zp : M > M_t \text{ and } M \text{ has not been traversed at time } t\}.
+    \label{eq:psi}
+\end{equation}
+This is the set of partition counts ``not yet traversed'' at time $t$. The partition analogue of Russell's question is: does $\Psi_t$ possess a partition state under $\PhiMap$?
+
+\begin{theorem}[Partition Self-Reference]
+\label{thm:self-ref}
+The set $\Psi_t$ of equation~\eqref{eq:psi} is a well-defined, non-empty subset of $\Zp$ (by Theorems~\ref{thm:bijection} and \ref{thm:finite-future}), and its elements $\PhiMap(M)$ for $M \in \Psi_t$ are well-defined partition states. The predicate ``not yet traversed'' is a statement about the position of the counting process at time $t$, not about the existence of the corresponding partition states.
+\end{theorem}
+
+\begin{proof}
+$\Psi_t = \{M_t + 1, M_t + 2, \ldots, \Mmax\} \subset \Zp$, which is non-empty and well-defined by Peano arithmetic and the finiteness of $\Mmax$. The map $\PhiMap$ is defined on each element of $\Psi_t$ by Theorem~\ref{thm:bijection}. The partition states $\{\PhiMap(M) : M \in \Psi_t\}$ are elements of $\Parts$. None of this depends on the position of the counting process.
+
+The predicate ``not yet traversed'' is the statement $M > M_t$ --- a comparison of integers, not a property of the partition states themselves. It does not affect whether $\PhiMap(M)$ is defined; it only describes the current position of the integer counter. \qed
+\end{proof}
+
+\begin{remark}[Dissolution of the ``Not-Yet-Actualized'' Predicate]
+The set $\Psi_t$ is sometimes described informally as the set of ``not-yet-actualized'' states. Theorem~\ref{thm:self-ref} shows that this description conflates two distinct predicates: \emph{not-yet-traversed by the counter} (a property of the counter's position, well-defined) and \emph{not-yet-existing as a partition state} (a property of the partition states, which is false: all states in $\Psi_t$ are elements of $\Parts$ under $\PhiMap$). The confusion between these predicates is the source of the intuition that ``future states do not yet exist.'' Under the partition bijection, no such predicate is coherent.
+\end{remark}
+
+\subsection{Objections as Partition Events}
+
+\begin{remark}[Structural Self-Reference of Objections]
+\label{rem:self-ref}
+Any objection to Theorems~\ref{thm:bijection}--\ref{thm:cyclic} is a physical event: it requires a physical system (an objector) to produce a sequence of oscillation cycles constituting the objection (spoken, written, or computed). This event increments the partition count: $M \to M + k$ for some $k > 0$ depending on the duration of the objection. The objection is therefore a partition event with a unique index $M_{\mathrm{obj}} > M_{\mathrm{paper}}$ (where $M_{\mathrm{paper}}$ is the partition count at the time the present theorems were completed).
+
+This has two structural consequences. First, the objection is a new partition state $\PhiMap(M_{\mathrm{obj}}) \in \Parts$ that did not exist prior to this paper: the paper created the categorical context in which the objection becomes formulable. Second, by Theorem~\ref{thm:cpu}, $\PhiMap(M_{\mathrm{obj}})$ is the unique successor of $\PhiMap(M_{\mathrm{paper}})$ under the forward counting sequence: it is exactly the kind of uniquely-determined forward event whose existence the theorems describe. Objections therefore instantiate, rather than challenge, the mechanism of Theorem~\ref{thm:cpu}. We note this not as a rhetorical device but as a mathematical observation: the structure of valid critique of a theorem about counting processes is itself a counting process, and counting processes have the properties established in this paper.
+\end{remark}
+
+% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+% ============================================================
+
+\subsection{What the Theorems Jointly Establish}
+
+The preceding sections have established a chain of results:
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
+\item Every bounded oscillatory system generates a partition state sequence $\{1, 2, \ldots, \Mmax\}$ (Sections~\ref{sec:bounded}--\ref{sec:partition}).
+\item This sequence is bijectively mapped to physically distinct configurations via $\PhiMap$ (Theorem~\ref{thm:bijection}).
+\item The mapping is strictly monotone in time: the sequence is traversed in one direction only (Theorems~\ref{thm:monotone} and \ref{thm:incoherence}).
+\item Each element of the sequence has a unique causal predecessor and a unique causal successor (Theorems~\ref{thm:causal-unique} and \ref{thm:cpu}).
+\item The successor of any element is an element of $\Zp$ on which $\PhiMap$ is defined, independently of whether the counting process has reached it (Theorem~\ref{thm:successor}).
+\item The complete forward sequence from any current state is a finite, enumerable subset of $\Parts$ (Theorem~\ref{thm:finite-future}).
+\item The sequence closes into a cycle (Theorem~\ref{thm:cyclic} and Corollary~\ref{cor:cyclic}).
+\end{enumerate}
+
+The reader who has followed these seven steps now stands before a question that the theorems themselves do not answer but for which they have removed every obstacle to a precise formulation. We state it as follows.
+
+\subsection{The Traversal-Existence Gap}
+
+Remark~\ref{rem:traversal} introduced the distinction between \emph{traversal} (the counting process having reached a given $M$) and \emph{existence} (the partition state $\PhiMap(M)$ being a well-defined element of $\Parts$). Theorem~\ref{thm:bijection} establishes the latter for all $M \in \Zp$; the counting process's current position establishes the former for $M \leq M_t$.
+
+The elements of $\mathcal{F}(M_t)$ --- the forward sequence from the current count --- are in the second category: they exist as partition states (Corollary~\ref{cor:all-successors}), but the counting process has not yet reached them (by the strict monotonicity of Theorem~\ref{thm:monotone}). These are the states customarily described as ``the future.''
+
+The question for the reader is whether the elements of $\mathcal{F}(M_t)$ are absent, merely unvisited, or something else. The theorems establish that ``absent'' is incorrect: each element of $\mathcal{F}(M_t)$ is a member of $\Parts$ with the same formal standing as any member of the traversed portion $\{1, \ldots, M_t\}$. The bijection $\PhiMap$ does not distinguish elements by their traversal status; it is defined uniformly on all of $\Zp$. The element $M_t + 1$ is not less an element of $\Zp$ than $M_t - 1$; the element $\PhiMap(M_t + 1)$ is not less an element of $\Parts$ than $\PhiMap(M_t - 1)$.
+
+\subsection{Comparison with Standard Formulations of Time's Arrow}
+
+The thermodynamic arrow of time is standardly attributed to the low-entropy initial conditions of the universe \citep{penrose1979,penrose2004}, the statistical irreversibility of macroscopic processes \citep{boltzmann1877,boltzmann1896}, or the asymmetry of boundary conditions in cosmological models \citep{hawking1985,reichenbach1956}. Each of these formulations accepts the basic framework of Newtonian time as an independent real-valued parameter and attempts to explain why the observed sequences of events are, in practice, not time-symmetric.
+
+The present framework takes a different starting point. It does not explain why time-reversal is statistically improbable (\citealt{boltzmann1877}), why coarse-graining introduces irreversibility (\citealt{gibbs1902}), or why the initial conditions were low-entropy (\citealt{penrose2004}). Instead, it establishes that the concept of time-reversal is formally incoherent at the level of the partition counting process (Theorem~\ref{thm:incoherence}), independently of statistical or cosmological arguments.
+
+The advantage of this formulation is its independence from contingent features of physical reality (the specific value of the initial entropy, the precise cosmological boundary conditions) and its grounding in the minimal structure shared by all bounded oscillatory systems: the bijection between positive integers and partition states.
+
+\subsection{The Relationship to Loschmidt, Gibbs, and Kelvin}
+
+\textbf{Loschmidt's paradox} \citep{loschmidt1876,loschmidt1877}: if microscopic laws are time-reversible, why is the macroscopic world irreversible? Corollary~\ref{cor:loschmidt} resolves this by demonstrating that the time-reversal operation $t \to -t$ has no corresponding operation on the partition count $M$: the count is constitutively forward-directed, and no physical operation can correspond to the subtraction $M \to M - k$.
+
+\textbf{Gibbs's paradox} \citep{gibbs1902}: the apparent continuity-discontinuity of mixing entropy for gases of varying similarity, and the apparent reversibility of mixing-separation cycles. The partition framework provides a direct resolution: the re-separated state occupies a partition state $\PhiMap(M_{\mathrm{sep}})$ with $M_{\mathrm{sep}} > M_{\mathrm{init}}$ (more cycles have elapsed). By Theorem~\ref{thm:causal-unique}, $\PhiMap(M_{\mathrm{sep}}) \neq \PhiMap(M_{\mathrm{init}})$. The spatial configuration may be identical; the partition state is not. The entropy change is real because the partition state is different.
+
+\textbf{Kelvin's observation} \citep{kelvin1852}: the universe tends toward a state of maximum entropy (heat death) from which no further work can be extracted. Theorem~\ref{thm:cyclic} shows that heat death is not a terminal state but the state immediately preceding the cyclic return: $\PhiMap(\Mmax)$ is topologically equivalent to $\PhiMap(1)$. The ``end'' of the universe is the beginning of the next cycle. Kelvin's heat death is not a contradiction but a transition between two phases of the partition count: kinetic (low $M$) and categorical (high $M$, approaching $\Mmax$) \citep{penrose2010}.
+
+\subsection{The Peano Perspective on Temporal States}
+
+It is instructive to compare the structure of the present argument with \citet{peano1889}'s axiomatisation of arithmetic. Peano's Axiom~(P2) asserts that every positive integer has a unique successor. This is not a physical claim; it is a formal stipulation that defines what it means to be an element of $\Zp$. No element of $\Zp$ is ``the last one''; no element lacks a successor.
+
+If, as Theorem~\ref{thm:time-count} establishes, time is constituted by the partition count $M$ --- if elapsed time just is the accumulated count of oscillation cycles --- then temporal states are elements of $\Zp$, and the Peano structure of $\Zp$ applies to temporal states directly. In particular, Axiom~(P2) says: every temporal state has a unique successor. The existence of this successor is not contingent on the counting process having advanced to it; it is a consequence of what it means to be a temporal state.
+
+The objection might be raised that $\Zp$ is a mathematical construct, while temporal states are physical entities. This objection deserves a direct response. Theorem~\ref{thm:bijection} establishes that the partition states $\Parts$ stand in bijective correspondence with $\Zp$. Under this bijection, the mathematical structure of $\Zp$ is transferred to $\Parts$: $\Parts$ inherits the successor operation, the ordering, the completeness, and the Peano axioms. These are not properties imputed to $\Parts$ from outside; they are properties $\Parts$ possesses in virtue of the bijection. A bijection preserves structure; that is the definition of a bijection. \citep{cantor1874,cantor1891,dedekind1888}.
+
+\subsection{Objections and Their Partition Structure}
+
+Several objections to the foregoing are predictable, and it is instructive to examine each in the light of the partition framework.
+
+\textbf{Objection 1:} ``The bijection $\PhiMap$ is a mathematical construction; it does not imply anything about physical reality.''
+
+\textit{Response:} Theorem~\ref{thm:bijection} is not proposed as a physical hypothesis but as a mathematical theorem about the structure of bounded Hamiltonian systems. The physical claim --- that reality consists of such systems (Corollary~\ref{cor:osc-necessity}) --- is independently established by Poincar\'e recurrence and quantum mechanics \citep{poincare1890,penrose1989}. The bijection is real in the same sense that Bohr's correspondence principle is real: it is a structural fact about the systems under discussion, not an additional assumption about them.
+
+\textbf{Objection 2:} ``The existence of $\PhiMap(M_t + k)$ as a mathematical object does not imply that the corresponding physical state is ``already there.''
+
+\textit{Response:} This objection embeds the conclusion it denies. The phrase ``already there'' presupposes a distinction between mathematical existence and physical presence. What the partition framework shows is precisely that this distinction has no purchase at the level of partition states: a partition state is defined (Definition~\ref{def:part-state}) as an equivalence class of phase-space configurations. If this equivalence class is non-empty, the partition state exists. Theorem~\ref{thm:bijection} shows the equivalence class is non-empty for every $M \in \Zp$ (since the bijection assigns a configuration to each $M$). The additional requirement that the configuration be ``physically present'' is a requirement for which the partition framework provides no criterion, because no such criterion is needed: the bijection already identifies a configuration.
+
+\textbf{Objection 3:} ``The universe is stochastic; the future is not determined.''
+
+\textit{Response:} The theorems do not claim determinism in the sense of predictability. They establish the \emph{structural} claim that successor states are well-defined elements of the bijection. Whether the counting process is deterministic or stochastic in its specific path is a separate question from whether the states it will visit are elements of a well-defined set. A random walk on $\Zp$ visits elements of $\Zp$; this does not prevent those elements from being well-defined. The set $\mathcal{F}(M_t)$ is the set of partition states the system will visit; Theorem~\ref{thm:finite-future} does not claim to know the path through $\mathcal{F}(M_t)$, only that $\mathcal{F}(M_t)$ is a finite, completely defined subset of $\Parts$.
+
+\textbf{Objection 4:} ``Even if the forward sequence is well-defined, this is trivially true and does not imply anything non-obvious.''
+
+\textit{Response:} The theorems are not offered as non-trivial surprises for an audience already familiar with them; they are offered as rigorous proofs of propositions whose non-trivial content lies in their combination. Theorem~\ref{thm:bijection} alone is a statement about the algebraic structure of phase space. Theorem~\ref{thm:incoherence} alone is a reformulation of the Loschmidt impossibility. Theorem~\ref{thm:successor} alone is a consequence of Peano arithmetic. The non-trivial content emerges from their joint implication, which Remark~\ref{rem:two-senses} expresses as the distinction between traversal and existence. The reader who finds this distinction obvious is invited to identify where, in the prior literature, it has been stated with equal precision and connected to the bijective structure of partition states.
+
+\subsection{Open Questions}
+
+The present framework raises several questions for further investigation:
+
+\begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
+\item \textbf{Non-integrable systems:} We have worked primarily in the integrable regime, where action-angle variables are globally defined. For non-integrable systems (chaotic dynamics), the partition state structure may be more complex. Do the bijection and monotonicity theorems survive in the near-integrable regime guaranteed by the KAM theorem \citep{kolmogorov1954,arnold1963,moser1962}?
+
+\item \textbf{Quantum corrections:} The derivation of $C(n) = 2n^2$ uses classical action-angle variables. A full quantum treatment (Weyl quantisation \citep{weyl1912}, path integral methods) may modify the capacity formula or the bijection structure at small $n$. The large-$n$ classical limit should recover the present results.
+
+\item \textbf{Relativistic extension:} The symplectic framework of Section~\ref{sec:bounded} is non-relativistic. The extension to relativistic Hamiltonian systems --- where the energy hypersurface is a subset of Minkowski space --- requires replacing the Euclidean metric with the Lorentzian metric. The Poincar\'e recurrence theorem has a relativistic analogue; the partition bijection should extend accordingly.
+
+\item \textbf{The value of $\Mmax$:} Definition~\ref{def:mmax} establishes the existence but not the value of $\Mmax$. A precise estimate requires counting the oscillatory degrees of freedom of the universe at heat death --- a problem in combinatorial cosmology \citep{penrose2004,penrose2010} that is independent of the present framework but whose answer determines the length of the partition cycle.
+
+\item \textbf{Implications for measurement theory:} Corollary~\ref{cor:time-from-count} shows that time can be told from a frozen partition record. This has implications for the thermodynamics of measurement \citep{landauer1961}: acquiring the record has a thermodynamic cost, but reading it does not. The partition framework may clarify the boundary between these two operations.
+\end{enumerate}
+
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+We have proved five results that together characterise the structure of temporal state sequences in bounded Hamiltonian systems.
+
+\textbf{The Partition Bijection} (Theorem~\ref{thm:bijection}): the positive integers $\Zp$ stand in one-to-one correspondence with the partition states $\Parts$ of any bounded three-dimensional oscillatory system, via the canonical map $\PhiMap$ defined by the nested boundary structure of the motion. The capacity $C(n) = 2n^2$ at each principal level is a theorem of classical mechanics, not an import from quantum theory.
+
+\textbf{Strict Monotonicity and Incoherence of Decrement} (Theorems~\ref{thm:monotone} and \ref{thm:incoherence}): the partition count $M(t)$ is strictly non-decreasing. More than this: a partition decrement is not a difficult-to-achieve event but an incoherent one, since it would require the bijection $\PhiMap$ to assign a single value to two distinct elements of $\Zp$.
+
+\textbf{Causal Uniqueness} (Theorems~\ref{thm:causal-unique} and \ref{thm:cpu}): distinct temporal moments are assigned distinct partition states. Every partition state has a unique causal predecessor and a unique causal successor, both well-defined via $\PhiMap$.
+
+\textbf{Successor Existence} (Theorem~\ref{thm:successor}): for every $M_t \in \Zp$, the successor $M_t + 1$ is an element of $\Zp$ on which $\PhiMap$ is defined. The existence of successor partition states is a consequence of Peano arithmetic applied to the bijection, not a physical hypothesis.
+
+\textbf{Finitary Enumerability} (Theorem~\ref{thm:finite-future}): from any current count $M_t$, the forward sequence $\mathcal{F}(M_t)$ is a finite, completely enumerable subset of $\Parts$ with $\Mmax - M_t$ elements.
+
+These five results jointly characterise the elements of $\mathcal{F}(M_t)$ --- the partition states not yet traversed by the physical counting process. They are: uniquely determined by the bijection, finitely enumerable, distinct from all traversed states (Theorem~\ref{thm:causal-unique}), and members of $\Parts$ with the same formal standing as any traversed state. They lack only one property that the traversed states possess: having been counted.
+
+The distinction between being a member of a well-defined set and having been visited by a traversal process is the distinction between $\mathcal{F}(M_t) \subset \Parts$ (membership) and $M > M_t$ (traversal status). Both are precise predicates. They are not the same predicate. This paper has been, in its formal core, a proof of that distinction applied to the partition state space of bounded oscillatory systems.
+
+The reader is left to determine whether the distinction matters.
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% ============================================================
+
+\end{document}
