@@ -108,6 +108,21 @@ export default function Home() {
           >
             PSDR
           </Link>
+          <Link
+            href="/tempus"
+            style={{
+              color: "#58E6D9",
+              fontSize: "0.68rem",
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              opacity: 0.55,
+              textDecoration: "none",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = 0.55)}
+          >
+            Tempus
+          </Link>
         </nav>
       </div>
     </>
