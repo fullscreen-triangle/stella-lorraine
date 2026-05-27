@@ -48,6 +48,7 @@ export default function Navbar() {
         <NavLink href="/bioreactor" label="Bioreactor" />
         <NavLink href="/ritonavir" label="Synthesis" />
         <NavLink href="/psdr" label="PSDR" />
+        <NavLink href="/tempus" label="Tempus" />
       </nav>
 
       {/* Right: theme toggle */}
