@@ -11,6 +11,7 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - CI   = composition-inflation.tex (T(n,d) formula, angular resolution)
 - SR   = unconstrained-subtask-recursion.tex (S-entropy, miracle principle)
 - SC   = unconstrained-subtask-computing.tex (backward trajectory, virtual sub-states)
+- ION  = ion-trajectory-completion-mechanism.tex (partition Lagrangian, mass spec, mass from 3 routes)
 
 ---
 
@@ -53,6 +54,19 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - Theorem: Structural incorruptibility of timing-only triggers
 - Needs: formal Tempus program syntax for di-muon trigger
 - Needs: proof that zero injection rate follows from incorruptibility
+
+### S5b Partition Uncertainty Relation and Fundamental Timing Limit [TODO]
+- From ION paper: fundamental identity dM/dt = 1/<tau_p> (state counting is intrinsically digital)
+- Partition uncertainty theorem: DeltaM * tau_p >= hbar
+- Applied to LHC bunch crossing (tau_p = 25 ns):
+    DeltaM >= hbar/tau_p = 1.055e-34 / 25e-9 = 4.2e-27 J ~ 26 eV
+    This is the minimum detectable partition depth change per bunch crossing
+- This is not an engineering constraint -- it is a theorem of the partition framework
+- At depth n_P = 60 crossings: cumulative resolution DeltaM * n_P ~ 26 eV * 60 = 1.6 keV
+- Timing window |DeltaP| < 12.5 ns = tau_p/2: set by partition uncertainty, not engineering
+- The Lorentz force law F = q(E + v x B) is the Euler-Lagrange equation of the
+  partition Lagrangian -- it is derived, not assumed
+- Source: ION paper S9 (state counting, resolution limits, fundamental identity)
 
 ---
 
@@ -97,6 +111,32 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - Partition extinction -> superconducting magnets at 1.9 K (R=0 exactly)
 - Source: BPST Consequences: quantumnumbers, selectionrules, chargeemergence,
   transport, partitionextinction
+
+### S9b The LHC as a High-Energy Partition Spectrometer [TODO]
+- Core thesis: the LHC detector IS a mass spectrometer at TeV energy scale
+- The partition Lagrangian (from ION paper) governs both instruments:
+    L_M = (1/2)*mu*|xdot|^2 + mu*xdot*A_M - M(x,t)
+    where mu = alpha*(m/z) is partition inertia
+- Lorentz force F = q(E + v x B) is the Euler-Lagrange equation of L_M (DERIVED not assumed)
+- Four analyzer types -> four LHC detector technologies:
+    TOF (T ~ sqrt(m/z))         -> timing detectors (HGTD, ETL)
+    Quadrupole (Mathieu)        -> dipole magnets + tracker (bending in B field)
+    Orbitrap (omega ~ sqrt(z/m))-> calorimeter energy measurement
+    FT-ICR (omega_c ~ z/m)     -> muon spectrometer (cyclotron in solenoid)
+- Collision products as partition malformations:
+    Higgs boson, top quark, W/Z are incomplete categorical structures
+    They minimize partition depth by decaying
+    The trigger reads the memory of the collision's partition history
+- Ions as partition malformations (ION paper):
+    M_ion = kB*T*ln(Z!/(Z-z)!) ~ z*kB*T*ln(Z)
+    Exactly the same structure as M_collision ~ z_eff * ln(E/E_0)
+- Theorem: The partition Lagrangian with M_field(x) = -kappa*z (linear)
+    gives T ~ sqrt(m/z) (TOF equation) -- identical for both MS and LHC timing
+- Experimental validation link:
+    ION paper validated on 4545 NIST entries + 127000 proteomic bijections
+    Same partition Lagrangian governing LHC detector physics
+    Cross-domain validation: MS at keV scale -> LHC at TeV scale, same framework
+- Source: ION paper S7-9 (ion, Lagrangian, analyzers)
 
 ---
 
@@ -266,6 +306,22 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - Not probabilistic suppression -- logical exclusion
 - Falsification: any confirmed background event violating selection rules
 
+### S29b Cross-Domain Validation via Mass Spectrometry [TODO]
+- Same partition Lagrangian governs both mass spectrometers and LHC detectors
+- ION paper validates on 4545 NIST library entries (100% conformance)
+- ION paper validates on 127,000 proteomic bijective transformations
+- Additional: trajectory-of-upcoming-events paper validates on 6855 Orbitrap ions
+  (mean partition count Mbar = 2,013,006, CV < 10^{-6})
+- Prediction: partition inertia mu = alpha*(m/z) should be measurable at the LHC
+  for each particle type via its response to electromagnetic fields
+- Map: ion m/z ratio <-> LHC particle species (electron, muon, pion, kaon, proton)
+- Prediction: T ~ sqrt(E/z) for timing detectors (same form as TOF equation)
+  where E is particle kinetic energy and z is electric charge
+- This is a new falsifiable prediction derivable from the partition Lagrangian
+- Falsification: if timing detector response deviates from T ~ sqrt(E/z) form,
+  the partition Lagrangian is wrong
+- Source: ION paper S13 (validation); trajectory-of-upcoming-events S9
+
 ### S30 Unified Falsifiability Ledger [TODO]
 - Complete table of predictions, values, status, and tests
 - Entries include: n_P=60, HL-LHC n_P=52, three-route G agreement, zero rule-violation backgrounds,
@@ -299,19 +355,21 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 ## Writing Order
 
 Write sections in this dependency order:
-1. S6 (S-entropy framework) -- needed by S7, S8, S11, S13
-2. S7 (triple equivalence) -- needed by S8
-3. S9 (partition coordinates -> cell registry) -- key new contribution
-4. S11 (Feynman diagrams as vaHera) -- extends S10
-5. S13 (path integral as backward completion)
-6. S15 (three routes to G) -- needed by S16
-7. S16 (n_P precision from G routes)
-8. S19 (PLM and detector synchronization)
-9. S20 (catalyst algebra) -- needed by S22
-10. S22 (RG in composition-inflation)
-11. S24-S26 (cosmological consequences)
-12. S27-S30 (experimental validation and falsifiability)
-13. Appendices
+1.  S6   (S-entropy framework) -- needed by S7, S8, S11, S13
+2.  S7   (triple equivalence) -- needed by S8
+3.  S5b  (partition uncertainty relation) -- quick win, only ION paper needed
+4.  S9   (partition coordinates -> cell registry) -- key new contribution, uses BPST
+5.  S9b  (LHC as partition spectrometer) -- uses ION paper, extends S9
+6.  S11  (Feynman diagrams as vaHera) -- extends S10
+7.  S13  (path integral as backward completion)
+8.  S15  (three routes to G) -- needed by S16
+9.  S16  (n_P precision from G routes) -- six convergent derivations
+10. S19  (PLM and detector synchronization)
+11. S20  (catalyst algebra) -- needed by S22
+12. S22  (RG in composition-inflation)
+13. S24-S26 (cosmological consequences)
+14. S27-S30 (experimental validation and falsifiability, including S29b cross-domain)
+15. Appendices
 
 ---
 
@@ -320,5 +378,34 @@ Write sections in this dependency order:
 - Pages written: 10 (lhc-trigger.tex)
 - Sections DONE: S2, S3, S4
 - Sections EXTEND: S1, S5, S8, S10, S12, S14, S17, S18, S21, S23, S31
-- Sections TODO: S6, S7, S9, S11, S13, S15, S16, S19, S20, S22, S24-S30, Appendices
-- Target: 80-100 pages two-column
+- Sections TODO: S5b, S6, S7, S9, S9b, S11, S13, S15, S16, S19, S20, S22, S24-S30, Appendices
+- Target: 90-110 pages two-column (increased by ION paper contributions)
+
+## Source Paper Contribution Map
+
+| Section | BPST | USD | CI | SR | SC | ION |
+|---|---|---|---|---|---|---|
+| S2  | primary | -- | -- | -- | -- | -- |
+| S3  | partial | -- | primary | -- | -- | -- |
+| S4  | -- | partial | primary | -- | -- | -- |
+| S5  | -- | -- | -- | -- | -- | -- |
+| S5b | -- | -- | -- | -- | -- | primary |
+| S6  | -- | -- | -- | primary | partial | -- |
+| S7  | -- | -- | -- | primary | partial | -- |
+| S8  | partial | -- | partial | -- | primary | -- |
+| S9  | primary | -- | -- | -- | -- | partial |
+| S9b | partial | -- | -- | -- | -- | primary |
+| S10 | -- | -- | -- | partial | primary | -- |
+| S11 | -- | -- | -- | primary | primary | -- |
+| S13 | -- | -- | -- | -- | primary | -- |
+| S14 | primary | primary | primary | -- | -- | primary |
+| S15 | partial | primary | -- | -- | -- | partial |
+| S16 | -- | primary | primary | -- | -- | -- |
+| S19 | partial | -- | -- | -- | -- | -- |
+| S20 | -- | -- | -- | primary | partial | -- |
+| S21 | -- | -- | -- | partial | -- | -- |
+| S22 | -- | -- | primary | -- | -- | -- |
+| S23 | -- | -- | -- | -- | primary | -- |
+| S24 | partial | primary | -- | -- | -- | -- |
+| S25 | partial | primary | -- | -- | -- | -- |
+| S29b| -- | -- | -- | -- | -- | primary |
