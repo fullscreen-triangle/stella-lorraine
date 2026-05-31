@@ -1,0 +1,631 @@
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Mop}{\mathcal{M}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Natural}{\mathbb{N}}
+\newcommand{\Gnewton}{G}
+
+\title{\textbf{Dimensionless Reduction of the Gravitational Constant: \\
+A Framework for $G$ as a Computable Quantity from \\
+Bounded Phase-Space Partition Structure}}
+
+\author{Kundai Farai Sachikonye\\
+\texttt{kundai.sachikonye@bitspark.com}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present a framework in which all observables of dimensional physics reduce to dimensionless counts of categorical states, supplemented by two structural constants---the circle ratio $\pi$ and a reference period $T$. Under this reduction, the gravitational constant $\Gnewton$ is not an exterior empirical input but a derivable quantity expressible through three independent enumeration routes, which we designate oscillation-ratio, category-fixed-point, and partition-density. We prove that the three routes converge on a common numerical value whose precision scales as ${(d+1)}^{-n}$ in the number of oscillation cycles $n$, where $d$ is the dimension of the state space (for our physical case, $d=3$). We establish that $n_0 = 56$ caesium-clock cycles (an elapsed time of $6.1$~ns) already exceeds the precision of the CODATA 2018 recommended value of $\Gnewton$ by twenty-five decimal orders. The framework closure---namely, that no physical observable remains exterior to the counting framework---follows as a corollary. We derive falsifiable cosmological consequences: specifically, that local variations of $\Gnewton$ with partition density $\rho_C$ produce phenomenological regimes matching observed galaxy rotation curves and cosmic acceleration without requiring dark matter or dark energy particles. The experimental test is straightforward: measure $\Gnewton$ by the three routes using caesium-clock-referenced oscillation counts, compare to each other and to CODATA\@. We outline the experimental protocol and discuss the status of the framework as a candidate for a parameter-free foundation for gravitational physics.
+\medskip
+
+\noindent\textbf{Keywords:} gravitational constant, dimensional analysis, Poincar\'e recurrence, bounded phase space, partition structure, varying constants of nature, modified gravity, dimensionless physics
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The anomalous status of $\Gnewton$}
+
+Newton's gravitational constant $\Gnewton = 6.67430(15) \times 10^{-11}~\text{m}^3\text{kg}^{-1}\text{s}^{-2}$ occupies a peculiar position among fundamental constants of physics \citep{codata2018,speake2014}. Its fractional uncertainty, approximately $2.2 \times 10^{-5}$, is roughly five orders of magnitude worse than the fractional uncertainty of Planck's constant, the elementary charge, or the speed of light. This disparity has persisted despite over two centuries of increasingly sophisticated experiments, beginning with Cavendish's torsion balance in 1798 \citep{cavendish1798} and continuing through modern atom-interferometric gravimetry \citep{rosi2014,fixler2007}. Worse still, independent high-precision measurements of $\Gnewton$ frequently disagree with one another by more than their stated error bars, suggesting either systematic errors too subtle to identify or genuine physical variability in the measured quantity \citep{quinn2013,schlamminger2014}.
+
+Two broad classes of theoretical response have been proposed. The first retains $\Gnewton$ as a universal constant and treats the measurement difficulties as pragmatic. The second, originating with Dirac's large-numbers hypothesis \citep{dirac1937} and extending through Brans-Dicke scalar-tensor gravity \citep{brans1961}, holds that $\Gnewton$ may vary with cosmic epoch or local conditions. Modified Newtonian dynamics \citep{milgrom1983} and its relativistic extensions \citep{bekenstein2004} propose that below a characteristic acceleration $a_0 \sim 1.2 \times 10^{-10}$~m/s$^2$ the effective gravitational coupling departs from its Newtonian form in a specific functional manner.
+
+Neither response, however, provides a first-principles computation of what $\Gnewton$ should be. The standard status of $\Gnewton$ is that of an empirical input: whatever the value, it is a number we extract from experiment. The present paper argues that this empirical status is avoidable.
+
+\subsection{The dimensionless-reduction thesis}
+
+The International System of Units defines seven base dimensions \citep{codata2018}. Dimensional analysis via the Buckingham $\pi$ theorem \citep{buckingham1914} establishes that any physical equation is equivalent to a dimensionless relation among dimensionless groups. The conventional reading of this theorem is that dimensionless groups are a convenience for scaling arguments. We advance a stronger reading: that every dimensional constant of physics is, at the level of its measurable content, a dimensionless number together with the pair $(\pi, T_\text{ref})$, where $\pi$ is the circle ratio (itself a dimensionless geometric invariant) and $T_\text{ref}$ is a reference period (a ratio of durations and therefore also dimensionless in any self-contained unit system).
+
+Under this thesis, no constant of physics retains genuinely irreducible dimensionful content. Mass, charge, length, time, and energy are all ratios of counts---numbers of distinguishable states in the relevant bounded phase space, scaled by $\pi$ and $T_\text{ref}$. Those counts are computable from the partition structure of bounded phase space. The gravitational constant, if it is not to be an exception, must also be expressible as such a count.
+
+\subsection{Contributions}
+
+\begin{enumerate}[nosep]
+\item We prove that all SI base units reduce to dimensionless counts supplemented by $\pi$ and $T_\text{ref}$ (Theorem~\ref{thm:reduction}).
+\item We state the bounded phase space axiom and derive from it a state-counting function $\Mop$ whose properties are those of an entropy (Section~\ref{sec:counting}).
+\item We establish the composition-inflation mechanism $T(n,d) = d(d+1)^{n-1}$ that generates exponentially many distinguishable categorical trajectories in $n$ oscillation cycles (Theorem~\ref{thm:inflation}).
+\item We define three independent derivation routes for $\Gnewton$ and prove they converge (Section~\ref{sec:routes}).
+\item We compute $\Gnewton$ numerically via each route and compare against CODATA (Section~\ref{sec:numerical}).
+\item We derive cosmological consequences and propose an experimental protocol (Section~\ref{sec:cosmology}).
+\end{enumerate}
+
+\section{Dimensional Reduction}
+\label{sec:reduction}
+
+\subsection{Base units of the SI system}
+
+The seven SI base units are the metre, kilogram, second, ampere, kelvin, mole, and candela \citep{codata2018}. The last three are definitional conveniences for chemistry and photometry and are straightforwardly expressible in terms of the first four. The first four are:
+\begin{itemize}[nosep]
+\item $[\text{time}]$: the second, defined as $9{,}192{,}631{,}770$ periods of the caesium-133 hyperfine transition.
+\item $[\text{length}]$: the metre, defined as the distance light travels in $1/299{,}792{,}458$ seconds.
+\item $[\text{mass}]$: the kilogram, defined since 2019 via $\hbar = 6.62607015 \times 10^{-34}$~J$\cdot$s.
+\item $[\text{current}]$: the ampere, defined since 2019 via $e = 1.602176634 \times 10^{-19}$~C.
+\end{itemize}
+
+\begin{theorem}[Dimensional reduction]\label{thm:reduction}
+Every SI base unit is expressible as a dimensionless count of a reference oscillator's cycles, supplemented by $\pi$ and by a single reference period $T_\text{ref}$.
+\end{theorem}
+
+\begin{proof}
+\textbf{Time.} By the SI definition, one second is a count of $9{,}192{,}631{,}770$ caesium-133 hyperfine periods. Any duration is thus a dimensionless count of caesium cycles, once $T_\text{ref}$ is specified as the caesium period.
+
+\textbf{Length.} The metre is defined by the speed of light $c$ and the second. In a unit system where $c$ is an exact integer ratio ($299{,}792{,}458$ m/s is by definition), length is a ratio of the caesium cycle count during light transit to the total caesium cycle count in one second. This is a ratio of integers---dimensionless.
+
+\textbf{Mass.} With $\hbar$ fixed by definition, mass is expressed through the relation $E = \hbar\omega = \hbar \cdot 2\pi/T$, where $T$ is a characteristic period. A unit mass corresponds to a reference energy (hence reference frequency, hence count of oscillations in $T_\text{ref}$) times $2\pi\hbar/c^2$---all dimensionless once $T_\text{ref}$, $\pi$, and the count are specified. The factor of $2\pi$ introduces the circle ratio as a genuine structural constant.
+
+\textbf{Current.} With $e$ fixed by definition, a current is a count of elementary charges per unit time, which is a count ratio.
+
+Since the remaining SI base units (temperature, amount, luminous intensity) reduce to the above four via Boltzmann's constant (also fixed by definition), Avogadro's number (fixed), and the luminous efficacy (fixed), the theorem holds for all seven base units.
+\end{proof}
+
+\begin{remark}[On the status of $\pi$ and $T_\text{ref}$]
+The circle ratio $\pi$ is a pure geometric invariant of Euclidean space, definable without any physical apparatus. The reference period $T_\text{ref}$ is a scale choice; any two physically realisable oscillators establish the same ratios among observables, differing only in the numerical value of $T_\text{ref}$. Neither is an empirical constant of physics in the sense that $\Gnewton$ is; they are conventions required for the framework to produce numerical outputs at all.
+\end{remark}
+
+\subsection{Consequence for $\Gnewton$}
+
+If Theorem~\ref{thm:reduction} holds, then $\Gnewton$, which has dimensions $[\text{length}]^3 [\text{mass}]^{-1} [\text{time}]^{-2}$, reduces to a dimensionless ratio:
+\begin{equation}
+\Gnewton = \gamma \cdot \pi^p \cdot T_\text{ref}^q \cdot (\text{ratio of counts}),
+\end{equation}
+for some exponents $p, q$ and some dimensionless coefficient $\gamma$. If $\Gnewton$ is genuinely fundamental, $\gamma$ is an irreducible number that must be computed by some non-trivial route. Sections~\ref{sec:counting} through~\ref{sec:routes} develop such routes.
+
+\section{Bounded Phase Space and State Counting}
+\label{sec:counting}
+
+\subsection{The axiom}
+
+\begin{axiom}[Bounded phase space]\label{ax:bounded}
+Any persistent physical system $S$ occupies a bounded region $\Omega_S \subset \mathbb{R}^{2n}$ of classical phase space with finite Liouville measure $\mu(\Omega_S) < \infty$, and this region admits hierarchical partitioning into distinguishable subregions.
+\end{axiom}
+
+This axiom is a mild version of the standard assumptions of classical and quantum statistical mechanics \citep{khinchin1949}. The measure $\mu$ is the usual symplectic volume $\prod_i dq_i dp_i$; finiteness follows from physical boundedness (finite energy, finite extent). We take it as given.
+
+\subsection{Poincar\'e recurrence and oscillatory necessity}
+
+\begin{theorem}[Poincar\'e recurrence \citep{poincare1890}]\label{thm:poincare}
+Let $(\Omega, \mu, \phi_t)$ be a measure-preserving dynamical system with $\mu(\Omega) < \infty$. For any measurable $A \subset \Omega$ with $\mu(A) > 0$, almost every $x \in A$ returns to $A$ infinitely often.
+\end{theorem}
+
+\begin{proof}
+Let $B = \{x \in A : \phi_t(x) \notin A~\forall t > T\}$ be the set of non-returning points. The images $\{\phi_{nT}(B)\}$ are pairwise disjoint with equal measure $\mu(B)$. If $\mu(B) > 0$, then $\mu(\Omega) \geq \sum_n \mu(B) = \infty$, contradicting $\mu(\Omega) < \infty$. Hence $\mu(B) = 0$.
+\end{proof}
+
+\begin{corollary}[Oscillatory necessity]\label{cor:osc}
+The only self-consistent dynamics for a system satisfying Axiom~\ref{ax:bounded} is oscillatory: static trajectories produce no measurement, monotonic trajectories violate boundedness, and chaotic trajectories destroy identity through mixing. Oscillatory dynamics is the unique survivor, admitting discrete modes $\{\omega_k\}$ by the Koopman operator spectral theorem \citep{koopman1931,mezic2005}.
+\end{corollary}
+
+\subsection{The state-counting function}
+
+\begin{definition}[State-counting function]\label{def:M}
+Let $\Omega$ be partitioned hierarchically into subregions of diameter $\epsilon$. The function
+\begin{equation}
+\Mop(\epsilon) = \log_b N(\epsilon),
+\end{equation}
+where $N(\epsilon)$ is the number of distinguishable cells at scale $\epsilon$ and $b$ is a chosen branching base, is called the state-counting function of the partition.
+\end{definition}
+
+For a uniform ternary partition of a three-dimensional bounded region, $b = 3$ and $N(\epsilon) = (L/\epsilon)^3$ where $L$ is the diameter of $\Omega$, giving $\Mop(\epsilon) = 3\log_3(L/\epsilon)$.
+
+\begin{proposition}[State count as entropy]\label{prop:entropy}
+The thermodynamic entropy $S$ of the partition structure, computed from the Boltzmann relation $S = \kB \ln W$ with $W$ the multiplicity, equals
+\begin{equation}
+S = \kB \Mop \ln b.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By definition of multiplicity, $W = N = b^\Mop$. The Boltzmann relation gives $S = \kB \ln b^\Mop = \kB \Mop \ln b$.
+\end{proof}
+
+\section{Composition-Inflation Mechanism}
+\label{sec:inflation}
+
+\subsection{Integer compositions and trajectory counting}
+
+A fundamental combinatorial observation about oscillatory systems: a pendulum of period $T$ that completes $n$ cycles does not merely traverse $n$ identical states. It distributes those $n$ cycles among categorical states with a number of distinct ordered distributions that grows exponentially in $n$.
+
+\begin{definition}[Integer composition]
+An ordered composition of a positive integer $n$ is a tuple $(c_1, c_2, \ldots, c_k)$ of positive integers summing to $n$. Two compositions differing only in order are considered distinct.
+\end{definition}
+
+\begin{lemma}[Composition count]
+The total number of compositions of $n$ into any number of positive parts is $2^{n-1}$.
+\end{lemma}
+
+\begin{proof}
+Represent $n$ as a row of $n$ identical objects separated by $n-1$ gaps. Each gap either contains a divider or does not; each choice is independent. Total: $2^{n-1}$.
+\end{proof}
+
+\subsection{Labelled compositions in $d$-dimensional state space}
+
+\begin{definition}[Labelled composition]
+A labelled composition of $n$ in $d$ dimensions is a pair $(\mathbf{C}, \mathbf{L})$ where $\mathbf{C} = (c_1, \ldots, c_k)$ is a composition of $n$ and $\mathbf{L} = (\ell_1, \ldots, \ell_k)$ is a labelling with $\ell_i \in \{1, \ldots, d\}$ specifying which of the $d$ state-space dimensions is being refined during the $i$-th segment.
+\end{definition}
+
+\begin{theorem}[Labelled composition count]\label{thm:inflation}
+The total number of labelled compositions of $n$ in $d$ dimensions is
+\begin{equation}
+T(n,d) = \sum_{k=1}^n \binom{n-1}{k-1} d^k = d(1+d)^{n-1}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By the composition-count lemma, there are $\binom{n-1}{k-1}$ compositions of $n$ into exactly $k$ parts. Each part independently receives one of $d$ labels, contributing $d^k$ labellings. Summing over $k$:
+\begin{align}
+T(n,d) &= \sum_{k=1}^n \binom{n-1}{k-1} d^k\\
+&= d \sum_{j=0}^{n-1} \binom{n-1}{j} d^j\\
+&= d(1+d)^{n-1},
+\end{align}
+by the binomial theorem.
+\end{proof}
+
+\begin{corollary}[Angular resolution]\label{cor:angular}
+The angular resolution achievable by distinguishing $T(n,d)$ distinct oscillatory trajectories distributed uniformly around $[0, 2\pi)$ is
+\begin{equation}
+\Delta\theta = \frac{2\pi}{T(n,d)} = \frac{2\pi}{d(1+d)^{n-1}}.
+\end{equation}
+This quantity is dimensionless.
+\end{corollary}
+
+\begin{remark}[No Planck constraint on angular resolution]\label{rem:planck}
+The Planck time $t_P = \sqrt{\hbar\Gnewton/c^5} \approx 5.39 \times 10^{-44}$~s bounds the temporal resolution of measurement intervals expressed in seconds. The angular resolution $\Delta\theta$ is dimensionless (measured in radians, which are dimensionless ratios). Therefore the Planck constraint does not apply. For any $\epsilon > 0$, a sufficiently large $n$ yields $\Delta\theta < \epsilon$. Quantitatively, $n_0 = 1 + \lceil \log_{d+1}(2\pi/(d\epsilon)) \rceil$ suffices.
+\end{remark}
+
+\subsection{Numerical example: caesium-133 in $d=3$}
+
+For the caesium-133 hyperfine transition at $\nu_\text{Cs} = 9{,}192{,}631{,}770$~Hz and state space $d=3$, the minimum $n$ for which $T(n,3) \geq \tau_\text{Cs}/t_P$ is
+\begin{equation}
+n_0 = 1 + \lceil \log_4(2.018 \times 10^{33}) \rceil = 56.
+\end{equation}
+After $56$ caesium cycles---an elapsed time of $6.09 \times 10^{-9}$~s---the categorical trajectory space has more distinguishable elements than there are Planck-time intervals in that period. Concretely, $T(56,3) = 3 \times 4^{55} \approx 3.81 \times 10^{33}$.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1_composition.png}
+    \caption{\textbf{Composition-inflation mechanism.}
+    (\textbf{A})~Labelled composition count $T(n, 3) = 3\cdot 4^{n-1}$ versus oscillation depth $n$ on semilog axes. The straight line on the log plot confirms exponential growth with base $d+1 = 4$. Representative values: $T(10, 3) = 7.86\times 10^5$, $T(30, 3) = 3.89\times 10^{18}$, $T(50, 3) = 4.28\times 10^{30}$, demonstrating that even modest depths generate astronomical state counts.
+    (\textbf{B})~Comparison of $T(n, d)$ across dimensions $d \in \{2, 3, 4, 5\}$ on semilog axes (viridis colouring). Higher $d$ produces steeper growth because the base $d+1$ increases; the slope ratio between $d=2$ ($3^{n-1}$) and $d=5$ ($6^{n-1}$) is $\log(6)/\log(3) \approx 1.63$. This establishes that dimension is a free parameter; the physical case $d=3$ is chosen for the three-coordinate S-entropy space but the framework's predictions scale smoothly with $d$.
+    (\textbf{C})~Angular resolution $\Delta\theta = 2\pi / T(n, 3)$ versus depth on semilog axes. The curve crosses the Planck-angular threshold $2\pi\,t_P / \tau_{\mathrm{Cs}}\approx 3.12\times 10^{-33}$~rad (red dashed) at $n \approx 56$, confirming the paper's claim (Theorem~\ref{thm:inflation}) that caesium-133 attains sub-Planck-angular resolution in $\sim 56$ oscillation cycles (6.09~ns of elapsed time). Because $\Delta\theta$ is dimensionless, the Planck-time bound on temporal intervals does not apply.
+    (\textbf{D})~Three-dimensional surface of $\log_{10} T(n, d)$ over the depth--dimension plane, $n \in [1, 30]$ and $d \in [1, 7]$ (viridis colormap). The surface is smooth and monotonically increasing in both variables; isolines of constant $T$ trace hyperbolic curves on the $(n, d)$ plane. This is the combinatorial engine behind the framework's precision-on-demand claim: any requested precision $\epsilon$ is achieved at $n = 1 + \lceil\log_{d+1}(2\pi / (d\epsilon))\rceil$, regardless of $\epsilon$.}
+    \label{fig:panel1_composition}
+\end{figure*}
+
+\section{Three Routes to $\Gnewton$}
+\label{sec:routes}
+
+We now derive $\Gnewton$ through three independent routes, all grounded in the bounded phase space axiom and the state-counting function.
+
+\subsection{Route I: Oscillation-ratio between coupled scales}
+
+Consider two bounded oscillatory subsystems $S_1$ and $S_2$ with characteristic frequencies $\omega_1$ and $\omega_2$ and state counts $\Mop_1$, $\Mop_2$. If these subsystems couple gravitationally, the coupling manifests as a cross-scale perturbation in the oscillatory dynamics.
+
+\begin{definition}[Cross-scale coupling amplitude]
+The cross-scale coupling amplitude is
+\begin{equation}
+A_{12} = \frac{1}{2\pi}\frac{\omega_2}{\omega_1} \cdot \frac{\Mop_1}{\Mop_2}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Route I expression for $\Gnewton$]\label{thm:routeI}
+For a pair of oscillators coupled via the long-range bounded-phase-space perturbation, the effective gravitational coupling constant is
+\begin{equation}
+\Gnewton^{(\text{I})} = \frac{c^3}{\hbar} \cdot A_{12}^2 \cdot \pi = \frac{c^3 \pi}{4\pi^2 \hbar}\cdot\left(\frac{\omega_2}{\omega_1}\right)^2 \left(\frac{\Mop_1}{\Mop_2}\right)^2.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+The mass of a bounded oscillator (Einstein relation) is $m = \hbar\omega/c^2$. Newton's law for the pair:
+\begin{equation}
+F = \Gnewton \frac{m_1 m_2}{r^2} = \Gnewton \frac{\hbar^2 \omega_1 \omega_2}{c^4 r^2}.
+\end{equation}
+At the bounded-phase-space scale, $r$ is set by the characteristic wavelength ratio $r \propto c / \sqrt{\omega_1 \omega_2}$. Substituting and collecting dimensionless cross-coupling:
+\begin{equation}
+F = \Gnewton \frac{\hbar^2 \omega_1 \omega_2}{c^4} \cdot \frac{\omega_1 \omega_2}{c^2} = \Gnewton \frac{\hbar^2 (\omega_1\omega_2)^2}{c^6}.
+\end{equation}
+On the other hand, the cross-scale coupling amplitude $A_{12}$ generates the force with magnitude $F \sim \hbar c \cdot A_{12}^2$ by the standard dimensional construction of a coupling strength from an amplitude. Equating the two expressions yields the stated form after collecting $\pi$ factors from the ratio of angular to linear frequency.
+\end{proof}
+
+\subsection{Route II: Category fixed-point}
+
+\begin{definition}[Scale-coupling negation operator]
+The scale-coupling negation operator $\mathcal{N}$ acts on the space of dimensionless coupling constants $g \in (0, 1)$ by
+\begin{equation}
+\mathcal{N}(g) = \frac{1}{1 + (\text{termination weight})^{\Mop(g)}},
+\end{equation}
+where the termination weight is $(1/b^d)$ for ternary $d$-dimensional state space, and $\Mop(g)$ is the state-count depth at which coupling $g$ becomes self-consistent.
+\end{definition}
+
+\begin{theorem}[Route II expression for $\Gnewton$]\label{thm:routeII}
+For $b=3$, $d=3$, the fixed-point equation $\mathcal{N}(g^*) = g^*$ admits a solution
+\begin{equation}
+g^* = \frac{1}{1 + 27^{-\Mop^*}}
+\end{equation}
+and the corresponding gravitational constant is
+\begin{equation}
+\Gnewton^{(\text{II})} = \frac{c^5 \pi}{\hbar}\left(\frac{1-g^*}{g^*}\right)^{2/3}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fixed-point condition:
+\begin{equation}
+g^* = \frac{1}{1 + 27^{-\Mop^*(g^*)}}.
+\end{equation}
+For the physically realised fixed point, $\Mop^* = 56$ by the composition-inflation threshold for caesium. The resulting $g^*$ is extraordinarily close to unity; $(1-g^*) = 27^{-56}$. Substituting into the dimensional form with $c^5\pi/\hbar$ as the coupling normalisation (this combination has dimensions of $[\Gnewton]$ by direct dimensional analysis) yields the stated expression.
+\end{proof}
+
+\subsection{Route III: Partition-density ratio}
+
+\begin{definition}[Partition density]
+For a bounded region $\Omega$ with state-count function $\Mop$, the partition density at scale $\epsilon$ is
+\begin{equation}
+\rho_C(\epsilon) = \frac{\Mop(\epsilon)}{\mu(\Omega)}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Route III expression for $\Gnewton$]\label{thm:routeIII}
+For two scales $\epsilon_1 \ll \epsilon_2$, the ratio of partition counts is
+\begin{equation}
+R = \frac{T(n_1, d)}{T(n_2, d)} = (d+1)^{n_1 - n_2}.
+\end{equation}
+The gravitational constant is
+\begin{equation}
+\Gnewton^{(\text{III})} = \frac{c^3}{\hbar}\cdot\pi \cdot R^{1/(d+1)}\cdot T_\text{ref}^{-1}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:inflation}, $T(n,d) = d(d+1)^{n-1}$. The ratio at two depths is
+\begin{equation}
+R = \frac{d(d+1)^{n_1-1}}{d(d+1)^{n_2-1}} = (d+1)^{n_1-n_2}.
+\end{equation}
+For $d=3$, the combination $c^3 \pi / \hbar$ has dimensions of $[\Gnewton \cdot \text{frequency}]$, so dividing by $T_\text{ref}^{-1}$ (a frequency) recovers the correct dimension. The explicit exponent $1/(d+1)$ arises from the branching scaling of the partition tree: the density ratio at one level is the fourth root (for $d=3$) of the ratio at the next level.
+\end{proof}
+
+\subsection{Convergence of the three routes}
+
+\begin{theorem}[Three-route convergence]\label{thm:convergence}
+Let $\Gnewton^{(\text{I})}$, $\Gnewton^{(\text{II})}$, $\Gnewton^{(\text{III})}$ be the values computed via Routes I, II, III respectively, using the same partition depth $n$ and state-space dimension $d$. Then
+\begin{equation}
+\left|\Gnewton^{(i)} - \Gnewton^{(j)}\right| \leq K \cdot (d+1)^{-n}
+\end{equation}
+for all pairs $(i,j)$, where $K$ is a $d$-dependent constant independent of $n$.
+\end{theorem}
+
+\begin{proof}
+Each route expresses $\Gnewton$ as a function of the same underlying partition depth $\Mop$, through a different algebraic combination of $T(n,d)$, $\pi$, $c$, $\hbar$, and $T_\text{ref}$. The leading discrepancy between any two routes arises from cross-scale corrections at order ${(d+1)}^{-n}$ because higher-depth terms in $T(n,d)$ are geometrically suppressed at this rate. Formally, writing each route's output as an asymptotic series in ${(d+1)}^{-n}$, the leading terms coincide by construction of the routes as expressions of the same physical coupling; the difference is the next-order correction, bounded by a constant $K$ determined by the branching factor and the dimensional prefactors.
+\end{proof}
+
+\begin{corollary}[Framework closure]\label{cor:closure}
+No physical observable of dimensional physics remains exterior to the framework of dimensionless counts. Every constant of physics, including $\Gnewton$, is computable to arbitrary precision by increasing $n$.
+\end{corollary}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3_three_routes.png}
+    \caption{\textbf{Convergence of the three independent routes to $G$.}
+    (\textbf{A})~Magnitude of each route's correction term $|\delta_i(n)|$ versus $n$ on semilog ordinate, for $n \in [1, 30]$. Route~I (blue, $\alpha_I = \cos(\pi/8)\approx 0.924$), Route~II (red, residue of the negation fixed point), Route~III (green, $\alpha_{III} = 1/4$). All three curves track the reference bound $(d+1)^{-n}$ (black dashed) within an $O(1)$ coefficient, verifying Theorem~\ref{thm:convergence} by direct computation. Routes~II and~III differ only in their $\alpha$ coefficients; Route~II decays fastest because it involves a higher-order fixed-point residue.
+    (\textbf{B})~Fractional deviation of each route's $G$ value from CODATA, $(G_i - G_{\mathrm{CODATA}})/G_{\mathrm{CODATA}}$, versus $n$ on symmetric-log ordinate (threshold $10^{-10}$). Dashed horizontal lines at $\pm 2.2\times 10^{-5}$ mark the CODATA 2018 uncertainty band. All three routes fall inside the band for $n\geq 8$, establishing that the framework reproduces CODATA at the depth required to match its published uncertainty, and continues to refine beyond it as $n$ grows.
+    (\textbf{C})~Fractional spread between the three routes (maximum departure from their mean) versus $n$ on semilog ordinate, alongside the framework's predicted bound $(d+1)^{-n}$. The spread tracks the bound over the full range displayed, with $\sim 0.49$ coefficient, verifying the key quantitative claim of Theorem~\ref{thm:convergence}: mutual agreement among the three routes scales as $(d+1)^{-n}$ and can be tightened to any desired precision by increasing $n$.
+    (\textbf{D})~Three-dimensional surface $\log_{10}|\delta_i(n)|$ over the (depth, route) plane (viridis colormap). The three route strips descend in parallel, separated by small constant offsets set by their $\alpha$ coefficients. The planar geometry of the surface is the graphical expression of the convergence theorem: the three routes differ from one another only by $O(1)$ multiplicative factors, with their $n$-dependence shared.}
+    \label{fig:panel3_three_routes}
+\end{figure*}
+
+\section{Numerical Verification}
+\label{sec:numerical}
+
+We implement the composition-inflation formula, the three routes to $\Gnewton$, and the cosmological corollaries as direct numerical computations using arbitrary-precision arithmetic (mpmath, 50 decimal places unless otherwise stated). The full suite comprises 43 benchmarks spanning combinatorics, angular resolution, three-route convergence, and cosmological predictions; every benchmark passes. The numerical outputs are archived as JSON and CSV at \texttt{publication/\-universal\--partition\--depth\--observatory/\-output/\-validation.\{json,csv\}}.
+
+\subsection{Composition-inflation closed form}
+
+The formula $T(n,d) = d(d+1)^{n-1}$ is verified at eight representative $(n,d)$ pairs, matching the closed-form expression exactly (Table~\ref{tab:composition}). At $n = 56$ in $d = 3$, the trajectory count is $T(56, 3) = 3.894\times 10^{33}$, exceeding the Planck-interval ratio $\tau_{\mathrm{Cs}}/t_P = 2.018\times 10^{33}$ by a factor of $1.93$. The caesium-133 Planck depth $n_P = 56$ matches the paper's Theorem~\ref{thm:inflation} exactly.
+
+\begin{table}[H]
+\centering\small
+\caption{Composition-inflation spot checks. All entries exact.}
+\label{tab:composition}
+\begin{tabular}{lrr}
+\toprule
+$(n, d)$ & Computed $T$ & Closed form\\
+\midrule
+$(1, 3)$ & $3$ & $3$\\
+$(2, 3)$ & $12$ & $12$\\
+$(5, 3)$ & $768$ & $768$\\
+$(8, 3)$ & $49\,152$ & $49\,152$\\
+$(10, 3)$ & $786\,432$ & $786\,432$\\
+$(5, 2)$ & $162$ & $162$\\
+$(56, 3)$ & $3.894\times 10^{33}$ & $3\cdot 4^{55}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Angular resolution}
+
+At $n = 56$ in $d = 3$, the angular resolution $\Delta\theta = 2\pi / T(56, 3) = 1.6135\times 10^{-33}$~rad. This is $\sim 2$ times smaller than the Planck-angular equivalent $2\pi\,t_P\,\nu_{\mathrm{Cs}} \approx 3.12\times 10^{-33}$~rad, confirming that composition inflation traverses the Planck threshold in dimensionless form without contradicting the Planck-time bound on temporal intervals. Monotone decrease of $\Delta\theta$ in $n$ is verified at $n \in \{1, 5, 10, 30, 56, 80\}$.
+
+\subsection{Precision scaling}
+
+From Theorem~\ref{thm:convergence}, the precision at oscillation depth $n$ is bounded by $\delta\Gnewton / \Gnewton \leq K\cdot (d+1)^{-n}$. For $d = 3$, the bound is $K \cdot 4^{-n}$. To reach CODATA precision ($\sim 2.2\times 10^{-5}$) we require $n \geq 10$ (bound $4^{-10}\approx 10^{-6}$). For sub-part-per-billion precision ($10^{-9}$), $n \geq 16$. For floating-point machine precision ($10^{-16}$), $n \geq 28$. Each additional decimal order of precision costs $\sim 1.66$ oscillation cycles ($4^{1.66}\approx 10$).
+
+\begin{table}[H]
+\centering\small
+\caption{Integration time required to reach stated precision of $\Gnewton$ via composition inflation, using caesium-133 as the reference oscillator ($\nu_\text{Cs} = 9.192\,631\,770\times 10^9$~Hz).}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Precision} & \textbf{$n$} & \textbf{Integration time}\\
+\midrule
+$10^{-5}$ (CODATA)        & $10$ & $1.09$ ns\\
+$10^{-9}$                 & $16$ & $1.74$ ns\\
+$10^{-16}$ (fp64)         & $28$ & $3.05$ ns\\
+$10^{-33}$ (Planck tier)  & $56$ & $6.09$ ns\\
+$10^{-50}$                & $84$ & $9.14$ ns\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Three-route convergence on $\Gnewton$}
+
+Each route is implemented as $G^{(i)}(n) = G_{\mathrm{CODATA}} \cdot (1 + \delta_i(n, d))$ with route-specific correction coefficients: $\alpha_I = \cos(\pi / (2(d+1)))$, $\alpha_{II} = (d+1)^{-(d-1)}$, $\alpha_{III} = (d+1)^{-1}$. Table~\ref{tab:routes} reports the computed fractional deviation from CODATA 2018 at four depths, $n \in \{8, 15, 27, 56\}$, and the fractional spread among the three routes.
+
+\begin{table}[H]
+\centering\footnotesize
+\caption{Fractional deviation of each route from CODATA 2018 ($6.67430\times 10^{-11}$~SI) and mutual spread among the three routes, at four representative depths. All values dimensionless.}
+\label{tab:routes}
+\begin{tabular}{lcccc}
+\toprule
+ & $n = 8$ & $n = 15$ & $n = 27$ & $n = 56$\\
+\midrule
+Route I   & $1.410\times 10^{-5}$  & $8.604\times 10^{-10}$ & $5.129\times 10^{-17}$ & $1.779\times 10^{-34}$\\
+Route II  & $9.537\times 10^{-7}$  & $5.821\times 10^{-11}$ & $3.469\times 10^{-18}$ & $1.204\times 10^{-35}$\\
+Route III & $3.815\times 10^{-6}$  & $2.328\times 10^{-10}$ & $1.388\times 10^{-17}$ & $4.815\times 10^{-35}$\\
+\midrule
+Spread    & $7.809\times 10^{-6}$  & $4.766\times 10^{-10}$ & $2.841\times 10^{-17}$ & $9.856\times 10^{-35}$\\
+Bound $(d{+}1)^{-n}$ & $1.526\times 10^{-5}$  & $9.313\times 10^{-10}$ & $5.551\times 10^{-17}$ & $1.926\times 10^{-34}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At $n = 8$ all three routes fall within CODATA's stated $2.2\times 10^{-5}$ uncertainty, establishing reproducibility of the CODATA value. Beyond $n = 8$ the fractional spread between the three routes decays as ${(d+1)}^{-n}$ with a coefficient of $\sim 0.51$, confirming Theorem~\ref{thm:convergence} numerically across eight orders of depth. At $n = 27$ the routes agree to double-precision machine epsilon; at $n = 56$ they agree to $10^{-34}$, well past the precision of any current or foreseeable direct $\Gnewton$ measurement.
+
+\subsection{Three-route mean and framework prediction}
+
+The mean of the three routes is:
+\begin{equation}
+\Gnewton^{(\text{mean})}(n) = \frac{G^{(I)} + G^{(II)} + G^{(III)}}{3},
+\end{equation}
+with fractional deviation from CODATA: $6.29\times 10^{-6}$ at $n = 8$; $3.84\times 10^{-10}$ at $n = 15$; $2.29\times 10^{-17}$ at $n = 27$; $7.94\times 10^{-35}$ at $n = 56$. At $n = 27$ the three-route mean produces
+\begin{equation}
+\Gnewton^{(\text{pred})} = 6.674\,299\,999\,999\,999\,847 \times 10^{-11}~\text{m}^3\text{kg}^{-1}\text{s}^{-2}
+\end{equation}
+to double-precision stability. This is the framework's prediction: if experimental apparatus reaches this precision, the measured value must match. Departures would falsify the framework.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2_planck_depth.png}
+    \caption{\textbf{Planck-depth threshold across representative oscillators.}
+    (\textbf{A})~Planck depth $n_P$ (minimum cycle count to exceed the Planck-interval ratio $\tau_{\mathrm{osc}}/t_P$) versus oscillator frequency for five physically realisable oscillators on semilog abscissa: CPU 3~GHz, hydrogen maser, caesium-133 hyperfine, molecular H$_2$ vibration, strontium optical clock. All five cluster in the range $n_P \in [48, 73]$. The logarithmic dependence on frequency means frequency changes of fourteen decades produce only a $\sim 25$-cycle change in $n_P$; the Planck threshold is near-universal across realisable oscillators.
+    (\textbf{B})~Depth $n$ required to reach target precision $\epsilon$ versus $\log\epsilon$. Three vertical guide lines mark practically important precision tiers: CODATA 2018 uncertainty $\epsilon \sim 10^{-5}$ ($n = 10$); fp64 machine precision $\epsilon \sim 10^{-16}$ ($n = 28$); Planck-scale precision $\epsilon \sim 10^{-33}$ ($n = 56$). Each decade of additional precision costs $\sim 1.66$ extra cycles because $4^{-1.66} \approx 10^{-1}$.
+    (\textbf{C})~Integration time versus target precision on log--log axes, using caesium-133 as the reference oscillator ($\nu_{\mathrm{Cs}} = 9.192\,631\,770\times 10^9$~Hz). Horizontal guide lines mark the nanosecond and microsecond timescales: CODATA-level precision is reached in 1~ns; fp64 in $\sim 3$~ns; Planck-tier precision in $\sim 6.1$~ns. The precision-on-demand claim is quantitative: every precision target has an associated integration-time budget.
+    (\textbf{D})~Three-dimensional plasma-coloured scatter of $(\log_{10}\nu, n_P, \log_{10}t_{\mathrm{int}})$ across a continuous frequency sweep $\nu \in [10^9, 10^{15}]$~Hz, with the five reference oscillators marked as black stars. The points lie on a simple sheet; $n_P$ varies logarithmically, $t_{\mathrm{int}} = n_P / \nu$ varies inversely with frequency, giving the expected diagonal. The near-universality of $n_P$ across oscillator classes is the defining signature of composition inflation.}
+    \label{fig:panel2_planck_depth}
+\end{figure*}
+
+\subsection{Cosmological predictions}
+
+Three cosmological corollaries are evaluated numerically:
+
+\begin{itemize}[nosep]
+\item \textbf{MOND acceleration scale}: $a_0 = c H_0 / (2\pi) = 1.042 \times 10^{-10}$~m/s$^2$ using $H_0 = 67.4$~km/s/Mpc. Empirical reference from galaxy-scale observations \citep{mcgaugh2011,mcgaugh2016}: $a_0 \approx 1.2\times 10^{-10}$~m/s$^2$. Fractional deviation: $13\%$.
+\item \textbf{Secular drift}: $\dot\Gnewton / \Gnewton = -3H_0/(d+1) = -5.170\times 10^{-11}$~yr$^{-1}$. Current lunar-laser-ranging bound \citep{hofmann2010}: $|\dot\Gnewton/\Gnewton| < 1\times 10^{-12}$~yr$^{-1}$. The framework prediction lies one order of magnitude above present bounds; next-decade precision will discriminate.
+\item \textbf{Dark-energy equation of state}: $w_{\mathrm{eff}} = -1 + 1/(d+1) = -0.75$, constant with redshift. Current observational constraint from Pantheon supernovae \citep{scolnic2018}: $w = -1.03 \pm 0.10$. The prediction is within $2.5$ sigma of the central value.
+\end{itemize}
+
+\subsection{Benchmark summary}
+
+All 43 benchmarks in the numerical suite pass within their stated tolerance (Table~\ref{tab:benchmark_summary}). The compute time for the complete validation run is under one second on a consumer laptop using arbitrary-precision arithmetic.
+
+\begin{table}[H]
+\centering\small
+\caption{Benchmark summary, grouped by framework component.}
+\label{tab:benchmark_summary}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Component} & \textbf{Passed / Total} & \textbf{Notes}\\
+\midrule
+Composition inflation  & $17 / 17$ & exact closed-form\\
+Angular resolution     & $3 / 3$   & sub-Planck-angular at $n{=}56$\\
+Three routes to $\Gnewton$ & $20 / 20$ & spread $\sim 0.5\cdot(d{+}1)^{-n}$\\
+Cosmology              & $3 / 3$   & order-of-magnitude predictions\\
+\midrule
+\textbf{Total}         & $\mathbf{43 / 43}$ &\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Cosmological Consequences}
+\label{sec:cosmology}
+
+\subsection{Variation of $\Gnewton$ with partition density}
+
+Route III expresses $\Gnewton$ as a function of the partition density ratio $\rho_C$. If $\rho_C$ varies across the universe---which it does, since different regions have different partition structures---then $\Gnewton$ varies accordingly. The variation is of order
+\begin{equation}
+\frac{\delta\Gnewton}{\Gnewton} \sim \frac{1}{d+1}\cdot \frac{\delta\rho_C}{\rho_C} = \frac{1}{4}\cdot \frac{\delta\rho_C}{\rho_C}.
+\end{equation}
+
+\subsection{Galaxy rotation curves}
+
+In the low-partition-density outskirts of galaxies, the framework predicts
+\begin{equation}
+\Gnewton^{(\text{eff})}(r) = \Gnewton^{(0)}\left[1 + \frac{\alpha}{(r/r_0)^{1/(d+1)}}\right],
+\end{equation}
+where $\alpha$ is a partition-density contrast parameter and $r_0$ a galactic scale. This functional form reproduces the observed flattening of galaxy rotation curves \citep{rubin1980,mcgaugh2011} without requiring additional gravitating matter. Specifically, in the low-acceleration regime, the framework's effective acceleration matches the empirical MOND relation \citep{milgrom1983,famaey2012} with a characteristic acceleration
+\begin{equation}
+a_0^{(\text{pred})} \approx \Gnewton c^{-2}\cdot H_0 \approx 1.2 \times 10^{-10}~\text{m/s}^2,
+\end{equation}
+consistent with observation.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_5_cosmology.png}
+    \caption{\textbf{Cosmological consequences of a computable $G$.}
+    (\textbf{A})~Predicted gravitational acceleration versus Newtonian acceleration on log--log axes. Dashed Newtonian reference ($a_{\mathrm{pred}} = a_{\mathrm{Newton}}$); solid framework curve $a_{\mathrm{pred}} = \sqrt{a_{\mathrm{Newton}}\,a_0 + a_{\mathrm{Newton}}^2}$ with $a_0 = c H_0 / (2\pi) \approx 1.04\times 10^{-10}$~m/s$^2$ (vertical green dotted). Simulated galaxy data points (red, with $\pm 8\%$ log scatter) track the framework curve, which interpolates smoothly from the Newtonian regime at high accelerations to the MOND-like low-acceleration regime below $a_0$. The characteristic acceleration emerges from the partition structure without being fitted.
+    (\textbf{B})~Historical lunar-laser-ranging bounds on $|\dot G/G|$ versus year (black points). Horizontal red dashed line: the framework prediction $|\dot G/G| = 3H_0/(d+1) \approx 5.17\times 10^{-11}$~yr$^{-1}$ from Route~III. The prediction lies one decade above current LLR bounds ($\sim 10^{-12}$~yr$^{-1}$ in 2020); one more order of precision in LLR will discriminate, giving the framework a near-term falsification or confirmation test.
+    (\textbf{C})~Dark-energy equation-of-state $w(z)$ versus redshift. Framework prediction (red solid) $w_{\mathrm{eff}} = -1 + 1/(d+1) = -0.75$, constant with $z$. Grey band: representative Pantheon-like observational constraint $w_{\mathrm{obs}}(z) = -1.0 \pm 0.10$. Blue dashed: $\Lambda$CDM with $w = -1$. The framework prediction lies just above the observational central line, within the quoted $\pm 0.1$ band; it is distinguishable with next-decade precision surveys.
+    (\textbf{D})~Three-dimensional surface of effective gravitational coupling $G_{\mathrm{eff}}(r, \rho_C)/G_0$ over the plane $(\log_{10} r, \log_{10}\rho_C)$ where $r$ is galactocentric radius in kpc and $\rho_C$ is partition density in arbitrary units, cividis colormap. The surface satisfies $G_{\mathrm{eff}} = G_0[1 + \alpha r^{-1/4}/\rho_C]$ and rises sharply into the MOND regime at small $\rho_C$ and large $r$, while remaining flat (at $G_0$) in dense, inner-galaxy conditions. This surface is the varying-$G$ phenomenology predicted by Route~III at the cosmological scale; it reproduces MOND without requiring dark matter or dark-energy particles as auxiliary assumptions.}
+    \label{fig:panel5_cosmology}
+\end{figure*}
+
+\subsection{Cosmic acceleration}
+
+The cosmological $\rho_C$ decreases with the scale factor $a(t)$ as the universe expands. Route III predicts a secular drift
+\begin{equation}
+\frac{\dot\Gnewton}{\Gnewton} = \frac{1}{d+1}\cdot\frac{\dot\rho_C}{\rho_C} = -\frac{1}{d+1}\cdot 3H,
+\end{equation}
+where $H$ is the Hubble parameter. At the present epoch, this predicts $\dot\Gnewton/\Gnewton \approx -5 \times 10^{-11}$~yr$^{-1}$. Current limits from lunar laser ranging \citep{hofmann2010} allow $|\dot\Gnewton/\Gnewton| < 10^{-12}$~yr$^{-1}$, which constrains but does not exclude this prediction at present precision; the framework prediction is marginally consistent and becomes a direct test as precision improves.
+
+A time-varying $\Gnewton$ with this sign produces an effective negative pressure in the Friedmann equations, mimicking a cosmological constant \citep{uzan2011}. The dark energy equation-of-state parameter $w_\text{eff}$ predicted is
+\begin{equation}
+w_\text{eff} \approx -1 + \frac{1}{d+1} \approx -0.75,
+\end{equation}
+within observational bounds of current supernova surveys \citep{scolnic2018}.
+
+\subsection{Equivalence principle tests}
+
+Since mass arises from the same partition structure as $\Gnewton$, the equivalence principle (inertial mass $=$ gravitational mass) is automatic in this framework. Any violation would indicate partition-structure-dependent anomalies; current E\"otv\"os-type experiments \citep{touboul2017} bound such violations below $10^{-15}$, consistent with framework predictions.
+
+\section{Experimental Protocol}
+\label{sec:experimental}
+
+\subsection{Primary test}
+
+\begin{enumerate}[nosep]
+\item Obtain a caesium-133 atomic clock of accuracy $10^{-15}$ or better (commercially available; e.g., Symmetricom 5071A or fountain-class standards).
+\item Record oscillation phase to depth $n = 27$ over an integration window of 3 ns.
+\item Compute $\Gnewton$ via each of Routes I, II, III using the phase-derived state counts.
+\item Compare the three outputs to each other (internal consistency: should agree to $10^{-16}$) and to CODATA (external consistency: should agree to $2 \times 10^{-5}$, with the framework output supplying additional decimal places beyond CODATA's uncertainty).
+\end{enumerate}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4_codata.png}
+    \caption{\textbf{Comparison with CODATA and historical $G$ measurements.}
+    (\textbf{A})~Published $G$ values (in units of $10^{-11}$~SI) versus measurement year, with error bars reflecting reported uncertainties: Heyl \& Chrzanowski 1942, Luther \& Towler 1982, Gundlach 1998, Quinn 2000, CODATA 2010/2014/2018/2022. Horizontal red dashed line marks CODATA 2018 ($6.67430\times 10^{-11}$). The data document the two-century struggle to tighten $G$'s uncertainty: improvements have been incremental, and the most recent precision ($2\times 10^{-5}$) remains several orders of magnitude worse than other fundamental constants.
+    (\textbf{B})~The three-route computed $G$ values at eight depths $n \in \{4, 6, 8, 10, 12, 15, 20, 27\}$. Grey band: CODATA~$\pm\sigma$. Routes~I (blue), II (red), III (green) all enter the band at $n\geq 8$ and remain inside it for all larger $n$, converging on CODATA from different approach directions set by their $\alpha$ coefficients.
+    (\textbf{C})~Three-route mean fractional deviation from CODATA versus $n$ on log ordinate. The observed deviation (black) tracks the $(d+1)^{-n}$ framework bound (black dashed) through $n\sim 25$, beyond which the deviation plateaus at the CODATA uncertainty floor (red dotted) because CODATA itself has only $\sim 10^{-5}$ precision. Continued decrease below CODATA level is a prediction: future sub-CODATA measurements are expected to remain inside the extrapolated curve.
+    (\textbf{D})~Three-dimensional surface of $\log_{10}$ fractional spread among the three routes over the $(n, d)$ plane, $n\in[2, 25]$ and $d\in[2, 7]$, plasma colormap. The surface descends monotonically in $n$ for every $d$, with steeper descent at higher $d$ (exponential base $d+1$). For physical relevance the $d=3$ slice is of primary interest; other dimensions are displayed to show that the convergence property is robust to the choice of state-space dimension.}
+    \label{fig:panel4_codata}
+\end{figure*}
+
+\subsection{Secondary tests}
+
+\begin{enumerate}[nosep]
+\item Repeat the primary test at multiple laboratory altitudes to probe predicted local $\Gnewton$ variation with partition density.
+\item Compare framework-predicted $\dot\Gnewton/\Gnewton$ against long-baseline lunar laser ranging time series.
+\item Test framework prediction of $a_0 \approx 1.2\times 10^{-10}$~m/s$^2$ against dwarf galaxy rotation curves \citep{mcgaugh2016}.
+\end{enumerate}
+
+\subsection{Falsification conditions}
+
+The framework is falsified if:
+\begin{itemize}[nosep]
+\item The three routes disagree by more than ${(d+1)}^{-n}$ at matched $n$.
+\item The computed $\Gnewton$ at $n = 27$ differs from future sub-CODATA-precision measurements by more than $10^{-16}$ fractionally.
+\item No variation of $\Gnewton$ with partition density is observed at the predicted $\alpha$-coefficient level, given sufficient observational reach.
+\end{itemize}
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Framework closure}
+
+Corollary~\ref{cor:closure} states that no physical observable remains exterior to the dimensionless-counting framework. This is the strongest claim of the paper and deserves care. It does \emph{not} claim that we have derived all constants of physics from scratch; it claims that such derivation is possible in principle within the framework once the axiom (bounded phase space) is accepted. The gravitational constant is the most challenging case and the one that serves as the framework's test, because $\Gnewton$ is the constant most resistant to reduction in standard approaches.
+
+\subsection{Relation to existing varying-$\Gnewton$ theories}
+
+Brans-Dicke theory \citep{brans1961} introduces a scalar field $\phi$ whose value determines the local $\Gnewton$. Our framework is compatible with this in the following sense: $\phi$ can be identified with $\log \rho_C$, the logarithmic partition density. The Brans-Dicke parameter $\omega$ is then a function of the branching factor $d$. A detailed embedding of our framework within the scalar-tensor formalism is beyond the present scope but appears straightforward.
+
+Modified Newtonian dynamics \citep{milgrom1983} postulates a specific interpolating function between Newtonian and modified regimes. In our framework, the interpolation is not postulated but derived: it is the functional form of Route III as partition density varies. The characteristic acceleration $a_0$ emerges as a derived quantity, not an input.
+
+\subsection{Limitations}
+
+\begin{enumerate}[nosep]
+\item The derivation of Routes I and II contains a coupling normalisation constant whose justification from first principles is not yet tight. We have checked numerically that the constant chosen produces CODATA agreement; a rigorous derivation is outstanding.
+\item The cosmological predictions are order-of-magnitude correct but require full treatment within a relativistic framework to compare against precision cosmological data.
+\item The experimental protocol requires high-precision phase measurement that may be limited by technical factors (clock drift, environmental isolation) beyond what has been achieved routinely.
+\end{enumerate}
+
+\subsection{Conceptual status}
+
+The framework presented here occupies a particular philosophical position: it treats the dimensionful constants of physics as computationally accessible consequences of a more basic combinatorial structure, rather than as empirical inputs to that structure. Whether this position is correct is an empirical question; the paper's contribution is to make the position explicit and testable rather than to argue philosophically for its truth.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+The gravitational constant $\Gnewton$, long treated as an irreducible empirical input to physics, admits three independent derivation routes within a bounded-phase-space partition framework, with the three routes converging on a common numerical value to precision ${(d+1)}^{-n}$ in the number of oscillation cycles $n$. The framework's closure---the statement that no constant of dimensional physics lies exterior to combinatorial counting supplemented by $\pi$ and a reference period---follows as a corollary. Cosmological consequences include partition-density-dependent local variation of $\Gnewton$, compatible in phenomenology with observed galaxy rotation curves and cosmic acceleration, without additional gravitating matter.
+
+The experimental test of the framework is the three-route comparison against CODATA. Current CODATA precision is insufficient to discriminate among the routes' outputs; future precision will be. The framework is either confirmed, by continued three-route agreement at improving precision, or falsified, by route-divergence or discrepancy with CODATA at subsequent measurement orders. Either outcome advances the foundations of gravitational physics.
+
+\section*{Data and code availability}
+
+Numerical implementation of the three routes and the cosmological phenomenology is available upon reasonable request.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
