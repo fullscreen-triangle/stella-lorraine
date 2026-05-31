@@ -1,0 +1,1092 @@
+% ============================================================
+%  BACKWARD TRAJECTORY COMPLETION IN BOUNDED PHASE SPACE:
+%  S-ENTROPY FRAMEWORK, VIRTUAL SUB-STATES, AND THE LHC
+%  TRIGGER AS A CATEGORICAL NAVIGATOR
+% ============================================================
+
+\documentclass[twocolumn,10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=2cm,bottom=2.2cm,left=1.8cm,right=1.8cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{mathrsfs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,
+            citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\small Backward Trajectory Completion in Bounded Phase Space}
+\fancyhead[LO]{\small Sachikonye}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---- Theorem environments -------------------------------------------
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ---- Custom commands ------------------------------------------------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Zp}{\mathbb{Z}^{+}}
+\newcommand{\tP}{t_{\mathrm{P}}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\Parts}{\mathcal{P}}
+\newcommand{\Sfl}{S_{\flat}}
+\newcommand{\Sk}{S_{k}}
+\newcommand{\St}{S_{t}}
+\newcommand{\Se}{S_{e}}
+\newcommand{\Svec}{\mathbf{S}}
+\newcommand{\Sspace}{\mathcal{S}}
+\newcommand{\receiver}{\mathcal{R}}
+\newcommand{\Osc}{\mathbf{Osc}}
+\newcommand{\Cat}{\mathbf{Cat}}
+\newcommand{\Part}{\mathbf{Part}}
+\newcommand{\catpow}{\kappa}
+\newcommand{\nP}{n_{\mathrm{P}}}
+\newcommand{\etaC}{\eta_{C}}
+
+% =========================================================
+\title{\textbf{Backward Trajectory Completion in Bounded Phase Space:\\
+S-Entropy Framework, Virtual Sub-States, and\\
+the LHC Trigger as a Categorical Navigator}}
+
+\author{
+Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Proteomics and Bioanalytics\\
+\texttt{kundai.sachikonye@wzw.tum.de}
+}
+\date{\today}
+% =========================================================
+
+\begin{document}
+\maketitle
+
+% =========================================================
+\begin{abstract}
+\noindent
+The LHC trigger faces a classification task: given a pattern of detector
+hits (the \emph{endpoint}), determine the originating physics process (the
+\emph{root}). We prove that this task is precisely backward trajectory
+completion in a ternary refinement hierarchy, and that it can be solved in
+$\mathcal{O}(\log_3 N)$ steps via the S-entropy embedding into $[0,1]^3$
+with the product Fisher metric — compared to $\Theta(N)$ for any algorithm
+restricted to physically realizable intermediate states.
+
+The key mechanism is \emph{virtual sub-states}: intermediate decompositions
+$(s_1, s_2, s_3) \in \R^3$ with mean $\bar s = s \in [0,1]$ but at least
+one component outside $[0,1]^3$. We prove three results about virtual
+sub-states that are central to trigger design:
+(i) they exist in positive Lebesgue measure (Theorem~\ref{thm:virtual_existence});
+(ii) restricting to physically realizable sub-states collapses backward
+completion to $\Theta(N)$ (Theorem~\ref{thm:collapse});
+(iii) two backward trajectories sharing an endpoint are observationally
+indistinguishable from any metric invariant at the endpoint (Path Opacity,
+Theorem~\ref{thm:path_opacity}).
+
+We establish the S-entropy framework from which these results derive: a
+bounded receiver $\receiver = (\Sigma, \Phi, K, \mathrm{dec})$ has a
+strictly positive alignment floor $\Sfl(\receiver) > 0$
+(Theorem~\ref{thm:floor}), and three algebraic structures
+(oscillatory $\Osc$, categorical $\Cat$, partition $\Part$) are mutually
+equivalent via explicit conversion functors
+(Theorem~\ref{thm:triple_equiv}).
+
+The paper concludes with the Aperture Identification theorem
+(Theorem~\ref{thm:aperture_id}): geometric aperture, virtual sub-state,
+miracle subtask, information catalyst, and Maxwell demon are five names
+for the same mathematical object — the partition-theoretic mechanism
+that enables $\mathcal{O}(\log N)$ navigation through the state space
+of physics events. This identifies the LHC trigger as a physical
+implementation of the categorical aperture, operating on collision events
+rather than molecular spectra.
+
+\medskip
+\noindent\textbf{Keywords:} backward trajectory completion; S-entropy;
+virtual sub-states; ternary refinement hierarchy; LHC trigger; triple
+equivalence; path opacity; categorical aperture; information catalyst;
+partition algebra
+\end{abstract}
+
+\tableofcontents
+
+% =========================================================
+\section{Introduction}
+\label{sec:intro}
+% =========================================================
+
+\subsection{The classification problem}
+
+The LHC trigger must classify $4 \times 10^7$ collision events per second.
+Each event is characterised by a pattern of detector hits: energies
+deposited in calorimeter cells, track momenta in the inner detector, muon
+hits in the outer spectrometer. The trigger must map this hit pattern to
+a class label (``interesting physics'' or ``background'') within 2.5~$\mu$s.
+
+Framed abstractly: the trigger is given the \emph{endpoint} of a trajectory
+through the partition state space of the detector (the hit pattern) and must
+recover the \emph{root} (the originating physics process). This is backward
+trajectory completion.
+
+The conventional approach — forward simulation and threshold comparison — is
+computationally equivalent to forward trajectory construction: build all
+possible event topologies from assumed physics models and compare with the
+observed hit pattern. This is $\Theta(N)$ where $N$ is the number of
+possible physics processes, which is astronomically large.
+
+We show that backward trajectory completion, using the S-entropy embedding
+and virtual sub-states, achieves $\mathcal{O}(\log_3 N)$.
+
+\subsection{Outline and main results}
+
+Section~\ref{sec:receiver} develops the S-entropy framework: bounded
+receivers, the S-functional, and the Floor Positivity theorem.
+Section~\ref{sec:triple} proves the Triple Equivalence between oscillatory,
+categorical, and partition descriptions.
+Section~\ref{sec:ternary} defines the ternary refinement hierarchy and
+the S-entropy embedding.
+Section~\ref{sec:backward} proves backward navigation complexity and
+establishes the collapse theorem.
+Section~\ref{sec:virtual} develops the theory of virtual sub-states.
+Section~\ref{sec:opacity} proves path opacity and its trigger implications.
+Section~\ref{sec:trigger} applies the theory to the LHC trigger: the
+detector as a backward navigator, the cell registry as an aperture,
+and the working example of the di-muon trigger.
+Section~\ref{sec:aperture} proves the Aperture Identification theorem,
+unifying all five names for the same mechanism.
+
+% =========================================================
+\section{S-Entropy Framework and Receiver Theory}
+\label{sec:receiver}
+% =========================================================
+
+\subsection{Bounded receivers}
+
+\begin{definition}[Candidate and Truth Spaces]
+A \emph{candidate space} $\mathcal{X}$ is a non-empty set of admissible
+solutions. A \emph{truth space} $\mathcal{X}^* \subseteq \mathcal{X}$
+is the designated set of correct solutions. We allow $|\mathcal{X}^*| > 1$
+to accommodate operationally indistinguishable solutions.
+\end{definition}
+
+\begin{definition}[Bounded Receiver]
+\label{def:receiver}
+A \emph{receiver} over $(\mathcal{X}, \mathcal{X}^*)$ is a quadruple
+$\receiver = (\Sigma, \Phi, K, \mathrm{dec})$ where:
+\begin{enumerate}[nosep,label=(\roman*)]
+\item $\Sigma$ is the \emph{signal space};
+\item $\Phi : \Sigma \to K$ is the \emph{decoder};
+\item $K$ is the \emph{knowledge framework} with operations $\{\circ_j\}$;
+\item $\mathrm{dec} : K \to \mathcal{X}$ is the \emph{candidate projection}.
+\end{enumerate}
+The receiver is \emph{bounded} if $|K| < |\mathcal{X}|$ (strictly smaller
+than the candidate space).
+\end{definition}
+
+\begin{definition}[S-Functional]
+\label{def:s_functional}
+An \emph{S-functional} is a map
+$\mathcal{S} : \mathfrak{R} \times \mathcal{X} \times \mathcal{X}^*
+\to [0, 100]$
+measuring misalignment: $\mathcal{S}_\receiver(x, x^*) = 0$ denotes perfect
+alignment; $\mathcal{S}_\receiver(x, x^*) = 100$ denotes maximum misalignment.
+It satisfies four axioms:
+\begin{enumerate}[nosep,label=(S\arabic*)]
+\item Non-negativity: $\mathcal{S}_\receiver(x,x^*) \geq 0$.
+\item Boundedness: $\mathcal{S}_\receiver(x,x^*) \leq 100$.
+\item Self-truth lower bound: $\inf_x \mathcal{S}_\receiver(x,x^*) = \Sfl(\receiver)$
+for some function $\Sfl : \mathfrak{R} \to (0,100]$.
+\item Receiver coherence: $\mathcal{S}_\receiver(x,x^*)
+= \delta_\receiver(\Phi(\sigma_x), \Phi(\sigma_{x^*}))$
+for a non-decreasing $\delta_\receiver$ with $\delta_\receiver(\sigma,\sigma) = \Sfl(\receiver)$.
+\end{enumerate}
+\end{definition}
+
+\subsection{The Floor Positivity theorem}
+
+\begin{theorem}[Floor Positivity]
+\label{thm:floor}
+For every bounded receiver $\receiver$, $\Sfl(\receiver) > 0$.
+\end{theorem}
+
+\begin{proof}
+Suppose $\Sfl(\receiver) = 0$. By (S3), there exists $x_0 \in \mathcal{X}$
+with $\mathcal{S}_\receiver(x_0, x^*) = 0$. By (S4), this requires
+$\delta_\receiver(\Phi(\sigma_{x_0}), \Phi(\sigma_{x^*})) = 0$.
+Since $\delta_\receiver(\sigma,\sigma) = \Sfl = 0$ and $\delta_\receiver$ is
+non-decreasing, $\Phi(\sigma_{x_0}) = \Phi(\sigma_{x^*})$ in $K$.
+The receiver is bounded: $|K| < |\mathcal{X}|$, so
+$|\mathrm{dec}^{-1}(\{x^*\})| \leq |K| < |\mathcal{X}|$, leaving
+candidates unreachable in $K$. This contradicts the requirement that every
+candidate has a representative in $K$. Hence $\Sfl(\receiver) > 0$.
+\end{proof}
+
+\begin{corollary}[Smallest Knowable Error]
+\label{cor:floor}
+No candidate achieves $\mathcal{S}_\receiver(x, x^*) < \Sfl(\receiver)$.
+The floor is intrinsic to the receiver: it depends on $|K|$, $\delta_\receiver$,
+and $\mathrm{dec}$, not on the candidate or the truth.
+\end{corollary}
+
+\subsection{S-entropy coordinates}
+
+\begin{definition}[S-Entropy Coordinate Space]
+\label{def:sentropy}
+The \emph{S-entropy coordinate space} is the unit cube
+$\Sspace = [0,1]^3$ with coordinates $(\Sk, \St, \Se)$ representing:
+\begin{itemize}[nosep]
+\item $\Sk$ (\emph{knowledge entropy}): normalised Shannon entropy of the
+frequency distribution of modes — how uniformly the knowledge is spread.
+\item $\St$ (\emph{temporal entropy}): relative entropy of the phase position
+within the oscillation cycle.
+\item $\Se$ (\emph{evolution entropy}): entropy of the trajectory history —
+which sequence of states has been visited.
+\end{itemize}
+All three coordinates lie in $[0,1]$ by normalisation; the cube $\Sspace$
+is a compact metric space under the Euclidean metric.
+\end{definition}
+
+\begin{theorem}[Ternary Encoding of S-Space]
+\label{thm:ternary_encoding}
+Every point $\Svec \in \Sspace$ corresponds to a unique infinite ternary
+string $\{t_i\}_{i \geq 1}$ with $t_i \in \{0,1,2\}$ encoding:
+$t_i = 0$ refines $\Sk$; $t_i = 1$ refines $\St$; $t_i = 2$ refines $\Se$.
+A $k$-trit string addresses one cell in the $3^k$-fold partition of $\Sspace$.
+As $k \to \infty$, the addressed cell converges to a unique point.
+\end{theorem}
+
+\begin{proof}
+At each refinement step, the trit $t_i$ selects which of three equal
+sub-intervals along the indicated axis contains the point.
+After $k$ steps with $n_j$ trits assigned to axis $j$ ($j \in \{0,1,2\}$),
+the $j$-th coordinate is pinned to an interval of width $3^{-n_j}$.
+Since $n_j \to \infty$ as $k \to \infty$ (each axis is refined at least
+$k/3$ times by the recurrence structure of bounded oscillations),
+all three interval widths $\to 0$ and the intersection is a single point.
+\end{proof}
+
+% =========================================================
+\section{Triple Equivalence}
+\label{sec:triple}
+% =========================================================
+
+\subsection{Three algebraic structures}
+
+\begin{definition}[Oscillatory Structure]
+An \emph{oscillatory structure} $\mathfrak{O} = (M, \omega, \Phi_\mathfrak{O}, \mu)$
+consists of: mode set $M$; frequency assignment $\omega : M \to \R_{\geq 0}$;
+phase function $\Phi_\mathfrak{O}(m,t) : M \times \R \to S^1$ with
+$\Phi_\mathfrak{O}(m, t+s) = \Phi_\mathfrak{O}(m,t) \cdot e^{2\pi i \omega(m) s}$;
+probability measure $\mu$ on $M$.
+Morphisms preserve frequencies and phase compatibility.
+The category is $\Osc$.
+\end{definition}
+
+\begin{definition}[Categorical Structure]
+A \emph{categorical structure} $\mathfrak{C} = (C, \prec, \lambda, \nu)$
+consists of: cell set $C$; strict partial order $\prec$ (refinement);
+labelling $\lambda : C \to \Lambda$; measure $\nu$.
+Morphisms preserve $\prec$ and $\lambda$. The category is $\Cat$.
+\end{definition}
+
+\begin{definition}[Partition Structure]
+A \emph{partition structure} $\mathfrak{P} = (\Omega, \mathscr{P}, \pi)$
+consists of: measurable space $\Omega$; refining sequence
+$\mathscr{P} = \{P_n\}_{n \in \N}$ of finite measurable partitions;
+measure $\pi$ with $\pi(\partial p) = 0$ for each $p \in P_n$.
+Morphisms preserve refinement and measure. The category is $\Part$.
+\end{definition}
+
+\subsection{Conversion functors}
+
+\begin{definition}[Conversion Functors]
+\label{def:functors}
+Define:
+\begin{enumerate}[nosep,label=(\roman*)]
+\item $F_{OC} : \Osc \to \Cat$: sends $(M, \omega, \Phi_\mathfrak{O}, \mu)$
+to $(M, \prec_\omega, \lambda_\omega, \mu)$ where $m_1 \prec_\omega m_2$ iff
+$\omega(m_1) | \omega(m_2)$ (rational ratio with bounded denominator), and
+$\lambda_\omega(m) = (\lfloor\log_2\omega(m)\rfloor, \arg\Phi_\mathfrak{O}(m,0))$.
+\item $F_{CP} : \Cat \to \Part$: sends $(C, \prec, \lambda, \nu)$ to
+$(C/{\sim}, \{P_n\}, \pi)$ where $\sim_n$ identifies cells agreeing on
+the first $n$ label coordinates.
+\item $F_{PO} : \Part \to \Osc$: sends $(\Omega, \mathscr{P}, \pi)$ to
+$(P_\infty, \omega_\mathfrak{P}, \Phi_\mathfrak{P}, \pi)$ with
+$\omega_\mathfrak{P}(p) = 1/\pi(p)$ (Kac's lemma analogue).
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Triple Equivalence]
+\label{thm:triple_equiv}
+The functors $F_{OC}$, $F_{CP}$, $F_{PO}$ are part of mutually inverse
+equivalences of categories:
+\begin{align}
+F_{CO} \circ F_{OC} &\cong \mathrm{id}_\Osc, &
+F_{OC} \circ F_{CO} &\cong \mathrm{id}_\Cat, \\
+F_{PC} \circ F_{CP} &\cong \mathrm{id}_\Cat, &
+F_{CP} \circ F_{PC} &\cong \mathrm{id}_\Part, \\
+F_{OP} \circ F_{PO} &\cong \mathrm{id}_\Part, &
+F_{PO} \circ F_{OP} &\cong \mathrm{id}_\Osc.
+\end{align}
+Composing two of the three yields the third up to natural isomorphism.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The inverse $F_{CO}$ is constructed from $F_{OC}$ by recovering the
+frequency from the first label coordinate ($\omega(c) = 2^{\lambda_1(c)}$)
+and the phase from the second ($\Phi(c,0) = e^{i\lambda_2(c)}$).
+The composition $F_{CO} \circ F_{OC}$ acts on $(M, \omega, \Phi_\mathfrak{O}, \mu)$
+and recovers the structure up to the discretisation error of $\lfloor\cdot\rfloor$,
+which vanishes as the labelling refines. Naturality is verified pointwise;
+the triangle identities follow from standard category theory
+\citep{maclane1998}.
+The cyclic identities $F_{OC} \cong F_{PC} \circ F_{OP}$ etc. follow from
+uniqueness of equivalences up to natural isomorphism: any two functors
+inducing the same equivalence are naturally isomorphic.
+\end{proof}
+
+\begin{corollary}[Optimal Representation]
+\label{cor:optimal_rep}
+For any computation on a bounded oscillatory system, there exist equivalent
+formulations in all three representations $(\Osc, \Cat, \Part)$.
+The computation may be performed in whichever representation makes it
+computationally cheapest.
+\end{corollary}
+
+\begin{remark}[Physical meaning]
+Triple Equivalence is not merely algebraic. It says that measuring
+any one of: the oscillation frequency, the categorical state label, or the
+partition cell address — fully determines the other two. For the LHC trigger,
+this means: measuring the detector hit pattern (partition description)
+uniquely determines the oscillatory state (particle kinematics) and the
+categorical state (event class). The three representations are three windows
+onto the same physical reality.
+\end{remark}
+
+% =========================================================
+\section{Ternary Refinement Hierarchy and S-Entropy Embedding}
+\label{sec:ternary}
+% =========================================================
+
+\subsection{The hierarchy}
+
+\begin{definition}[Ternary Refinement Hierarchy]
+\label{def:ternary_hierarchy}
+A \emph{ternary refinement hierarchy} of depth $k$ is a partition structure
+$\mathfrak{P} = (\Omega, \{P_j\}_{j=0}^k, \pi)$ where:
+$|P_0| = 1$ (the trivial partition),
+$|P_{j+1}| = 3|P_j|$ (each cell splits into exactly 3 children),
+and each block of $P_j$ is a disjoint union of 3 blocks of $P_{j+1}$.
+The leaves are $P_k$ with $|P_k| = 3^k = N$ elements.
+\end{definition}
+
+\begin{definition}[Trajectory in the Hierarchy]
+\label{def:trajectory}
+A \emph{trajectory} in a depth-$k$ hierarchy is a path
+$\mathcal{T} = (p_0, p_1, \ldots, p_k)$ with $p_0 \in P_0$,
+$p_{j+1}$ a child of $p_j$ in $P_{j+1}$.
+The \emph{endpoint} is $\partial(\mathcal{T}) = p_k \in P_k$.
+The \emph{root} is $p_0$.
+\end{definition}
+
+\begin{definition}[Completion Problem]
+\label{def:completion}
+The \emph{trajectory completion problem} takes as input the hierarchy
+$\mathfrak{P}$ and an endpoint $p_k \in P_k$, and recovers the unique
+trajectory $\mathcal{T}$ with $\partial(\mathcal{T}) = p_k$.
+\end{definition}
+
+\subsection{The S-entropy embedding}
+
+\begin{definition}[S-Entropy Embedding]
+\label{def:s_embed}
+The \emph{S-entropy embedding} of a depth-$k$ hierarchy is
+$\iota_k : P_k \to [0,1]^3$ sending each leaf $p \in P_k$ to
+$\Svec(p) = (\Sk(p), \St(p), \Se(p))$ given by the base-3 expansion:
+\[
+\Sk(p) = \sum_{j=1}^k \frac{a_j^k(p)}{3^j}, \quad
+\St(p) = \sum_{j=1}^k \frac{a_j^t(p)}{3^j}, \quad
+\Se(p) = \sum_{j=1}^k \frac{a_j^e(p)}{3^j},
+\]
+where $a_j^c(p) \in \{0,1,2\}$ is the address digit of $p$ at level $j$
+in the $c$-th coordinate.
+\end{definition}
+
+\begin{definition}[Product Fisher Metric]
+The \emph{product Fisher metric} on $[0,1]^3$ is the Riemannian metric
+\[
+g(\Svec) = \sum_{c \in \{k,t,e\}} \frac{dS_c^2}{S_c(1-S_c)}.
+\]
+\end{definition}
+
+\begin{theorem}[Embedding Necessity for Sub-linear Completion]
+\label{thm:embedding_necessity}
+Any algorithm solving trajectory completion in $o(N)$ queries requires
+a metric on the leaf set $P_k$ that distinguishes leaves at distance
+proportional to $\log_3|P_k|$. The S-entropy embedding with the product
+Fisher metric provides exactly this.
+\end{theorem}
+
+\begin{proof}
+By the information-theoretic lower bound, any comparison-based
+algorithm on $N = 3^k$ leaves without geometric structure requires
+$\Omega(N)$ comparisons (each query reveals one bit of structure;
+there are $\Omega(N \log_2 3)$ bits to discover). With a metric whose
+ball of radius $r$ contains at most $f(r)$ leaves, navigation requires
+$\mathcal{O}(\log f^{-1}(N))$ steps. For the S-entropy embedding with
+Fisher metric, the ball of radius $r$ contains at most $\mathcal{O}(r^3 3^k)$
+leaves (three-dimensional ball volume times leaf density), yielding
+$\mathcal{O}(\log_3 N)$ steps.
+\end{proof}
+
+\begin{theorem}[Recursive Self-Similarity]
+\label{thm:self_similar}
+The S-entropy embedding is strictly self-similar: for any block $b \in P_j$,
+the embedding restricted to leaves under $b$ is isometric (after rescaling
+by $3^{-(k-j)}$) to the embedding of a depth-$(k-j)$ hierarchy.
+\end{theorem}
+
+\begin{proof}
+Leaves under $b$ share the first $j$ address digits; the remaining
+$k-j$ digits enumerate the sub-tree below $b$. Truncating the shared
+prefix and rescaling by $3^{-(k-j)}$ recovers the full depth-$(k-j)$ structure
+with the same Fisher metric.
+\end{proof}
+
+% =========================================================
+\section{Backward Navigation Complexity}
+\label{sec:backward}
+% =========================================================
+
+\subsection{Penultimate state and backward steps}
+
+\begin{definition}[Penultimate State]
+\label{def:penultimate}
+For a trajectory $\mathcal{T} = (p_0, p_1, \ldots, p_k)$ with $k \geq 1$,
+the \emph{penultimate state} is $p_{k-1}$ — the unique parent of
+$p_k$ in $P_{k-1}$.
+\end{definition}
+
+\begin{theorem}[Penultimate Existence and Uniqueness]
+\label{thm:penultimate}
+For every leaf $p_k \in P_k$ with $k \geq 1$, the penultimate state
+$p_{k-1}$ exists and is unique.
+\end{theorem}
+
+\begin{proof}
+Existence: the hierarchy is a rooted tree; every non-root node has a parent.
+Uniqueness: each block belongs to exactly one parent block (partitions are
+disjoint), so the parent is unique.
+\end{proof}
+
+\begin{theorem}[Backward Navigation Complexity]
+\label{thm:backward_complexity}
+The backward navigation algorithm from any leaf $p_k$ to the root $p_0$
+visits exactly $\log_3 N = k$ states and runs in $\mathcal{O}(\log_3 N)$ steps.
+\end{theorem}
+
+\begin{proof}
+Each backward step from $p_j$ to $p_{j-1}$ is implemented by dropping
+the last trit of the base-3 expansion of $\iota_j(p_j)$ — an $\mathcal{O}(1)$
+operation. Starting at $p_k$ and ending at $p_0$ requires exactly $k = \log_3 N$
+steps.
+\end{proof}
+
+The backward navigation algorithm is:
+
+\begin{algorithm}[h]
+\caption{Backward trajectory completion}
+\begin{algorithmic}[1]
+\REQUIRE Hierarchy $\mathfrak{P}$, leaf $p_k$
+\ENSURE Full trajectory $(p_0, p_1, \ldots, p_k)$
+\STATE $\mathcal{T} \leftarrow [p_k]$
+\STATE $j \leftarrow k$
+\WHILE{$j > 0$}
+  \STATE $p_{j-1} \leftarrow \textsc{Parent}(\mathfrak{P}, p_j)$
+    \COMMENT{$\mathcal{O}(1)$ via base-3 truncation}
+  \STATE $\mathcal{T}.\textsc{prepend}(p_{j-1})$
+  \STATE $j \leftarrow j - 1$
+\ENDWHILE
+\RETURN $\mathcal{T}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Forward asymmetry}
+
+\begin{theorem}[Forward Asymmetry]
+\label{thm:forward_asymmetry}
+Forward trajectory construction (root to leaf) cannot use virtual sub-states.
+Only backward completion (leaf to root) can.
+\end{theorem}
+
+\begin{proof}
+Forward construction at step $j$ produces $p_{j+1}$ as a refinement of $p_j$;
+the system must commit to $p_{j+1} \in P_{j+1}$ as a physical block,
+hence $\iota_{j+1}(p_{j+1}) \in [0,1]^3$.
+Virtual sub-coordinates $(s_1,s_2,s_3) \notin [0,1]^3$ do not correspond
+to any partition block and cannot serve as $p_{j+1}$ in a forward step.
+
+Backward completion, by contrast, computes intermediate decompositions
+\emph{analytically} within the receiver's internal calculus. The receiver's
+evaluation map permits any decomposition satisfying mean-recovery
+(Definition~\ref{def:sub_coord}); the partition requires only that
+the global coordinate at each level lies in $[0,1]^3$.
+The virtual sub-coordinates exist in the receiver's internal computation,
+not in the physical partition.
+\end{proof}
+
+\subsection{Collapse without virtual states}
+
+\begin{theorem}[Collapse Without Virtual States]
+\label{thm:collapse}
+Backward trajectory completion restricted entirely to physically realizable
+sub-coordinates (all intermediate states in $[0,1]^3$) has worst-case
+complexity $\Theta(N)$, identical to naive forward enumeration.
+\end{theorem}
+
+\begin{proof}
+A physical-only backward step at depth $j$ requires identifying $p_{j-1}$
+from $p_j$ without the geometric shortcut provided by the Fisher metric.
+The algorithm must enumerate the children of candidate parent blocks to
+verify which contains $p_j$.
+
+At level $j$, there are $3^j$ candidate parent blocks; each has 3 children.
+Without the embedded coordinates, verifying parenthood requires
+$\mathcal{O}(3^j)$ comparisons per level. Summing over all levels:
+$\sum_{j=0}^k 3^j = (3^{k+1}-1)/2 = \Theta(N)$.
+
+More precisely: without geometric structure, the algorithm must construct
+the hierarchy from scratch by queries, which requires $\Omega(N \log_2 3)$
+bits of information (Theorem~\ref{thm:embedding_necessity}) and cannot be
+done in $o(N)$ queries.
+\end{proof}
+
+\begin{corollary}[Virtual States are Necessary for Efficiency]
+\label{cor:virtual_necessary}
+Virtual sub-states are not optional features of backward trajectory completion.
+Restricting to physical intermediate states increases the computational
+cost from $\mathcal{O}(\log N)$ to $\Theta(N)$ — for $N = T(60,3) \approx
+10^{59}$ LHC event categories, this is the difference between microseconds
+and cosmological timescales.
+\end{corollary}
+
+% =========================================================
+\section{Virtual Sub-States}
+\label{sec:virtual}
+% =========================================================
+
+\subsection{Definition and existence}
+
+\begin{definition}[Sub-Coordinate Decomposition]
+\label{def:sub_coord}
+A \emph{sub-coordinate decomposition} of a global coordinate $s \in [0,1]$
+is an ordered triple $(s_1, s_2, s_3) \in \R^3$ satisfying the
+\emph{mean-recovery constraint}:
+\[
+\bar s = \frac{s_1 + s_2 + s_3}{3} = s.
+\]
+The decomposition is \emph{physical} if $(s_1, s_2, s_3) \in [0,1]^3$.
+It is \emph{virtual} if at least one $s_i \notin [0,1]$.
+\end{definition}
+
+\begin{theorem}[Virtual Sub-State Existence]
+\label{thm:virtual_existence}
+For every $s \in (0,1)$ and every $\varepsilon > 0$, the set of virtual
+sub-coordinate decompositions with mean $s$ and
+$\max_i |s_i| \leq M$ (for any $M \geq \varepsilon$) has positive
+Lebesgue measure in the constraint plane
+$\{(s_1,s_2,s_3) : (s_1+s_2+s_3)/3 = s\}$.
+Moreover, the measure of virtual decompositions approaches 1 as $M \to \infty$.
+\end{theorem}
+
+\begin{proof}
+The constraint plane is two-dimensional in $\R^3$. The physical region
+(intersection with $[0,1]^3$) is a convex polygon of bounded area.
+The virtual region (outside $[0,1]^3$) grows as $M^2$ with $M$.
+The fraction of the constraint plane that is physical tends to 0 as $M \to \infty$,
+so the virtual fraction tends to 1.
+For any fixed $M \geq \varepsilon$, the specific set
+$\{(s+\varepsilon, s+\varepsilon, s-2\varepsilon) : \varepsilon \in (0, M-s)\}$
+contains virtual decompositions (first two components exceed 1 for
+$\varepsilon > 1-s$) of positive measure.
+\end{proof}
+
+\begin{theorem}[Local-Global Decoupling for Trajectories]
+\label{thm:local_global}
+Let $\mathcal{T} = (p_0, \ldots, p_k)$ be a trajectory with endpoint
+$\iota_k(p_k) = (\Sk, \St, \Se) \in [0,1]^3$.
+For any target sequence of sub-coordinate decompositions
+$((s_1^{(j)}, s_2^{(j)}, s_3^{(j)}))_{j=0}^k$
+with mean-recovery $\bar s^{(j)} = \iota_j(p_j)_c$ (one component $c$
+per level), there exists a receiver-internal computation realising
+the trajectory with these sub-coordinates at each step.
+\end{theorem}
+
+\begin{proof}
+Apply the Unconstrained Subtask theorem \citep{companion:recursion}
+per step: the global S-value at step $j$ is the embedded coordinate;
+the local sub-coordinate decomposition is a free choice subject to
+mean-recovery; the cancellation pattern $(s_i - s_i)$ preserves the
+global value. Construct level by level.
+\end{proof}
+
+\begin{corollary}[Miracle Trajectory]
+\label{cor:miracle}
+For any trajectory $\mathcal{T}$, there exists a receiver-internal
+computation realising $\mathcal{T}$ in which \emph{every} intermediate
+sub-coordinate is virtual (outside $[0,1]$).
+\end{corollary}
+
+\begin{proof}
+At each step, choose sub-coordinates $(M+\varepsilon, M+\varepsilon,
+3s - 2M - 2\varepsilon)$ with $M$ large. The first two components
+exceed 1; the third is highly negative. The mean is $s$.
+\end{proof}
+
+\begin{remark}[Physical interpretation]
+The Miracle Corollary has a striking physical interpretation.
+A trigger that classifies an event as a $Z \to \mu^+\mu^-$ decay
+can, internally, pass through sub-computations that are ``completely wrong''
+(S-value = 100 for each individual step) while ultimately arriving
+at the correct classification. This is not a failure of the algorithm —
+it is the mechanism that makes efficient classification possible.
+The virtual sub-states are not errors; they are the essential navigational
+tools.
+\end{remark}
+
+\subsection{The miracle principle}
+
+\begin{theorem}[Miracle Principle]
+\label{thm:miracle}
+For any target global S-value $\mathcal{S}^* \in [\Sfl(\receiver), 100]$
+and any assignment of local S-values $(\sigma_1, \ldots, \sigma_n) \in
+[\Sfl, 100]^n$, there exists a computation realising $\mathcal{S}^*$ globally
+with $\mathcal{S}(\eta_i) = \sigma_i$ locally for each subtask $\eta_i$.
+\end{theorem}
+
+\begin{proof}
+Construct the global computation as $\xi = \xi_0 + \sum_i (\eta_i - \eta_i)$
+where $\xi_0$ has global S-value $\mathcal{S}^*$ and each $\eta_i$ is chosen
+with local value $\sigma_i$. The cancellations $\eta_i - \eta_i = 0$
+contribute nothing to the evaluation; the local S-values are by construction
+the chosen targets.
+\end{proof}
+
+\begin{corollary}[Miraculous Subtasks]
+Taking $\sigma_i = 100$ for all $i$ gives a globally correct computation
+in which every subtask is maximally wrong locally. These are \emph{miraculous
+subtasks}: individually wrong, collectively right.
+\end{corollary}
+
+% =========================================================
+\section{Path Opacity and Its Trigger Implications}
+\label{sec:opacity}
+% =========================================================
+
+\begin{theorem}[Path Opacity]
+\label{thm:path_opacity}
+Let $\mathcal{T}_1$ and $\mathcal{T}_2$ be two backward trajectories
+sharing the same endpoint $p_k \in P_k$ but with distinct sequences of
+virtual sub-coordinate decompositions at intermediate steps.
+Given only the endpoint $p_k$ and the metric $g$, no metric invariant
+computed at $p_k$ distinguishes $\mathcal{T}_1$ from $\mathcal{T}_2$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:local_global}, intermediate sub-coordinate decompositions
+are unconstrained subject to mean-recovery; any two trajectories with the
+same endpoint but distinct intermediates both satisfy the trajectory
+definition.
+
+Every metric invariant $I(\mathcal{T}, g)$ that depends on the endpoint alone —
+e.g., $\Svec(p_k)$, the geodesic distance $d(p_0, p_k)$, the Riemannian
+volume of the constraint plane through $p_k$ — is by definition equal for
+both trajectories.
+
+Invariants depending on intermediate states are not accessible from the
+endpoint; they cannot be computed from $p_k$ without additional information
+about the path taken.
+\end{proof}
+
+\begin{corollary}[S-matrix Analog]
+Path opacity is the categorical analog of S-matrix theory: only the initial
+and final states (root and endpoint) are observable. The virtual
+intermediate states are unobservable. This is not an accident: it is the
+structural reason that quantum field theory's S-matrix can be computed from
+Feynman diagrams that involve unphysical (off-shell, virtual) intermediate
+states without contradiction.
+\end{corollary}
+
+\begin{remark}[Trigger implication]
+Path opacity means that the trigger's internal computation — which virtual
+sub-state decompositions it uses, which intermediate evaluations it performs —
+is invisible to any external observer and irrelevant to the classification
+result. The trigger may use any internally convenient virtual computations
+as long as it arrives at the correct endpoint classification. This is the
+formal justification for why the HLT can use approximations, look-up tables,
+and cached partial results: the internal path does not affect the final
+classification.
+\end{remark}
+
+\begin{theorem}[Non-Demolition Classification]
+\label{thm:qnd_completion}
+The backward completion algorithm makes exactly one observable: the root
+category $p_0$. The intermediate virtual sub-states are computed
+receiver-internally and never become physical observables.
+The classification is therefore non-demolition: it extracts category
+information from the endpoint without creating any observable disturbance
+to the intermediate computation.
+\end{theorem}
+
+\begin{proof}
+The backward algorithm (Section~\ref{sec:backward}) reads the trit string
+of $\iota_k(p_k)$ and outputs $p_0$ (the root category). The virtual
+sub-coordinates, which exist only in the receiver's internal S-space
+computation, do not appear in any physical output. The classification
+maps $p_k \mapsto p_0$ deterministically and completely; no disturbance
+to $p_k$ or to the physical state at the endpoint is required or produced.
+\end{proof}
+
+% =========================================================
+\section{The LHC Trigger as a Categorical Navigator}
+\label{sec:trigger}
+% =========================================================
+
+\subsection{Event as endpoint, physics as root}
+
+The LHC trigger classification problem maps exactly onto the trajectory
+completion problem:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Trajectory completion} & \textbf{LHC trigger} \\
+\midrule
+Leaf $p_k$ (endpoint) & Detector hit pattern \\
+Root $p_0$ & Originating physics process \\
+Hierarchy depth $k$ & Number of detector subsystem levels \\
+Backward navigation & Trigger classification \\
+Virtual sub-states & Internal trigger computations \\
+Path opacity & HLT internal computations invisible \\
+$\mathcal{O}(\log_3 N)$ & Real-time classification in $<2.5\,\mu$s \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{definition}[LHC Event Hierarchy]
+\label{def:lhc_hierarchy}
+The LHC event classification hierarchy is a ternary refinement hierarchy
+of depth $k = 3$ (current ATLAS) to $k = 4$ (HL-LHC) with levels:
+\begin{enumerate}[nosep,label=(\arabic*)]
+\item Level 0 (root): broad physics category (QCD background, electroweak, Higgs).
+\item Level 1: specific process type (dijet, $W$/$Z$ production, $t\bar t$, Higgs).
+\item Level 2: decay channel ($W \to \ell\nu$, $Z \to \ell\ell$, $H \to \gamma\gamma$).
+\item Level 3 (leaf): specific detector hit pattern (trigger condition fired).
+\end{enumerate}
+Each level trifurcates: three broad categories at level 0, nine at level 1, etc.
+\end{definition}
+
+\subsection{Cell registry as the S-entropy embedding}
+
+\begin{theorem}[Physical Origin of the Trigger Cell Registry]
+\label{thm:cell_registry}
+The trigger's cell registry $\Gamma = \{C_i\}$ is the physical realisation
+of the S-entropy embedding $\iota_k$: each cell $C_i$ corresponds to a
+cell in the $3^k$-fold partition of $[0,1]^3$, and the partition coordinates
+$(n,\ell,m,s)$ of the detected particle determine which cell $C_i$ it
+falls into.
+\end{theorem}
+
+\begin{proof}
+From \citet{companion:math} and \citet{companion:planck}, the partition
+coordinates $(n,\ell,m,s)$ label the cells of the ternary refinement
+hierarchy at depth $k = 4$ (for the four subsystems tracker/$n$, ECAL/$\ell$,
+HCAL/$m$, muon/$s$). The S-entropy embedding maps each combination of
+partition coordinates to a unique point in $[0,1]^3$ via the base-3
+expansion of Definition~\ref{def:s_embed}.
+
+The trigger's timing cell $C_i = \{|\Delta P| < \delta_i\}$ constrains
+the $\St$ coordinate of the event (temporal entropy — how close the signals
+are to the reference bunch crossing). Combined with the ECAL shower shape
+(constraining $\Se$) and track momentum (constraining $\Sk$), the three
+coordinates together uniquely address a leaf in the S-entropy cube.
+\end{proof}
+
+\subsection{The di-muon trigger as a worked example}
+
+The di-muon trigger ($Z \to \mu^+\mu^-$ selection) is the simplest
+physics-motivated trigger and the natural starting point for illustration.
+
+\begin{example}[Di-Muon Backward Completion]
+\label{ex:dimuon}
+A collision event produces two muons of opposite sign with $p_T > 20\,\mathrm{GeV}$.
+The backward completion proceeds:
+
+\emph{Level 3 (endpoint)}: The muon system fires for two tracks in opposite
+hemispheres. In the S-entropy embedding:
+$\Sk \approx 0.7$ (high momentum tracks, near-maximum energy shell),
+$\St \approx 0.5$ (signals arrive on-time, at the median temporal entropy),
+$\Se \approx 0.3$ (low evolution entropy, clean two-track topology).
+
+\emph{Level 2 (backward step 1)}: Parent cell has $\Se \approx 0.33$
+(slightly higher: includes the post-decay kinematics). This corresponds to
+the $Z \to \ell^+\ell^-$ decay channel.
+
+\emph{Level 1 (backward step 2)}: Parent cell has $\Se \approx 0.5$
+(intermediate evolution: the $Z$ boson produced in the collision).
+This corresponds to Drell-Yan $Z$ production.
+
+\emph{Level 0 (root)}: $\Se \approx 0.8$ (high evolution entropy: the
+original quark-antiquark annihilation). This is the electroweak production category.
+
+The three backward steps ($k = 3$) recover the complete physics process
+from the detector hit pattern in exactly 3 operations.
+
+The virtual sub-states are the intermediate decompositions:
+at Level 2 $\to$ Level 1, the computation internally uses
+$(s_1, s_2, s_3) = (0.6, 0.4, -0.1)$ for the $\Se$ coordinate
+(the $-0.1$ is virtual). The mean $(-0.1 + 0.6 + 0.4)/3 \approx 0.3$
+recovers the physical value. The virtual component is invisible to any
+external measurement.
+\end{example}
+
+\subsection{Why selection rules are structural dead zones}
+
+From the partition coordinate structure \citep{companion:math}, selection
+rules $\Delta\ell = \pm 1$, $\Delta m \in \{0,\pm 1\}$ constrain which
+transitions between partition states are physically realizable. In the
+backward completion framework, this has a direct consequence:
+
+\begin{theorem}[Selection Rules as Dead Zones]
+\label{thm:selection_rules}
+Trigger backgrounds that require selection-rule-violating intermediate
+transitions between partition states cannot be reached by backward completion
+from any physically realizable endpoint.
+\end{theorem}
+
+\begin{proof}
+In the ternary hierarchy, a transition $\Delta\ell = \pm 2$ (for example)
+would require a parent cell at level $j-1$ that is two angular levels removed
+from the child cell at level $j$. By the partition capacity formula
+$C(n) = 2n^2$ and the $SO(3)$ structure of the partition coordinates
+\citep{companion:math}, no two adjacent levels in the refinement hierarchy
+are connected by $|\Delta\ell| \geq 2$ transitions. Therefore, no backward
+step from a physical leaf $p_k$ can traverse such a transition: it would
+require a non-existent parent block.
+
+Formally: the backward algorithm uses only the parent map
+$p_j \mapsto p_{j-1}$, which by definition respects the refinement order.
+The refinement order imposes exactly the selection rules. Backgrounds
+requiring forbidden transitions are not merely rare — they have no pre-image
+under the parent map and thus have zero probability under any backward
+completion from a physical endpoint.
+\end{proof}
+
+\begin{remark}[Type error vs.\ probabilistic suppression]
+The difference between Theorem~\ref{thm:selection_rules} and conventional
+background suppression is categorical: conventional triggers suppress
+backgrounds by imposing energy thresholds (probabilistic); the partition
+framework excludes backgrounds by structural non-existence (categorical).
+A background requiring $\Delta\ell = 2$ is not ``rare'' — it is absent from
+the backward completion tree entirely.
+\end{remark}
+
+% =========================================================
+\section{The Aperture Identification Theorem}
+\label{sec:aperture}
+% =========================================================
+
+\subsection{Five names for one object}
+
+The following five descriptions appear in different branches of physics,
+mathematics, and computer science. We prove they refer to the same
+mathematical object.
+
+\begin{theorem}[Aperture Identification]
+\label{thm:aperture_id}
+The following five descriptions name the same mathematical object,
+which we call the \emph{categorical aperture}:
+
+\begin{enumerate}[nosep,label=(\arabic*)]
+\item \textbf{Geometric aperture}: the convex hull of admissible sub-coordinate
+decompositions of a fixed global coordinate, intersected with the virtual
+region $\R^3 \setminus [0,1]^3$.
+
+\item \textbf{Virtual sub-state}: a non-physical intermediate decomposition
+$(s_1, s_2, s_3) \notin [0,1]^3$ with mean $s \in [0,1]$, used in
+backward trajectory completion (Section~\ref{sec:virtual}).
+
+\item \textbf{Miracle subtask}: a subtask $\eta$ in a computation with
+local S-value $\mathcal{S}(\eta) = 100$ (maximally misaligned) but
+contributing to a globally aligned composition
+(Theorem~\ref{thm:miracle}).
+
+\item \textbf{Information catalyst}: an expression atom whose application
+strictly decreases the receiver's S-distance to truth,
+$\mathcal{S}(\xi \diamond \gamma, x^*) < \mathcal{S}(\xi, x^*)$
+\citep{companion:recursion}.
+
+\item \textbf{Corrected Maxwell demon}: a sorting element that selects
+which partition cells are accessible based on their categorical addresses,
+operating without thermodynamic work (from Axiom~\ref{ax:bounded},
+the categorical observable commutes with the physical Hamiltonian).
+\end{enumerate}
+
+All five share four defining properties:
+enable a transition; not consumed in enabling it; transfer zero information
+about themselves to the transition outcome; are necessary for the
+$\mathcal{O}(\log N)$ speedup.
+\end{theorem}
+
+\begin{proof}
+We exhibit explicit identifications between each pair.
+
+\emph{(1) $\leftrightarrow$ (2)}: The convex hull of admissible decompositions
+of a global coordinate $s$ intersected with $\R^3 \setminus [0,1]^3$ is
+precisely the set of virtual sub-states with mean $s$. This is immediate
+from Definition~\ref{def:sub_coord}.
+
+\emph{(2) $\leftrightarrow$ (3)}: A virtual decomposition
+$(s_1,s_2,s_3) \notin [0,1]^3$ has at least one component $s_i$ that,
+as an independent sub-coordinate, would have $\mathcal{S}(s_i, x^*) = 100$
+(it lies outside the physical state space, maximally misaligned). This is
+the miracle subtask: individually $\mathcal{S} = 100$, collectively the
+mean recovers the correct value.
+
+\emph{(3) $\leftrightarrow$ (4)}: A catalyst $\gamma$ is an expression
+whose application reduces the global S-value. The Miracle Principle
+(Theorem~\ref{thm:miracle}) gives catalyst-like constructions; conversely,
+any catalyst can be realised as a virtual sub-state decomposition
+(Theorem~\ref{thm:local_global}).
+
+\emph{(4) $\leftrightarrow$ (5)}: An information catalyst that operates on
+categorical addresses rather than physical quantities is precisely a
+sorting element that uses geometric (positional) information about
+categorical cells to direct transitions. By the non-demolition theorem
+(Theorem~\ref{thm:qnd_completion}), this sorting requires zero thermodynamic
+work (it operates on the categorical degree of freedom, not the physical
+degree of freedom). This is the corrected Maxwell demon: not a paradox,
+but a physical sorting element that exploits the commutativity
+$[\hat{O}_{\mathrm{cat}}, \hat{O}_{\mathrm{phys}}] = 0$
+from \citet{companion:planck}.
+
+\emph{Shared properties}: All five enable transitions by providing geometric
+shortcuts through state space. None is consumed: the virtual sub-state
+exists as long as its mean-recovery constraint is satisfied; the catalyst
+can be applied multiple times. None transfers information about itself:
+path opacity (Theorem~\ref{thm:path_opacity}) shows the virtual path is
+invisible. All are necessary: Theorem~\ref{thm:collapse} shows that without
+virtual states, complexity collapses to $\Theta(N)$.
+\end{proof}
+
+\begin{corollary}[The LHC Trigger is a Categorical Aperture]
+\label{cor:trigger_aperture}
+The LHC trigger implements the categorical aperture. Its timing cells define
+which S-entropy regions are accessible (geometric aperture). Its internal
+HLT computations use virtual intermediate states (virtual sub-states). Its
+trigger conditions are individually approximate (miracle subtasks: each
+condition has non-zero false positive rate). The trigger collectively achieves
+precise event classification (globally aligned composition). It operates
+without disturbing the classified event (non-demolition). And it enables
+real-time classification that would be impossible by forward enumeration
+(necessary for the $\mathcal{O}(\log N)$ speedup).
+\end{corollary}
+
+% =========================================================
+\section{Discussion}
+\label{sec:discussion}
+% =========================================================
+
+\subsection{Complexity summary}
+
+The main complexity results are:
+\begin{itemize}[nosep]
+\item Backward completion with virtual sub-states: $\mathcal{O}(\log_3 N)$
+(Theorem~\ref{thm:backward_complexity}).
+\item Backward completion restricted to physical states: $\Theta(N)$
+(Theorem~\ref{thm:collapse}).
+\item Forward enumeration (conventional trigger approach): $\Theta(N)$.
+\end{itemize}
+For $N = T(60,3) \approx 10^{59}$ LHC event categories, the difference
+between $\log_3(10^{59}) = 98$ steps and $10^{59}$ steps is the difference
+between real-time trigger decisions and physically impossible computation.
+
+\subsection{The S-entropy floor as trigger precision floor}
+
+The Floor Positivity theorem (Theorem~\ref{thm:floor}) has a direct trigger
+interpretation. No bounded trigger system can achieve $\mathcal{S}(\text{trigger}(x), x^*) = 0$
+for all events: the trigger's finite knowledge framework $K$ cannot represent
+every possible event topology. The floor $\Sfl(\receiver) > 0$ quantifies
+the irreducible misclassification probability of any trigger of given complexity.
+
+For the ATLAS L1 trigger with $\sim 10^3$ trigger paths out of $\sim 10^{59}$
+possible topologies, the composition efficiency $\etaC \approx 0.08$ from
+\citet{companion:planck} quantifies how far the trigger is from the theoretical
+floor. Increasing $\etaC$ toward 1 (filling the $n_P = 60$ depth) would
+reduce the floor and decrease the irreducible misclassification probability.
+
+\subsection{Relation to Kalman filtering}
+
+The HLT track reconstruction uses the Kalman filter, which is a forward-backward
+algorithm: forward pass accumulates state estimates; backward pass (smoothing)
+corrects them using future measurements. The backward pass is precisely
+backward trajectory completion in the particle trajectory state space.
+The virtual intermediate states in the backward completion are exactly the
+extrapolated state estimates that lie outside the detector acceptance in
+intermediate layers — ``virtual'' in the sense that no detector exists at
+that position, yet essential for the smoothed estimate.
+
+This observation suggests that Kalman filtering and S-entropy backward
+completion are the same algorithm in different coordinate systems, related
+by the Triple Equivalence (Theorem~\ref{thm:triple_equiv}).
+
+\subsection{Open questions}
+
+\textbf{Path multiplicity}: For a fixed endpoint $p_k$, how many distinct
+backward trajectories exist in the ternary hierarchy? By the Path Opacity
+theorem, they are all equivalent from the observer's perspective, but their
+total count bounds the trigger's internal computational freedom.
+
+\textbf{Optimal virtual state selection}: Among all virtual sub-state
+decompositions achieving mean-recovery, which minimise the Fisher information
+along the backward path? This would give an optimal backward navigation
+algorithm rather than the generic one of Algorithm~1.
+
+\textbf{Cascade catalysis and trigger iterations}: The multiplicative catalyst
+algebra (proved in \citet{companion:cascade}) says catalyst power combines
+as $\catpow(\gamma_1 \diamond \gamma_2) = 1 - (1-\catpow_1)(1-\catpow_2)$.
+A trigger menu of $K$ trigger paths is a catalyst cascade; the total
+classification power is $1 - \prod_i (1 - \catpow_i)$. Saturating the
+cascade ($\catpow \to 1$) requires $\sum_i \catpow_i = \infty$, which
+occurs when the trigger menu's composition depth reaches $\nP$.
+
+\section*{Acknowledgements}
+This work was supported by the AIMe Registry for Artificial Intelligence.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

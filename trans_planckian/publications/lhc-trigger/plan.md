@@ -12,6 +12,12 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - SR   = unconstrained-subtask-recursion.tex (S-entropy, miracle principle)
 - SC   = unconstrained-subtask-computing.tex (backward trajectory, virtual sub-states)
 - ION  = ion-trajectory-completion-mechanism.tex (partition Lagrangian, mass spec, mass from 3 routes)
+- MTM  = mass-transfer-mechanism.tex (light from partition: c=Dx/tau_c; universal transport mu=tau_c*g)
+- QPIO = quantupartite-ion-observatory.tex (single-ion ideal gas PV=kT_cat; complete commutation; QND)
+- HSL  = harmonic-scattering-loops.tex (light bending: rank(A)=C+1; one ray -> C+1 sources; N_max=(C+1)*T_deph/T_L)
+- SSH  = superimposed-spectral-holograms.tex (spectral hologram; three-state superposition; one beam = complete scene)
+- HTS  = hyperfine-transition-spectra.tex (categorical spectrometer on H/H2/H2O; empty dictionary; 280/280)
+- CRS  = convertible-recursive-spectra.tex (four-tier refinement; Ritz combinations; 0.07%->0.003%)
 
 ---
 
@@ -55,18 +61,31 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - Needs: formal Tempus program syntax for di-muon trigger
 - Needs: proof that zero injection rate follows from incorruptibility
 
-### S5b Partition Uncertainty Relation and Fundamental Timing Limit [TODO]
-- From ION paper: fundamental identity dM/dt = 1/<tau_p> (state counting is intrinsically digital)
+### S5b Partition Uncertainty, Speed of Light, and Fundamental Timing [TODO]
+- FROM ION PAPER: fundamental identity dM/dt = 1/<tau_p> (state counting is intrinsically digital)
 - Partition uncertainty theorem: DeltaM * tau_p >= hbar
 - Applied to LHC bunch crossing (tau_p = 25 ns):
     DeltaM >= hbar/tau_p = 1.055e-34 / 25e-9 = 4.2e-27 J ~ 26 eV
     This is the minimum detectable partition depth change per bunch crossing
 - This is not an engineering constraint -- it is a theorem of the partition framework
-- At depth n_P = 60 crossings: cumulative resolution DeltaM * n_P ~ 26 eV * 60 = 1.6 keV
-- Timing window |DeltaP| < 12.5 ns = tau_p/2: set by partition uncertainty, not engineering
+
+- FROM MTM PAPER: c = Delta_x / tau_c (speed of light from partition propagation)
+- Applied to ATLAS interaction region (Delta_x = 7.5 m, detector half-diameter):
+    tau_c = Delta_x / c = 7.5 m / (3e8 m/s) = 25 ns = EXACTLY THE LHC BUNCH CROSSING PERIOD
+- KEY RESULT: The 25 ns bunch crossing window is NOT an engineering choice --
+  it is the partition propagation time for the ATLAS interaction region
+  tau_BX = c^{-1} * Delta_x_detector
+- Cell half-width |DeltaP| < 12.5 ns = tau_c/2: partition uncertainty half-period
+
+- Universal transport from MTM: tau_p = hbar/DeltaE unifies ALL detector response times
+    Silicon tracker: tau_c = hbar/E_gap ~ 10 fs -> carrier drift time
+    ECAL crystals (PbWO4): tau_c = hbar/E_gamma ~ 1 fs -> scintillation rise time
+    Liquid argon: mu = tau_c * g -> drift velocity in electric field
+    Muon drift tubes: tau_c from gas molecule partition lag -> 20 ns signal timing
+- Theorem: Every detector timing parameter is the partition lag tau_c for that material
 - The Lorentz force law F = q(E + v x B) is the Euler-Lagrange equation of the
-  partition Lagrangian -- it is derived, not assumed
-- Source: ION paper S9 (state counting, resolution limits, fundamental identity)
+  partition Lagrangian (from ION paper) -- derived, not assumed
+- Sources: ION paper S9; MTM paper S3-4
 
 ---
 
@@ -111,6 +130,34 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - Partition extinction -> superconducting magnets at 1.9 K (R=0 exactly)
 - Source: BPST Consequences: quantumnumbers, selectionrules, chargeemergence,
   transport, partitionextinction
+
+### S9c Multi-Subsystem QND Classification [TODO]
+- From QPIO paper: all partition coordinates commute:
+    [n_hat, l_hat] = [l_hat, m_hat] = [m_hat, s_hat] = ... = 0
+- QND (Quantum Non-Demolition) property: [O_hat, H_hat] = 0 for all partition coordinates
+    => measuring n in tracker does not disturb l in ECAL
+    => measuring l in ECAL does not disturb m in HCAL
+    => all four commuting observables determined simultaneously without backaction
+- Backaction bound: Delta_p/p <= lambda_dB/(4*pi*L) ~ 10^{-11}
+    Three orders below thermal fluctuations -- QND property is practically perfect
+- Map to LHC detector subsystems:
+    Tracker   -> n (principal, momentum/energy scale, cyclotron frequency)
+    ECAL      -> l (angular complexity, shower shape)
+    HCAL      -> m (orientation, hadronic fraction)
+    Muon      -> s (chirality, charge sign)
+    Timing    -> 5th coordinate (parity/phase)
+- Theorem: Multi-Subsystem QND Trigger
+    The LHC trigger determines (n,l,m,s) of each detected particle from one detector pass
+    No sequential pipeline ordering required: all subsystems fire simultaneously
+    This is why L1 can combine ECAL + HCAL + muon in one latency window (2.5 mus)
+- Categorical temperature of trigger:
+    T_cat = hbar * omega_BX / (2*pi * k_B) = hbar * 40MHz / (2*pi * k_B) ~ 31 nK
+    hbar/(k_B * T_cat) = 1/omega_BX = tau_BX = 25 ns (consistency check)
+- Single-particle ideal gas for LHC:
+    Each collision product satisfies PV = k_B * T_cat (N=1 limit)
+    T_cat = hbar * omega_c / (2*pi * k_B) for particle in solenoid field
+    omega_c = qB/m (cyclotron frequency in tracker B=2T)
+- Source: QPIO paper S3 (commutation), S4 (thermodynamics), S5 (triple equivalence)
 
 ### S9b The LHC as a High-Energy Partition Spectrometer [TODO]
 - Core thesis: the LHC detector IS a mass spectrometer at TeV energy scale
@@ -306,6 +353,27 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 - Not probabilistic suppression -- logical exclusion
 - Falsification: any confirmed background event violating selection rules
 
+### S19b Light, Fluids, and Chromatography as Partition Geometry [TODO]
+- The three phenomena unified by MTM paper directly map to LHC detector components:
+    Chromatography (t_R = (L/u_0)*S) -> TOF detectors (T ~ sqrt(m/z))
+    Fluid viscosity (mu = tau_c * g) -> liquid argon calorimeter, gas drift chambers
+    Light as mediator (c = Dx/tau_c) -> EM calorimeter, photodetectors, Cherenkov detectors
+- Self-consistency loop:
+    Light (from partition geometry) validates partition coordinates (via UV-Vis spectroscopy)
+    Partition coordinates determine retention times (chromatography)
+    Retention times and viscosity share tau_c parameter
+    All three validated against experiment: 2%, 3.2%, 1-6% errors
+- At the LHC: the same self-consistency loop operates
+    ECAL photon energy E = hbar*omega validates particle identities (partition coordinates)
+    Timing measurements determine t_R (trajectory traversal times)
+    Calorimeter fluid response governed by mu = tau_c * g
+- Theorem: c = Dx/tau_c -> tau_BX = Delta_x_ATLAS / c = 25 ns (derived, not input)
+- This is the key result: the LHC trigger timing is derived from c and detector geometry,
+  both of which are consequences of the partition framework
+- Optical-mechanical partition lag ratio: tau_c^{opt}/tau_c^{mech} ~ 2.0 (from MTM paper)
+  -> ratio of optical (ECAL) to mechanical (tracker) timing resolutions at ATLAS
+- Source: MTM paper S3-4; ION paper S8
+
 ### S29b Cross-Domain Validation via Mass Spectrometry [TODO]
 - Same partition Lagrangian governs both mass spectrometers and LHC detectors
 - ION paper validates on 4545 NIST library entries (100% conformance)
@@ -357,19 +425,20 @@ Composition-Inflation, Temporal Programming, and S-Entropy Trajectory Completion
 Write sections in this dependency order:
 1.  S6   (S-entropy framework) -- needed by S7, S8, S11, S13
 2.  S7   (triple equivalence) -- needed by S8
-3.  S5b  (partition uncertainty relation) -- quick win, only ION paper needed
-4.  S9   (partition coordinates -> cell registry) -- key new contribution, uses BPST
+3.  S5b  (partition uncertainty + c = Dx/tau_c) -- uses ION + MTM; quick win, high impact
+4.  S9   (partition coordinates -> cell registry) -- key contribution, uses BPST
 5.  S9b  (LHC as partition spectrometer) -- uses ION paper, extends S9
 6.  S11  (Feynman diagrams as vaHera) -- extends S10
 7.  S13  (path integral as backward completion)
 8.  S15  (three routes to G) -- needed by S16
 9.  S16  (n_P precision from G routes) -- six convergent derivations
 10. S19  (PLM and detector synchronization)
-11. S20  (catalyst algebra) -- needed by S22
-12. S22  (RG in composition-inflation)
-13. S24-S26 (cosmological consequences)
-14. S27-S30 (experimental validation and falsifiability, including S29b cross-domain)
-15. Appendices
+11. S19b (light, fluids, chromatography as partition geometry) -- uses MTM
+12. S20  (catalyst algebra) -- needed by S22
+13. S22  (RG in composition-inflation)
+14. S24-S26 (cosmological consequences)
+15. S27-S30 (experimental validation and falsifiability)
+16. Appendices
 
 ---
 
@@ -379,7 +448,59 @@ Write sections in this dependency order:
 - Sections DONE: S2, S3, S4
 - Sections EXTEND: S1, S5, S8, S10, S12, S14, S17, S18, S21, S23, S31
 - Sections TODO: S5b, S6, S7, S9, S9b, S11, S13, S15, S16, S19, S20, S22, S24-S30, Appendices
-- Target: 90-110 pages two-column (increased by ION paper contributions)
+- Target: 110-130 pages two-column (increased by ION + MTM + QPIO paper contributions)
+
+## Monograph Structure (20 papers across 5 volumes)
+
+### Volume I -- Mathematical Physics Foundation
+- Paper 1 (BPST): Single axiom -- all physics consequences
+- Paper 2 (CI + USD): Composition-inflation + three routes to G
+
+### Volume II -- Partition Spectroscopy at Molecular Scale
+- Paper 3 (ION): Partition Lagrangian; mass as partition memory
+- Paper 4 (Regimes): Five thermodynamic regimes; universal EOS; 5277 ions
+- Paper 5 (Counting): dM/dt = 1/<tau_p>; heat-entropy decoupled; irreversibility
+- Paper 6 (Computing): Ternary addresses; partition determinism; 96.3% accuracy
+- Paper 7 (QPIO): Single-ion ideal gas PV=k_B*T_cat; complete commutation; QND
+- Paper 8 (MTM): Light as partition mediator c=Dx/tau_c; universal transport
+
+### Volume IIb -- Categorical Optics: One Beam, Complete Scene
+- Paper 9  (HSL):  Harmonic-scattering loops; transfer matrix rank = C+1; one ray -> C+1 sources; benzene validated
+- Paper 10 (SSH):  Spectral hologram; three-state superposition; H(w,t)=sum c_n S_n exp(i*phi_n); six new quantities
+- Paper 11 (HTS):  Categorical spectrometer on H/H2/H2O; 280/280 agreement; empty dictionary principle
+- Paper 12 (CRS):  Four-tier refinement; Ritz combinations as internal check; 0.07%->0.003% precision
+
+### Volume III -- LHC as Partition Detector at TeV Scale
+- Paper 13: Mathematical foundations S1-S5b (Planck depth, temporal programming, harmonic detector coupling)
+- Paper 14: Trigger as backward trajectory completion S6-S9c (S-entropy, cell registry, QND, four-tier)
+- Paper 15: Virtual particles and QFT S10-S13 (Feynman diagrams, Ward identities)
+- Paper 16: Constants and cosmology S14-S26 (G from three routes, dark sector, MOND)
+- Paper 17: Validation and falsifiability S27-S30 (cross-domain, Ritz combinations, falsifiability ledger)
+
+### Volume IV -- Buhera Runtime
+- Paper 18 (B4): Tempus on Buhera -- formal compiler and bisimulation theorem
+- Paper 19 (B3+B5): LHC trigger as Buhera application -- selection rules as type errors
+- Paper 20 (B6): Conformance suite -- 10 LHC tests + 30 Buhera tests
+
+## Source Paper Contribution Map (updated)
+
+| Section | BPST | USD | CI | SR | SC | ION | MTM | QPIO |
+|---|---|---|---|---|---|---|---|---|
+| S2  | primary | -- | -- | -- | -- | -- | -- | -- |
+| S3  | partial | -- | primary | -- | -- | -- | -- | -- |
+| S4  | -- | partial | primary | -- | -- | -- | -- | -- |
+| S5b | -- | -- | -- | -- | -- | primary | primary | primary |
+| S6  | -- | -- | -- | primary | partial | -- | -- | -- |
+| S7  | -- | -- | -- | primary | partial | -- | -- | partial |
+| S8  | partial | -- | partial | -- | primary | -- | -- | -- |
+| S9  | primary | -- | -- | -- | -- | partial | -- | partial |
+| S9b | partial | -- | -- | -- | -- | primary | partial | partial |
+| S9c | -- | -- | -- | -- | -- | -- | -- | primary |
+| S10 | -- | -- | -- | partial | primary | -- | -- | -- |
+| S11 | -- | -- | -- | primary | primary | -- | -- | -- |
+| S14 | primary | primary | primary | -- | -- | primary | primary | primary |
+| S15 | partial | primary | -- | -- | -- | partial | -- | -- |
+| S19 | partial | -- | -- | -- | -- | -- | partial | -- |
 
 ## Source Paper Contribution Map
 
