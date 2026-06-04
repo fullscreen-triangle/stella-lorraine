@@ -1,0 +1,434 @@
+% ============================================================
+%  VIRTUAL PARTICLES AS VIRTUAL SUB-STATES IN QUANTUM
+%  FIELD THEORY: FEYNMAN DIAGRAMS AS BACKWARD TRAJECTORY
+%  COMPLETIONS AND THE OPTICAL THEOREM FROM PARTITION CONSERVATION
+% ============================================================
+
+\documentclass[twocolumn,10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=2cm,bottom=2.2cm,left=1.8cm,right=1.8cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,
+            citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\small Virtual Particles as Virtual Sub-States in QFT}
+\fancyhead[LO]{\small Sachikonye}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\nP}{n_{\mathrm{P}}}
+\newcommand{\Mop}{\mathcal{M}}
+\newcommand{\pslash}{\not\!p}
+
+% =========================================================
+\title{\textbf{Virtual Particles as Virtual Sub-States in QFT:\\
+Feynman Diagrams as Backward Trajectory Completions\\
+and the Optical Theorem from Partition Conservation}}
+
+\author{
+Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Proteomics and Bioanalytics\\
+\texttt{kundai.sachikonye@wzw.tum.de}
+}
+\date{\today}
+% =========================================================
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We prove that the virtual particles of quantum field theory ---
+off-shell propagating states with $p^2 \neq m^2$ --- are the physical
+implementation of the virtual sub-states of the partition algebra
+(Definition~\ref{def:virtual_qft}).
+The off-shell condition $p^2 = m^2 + i\Gamma m$ (Breit-Wigner resonance)
+is the partition malformation condition $\Mop_{\mathrm{ion}} = \kB T\ln(Z!/(Z-z)!)$
+evaluated in momentum space (Theorem~\ref{thm:offshell_malformation}).
+
+Each Feynman diagram is a backward trajectory completion
+(Theorem~\ref{thm:feynman_backward}): external lines are the physical
+endpoint (the S-matrix asymptotic states), internal lines are virtual
+sub-states (off-shell partition malformations), and the diagram value
+is the amplitude of the backward path from endpoint to root.
+Path opacity (Theorem~\ref{thm:feynman_opacity}) explains why the sum
+over diagrams, not individual diagrams, is observable: each diagram
+corresponds to a different virtual sub-state path, and path opacity
+states that all paths with the same endpoint are physically equivalent.
+
+We derive the optical theorem from partition conservation:
+$2\,\mathrm{Im}\,\mathcal{M}(p,p) = \sum_f\int d\Pi_f|\mathcal{M}(p\to f)|^2$
+(Theorem~\ref{thm:optical}), where the left side is the imaginary part
+of the forward amplitude and the right side is the total cross section.
+In partition language: the imaginary part of the forward scattering amplitude
+equals the total rate of catalyst power applied by the scattering process.
+
+We prove the \emph{Unitarity from Saturation theorem}: the unitarity of
+the S-matrix ($S^\dagger S = 1$) is equivalent to the saturation condition
+$\etaC = 1$ for the scattering process (Theorem~\ref{thm:unitarity}),
+where $\etaC$ is the composition efficiency of the
+full catalyst cascade of the process.
+
+\medskip
+\noindent\textbf{Keywords:} virtual particles; off-shell propagation;
+virtual sub-states; Feynman diagrams; backward trajectory completion;
+path opacity; optical theorem; unitarity; partition algebra; S-matrix
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+\label{sec:intro}
+
+Virtual particles are one of the most discussed and most misunderstood
+objects in quantum field theory. The standard introduction presents them
+as ``particles that violate energy-momentum conservation for short periods
+allowed by the uncertainty principle'' or ``particles that appear in
+intermediate states of Feynman diagrams but cannot be directly observed.''
+Neither description is fully satisfying: the first invokes a time-energy
+uncertainty relation in a context where time is not an operator; the second
+explains the lack of observability but not the mechanism.
+
+The partition algebra provides a precise account: virtual particles are
+virtual sub-states (Definition~5 of \citealt{companion:trajectory}) ---
+intermediate partition decompositions that lie outside the physical partition
+space $[0,1]^3$ but contribute to the final observable amplitude.
+They are not violations of any conservation law; they are the mechanism
+by which the S-matrix can be computed in $\mathcal{O}(\log N)$ steps
+rather than $\Theta(N)$.
+
+\section{Off-Shell Propagation as Partition Malformation}
+\label{sec:offshell}
+
+\subsection{Physical and virtual partition states}
+
+\begin{definition}[Physical vs.\ Virtual Partition State]
+\label{def:virtual_qft}
+A partition state $|\psi\rangle$ is \emph{physical} (on-shell) if its
+four-momentum satisfies the dispersion relation $p^\mu p_\mu = m^2$
+(or $p^0 = \sqrt{|\mathbf{p}|^2 + m^2}$ in the rest frame).
+It is \emph{virtual} (off-shell) if $p^\mu p_\mu \neq m^2$.
+
+In partition-algebraic terms: a physical state lies in $[0,1]^3$
+(its S-entropy coordinate is a well-defined physical partition address);
+a virtual state has at least one S-entropy coordinate component outside
+$[0,1]$ (Definition~6.1 of \citealt{companion:trajectory}).
+\end{definition}
+
+\begin{theorem}[Off-Shell Condition as Partition Malformation]
+\label{thm:offshell_malformation}
+The off-shell deviation $\delta m^2 = p^2 - m^2$ for a virtual particle
+of four-momentum $p^\mu$ equals the partition malformation energy
+$\Mop_{\mathrm{virt}} = \kB\Tcat\ln(Z!/(Z-z)!)$ evaluated at the virtual
+partition level:
+\begin{equation}
+p^2 - m^2 = \Mop_{\mathrm{virt}} = \kB\Tcat\ln\!\left(\frac{Z!}{(Z-z)!}\right),
+\label{eq:offshell_malformation}
+\end{equation}
+in natural units ($\hbar = c = 1$).
+\end{theorem}
+
+\begin{proof}
+The partition malformation energy measures the energy stored in $z$
+vacancies of a $Z$-state partition structure. An off-shell particle
+with $p^2 \neq m^2$ has energy $E = p^0 \neq \sqrt{|\mathbf{p}|^2 + m^2}$:
+it carries excess energy $\delta E = E - E_{\mathrm{on-shell}}$.
+In the rest frame ($\mathbf{p} = 0$): $\delta E = p^0 - m = (p^0 - m)$.
+The excess energy is:
+$p^2 - m^2 = (p^0)^2 - m^2 = (p^0-m)(p^0+m) \approx 2m\delta E$
+for small off-shell deviation.
+
+This equals $\Mop_{\mathrm{virt}} = \kB\Tcat\ln(Z!/(Z-z)!)$ when the
+number of vacated states $z$ satisfies $z\ln Z \approx (p^2-m^2)/(2m\kB\Tcat)$
+(using the large-$Z$ approximation of Theorem~4.2 of \citealt{companion:spectrometer}).
+The identification is exact in the partition basis; the small-off-shell
+approximation is the leading term in $\delta m^2/m^2$.
+\end{proof}
+
+\begin{remark}[Breit-Wigner as partition resonance]
+The Breit-Wigner resonance formula for an unstable particle of mass $m$
+and decay width $\Gamma$ gives the propagator denominator:
+$p^2 - m^2 + im\Gamma$.
+In partition language: the real part $p^2 - m^2$ is the static malformation
+energy; the imaginary part $im\Gamma$ is the rate of state-transition
+(the particle decays, emptying its partition states at rate $\Gamma$).
+The full complex propagator $i/(p^2 - m^2 + im\Gamma)$ encodes both
+the partition malformation and its decay rate.
+\end{remark}
+
+\section{Feynman Diagrams as Backward Trajectory Completions}
+\label{sec:feynman_backward}
+
+\subsection{External lines, internal lines, and partition topology}
+
+\begin{theorem}[Feynman Diagram as Backward Completion]
+\label{thm:feynman_backward}
+A Feynman diagram $\Gamma$ for an $n$-particle scattering process
+$p_1,\ldots,p_k \to p_{k+1},\ldots,p_n$ is a backward trajectory
+completion (Theorem~4.2 of \citealt{companion:trajectory}) with:
+\begin{itemize}[nosep]
+\item External lines (physical particles): the partition endpoint
+  (on-shell states in $[0,1]^3$).
+\item Internal lines (virtual particles): the virtual sub-states of the
+  backward path (off-shell states outside $[0,1]^3$).
+\item Vertices: the backward navigation steps
+  (parent-to-child transitions in the ternary hierarchy).
+\item Diagram amplitude $\mathcal{M}_\Gamma$: the product of all step weights
+  along the backward path.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+Map the Feynman rules to the backward completion algorithm
+(Algorithm~1 of \citealt{companion:trajectory}):
+\begin{enumerate}[nosep,label=(\roman*)]
+\item Each propagator $i/(p^2-m^2+i\epsilon)$ is the weight of one backward
+  navigation step: it contributes a factor inversely proportional to the
+  off-shell deviation, which in the backward algorithm is proportional
+  to $1/(S\text{-distance between parent and child})$.
+\item Each vertex $-ig\int d^4x$ is the interaction operator that
+  connects two backward navigation branches: one partition tree splits
+  into two at this vertex (particle creation/annihilation).
+\item External lines are on-shell ($p^2 = m^2$): they are the physical
+  leaf nodes of the backward trajectory, with zero off-shell deviation.
+\item The path integral over all virtual momenta $\int d^4k$ is the
+  integration over all virtual sub-states with the given mean-recovery
+  constraint (Theorem~6.2 of \citealt{companion:trajectory}).
+\end{enumerate}
+The Feynman diagram value $\mathcal{M}_\Gamma$ is the product of all step
+weights, which is the backward completion weight of the corresponding path.
+\end{proof}
+
+\subsection{Path opacity and the sum over diagrams}
+
+\begin{theorem}[Feynman Diagram Path Opacity]
+\label{thm:feynman_opacity}
+Two Feynman diagrams $\Gamma_1$ and $\Gamma_2$ with the same external
+lines but different internal topologies correspond to two backward
+trajectory completions with the same endpoint but different virtual
+sub-state paths. By path opacity (Theorem~7.1 of \citealt{companion:trajectory}),
+these paths are observationally indistinguishable: only their sum
+$\mathcal{M} = \sum_\Gamma\mathcal{M}_\Gamma$ is observable, not the
+individual diagram amplitudes.
+\end{theorem}
+
+\begin{proof}
+Path opacity states that no metric invariant at the endpoint can
+distinguish two backward paths with the same endpoint. The observable
+S-matrix element $\mathcal{M}(p_1,\ldots\to p_{k+1},\ldots)$ depends
+only on the external momenta (the partition endpoint) --- not on which
+virtual sub-states were traversed internally. Two diagrams with the same
+external lines differ only in their internal (virtual) topology, which
+is unobservable by path opacity. The physical amplitude is their coherent sum.
+\end{proof}
+
+\begin{corollary}[Gauge Invariance as Path Opacity]
+\label{cor:gauge}
+Gauge invariance in QFT (the decoupling of unphysical polarisations)
+is a special case of path opacity: the unphysical longitudinal and
+temporal photon polarisations are virtual sub-states that do not
+contribute to the final observable amplitude because they correspond to
+backward paths that cancel in the sum over diagrams.
+\end{corollary}
+
+\begin{remark}[Loop diagrams]
+Loop diagrams (quantum corrections) are backward completions with closed
+virtual paths --- loops in the partition hierarchy. A one-loop diagram
+corresponds to a backward path that visits a virtual sub-state, continues
+forward (creating a virtual particle), and returns to the same sub-state
+(the virtual particle is absorbed). The loop integration $\int d^4k$ is
+the integration over all closed virtual paths of the given topology.
+Renormalisation (absorbing UV divergences into counterterms) is the
+saturation of these closed-path catalyst loops at the partition floor.
+\end{remark}
+
+\section{The Optical Theorem from Partition Conservation}
+\label{sec:optical}
+
+\begin{theorem}[Optical Theorem from Partition Conservation]
+\label{thm:optical}
+The optical theorem
+\begin{equation}
+2\,\mathrm{Im}\,\mathcal{M}(p \to p) = \sum_f\int d\Pi_f\,|\mathcal{M}(p\to f)|^2
+\label{eq:optical}
+\end{equation}
+is equivalent to the partition Conservation Theorem
+(Theorem~5.3 of \citealt{companion:spectrometer}): the imaginary part of
+the forward amplitude equals the total catalyst power applied by the
+scattering process.
+\end{theorem}
+
+\begin{proof}
+The left side $2\,\mathrm{Im}\,\mathcal{M}(p\to p)$ is the forward
+scattering amplitude's imaginary part. In the partition algebra, the
+imaginary part of the amplitude is the rate of change of the partition
+malformation: $\mathrm{Im}\,\mathcal{M} = d\Mop_{\mathrm{virt}}/dt$.
+
+The right side $\sum_f|\mathcal{M}(p\to f)|^2 d\Pi_f$ sums the squared
+amplitudes to all final states $f$ --- the total transition rate. In the
+partition algebra, $|\mathcal{M}(p\to f)|^2$ is the catalyst power of the
+transition $p\to f$ (the fractional reduction in misalignment achieved
+by the scattering into channel $f$).
+
+Partition conservation ($d(\sum_i M_i)/dt = 0$) requires that the rate
+at which the initial partition malformation changes (left side) equals
+the total rate of catalyst power applied to all final states (right side):
+$d\Mop_{\mathrm{virt}}/dt = \sum_f\catpow(p\to f)$.
+With the identification $\mathrm{Im}\,\mathcal{M} = d\Mop_{\mathrm{virt}}/dt$
+and $|\mathcal{M}(p\to f)|^2 d\Pi_f = \catpow(p\to f)$, this is
+Equation~\eqref{eq:optical}.
+\end{proof}
+
+\begin{corollary}[Total Cross Section as Catalyst Power]
+\label{cor:xsec}
+The total scattering cross section
+$\sigma_{\mathrm{tot}} = \mathrm{Im}\,\mathcal{M}(p\to p)/(2k_{\mathrm{cm}})$
+is proportional to the catalyst power of the scattering process.
+A large cross section means a large catalyst power: the scattering
+strongly reduces the partition misalignment of the initial state.
+A zero cross section means the catalyst power is zero: no partition
+state transition occurs.
+\end{corollary}
+
+\section{Unitarity as Saturation}
+\label{sec:unitarity}
+
+\begin{theorem}[Unitarity from Saturation]
+\label{thm:unitarity}
+The unitarity of the S-matrix ($S^\dagger S = 1$, equivalently
+$T - T^\dagger = iT^\dagger T$ where $S = 1 + iT$) is equivalent to
+the catalyst saturation condition: the total catalyst power of the
+scattering process equals 1.
+\end{theorem}
+
+\begin{proof}
+$S^\dagger S = 1$ is the statement that probability is conserved:
+$\sum_f|\langle f|S|i\rangle|^2 = 1$ for any initial state $|i\rangle$.
+In partition language: the sum of catalyst powers over all final states
+$\sum_f\catpow(i\to f) = 1$.
+From Theorem~\ref{thm:K_cascade}: $\catpow_{\mathrm{total}} = 1 - \prod_f(1-\catpow(i\to f))$.
+Setting $\catpow_{\mathrm{total}} = 1$: $\prod_f(1-\catpow(i\to f)) = 0$,
+which requires at least one $\catpow(i\to f) = 1$ or infinitely many
+terms with $\catpow(i\to f) > 0$ summing to make the product zero.
+
+More precisely: $\sum_f|\mathcal{M}(i\to f)|^2 d\Pi_f = 1$
+(with appropriate normalisation) is the unitarity condition, and from
+the identification $|\mathcal{M}|^2 d\Pi_f = \catpow(i\to f)$:
+$\sum_f\catpow(i\to f) = 1$, which is the saturation of a cascade
+with total power exactly 1.
+\end{proof}
+
+\begin{corollary}[Unitarity Violation as Under-Saturation]
+Any $S$-matrix that violates unitarity has $\sum_f|\mathcal{M}|^2 d\Pi_f \neq 1$
+--- the catalyst cascade is either under-saturated ($< 1$: probability leaks
+into unobserved channels) or over-saturated ($> 1$: probability is created,
+which violates the Floor Positivity theorem).
+Floor Positivity (Theorem~2.2 of \citealt{companion:trajectory}) prevents
+over-saturation; unitarity prevents under-saturation.
+\end{corollary}
+
+\section{Why Virtual Particles Cannot Be Directly Observed}
+\label{sec:unobservable}
+
+\begin{theorem}[Virtual Particle Unobservability from Path Opacity]
+\label{thm:unobservable}
+Virtual particles (off-shell internal lines of Feynman diagrams) cannot
+be directly observed by any measurement made at the external lines
+(the physical particles in the asymptotic states).
+\end{theorem}
+
+\begin{proof}
+By the Feynman Diagram Path Opacity theorem (Theorem~\ref{thm:feynman_opacity}),
+the observable S-matrix element depends only on the external momenta
+(the partition endpoint), not on the internal topology (the virtual
+sub-state path). Therefore, any measurement of the external particles
+--- however precise --- cannot determine which Feynman diagrams contributed
+or which virtual particles were exchanged.
+
+More formally: the observable is $|\mathcal{M}|^2 = |\sum_\Gamma\mathcal{M}_\Gamma|^2$,
+not $|\mathcal{M}_\Gamma|^2$ for any individual diagram.
+The cross terms $\mathcal{M}_\Gamma^*\mathcal{M}_{\Gamma'}$ interfere,
+so the individual $\mathcal{M}_\Gamma$ cannot be extracted from $|\mathcal{M}|^2$
+without additional assumptions that break path opacity.
+\end{proof}
+
+\begin{remark}[Common misstatements]
+The statement ``virtual particles exist briefly according to the
+uncertainty principle'' is not the partition-algebraic account.
+The correct account is: virtual particles are computational tools ---
+virtual sub-states in the backward trajectory completion algorithm.
+They do not exist ``briefly''; they exist as intermediate states of a
+mathematical computation that runs off-shell in the partition algebra's
+internal evaluation space. The uncertainty principle merely bounds
+\emph{how far off-shell} they can be ($\delta m^2 \cdot \delta t \geq \hbar$
+from Equation~\eqref{eq:offshell_malformation}), not whether they exist.
+\end{remark}
+
+\section{Discussion}
+\label{sec:disc}
+
+\subsection{QFT perturbation theory as backward completion}
+
+The entire apparatus of perturbative QFT --- Feynman rules, loop integrals,
+renormalisation, the optical theorem, unitarity cuts --- emerges from
+the backward trajectory completion algorithm applied to the partition algebra
+of bounded phase space. This is not a reformulation of QFT; it is an
+identification of QFT as a specific instance of the more general partition
+algebra.
+
+The advantage of this identification: the computational complexity of
+perturbative QFT ($\mathcal{O}(\log N)$ via backward completion) vs.\
+non-perturbative lattice QFT ($\Theta(N)$ by brute force) now has a
+clear explanation. The $\log N$ speedup is the backward completion speedup
+(Theorem~4.2 of \citealt{companion:trajectory}). Lattice QFT gives up
+virtual sub-states (it works with physical lattice configurations),
+paying the $\Theta(N)$ cost.
+
+\subsection{Connection to the LHC trigger}
+
+The LHC trigger performs backward trajectory completion on collision
+events. The virtual sub-states used by the trigger (internal computations,
+intermediate approximations, look-up tables) are the trigger's analog
+of virtual particles: internal states that are not observed and do not
+correspond to physical energy deposits, but that enable $\mathcal{O}(\log N)$
+classification (Theorem~8.3 of \citealt{companion:trajectory}).
+
+The trigger's L1 decision --- whether to accept or reject an event ---
+is the trigger's S-matrix element: the amplitude for the forward scattering
+of the event through the trigger's classification hierarchy.
+
+\section*{Acknowledgements}
+This work was supported by the AIMe Registry for Artificial Intelligence.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

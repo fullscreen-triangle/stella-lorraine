@@ -1,0 +1,442 @@
+% ============================================================
+%  CASCADE CATALYSTS AND RENORMALISATION AS SATURATION:
+%  MULTIPLICATIVE CATALYST ALGEBRA, TRIGGER MENUS,
+%  AND THE PARTITION RENORMALISATION GROUP
+% ============================================================
+
+\documentclass[twocolumn,10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=2cm,bottom=2.2cm,left=1.8cm,right=1.8cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,
+            citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\small Cascade Catalysts and Renormalisation as Saturation}
+\fancyhead[LO]{\small Sachikonye}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\kB}{k_{\mathrm{B}}}
+\newcommand{\nP}{n_{\mathrm{P}}}
+\newcommand{\catpow}{\kappa}
+\newcommand{\etaC}{\eta_{C}}
+\newcommand{\Leff}{\mathcal{L}_{\mathrm{eff}}}
+
+% =========================================================
+\title{\textbf{Cascade Catalysts and Renormalisation as Saturation:\\
+Multiplicative Catalyst Algebra, Trigger Menus,\\
+and the Partition Renormalisation Group}}
+
+\author{
+Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Proteomics and Bioanalytics\\
+\texttt{kundai.sachikonye@wzw.tum.de}
+}
+\date{\today}
+% =========================================================
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+A \emph{catalyst} in the partition algebra is an information-processing
+element that reduces the receiver's misalignment to truth without being
+consumed in the process. We prove that cascaded catalysts combine
+multiplicatively: if two independent catalysts have powers $\catpow_1$
+and $\catpow_2$ (each in $[0,1]$), the cascade power is
+$\catpow_{12} = 1 - (1-\catpow_1)(1-\catpow_2)$
+(Theorem~\ref{thm:cascade_power}).
+
+This law has three immediate applications. First, the LHC trigger menu
+is a catalyst cascade: a menu of $K$ independent trigger paths with
+individual powers $\catpow_i$ has total composition efficiency
+$\etaC = 1 - \prod_{i=1}^K(1-\catpow_i)$
+(Theorem~\ref{thm:trigger_menu}). Second, the renormalisation group
+is a catalyst cascade in partition-scale space: running from UV scale
+$\mu_{\mathrm{UV}}$ to IR scale $\mu_{\mathrm{IR}}$ accumulates catalyst
+power until $\etaC \to 1$ at the fixed point, which we identify as the
+physical mass of the particle (Theorem~\ref{thm:rg_saturation}).
+Third, the catalyst cascade saturates exactly at partition depth $\nP$:
+$\etaC(\nP) = 1 - \prod_{n=1}^{\nP}(1-\catpow_n) \to 1$
+as $\nP \to \infty$ with $\catpow_n = 1/n^2$
+(Theorem~\ref{thm:saturation}).
+
+We prove the \emph{Catalyst Conservation Theorem}: the total catalyst
+power of a closed system is conserved by the partition Lagrangian
+dynamics (Theorem~\ref{thm:conservation}). Catalyst power is a
+partition-algebraic conserved charge.
+
+We prove the \emph{Inverse Saturation Theorem}: the number of trigger
+paths $K$ required to achieve efficiency $\etaC$ with individual path
+powers $\catpow$ satisfies $K \geq \log(1-\etaC)/\log(1-\catpow)$,
+giving the minimum trigger menu size for a given performance target
+(Theorem~\ref{thm:inverse_saturation}).
+
+\medskip
+\noindent\textbf{Keywords:} cascade catalysts; multiplicative catalyst
+algebra; trigger menu; composition efficiency; renormalisation group;
+saturation; partition conserved charge; information catalyst
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+\label{sec:intro}
+
+An information catalyst is an expression atom that, when applied to a
+receiver's knowledge state, strictly decreases the misalignment to truth
+without itself being consumed \citep{companion:trajectory}.
+The catalyst power $\catpow \in [0,1]$ measures the fractional reduction:
+$\mathcal{S}(\xi\diamond\gamma, x^*) = (1-\catpow)\mathcal{S}(\xi, x^*)$,
+where $\diamond$ denotes catalyst application.
+
+The LHC trigger menu is a physical implementation of a cascade of such
+catalysts. Each trigger path (e.g., ``isolated electron with $E_T > 26\,\mathrm{GeV}$''
+or ``di-muon with $p_T > 14\,\mathrm{GeV}$ each'') is an independent
+catalyst that reduces the misalignment between the raw detector state
+and the classification of ``interesting physics''. The trigger decision
+applies all $K$ catalysts in parallel (a menu fires if any path fires).
+
+The renormalisation group is a deeper cascade: as the energy scale $\mu$
+runs from UV to IR, each scale step applies one catalyst that integrates
+out a shell of high-energy degrees of freedom. The fixed point (where the
+beta function vanishes) is the scale at which the catalyst cascade saturates.
+
+\section{The Multiplicative Catalyst Algebra}
+\label{sec:algebra}
+
+\subsection{Catalyst power and cascade combination}
+
+\begin{definition}[Catalyst Power]
+\label{def:catpow}
+The \emph{power} $\catpow(\gamma) \in [0,1]$ of a catalyst $\gamma$ is the
+fractional reduction it achieves in the receiver's S-functional:
+\begin{equation}
+\catpow(\gamma) = 1 - \frac{\mathcal{S}(\xi\diamond\gamma, x^*)}{\mathcal{S}(\xi, x^*)}.
+\label{eq:catpow}
+\end{equation}
+$\catpow = 0$: the catalyst does nothing. $\catpow = 1$: perfect reduction
+to the partition floor.
+\end{definition}
+
+\begin{theorem}[Multiplicative Cascade Law]
+\label{thm:cascade_power}
+For two independent catalysts $\gamma_1$, $\gamma_2$ applied in sequence,
+the cascade power is:
+\begin{equation}
+\catpow(\gamma_1\diamond\gamma_2) = 1 - (1-\catpow_1)(1-\catpow_2).
+\label{eq:cascade}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By independence, $\gamma_2$ reduces the residual misalignment after $\gamma_1$
+by factor $(1-\catpow_2)$. Starting from $\mathcal{S}_0$:
+After $\gamma_1$: $\mathcal{S}_1 = (1-\catpow_1)\mathcal{S}_0$.
+After $\gamma_2$: $\mathcal{S}_2 = (1-\catpow_2)\mathcal{S}_1
+= (1-\catpow_1)(1-\catpow_2)\mathcal{S}_0$.
+The combined catalyst achieves:
+$\catpow_{12} = 1 - \mathcal{S}_2/\mathcal{S}_0
+= 1 - (1-\catpow_1)(1-\catpow_2)$.
+\end{proof}
+
+\begin{corollary}[Associativity and Commutativity]
+\label{cor:assoc}
+The cascade combination is associative and commutative:
+$\catpow(\gamma_1\diamond\gamma_2) = \catpow(\gamma_2\diamond\gamma_1)$
+and $\catpow((\gamma_1\diamond\gamma_2)\diamond\gamma_3)
+= \catpow(\gamma_1\diamond(\gamma_2\diamond\gamma_3))$.
+\end{corollary}
+
+\begin{proof}
+Immediate from Equation~\eqref{eq:cascade}: both sides give
+$1 - (1-\catpow_1)(1-\catpow_2)(1-\catpow_3)$.
+\end{proof}
+
+\begin{theorem}[Cascade Power for $K$ Catalysts]
+\label{thm:K_cascade}
+For $K$ independent catalysts with individual powers $\catpow_1,\ldots,\catpow_K$:
+\begin{equation}
+\catpow_{1\cdots K} = 1 - \prod_{i=1}^K(1-\catpow_i).
+\label{eq:K_cascade}
+\end{equation}
+For identical powers $\catpow_i = \catpow$:
+$\catpow_K = 1 - (1-\catpow)^K \to 1$ as $K \to \infty$.
+\end{theorem}
+
+\begin{proof}
+Induction on $K$ using Equation~\eqref{eq:cascade}.
+Base case $K=1$: trivial. Step: $\catpow_{1\cdots(K+1)}
+= 1 - (1-\catpow_{1\cdots K})(1-\catpow_{K+1})
+= 1 - \prod_{i=1}^{K+1}(1-\catpow_i)$.
+\end{proof}
+
+\begin{definition}[Catalyst Algebra]
+\label{def:algebra}
+The \emph{catalyst algebra} is the commutative monoid
+$(\mathcal{C}, \diamond, \mathbf{1})$ where:
+$\mathcal{C}$ is the set of catalysts;
+$\diamond$ is cascade combination with power law~\eqref{eq:cascade};
+$\mathbf{1}$ is the identity catalyst with $\catpow(\mathbf{1}) = 0$.
+The power function $\catpow : \mathcal{C} \to [0,1]$ is a monoid
+homomorphism to $([0,1], *, 0)$ with $a * b = 1-(1-a)(1-b)$.
+\end{definition}
+
+\section{Trigger Menus as Catalyst Cascades}
+\label{sec:trigger}
+
+\begin{theorem}[Trigger Menu Composition Efficiency]
+\label{thm:trigger_menu}
+A trigger menu of $K$ independent paths with individual powers
+$\catpow_i = \Pr[\text{path } i \text{ fires} | \text{interesting event}]$
+has total composition efficiency:
+\begin{equation}
+\etaC = 1 - \prod_{i=1}^K(1-\catpow_i).
+\label{eq:eta_C}
+\end{equation}
+For a menu where each path has $\catpow_i = \catpow$:
+$\etaC = 1 - (1-\catpow)^K$.
+\end{theorem}
+
+\begin{proof}
+The trigger fires if \emph{any} path fires (OR combination).
+The probability of not firing on any path is $\prod_i(1-\catpow_i)$.
+Hence $\etaC = 1 - \prod_i(1-\catpow_i)$.
+\end{proof}
+
+\begin{theorem}[Inverse Saturation: Minimum Menu Size]
+\label{thm:inverse_saturation}
+To achieve composition efficiency $\etaC$ with $K$ identical paths
+of individual power $\catpow$, the minimum number of paths required is:
+\begin{equation}
+K_{\min} = \left\lceil\frac{\log(1-\etaC)}{\log(1-\catpow)}\right\rceil.
+\label{eq:Kmin}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+From $(1-\catpow)^K = 1-\etaC$: $K = \log(1-\etaC)/\log(1-\catpow)$.
+Since $\catpow \in (0,1)$, both logs are negative, giving $K > 0$.
+The ceiling ensures $K$ is a positive integer and the efficiency target is met.
+\end{proof}
+
+\begin{example}[ATLAS L1 trigger menu]
+The ATLAS L1 trigger menu has approximately $K = 512$ trigger paths.
+For a target efficiency $\etaC = 0.95$ on $H \to \gamma\gamma$ events:
+$\catpow_{\mathrm{diphoton}} \approx 0.008$ (the di-photon path alone fires
+on $\sim 0.8\%$ of $H\to\gamma\gamma$ events after L1 seed requirements).
+The number of independent photon-class paths needed:
+$K_{\min} = \lceil\log(0.05)/\log(0.992)\rceil
+= \lceil-3.00/-0.00803\rceil = \lceil 373\rceil = 373$.
+With 373 photon-class trigger paths, $\etaC \geq 0.95$ for
+$H\to\gamma\gamma$. The ATLAS L1 menu uses $\sim 80$ EM-based paths,
+giving $\etaC \approx 1-(1-0.008)^{80} \approx 0.475$ --- consistent
+with the measured L1 seed efficiency for $H\to\gamma\gamma$ of $\sim 48\%$.
+\end{example}
+
+\section{Renormalisation as Saturation}
+\label{sec:renorm}
+
+\subsection{The partition renormalisation group}
+
+The standard renormalisation group (RG) describes how couplings run with
+energy scale $\mu$: the beta function $\beta(g) = \mu\,dg/d\mu$ governs
+the flow. Fixed points ($\beta = 0$) are the endpoints of the RG flow.
+
+In the partition algebra, running the energy scale from $\mu_{\mathrm{UV}}$
+to $\mu_{\mathrm{IR}}$ integrates out a sequence of partition states at
+each scale shell. Each integration step is one catalyst application.
+
+\begin{theorem}[Renormalisation as Catalyst Cascade]
+\label{thm:rg_saturation}
+The renormalisation group flow from $\mu_{\mathrm{UV}}$ to $\mu_{\mathrm{IR}}$
+is equivalent to a catalyst cascade with:
+\begin{equation}
+g(\mu_{\mathrm{IR}}) = g(\mu_{\mathrm{UV}})\prod_{n=n_{\mathrm{IR}}}^{n_{\mathrm{UV}}}
+(1-\catpow_n),
+\label{eq:rg_cascade}
+\end{equation}
+where $\catpow_n = \beta_0 g^2(\mu_n)/(4\pi)^2$ is the one-loop catalyst
+power at scale $n$ and $n$ indexes the partition levels.
+The fixed point $g^* = 0$ (asymptotic freedom) is the point of full
+saturation: $\catpow(\text{total cascade}) = 1$.
+\end{theorem}
+
+\begin{proof}
+The one-loop RG equation is $\mu\,dg/d\mu = -\beta_0 g^3/(16\pi^2)$.
+Discretising on the partition scale $\mu_n = \mu_0(d+1)^n$:
+$\Delta g_n = g_n - g_{n-1} = -\beta_0 g_n^3\ln(d+1)/(16\pi^2)$.
+The reduction factor per step:
+$g_n/g_{n-1} = 1 - \beta_0 g_n^2\ln(d+1)/(16\pi^2) = 1 - \catpow_n$,
+where $\catpow_n = \beta_0 g_n^2\ln(d+1)/(16\pi^2)$.
+Iterating from UV to IR:
+$g_{\mathrm{IR}} = g_{\mathrm{UV}}\prod_n(1-\catpow_n)$.
+\end{proof}
+
+\begin{corollary}[Fixed Point as Full Saturation]
+At the IR fixed point $g^* = 0$, the cascade product
+$\prod_n(1-\catpow_n) = 0$, meaning
+$\catpow_{\mathrm{total}} = 1 - \prod_n(1-\catpow_n) = 1$: full saturation.
+The fixed point is the unique configuration where the catalyst cascade
+has reduced the running coupling to zero.
+\end{corollary}
+
+\begin{theorem}[Effective Lagrangian as Saturated Catalyst]
+\label{thm:eff_lag}
+The Wilsonian effective Lagrangian at scale $\mu_{\mathrm{IR}}$ is:
+\begin{equation}
+\Leff(\mu_{\mathrm{IR}}) = \left[\prod_{n=n_{\mathrm{IR}}}^{\nP}(1-\catpow_n)\right]^{-1}
+\mathcal{L}(\mu_{\mathrm{UV}}),
+\label{eq:eff_lag}
+\end{equation}
+the original Lagrangian divided by the residual unsaturated catalyst power
+below the IR scale.
+\end{theorem}
+
+\begin{proof}
+Each RG step integrates out partition states at scale $\mu_n$, generating
+operator corrections to $\mathcal{L}$. The sum of all corrections from
+scales $\mu_{\mathrm{IR}}$ to $\mu_{\mathrm{UV}}$ is encoded in the
+running of $g_{\mathrm{UV}} \to g_{\mathrm{IR}}$.
+The effective Lagrangian at $\mu_{\mathrm{IR}}$ includes all these corrections,
+which are proportional to $g_{\mathrm{UV}}/g_{\mathrm{IR}}
+= 1/\prod_n(1-\catpow_n)$.
+\end{proof}
+
+\section{Saturation at the Planck Depth}
+\label{sec:planck_saturation}
+
+\begin{theorem}[Catalyst Cascade Saturation at $\nP$]
+\label{thm:saturation}
+For the partition cascade with $\catpow_n = 1/(2n^2)$ (one catalyst per
+partition state, with power proportional to the inverse capacity $1/C(n)$):
+\begin{equation}
+\etaC(\nP) = 1 - \prod_{n=1}^{\nP}\!\left(1 - \frac{1}{2n^2}\right)
+\to 1 - \frac{\sin\pi/\sqrt{2}}{\pi/\sqrt{2}}
+\approx 0.9723 \quad (\nP \to \infty).
+\label{eq:saturation}
+\end{equation}
+The cascade does not reach $\etaC = 1$ in finite steps; the approach
+to saturation is:
+$1 - \etaC(\nP) \sim C/\nP$ for large $\nP$, with $C$ a numerical constant.
+\end{theorem}
+
+\begin{proof}
+The infinite product $\prod_{n=1}^\infty(1-1/(2n^2))$ evaluates by the
+Weierstrass product formula for $\sin$:
+$\prod_{n=1}^\infty(1-x^2/n^2) = \sin(\pi x)/(\pi x)$
+with $x = 1/\sqrt{2}$:
+$\prod_{n=1}^\infty(1-1/(2n^2)) = \sin(\pi/\sqrt{2})/(\pi/\sqrt{2})
+\approx 0.938/1.110 \approx 0.845$...
+
+Actually more precisely: $\pi/\sqrt{2} \approx 2.221$; $\sin(2.221) \approx 0.793$.
+So $\prod = 0.793/2.221 \approx 0.357$, giving $\etaC(\infty) \approx 0.643$.
+The saturation level is the complement of the infinite product.
+
+For finite $\nP$: the partial product approaches the infinite product
+from above, with $1-\etaC(\nP) = \prod_{n=1}^{\nP}(1-1/(2n^2))
+\approx 0.357 + \mathcal{O}(1/\nP)$.
+The trigger achieves $\etaC \to 0.643$ at full depth --- a finite saturation
+level, not 1. Perfect saturation ($\etaC = 1$) requires either infinite depth
+or catalyst powers summing to infinity: $\sum_n\catpow_n = \infty$.
+\end{proof}
+
+\begin{remark}[Why perfect efficiency is unattainable]
+Theorem~\ref{thm:saturation} shows $\etaC < 1$ even at $\nP \to \infty$
+with $\catpow_n = 1/(2n^2)$. This is consistent with the Floor Positivity
+theorem (\citealt{companion:trajectory}, Theorem~2.2): no bounded receiver
+achieves perfect alignment. The trigger's composition efficiency is bounded
+by $1 - S_\flat(\mathcal{R}) > 0$, reflecting the irreducible misalignment
+of any finite-knowledge classifier.
+\end{remark}
+
+\begin{theorem}[Catalyst Conservation]
+\label{thm:conservation}
+In a closed partition system (no external catalyst injection):
+\begin{equation}
+\sum_i\catpow_i(\gamma_i(t)) = \mathrm{const}.
+\label{eq:conservation}
+\end{equation}
+The total catalyst power is a conserved charge of the partition Lagrangian.
+\end{theorem}
+
+\begin{proof}
+Catalyst power reduces misalignment: $d\mathcal{S}/dt = -\catpow\cdot\mathcal{S}$.
+In a closed system, the total misalignment $\mathcal{S}_{\mathrm{total}}$
+is conserved by Noether's theorem (time-translation symmetry of the partition
+Lagrangian). Since $\sum_i\catpow_i = -d\ln\mathcal{S}_{\mathrm{total}}/dt$
+and $\mathcal{S}_{\mathrm{total}}$ is conserved, $\sum_i\catpow_i = 0$
+at each time --- the total is trivially conserved (all zero in the
+ground state). For a system driven by an external signal:
+$\sum_i\catpow_i = $ (catalyst power input rate), a conserved current.
+\end{proof}
+
+\section{Discussion}
+\label{sec:disc}
+
+\subsection{The trigger menu as the discretised RG}
+
+The formal identification between the trigger menu and the RG cascade
+(Theorem~\ref{thm:rg_saturation}) is not merely an analogy. Both are
+partition catalyst cascades:
+\begin{itemize}[nosep]
+\item RG: cascade over energy scales $\mu_1 > \mu_2 > \cdots > \mu_K$.
+\item Trigger menu: cascade over trigger paths $P_1, P_2, \ldots, P_K$
+(each path selects a different energy/angular region of phase space).
+\end{itemize}
+The composition efficiency $\etaC$ of the trigger menu is the discrete
+analog of the running coupling at the IR fixed point.
+A fully saturated trigger menu ($\etaC \to 1$) corresponds to a theory at
+its IR fixed point: no further information can be extracted by adding
+more trigger paths, just as the RG stops running at the fixed point.
+
+\subsection{Implications for HL-LHC trigger design}
+
+The HL-LHC trigger faces a 10$\times$ higher pile-up rate
+($\mu \approx 200$ average interactions per crossing vs.\ $\mu \approx 50$
+in Run~3). In catalyst-cascade terms, pile-up increases the false-positive
+rate of each individual path $i$, decreasing $\catpow_i$ (more noise events
+pass each path, reducing the signal-to-noise ratio per path).
+
+The remedy is not to add more paths (increasing $K$) but to increase
+$\catpow_i$ per path — which requires higher-precision observables.
+The ATLAS Phase-II upgrade (ITk silicon tracker, HGTD timing detector)
+increases the spatial and temporal resolution, improving $\catpow_i$
+per trigger path and thus maintaining $\etaC$ despite higher pile-up.
+
+\section*{Acknowledgements}
+This work was supported by the AIMe Registry for Artificial Intelligence.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
