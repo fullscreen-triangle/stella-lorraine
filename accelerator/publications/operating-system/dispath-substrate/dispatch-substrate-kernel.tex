@@ -1,0 +1,681 @@
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+% =============================================================
+%   THE DISPATCH SUBSTRATE KERNEL
+%   Architecture, Composition, and Conformance of a Five-
+%   Subsystem Dispatch Loop for Categorical Computation
+% =============================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.2cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage[round]{natbib}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{axiom}{Axiom}
+
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\cod}{cod}
+\DeclareMathOperator{\dispatch}{dispatch}
+\DeclareMathOperator{\eval}{eval}
+\DeclareMathOperator{\valid}{valid}
+\DeclareMathOperator{\lookup}{lookup}
+
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Natural}{\mathbb{N}}
+\newcommand{\Integer}{\mathbb{Z}}
+\newcommand{\Bool}{\mathbb{B}}
+\newcommand{\Kernel}{\mathcal{K}}
+\newcommand{\Frag}{F}
+\newcommand{\Vals}{\mathcal{V}}
+\newcommand{\Sub}{\sigma}
+\newcommand{\Exec}{E}
+\newcommand{\Reg}{\mathcal{R}}
+\newcommand{\Evt}{\mathcal{E}}
+\newcommand{\Pve}{\Sub_{\mathrm{P}}}
+\newcommand{\Cmm}{\Sub_{\mathrm{M}}}
+\newcommand{\Pss}{\Sub_{\mathrm{S}}}
+\newcommand{\Dic}{\Sub_{\mathrm{R}}}
+\newcommand{\Tem}{\Sub_{\mathrm{T}}}
+\newcommand{\bisim}{\sim}
+\newcommand{\rul}[1]{\textsc{(#1)}}
+\newcommand{\bbrack}[1]{[\![#1]\!]}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{The Dispatch Substrate Kernel}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\textbf{The Dispatch Substrate Kernel:\\[3pt]
+Architecture, Composition, and Conformance of\\[2pt]
+a Five-Subsystem Dispatch Loop\\[2pt]
+for Categorical Computation}}
+
+\author{Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Proteomics and Bioanalytics\\
+AIMe Registry for Artificial Intelligence\\
+Maximus-von-Imhof-Forum 3, 85354 Freising, Germany\\
+\texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We specify a kernel architecture for the dispatch of categorical computation: an execution substrate that takes a symbolic fragment representing an operation and returns the value the operation produces. The substrate wraps an executor with five subsystems that derive from the canonical decomposition of any dispatch responsibility: pre-dispatch validation, post-dispatch memoization, pending-work scheduling, external-resource retrieval, and runtime invariant monitoring. We formalise each subsystem as an interface with a small, frozen surface, define the dispatch loop that composes them with the underlying executor, and prove that the composition is sound and deterministic. We further establish four structural results. (i)~The \emph{Dispatch Correctness Theorem}: with all five subsystems instantiated to identity (no-op), the kernel produces results bit-identical to the bare executor; with non-trivial subsystems, the result is preserved modulo the subsystems' specified semantics. (ii)~The \emph{Independence Theorem}: the five subsystems are pairwise functionally independent, in the sense that the dispatch result depends on each subsystem only through its specified interface and not through shared internal state. (iii)~The \emph{Stability Contract Theorem}: extending the kernel with additional subsystems (or strengthening existing ones) does not invalidate any client that depends only on the frozen interface surface. (iv)~The \emph{Conformance Decidability Theorem}: the property-based regression suite over kernel observable events is decidable, and the kernel admits cross-architecture invariance under a fixed conformance methodology. We further give the dispatch algorithm explicitly, analyse its time complexity ($\mathcal{O}(1)$ per subsystem hook plus the executor's intrinsic cost), and characterise the parallelism opportunities admitted by the architecture. The kernel is purely a substrate: it does not commit to a particular symbolic language, a particular cache eviction policy, a particular scheduler, or a particular retrieval mechanism. What it provides is the architectural skeleton over which such choices are made, together with the theorems that ensure the choices do not invalidate the substrate's guarantees.
+\end{abstract}
+
+\noindent\textbf{Keywords:} dispatch substrate, kernel architecture, microkernel, validation engine, memoization, scheduling, surgical retrieval, conservation monitoring, stability contract, conformance regression.
+
+\tableofcontents
+
+\vspace{6pt}
+\hrule
+\vspace{6pt}
+
+% ============================================================
+\part{Preliminaries}
+% ============================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The dispatch problem}
+
+A dispatch substrate is the runtime component that, given a symbolic representation of a computation, produces its value. The category of substrates is broad: an operating-system kernel dispatches a system call to its handler~\citep{tanenbaum2014modern,liedtke1995microkernel,klein2009sel4}; a virtual machine dispatches a bytecode instruction to its interpreter~\citep{lindholm2014jvm}; an actor system dispatches a message to a registered receiver~\citep{hewitt1973actor,agha1986actors,armstrong2003erlang}; a microservice gateway dispatches an RPC to a service implementation~\citep{birrell1984rpc}; a database engine dispatches a query plan to a physical operator~\citep{graefe1993query}. Each of these substrates handles dispatch under different physical assumptions but shares a common architectural decomposition.
+
+We make this decomposition precise and present it as a single design: a kernel that wraps an executor with exactly five subsystems whose responsibilities partition the dispatch envelope. The five are derived from the universal dispatch responsibilities and not from any particular substrate; together they cover the architectural surface of any dispatch component, and individually they admit independent substitution and refinement.
+
+\subsection{The five responsibilities}
+
+Every dispatch substrate has the following five responsibilities, regardless of its application domain.
+
+\emph{Pre-dispatch validation.} Before evaluation begins, the substrate must determine whether the input fragment is admissible. This responsibility separates well-formed inputs from inputs that would cause the executor to misbehave. We name the subsystem implementing it the \emph{proof-validation engine} (PVE).
+
+\emph{Post-dispatch memoization.} After evaluation completes, the substrate may cache the result against a fingerprint of the input to avoid re-evaluating the same fragment in the future. This responsibility realises the cache-hit speedup that distinguishes a memoising dispatch substrate from a stateless one. We name the subsystem implementing it the \emph{categorical memory manager} (CMM).
+
+\emph{Pending-work scheduling.} Between pre-dispatch and execution, the substrate may have a backlog of pending fragments to evaluate; it must decide their order. This responsibility is the substrate's scheduler. We name the subsystem implementing it the \emph{pending-state scheduler} (PSS).
+
+\emph{External-resource retrieval.} During evaluation, the executor may require external data---bytes from a network, columns from a database, weights from a model. The substrate mediates this retrieval and may impose a retrieval policy that fetches less than the executor would naively request. We name the subsystem implementing it the \emph{demon I/O controller} (DIC).
+
+\emph{Runtime invariant monitoring.} After dispatch completes, the substrate may publish observable events that downstream observers consume to check invariants (monotone counters, conservation laws, regression-test predicates). The monitoring is asynchronous and lossy: a slow observer does not throttle the dispatch path. We name the subsystem implementing it the \emph{trigger event monitor} (TEM).
+
+We claim that these five are the canonical decomposition. Any dispatch substrate either implements all five (with non-trivial choices of policy) or implements a strict subset (with trivial identity policies for the remaining responsibilities). No substrate requires a sixth responsibility that is not expressible as a composition of these five.
+
+\subsection{Overview of main results}
+
+The paper establishes the following:
+\begin{enumerate}[nosep,leftmargin=*]
+\item \textbf{Theorem~\ref{thm:dispatch-correctness}} (Dispatch Correctness): the dispatch loop with all subsystems instantiated to identity returns bit-identical results to the bare executor.
+\item \textbf{Theorem~\ref{thm:independence}} (Subsystem Independence): the five subsystems are pairwise functionally independent through their interfaces.
+\item \textbf{Theorem~\ref{thm:stability}} (Stability Contract): clients depending only on the frozen interface surface remain functional under any additive evolution of the kernel.
+\item \textbf{Theorem~\ref{thm:determinism}} (Determinism): if each subsystem is a deterministic function of its inputs, so is the kernel's dispatch output.
+\item \textbf{Theorem~\ref{thm:compose-kernel}} (Compositional Substitution): swapping a subsystem for a bisimilar one does not change the dispatch result.
+\item \textbf{Theorem~\ref{thm:conformance}} (Conformance Decidability): the property-based regression suite over kernel observables is decidable in time linear in the workload size.
+\end{enumerate}
+
+\section{The Underlying Executor}
+\label{sec:executor}
+
+The kernel wraps an executor. We treat the executor as a black box characterised by its interface; the kernel's properties will be proved relative to that interface.
+
+\begin{definition}[Executor]
+\label{def:executor}
+An \emph{executor} is a triple $\Exec = \langle \mathcal{F}, \Vals, \eval \rangle$ where $\mathcal{F}$ is a set of \emph{fragments} (symbolic representations of computations), $\Vals$ is a set of \emph{values}, and $\eval : \mathcal{F} \to \Vals \cup \{\bot\}$ is the \emph{evaluation function}. The symbol $\bot$ denotes evaluation failure (e.g.\ unresolved hole, missing provider).
+\end{definition}
+
+\begin{remark}
+We deliberately leave the structure of $\mathcal{F}$ and $\Vals$ abstract. The kernel architecture is parametric in the executor: the same five subsystems apply to a fragment of an arithmetic-expression language, a process-calculus term, or an RPC payload. Specific fragment grammars and value spaces are application-specific and need not be fixed at the architectural level.
+\end{remark}
+
+\begin{definition}[Determinism]
+\label{def:exec-determinism}
+The executor is \emph{deterministic} if $\eval$ is a function (single-valued); i.e.\ for every $\Frag \in \mathcal{F}$, $\eval(\Frag)$ takes a single value (possibly $\bot$).
+\end{definition}
+
+\begin{definition}[Operation Registry]
+\label{def:registry}
+An \emph{operation registry} $\Reg$ is a finite map from named operation identifiers to \emph{providers}: implementations that accept named-argument records of values and return values. The registry mediates how $\eval$ resolves named-operation references within a fragment.
+\end{definition}
+
+We assume $\Exec$ has a registry $\Reg$ as an implicit parameter and that $\eval$ uses $\Reg$ to dispatch named-operation calls.
+
+% ============================================================
+\part{The Five Subsystems}
+% ============================================================
+
+\section{Subsystem Interfaces}
+\label{sec:subsystems}
+
+We now define each of the five subsystems by its interface. Each definition is parametric in the executor type and contains the minimal set of methods the dispatch loop requires.
+
+\subsection{PVE: Pre-Dispatch Validation}
+
+\begin{definition}[Validation Subsystem]
+\label{def:pve}
+A \emph{validation subsystem} $\Pve$ is an object exposing a method
+\[
+\valid : \mathcal{F} \to \Bool,
+\]
+where $\valid(\Frag) = \mathrm{true}$ indicates that the fragment is admissible for dispatch and $\mathrm{false}$ indicates that the dispatch path must reject the fragment without evaluation.
+\end{definition}
+
+\begin{definition}[Identity PVE]
+\label{def:noop-pve}
+The \emph{identity validation subsystem} $\sigma_{\mathrm{P},0}$ returns $\mathrm{true}$ for every fragment: it imposes no validation constraint.
+\end{definition}
+
+The validation subsystem is the substrate's gatekeeper. Concrete instances may implement type checking, refinement-type discipline, three-route verification, capability checks, signature validation, or any other admission criterion expressible as a Boolean fragment predicate. The interface is opaque to the specific check.
+
+\subsection{CMM: Post-Dispatch Memoization}
+
+\begin{definition}[Memoization Subsystem]
+\label{def:cmm}
+A \emph{memoization subsystem} $\Cmm$ is an object exposing two methods:
+\begin{align*}
+\lookup &: \mathcal{F} \to \Vals \cup \{\mathrm{miss}\},\\
+\text{insert} &: \mathcal{F} \times \Vals \to \mathbf{1}.
+\end{align*}
+The $\lookup$ method returns a previously cached value for the given fragment or signals a miss; the insert method stores a fresh result. The result of insert is unit (no semantic value); the side-effect is internal.
+\end{definition}
+
+\begin{definition}[Identity CMM]
+\label{def:noop-cmm}
+The \emph{identity memoization subsystem} $\sigma_{\mathrm{M},0}$ always returns $\mathrm{miss}$ from $\lookup$ and is a no-op on insert.
+\end{definition}
+
+\subsection{PSS: Pending-State Scheduling}
+
+\begin{definition}[Scheduling Subsystem]
+\label{def:pss}
+A \emph{scheduling subsystem} $\Pss$ is an object exposing a method
+\[
+\text{order} : \mathcal{F}^* \to \mathcal{F}^*,
+\]
+where $\mathcal{F}^*$ is the set of finite sequences of fragments, and the output is a permutation of the input that specifies the order in which the pending fragments should be evaluated.
+\end{definition}
+
+\begin{definition}[Identity PSS]
+\label{def:noop-pss}
+The \emph{identity scheduling subsystem} $\sigma_{\mathrm{S},0}$ returns the input sequence unchanged: it preserves the arrival order of pending fragments.
+\end{definition}
+
+\subsection{DIC: External-Resource Retrieval}
+
+\begin{definition}[Retrieval Subsystem]
+\label{def:dic}
+A \emph{retrieval subsystem} $\Dic$ is an object exposing a method
+\[
+\text{policy} : Q \times S \to P,
+\]
+where $Q$ is the set of queries the executor may issue, $S$ is the set of external sources, and $P$ is the set of retrieval policies (e.g.\ ``fetch all'', ``fetch the top-$k$ mutual-information records''). The executor consults $\Dic$ before issuing an external request and follows the returned policy.
+\end{definition}
+
+\begin{definition}[Identity DIC]
+\label{def:noop-dic}
+The \emph{identity retrieval subsystem} $\sigma_{\mathrm{R},0}$ always returns the ``fetch all'' policy: the executor retrieves whatever it would have retrieved without surgical mediation.
+\end{definition}
+
+\subsection{TEM: Runtime Invariant Monitoring}
+
+\begin{definition}[Monitoring Subsystem]
+\label{def:tem}
+A \emph{monitoring subsystem} $\Tem$ is an object exposing a method
+\[
+\text{observe} : \Evt \to \mathbf{1},
+\]
+where $\Evt$ is the set of \emph{dispatch events}: structured records published by the dispatch loop on each completed dispatch. The result is unit; the side-effect is the monitor's internal book-keeping (typically asynchronous, non-blocking, lossy under back-pressure).
+\end{definition}
+
+\begin{definition}[Identity TEM]
+\label{def:noop-tem}
+The \emph{identity monitoring subsystem} $\sigma_{\mathrm{T},0}$ is a no-op on observe: it ignores every event.
+\end{definition}
+
+\section{Dispatch Events}
+\label{sec:events}
+
+\begin{definition}[Dispatch Event]
+\label{def:event}
+A \emph{dispatch event} $e \in \Evt$ is a structured record carrying at least the following fields:
+\begin{itemize}[nosep,leftmargin=*]
+\item the top-level operation name (or $\bot$ for non-Call roots);
+\item the dispatch elapsed time;
+\item the success/failure flag;
+\item the cache-hit flag (whether the result was served from $\Cmm$);
+\item the decision counter increment (an integer-valued contribution to a monotone counter the kernel maintains).
+\end{itemize}
+The event is the unit of observable kernel activity; the TEM subscribes to a broadcast channel of events and consumes them out-of-band.
+\end{definition}
+
+% ============================================================
+\part{The Dispatch Loop}
+% ============================================================
+
+\section{The Dispatch Algorithm}
+\label{sec:dispatch}
+
+\subsection{Composition}
+
+\begin{definition}[Kernel]
+\label{def:kernel}
+A \emph{kernel} $\Kernel$ is a tuple
+\[
+\Kernel = \langle \Exec, \Pve, \Cmm, \Pss, \Dic, \Tem, \Evt \rangle
+\]
+consisting of an executor $\Exec$, the four subsystems of Definitions~\ref{def:pve}--\ref{def:dic}, the monitor $\Tem$, and a dispatch-event channel $\Evt$.
+\end{definition}
+
+\subsection{The dispatch procedure}
+
+\begin{algorithm}[H]
+\caption{Kernel Dispatch}
+\label{alg:dispatch}
+\begin{algorithmic}[1]
+\Function{Dispatch}{$\Kernel, \Frag$}
+  \State $t_0 \gets \text{clock now}$
+  \If{\textbf{not} $\Pve.\valid(\Frag)$}
+    \State publish $\Evt(\mathrm{op}=\top(\Frag), \mathrm{ok}=\mathrm{false}, \mathrm{cache}=\mathrm{false})$
+    \State \Return $\bot$
+  \EndIf
+  \State $\text{ordered} \gets \Pss.\text{order}(\Pss\text{-queue} \cup \{\Frag\})$
+  \State $\Frag \gets \text{head}(\text{ordered})$
+  \State $r \gets \Cmm.\lookup(\Frag)$
+  \If{$r \neq \mathrm{miss}$}
+    \State $v \gets r$;\ \  $\text{cache-hit} \gets \mathrm{true}$
+  \Else
+    \State $v \gets \Exec.\eval(\Frag)$ \Comment{may consult $\Dic$ for I/O}
+    \State $\Cmm.\text{insert}(\Frag, v)$
+    \State $\text{cache-hit} \gets \mathrm{false}$
+  \EndIf
+  \State $t_1 \gets \text{clock now}$
+  \State $e \gets \Evt(\mathrm{op}=\top(\Frag),\ \mathrm{elapsed}=t_1-t_0,$
+  \State \quad\quad\quad\quad\quad $\mathrm{ok}=v \neq \bot,\ \mathrm{cache}=\text{cache-hit})$
+  \State publish $e$
+  \State $\Tem.\text{observe}(e)$
+  \State \Return $v$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Soundness}
+
+\begin{theorem}[Dispatch Correctness with Identity Subsystems]
+\label{thm:dispatch-correctness}
+Let $\Kernel_0 = \langle \Exec, \sigma_{\mathrm{P},0}, \sigma_{\mathrm{M},0}, \sigma_{\mathrm{S},0}, \sigma_{\mathrm{R},0}, \sigma_{\mathrm{T},0}, \Evt \rangle$ be a kernel with all subsystems instantiated to identity. Then for every fragment $\Frag$:
+\[
+\dispatch(\Kernel_0, \Frag) = \eval(\Frag).
+\]
+\end{theorem}
+
+\begin{proof}
+We trace Algorithm~\ref{alg:dispatch} with the identity subsystems substituted.
+
+\emph{Line 3:} $\sigma_{\mathrm{P},0}.\valid(\Frag) = \mathrm{true}$ unconditionally; the early return is not taken.
+
+\emph{Line 7:} $\sigma_{\mathrm{S},0}.\text{order}$ returns the input unchanged; the head is $\Frag$.
+
+\emph{Line 8:} $\sigma_{\mathrm{M},0}.\lookup(\Frag) = \mathrm{miss}$ unconditionally; the cache-hit branch is not taken.
+
+\emph{Line 12:} the executor is invoked: $v \gets \eval(\Frag)$.
+
+\emph{Line 13:} $\sigma_{\mathrm{M},0}.\text{insert}$ is a no-op.
+
+\emph{Lines 16--19:} $\sigma_{\mathrm{T},0}.\text{observe}$ is a no-op; the event is published on the channel but has no semantic effect on the return value.
+
+\emph{Line 20:} return $v = \eval(\Frag)$.
+
+Hence $\dispatch(\Kernel_0, \Frag) = \eval(\Frag)$. \qed
+\end{proof}
+
+\begin{theorem}[Dispatch Correctness with Non-Trivial Subsystems]
+\label{thm:dispatch-general}
+Let $\Kernel = \langle \Exec, \Pve, \Cmm, \Pss, \Dic, \Tem, \Evt \rangle$ be a kernel with arbitrary subsystems. Then for every fragment $\Frag$ admitted by $\Pve$ for which $\Cmm$ contains no prior entry, $\dispatch(\Kernel, \Frag) = \eval(\Frag)$. For an admitted fragment for which $\Cmm$ contains a prior entry $v_0$ from a previous dispatch of $\Frag$, $\dispatch(\Kernel, \Frag) = v_0$.
+\end{theorem}
+
+\begin{proof}
+\emph{Cache miss:} Lines 7--12 proceed as in Theorem~\ref{thm:dispatch-correctness}, yielding $v = \eval(\Frag)$.
+
+\emph{Cache hit:} Line 9 returns the cached value $r = v_0$, and line 19 returns $v = v_0$.
+
+In both cases the rejection branch (line 3) does not fire because $\Pve.\valid(\Frag) = \mathrm{true}$ by hypothesis. \qed
+\end{proof}
+
+\begin{corollary}[Determinism Preservation]
+\label{cor:determinism-preserve}
+If $\Exec$ is deterministic and each subsystem is a deterministic function of its inputs, then $\dispatch(\Kernel, \cdot)$ is a deterministic function on $\mathcal{F}$.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:dispatch-general}, the dispatch result is determined by $(\Frag, \Pve.\valid(\Frag), \Cmm.\lookup(\Frag), \eval(\Frag))$. Each component is a deterministic function of its inputs by hypothesis. The composition is therefore deterministic. \qed
+\end{proof}
+
+% ============================================================
+\part{Structural Properties}
+% ============================================================
+
+\section{Subsystem Independence}
+\label{sec:independence}
+
+\subsection{Functional independence}
+
+\begin{definition}[Functional Independence]
+\label{def:functional-independence}
+Two subsystems $\Sub_a, \Sub_b$ are \emph{functionally independent} in a kernel $\Kernel$ if the dispatch output $\dispatch(\Kernel, \Frag)$ depends on $\Sub_a$ only through the values returned by $\Sub_a$'s interface methods, and similarly for $\Sub_b$. In particular, swapping $\Sub_a$ for any $\Sub_a'$ that returns identical interface outputs on the dispatched fragment does not change the dispatch result.
+\end{definition}
+
+\begin{theorem}[Pairwise Independence]
+\label{thm:independence}
+The five subsystems $\Pve, \Cmm, \Pss, \Dic, \Tem$ in Algorithm~\ref{alg:dispatch} are pairwise functionally independent.
+\end{theorem}
+
+\begin{proof}
+We inspect each pair.
+
+\emph{$(\Pve, \Cmm)$:} $\Pve$ is consulted at line 3 and its return value $b$ alone determines whether the rejection branch fires. $\Cmm$ is consulted at line 8 only if validation passed (i.e.\ $b = \mathrm{true}$). The two consultations are sequential and depend on disjoint internal states.
+
+\emph{$(\Pve, \Pss)$:} $\Pss$ at line 7 reorders pending fragments; the chosen head is then validated (if it has not been) or proceeds to line 8. Whether validation passes depends on the fragment, not on the scheduling order; the two are independent in the dispatch-result sense.
+
+\emph{$(\Pve, \Dic)$:} $\Dic$ is consulted by the executor at line 12; $\Pve$ is consulted at line 3. Their roles do not intersect in the dispatch path.
+
+\emph{$(\Pve, \Tem)$:} $\Tem$ consumes events at line 18; its interface is observe-only. The dispatch result is fixed by line 19 before $\Tem$ runs.
+
+\emph{$(\Cmm, \Pss)$:} $\Pss$ reorders the pending queue; $\Cmm$ services per-fragment cache requests. Reordering does not change which fragments are cached.
+
+\emph{$(\Cmm, \Dic)$:} on a cache hit, the executor is not invoked; $\Dic$ is therefore not consulted. On a cache miss, $\Dic$ is consulted by the executor independently of any prior $\Cmm$ state.
+
+\emph{$(\Cmm, \Tem)$:} $\Tem$ observes events that include the cache-hit flag, but $\Tem$'s observe method does not feed back into $\Cmm$.
+
+\emph{$(\Pss, \Dic)$:} $\Pss$ orders pending fragments; $\Dic$ controls per-fragment external retrieval. The orderings and policies are on disjoint axes.
+
+\emph{$(\Pss, \Tem)$:} $\Tem$ observes events emitted at the per-dispatch granularity; $\Pss$ chooses the next fragment. The two operate at different layers.
+
+\emph{$(\Dic, \Tem)$:} $\Dic$'s policies affect what the executor retrieves; $\Tem$'s observe is post-dispatch and orthogonal.
+
+In every pair, the two subsystems consult their interfaces sequentially or are causally disjoint in the dispatch path. Hence the pair is functionally independent. \qed
+\end{proof}
+
+\begin{corollary}[Substitution Theorem]
+\label{cor:substitution}
+For any pair of bisimilar subsystems $\Sub_X \bisim \Sub_X'$ at any of the five positions, replacing $\Sub_X$ with $\Sub_X'$ in $\Kernel$ does not change the dispatch output:
+\[
+\dispatch(\Kernel[\Sub_X], \Frag) = \dispatch(\Kernel[\Sub_X'], \Frag) \quad \forall \Frag \in \mathcal{F}.
+\]
+\end{corollary}
+
+\begin{proof}
+By Definition~\ref{def:functional-independence}, the dispatch output depends on each subsystem through its interface only. Bisimilarity implies identical interface behaviour. The substitution is therefore semantics-preserving. \qed
+\end{proof}
+
+\section{Stability Contract}
+\label{sec:stability}
+
+\subsection{The frozen surface}
+
+\begin{definition}[Frozen Surface]
+\label{def:frozen}
+The \emph{frozen surface} of a kernel $\Kernel$ is the set of method signatures of the five subsystems and the executor's $\eval$ function. The frozen surface is the contract on which downstream clients depend.
+\end{definition}
+
+\begin{definition}[Evolution]
+\label{def:evolution}
+The kernel \emph{evolves additively} if the frozen surface of an evolved kernel $\Kernel'$ is a superset of the frozen surface of $\Kernel$, with every original method having the same signature in $\Kernel'$ as in $\Kernel$.
+\end{definition}
+
+\begin{theorem}[Stability Contract]
+\label{thm:stability}
+Let $\Kernel' $ be an additive evolution of $\Kernel$ as in Definition~\ref{def:evolution}. Then every client whose behaviour depends only on the frozen surface of $\Kernel$ behaves identically when wired to $\Kernel'$ (modulo any newly added optional capabilities the client elects not to use).
+\end{theorem}
+
+\begin{proof}
+The client invokes only methods in the frozen surface of $\Kernel$. By the additive-evolution hypothesis, every such method has the same signature in $\Kernel'$. The client's invocations resolve identically; the responses, by the executor and subsystem contracts, are identical (modulo subsystem-specific semantic refinement that the client does not observe). Hence the client's observable behaviour is unchanged. \qed
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:stability} is the structural foundation of the kernel's release-engineering discipline. Once a method signature has been promoted to the frozen surface, downstream clients have a contract guarantee that the kernel will not break them. The evolution policy is conservative by design: every addition is opt-in, every removal is a major-version event, and every signature change is a breaking change.
+\end{remark}
+
+\subsection{Refinement of subsystems}
+
+\begin{proposition}[Subsystem Refinement]
+\label{prop:refinement}
+A subsystem $\Sub$ may be replaced by a refined $\Sub'$ that exposes the same interface and produces interface-equivalent behaviour without breaking any client of the kernel.
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:independence}, the dispatch output depends on $\Sub$ only through its interface. By Corollary~\ref{cor:substitution}, interface-bisimilar substitution preserves the dispatch output. Hence the refinement is transparent to all clients of $\Kernel$. \qed
+\end{proof}
+
+\section{Compositionality}
+\label{sec:compositionality}
+
+\begin{theorem}[Compositional Substitution]
+\label{thm:compose-kernel}
+Let $\Kernel_a, \Kernel_b$ be two kernels with bisimilar subsystems at each of the five positions ($\sigma_{\mathrm{P},a} \bisim \sigma_{\mathrm{P},b}$, $\sigma_{\mathrm{M},a} \bisim \sigma_{\mathrm{M},b}$, \ldots, $\sigma_{\mathrm{T},a} \bisim \sigma_{\mathrm{T},b}$) and identical executors. Then for every fragment $\Frag \in \mathcal{F}$:
+\[
+\dispatch(\Kernel_a, \Frag) = \dispatch(\Kernel_b, \Frag).
+\]
+\end{theorem}
+
+\begin{proof}
+By Corollary~\ref{cor:substitution} applied five times in succession (one per subsystem position), the dispatch output is unchanged at each substitution. The composite substitution from $\Kernel_a$ to $\Kernel_b$ is therefore output-preserving. \qed
+\end{proof}
+
+\begin{corollary}[Reference-Implementation Equivalence]
+\label{cor:ref-impl}
+Any two implementations of the kernel that respect the five interface contracts and use the same executor produce identical outputs on every fragment.
+\end{corollary}
+
+\begin{proof}
+Direct from Theorem~\ref{thm:compose-kernel}: interface-contract compliance is interface bisimilarity. \qed
+\end{proof}
+
+% ============================================================
+\part{Conformance Regression}
+% ============================================================
+
+\section{The Conformance Suite}
+\label{sec:conformance}
+
+\subsection{Property-based regression}
+
+\begin{definition}[Property-Based Test]
+\label{def:property-test}
+A \emph{property-based test} over a kernel $\Kernel$ is a triple $\langle W, P, \tau \rangle$ where $W$ is a workload (a finite sequence of fragments), $P$ is a Boolean predicate over dispatch-event streams, and $\tau$ is an acceptance threshold (real number in $[0, 1]$ indicating the fraction of $W$ on which $P$ must hold).
+\end{definition}
+
+\begin{definition}[Conformance Run]
+\label{def:conformance-run}
+A \emph{conformance run} of test $\langle W, P, \tau \rangle$ on $\Kernel$ is the procedure that dispatches each fragment in $W$ via $\Kernel$, collects the emitted event stream, and reports the fraction of events for which $P$ holds. The run \emph{passes} iff this fraction is at least $\tau$.
+\end{definition}
+
+\begin{theorem}[Conformance Decidability]
+\label{thm:conformance}
+For a finite workload $W$ and a decidable predicate $P$, the conformance run of $\langle W, P, \tau \rangle$ on $\Kernel$ is decidable in time $\mathcal{O}(|W| \cdot (T_{\dispatch} + T_P))$, where $T_{\dispatch}$ is the per-dispatch cost and $T_P$ is the per-event predicate evaluation cost.
+\end{theorem}
+
+\begin{proof}
+Iterate $W$, dispatch each fragment, evaluate $P$ on the emitted event, count the fraction, compare to $\tau$. Each step has bounded cost; the total cost is the product of $|W|$ and the per-step cost. Termination is guaranteed by $W$ being finite. \qed
+\end{proof}
+
+\subsection{Cross-architecture invariance}
+
+\begin{definition}[Cross-Architecture Invariance]
+\label{def:cross-arch}
+A conformance test passes \emph{cross-architecture-invariantly} if it passes on every supported host configuration (different CPUs, operating systems, toolchain versions).
+\end{definition}
+
+\begin{proposition}[Floating-Point Bound on Cross-Architecture Discrepancy]
+\label{prop:fp-bound}
+For a conformance test whose predicate $P$ is continuous in numerical fields of the event, the cross-architecture discrepancy in pass-rate is bounded by $\epsilon_{\mathrm{mach}}$ times the predicate's Lipschitz constant times $|W|$, where $\epsilon_{\mathrm{mach}}$ is the maximum floating-point machine epsilon across supported hosts.
+\end{proposition}
+
+\begin{proof}
+The dispatch output and event-stream fields are computed with floating-point arithmetic; their per-step error is bounded by $\epsilon_{\mathrm{mach}}$. The predicate's Lipschitz continuity bounds the resulting variation in $P$'s value. Summing over the workload gives the stated bound. \qed
+\end{proof}
+
+\begin{remark}
+Proposition~\ref{prop:fp-bound} establishes that cross-architecture invariance is achievable for floating-point-continuous predicates with a precision tolerance scaling linearly in the workload. For integer-valued or Boolean predicates, the discrepancy is zero and cross-architecture pass-rate is exact.
+\end{remark}
+
+% ============================================================
+\part{Performance and Parallelism}
+% ============================================================
+
+\section{Time Complexity}
+\label{sec:complexity}
+
+\begin{theorem}[Per-Dispatch Time Bound]
+\label{thm:per-dispatch}
+The per-dispatch cost of Algorithm~\ref{alg:dispatch} is
+\[
+T_{\dispatch} = T_{\Pve} + T_{\Pss} + T_{\Cmm}^\mathrm{lookup} + T_{\Exec} + T_{\Cmm}^\mathrm{insert} + T_{\Tem} + \mathcal{O}(1),
+\]
+where $T_X$ is the per-call cost of subsystem $X$ or the executor's intrinsic cost.
+\end{theorem}
+
+\begin{proof}
+Direct accounting of the algorithm's lines: the five subsystem hooks plus the executor invocation, plus constant-time arithmetic (clock reads, event construction, branch decisions). \qed
+\end{proof}
+
+\begin{corollary}[Identity-Subsystem Overhead]
+\label{cor:identity-overhead}
+With all subsystems instantiated to identity, the per-dispatch overhead is $\mathcal{O}(1)$ over the bare executor cost $T_{\Exec}$.
+\end{corollary}
+
+\begin{proof}
+Each identity subsystem has $\mathcal{O}(1)$ method cost: identity Boolean return, identity sequence return, miss return, fetch-all return, no-op observe. Summing five $\mathcal{O}(1)$ contributions plus arithmetic gives the bound. \qed
+\end{proof}
+
+\subsection{Asynchronous monitor}
+
+The TEM subsystem is invoked synchronously in Algorithm~\ref{alg:dispatch} (line 18), but it is permitted to be a non-blocking event publisher. We make this precise.
+
+\begin{definition}[Non-Blocking TEM]
+\label{def:non-blocking-tem}
+A monitoring subsystem $\Tem$ is \emph{non-blocking} if its observe method returns in bounded time independent of the rate at which events are published. Implementations include lock-free broadcast channels, ring buffers with overwrite, and bounded-buffer drop-on-overflow.
+\end{definition}
+
+\begin{proposition}[Back-Pressure Isolation]
+\label{prop:back-pressure}
+A non-blocking $\Tem$ ensures that slow observers do not throttle the dispatch path. The per-dispatch cost of observe is independent of the observer's processing rate.
+\end{proposition}
+
+\begin{proof}
+By Definition~\ref{def:non-blocking-tem}, observe returns in bounded time regardless of observer state. The dispatch path is therefore decoupled from observer processing. \qed
+\end{proof}
+
+\section{Parallelism}
+\label{sec:parallelism}
+
+\subsection{Single-fragment dispatch}
+
+A single-fragment dispatch is largely sequential by Algorithm~\ref{alg:dispatch}: the five subsystem hooks must execute in their stated order. Limited parallelism is available within $\Exec.\eval$ if the executor supports it (e.g.\ parallel composition of sub-fragments), but the kernel's own pipeline is sequential.
+
+\subsection{Multi-fragment dispatch}
+
+When the kernel dispatches a stream of fragments, parallelism opportunities arise:
+
+\begin{proposition}[Per-Fragment Parallelism]
+\label{prop:per-fragment-parallel}
+If the fragments in a workload are pairwise independent (their executor evaluations do not share state), they may be dispatched in parallel on independent kernel instances or on a single kernel with thread-safe subsystems.
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:independence}, the dispatch output depends only on the per-fragment subsystem interfaces. Independent fragments do not share subsystem state (provided the implementations are thread-safe). Hence parallel execution is semantics-preserving. \qed
+\end{proof}
+
+\begin{remark}
+In practice, thread-safety of subsystems is a per-implementation property. The kernel architecture admits parallelism but does not enforce it; specific subsystem implementations may serialise on internal locks or be wait-free. The architecture is parametric in this choice.
+\end{remark}
+
+% ============================================================
+\part{Discussion}
+% ============================================================
+
+\section{Comparison with Other Dispatch Substrates}
+\label{sec:comparison}
+
+\subsection{Microkernels}
+
+The microkernel design~\citep{liedtke1995microkernel,klein2009sel4} centres on a small set of primitives---thread, IPC, address space, capability---and delegates other functionality to user-space servers. Our dispatch kernel is similar in spirit: it provides a small set of primitives (the five subsystems) and delegates application-specific behaviour to subsystem implementations. The two designs differ in the granularity of dispatch: microkernels dispatch system calls, while our kernel dispatches symbolic fragments. The architectural decomposition is analogous.
+
+\subsection{Monolithic operating system kernels}
+
+Monolithic kernels~\citep{tanenbaum2014modern} integrate validation, caching, scheduling, I/O, and monitoring tightly within the kernel address space. The interfaces between these subsystems are typically internal and not part of any stability contract. Our kernel exposes the five subsystems as interface-stable boundaries, making each independently replaceable. The trade-off is the per-call overhead of the interface abstraction (Corollary~\ref{cor:identity-overhead}), which is $\mathcal{O}(1)$ but non-zero.
+
+\subsection{Virtual machines}
+
+The Java Virtual Machine~\citep{lindholm2014jvm} dispatches bytecode instructions through a fixed interpreter loop or JIT compiler. Our kernel is more general: it dispatches arbitrary fragments through a parametric executor. A JVM-like substrate can be built as an executor whose fragments are bytecode and whose $\eval$ runs the interpreter. The five-subsystem decomposition then applies: bytecode verification is PVE, the JIT compilation cache is CMM, thread scheduling is PSS, native I/O is DIC, and JVMTI events are TEM.
+
+\subsection{Actor systems}
+
+Actor systems~\citep{hewitt1973actor,agha1986actors,armstrong2003erlang} dispatch messages to receivers via mailboxes. The five-subsystem mapping is direct: message-format validation is PVE, mailbox memoization is CMM, mailbox scheduling is PSS, remote-actor lookup is DIC, and supervisor events are TEM. The actor abstraction differs from our kernel in its focus on concurrency and isolation; the dispatch substrate underneath is structurally similar.
+
+\subsection{Database query engines}
+
+Query engines~\citep{graefe1993query} dispatch query plans to physical operators. The mapping: plan validation is PVE, plan-cache or materialised-view lookup is CMM, query-plan scheduling is PSS, storage retrieval is DIC, and query-event logging is TEM. The kernel's parametric design subsumes query-engine architecture.
+
+\subsection{Event-driven runtimes}
+
+Event-driven runtimes (Node.js, Erlang/OTP, Tokio) dispatch events to handlers via reactor loops~\citep{schmidt2000pattern}. The five-subsystem mapping again applies. The reactor pattern is a refinement of the dispatch substrate in which the order of fragment arrival is non-deterministic and the scheduler (PSS) takes on a central role.
+
+\section{Limitations and Open Questions}
+\label{sec:limitations}
+
+\subsection{Subsystem ordering}
+
+Algorithm~\ref{alg:dispatch} fixes the order of subsystem hooks: PVE before PSS before CMM before $\Exec$ before $\Tem$. Other orderings are possible (e.g.\ CMM before PVE, allowing cached results to bypass validation). The Independence Theorem (Theorem~\ref{thm:independence}) is sensitive to the ordering: reordering can affect correctness if subsystems share state in ways the interface conceals. A principled treatment of alternative orderings and their preservation properties is outside our scope.
+
+\subsection{Subsystem composition}
+
+The five subsystems are presented as independent slots. In practice, applications may want to compose multiple validators (e.g.\ type checking + signature verification + capability check) into a single PVE. The composition is supported by ad hoc means (the composed PVE returns true iff every constituent returns true) but a general theory of subsystem-internal composition is left for future work.
+
+\subsection{Distributed dispatch}
+
+Our treatment assumes a single kernel instance. Distributed dispatch---multiple kernel instances cooperating to serve a single dispatch stream---raises questions of consistency between subsystem states (especially $\Cmm$) and of failure handling that the present architecture does not address.
+
+\subsection{Subsystem evolution policies}
+
+The stability contract (Theorem~\ref{thm:stability}) is conservative: additive evolution only, with semantic-versioning discipline. More flexible policies, such as soft-deprecation with backwards-compatibility shims, are common in production systems but require additional contract machinery.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have specified a kernel architecture for the dispatch of categorical computation: a substrate that wraps an executor with five subsystems whose responsibilities partition the dispatch envelope. The five---pre-dispatch validation (PVE), post-dispatch memoization (CMM), pending-state scheduling (PSS), external-resource retrieval (DIC), and runtime invariant monitoring (TEM)---are derived from the universal dispatch responsibilities shared across operating-system kernels, virtual machines, actor systems, query engines, and event-driven runtimes.
+
+The architecture rests on six structural results: the Dispatch Correctness Theorems (Theorems~\ref{thm:dispatch-correctness} and~\ref{thm:dispatch-general}) which ensure the wrapped executor's semantics are preserved; the Independence Theorem (Theorem~\ref{thm:independence}) which establishes pairwise functional independence of the five subsystems; the Stability Contract Theorem (Theorem~\ref{thm:stability}) which guarantees client compatibility under additive kernel evolution; the Determinism Preservation Corollary (Corollary~\ref{cor:determinism-preserve}); the Compositional Substitution Theorem (Theorem~\ref{thm:compose-kernel}); and the Conformance Decidability Theorem (Theorem~\ref{thm:conformance}) which provides a property-based regression framework.
+
+The kernel is purely a substrate. It does not commit to a fragment grammar, a value space, a validation policy, a cache eviction strategy, a scheduler, a retrieval mechanism, or a monitor implementation. What it provides is the architectural skeleton over which such choices are made, together with the theorems that ensure the choices interact compositionally and that downstream clients depending on the frozen surface remain compatible across kernel evolutions.
+
+The framework is foundational. It does not specify which executors should be wrapped, which subsystem implementations should be chosen, or which conformance predicates should be checked. Those choices are made by the applications that consume the kernel. What the framework guarantees is that, once those choices are made, the resulting substrate satisfies the six structural theorems above: it dispatches correctly, the subsystems compose independently, clients of the frozen surface are stable, dispatch is deterministic given deterministic subsystems, bisimilar subsystems are interchangeable, and the conformance regression suite is decidable.
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% ============================================================
+
+\end{document}

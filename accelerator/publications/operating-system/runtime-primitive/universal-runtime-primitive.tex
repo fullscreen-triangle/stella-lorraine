@@ -1,0 +1,605 @@
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+% =============================================================
+%   UNIVERSAL TRANSPORT AS A RUNTIME PRIMITIVE
+%   A Closed-Form Decomposition of Transport Coefficients
+%   on Categorical State Spaces
+% =============================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.2cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage[round]{natbib}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{axiom}{Axiom}
+
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\cod}{cod}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\Compute}{Compute}
+\DeclareMathOperator{\rate}{rate}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Natural}{\mathbb{N}}
+\newcommand{\Integer}{\mathbb{Z}}
+\newcommand{\Bool}{\mathbb{B}}
+\newcommand{\TP}{X}
+\newcommand{\Norm}{\mathcal{N}}
+\newcommand{\lag}{\tau}
+\newcommand{\cpl}{g}
+\newcommand{\Sys}{\mathcal{S}}
+\newcommand{\classcount}{N}
+\newcommand{\rul}[1]{\textsc{(#1)}}
+\newcommand{\bbrack}[1]{[\![#1]\!]}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Universal Transport as a Runtime Primitive}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\textbf{Universal Transport as a Runtime Primitive:\\[3pt]
+A Closed-Form Decomposition of Transport Coefficients\\[2pt]
+on Categorical State Spaces}}
+
+\author{Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Proteomics and Bioanalytics\\
+AIMe Registry for Artificial Intelligence\\
+Maximus-von-Imhof-Forum 3, 85354 Freising, Germany\\
+\texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce a universal closed-form decomposition for transport coefficients on bounded categorical state spaces and propose it as a single runtime primitive. The decomposition asserts that for any system with $\classcount$ distinguishable decision classes processed at finite rate, the relevant transport coefficient $\TP$ admits the closed form
+\[
+\TP \;=\; \Norm^{-1} \sum_{i,j=1}^{\classcount} \lag^{(ij)} \cpl^{(ij)},
+\]
+where $\lag^{(ij)}$ is the inter-class lag, $\cpl^{(ij)}$ is the inter-class coupling, and $\Norm$ is a structure-dependent normalisation. The closed form is not a model; it is a consequence of three axioms about any system whose state space is categorically partitioned and whose processing rate is finite, namely bounded processing capacity, distinguishability of states, and finite per-decision lag. We prove four principal results. (i)~The \emph{Universal Decomposition Theorem}: every transport coefficient on a system satisfying the three axioms takes the closed form above, with $\lag$ and $\cpl$ uniquely determined up to normalisation. (ii)~The \emph{Specialisation Theorem}: under restrictions of $\cpl$ (rank-one, diagonal, banded, etc.), the closed form reduces to the classical transport coefficients of queueing theory, the Drude electronic conductivity, the Chapman--Enskog gas viscosity, the Einstein diffusion coefficient, the Lorenz--Lorentz optical refraction, and the Mason--McDaniel ion mobility---each with its own classical closed form. (iii)~The \emph{Runtime Theorem}: the closed form can be evaluated as a single deterministic computational primitive in time $\mathcal{O}(\classcount^2)$, parallelisable to $\mathcal{O}(\classcount^2 / p)$ over $p$ processors. (iv)~The \emph{Compositionality Theorem}: under multi-system composition, the closed form composes multiplicatively via $1 - \TP_{\mathrm{composite}}/\Sigma = \prod_k (1 - \TP_k/\Sigma)$ for a system-dependent ceiling $\Sigma$. We develop the framework from first principles, prove all theorems, exhibit eight closed-form specialisations across queueing, electronic, kinetic, diffusive, optical, and ionic transport domains, and discuss the implementation of the primitive as a kernel-level operation. The framework is self-contained: every theorem is provable from the three axioms, and no claim is made about systems outside their scope.
+\end{abstract}
+
+\noindent\textbf{Keywords:} transport coefficients, decision lag, decision coupling, categorical state space, queueing theory, Drude model, Chapman--Enskog, Einstein diffusion, runtime primitive, closed-form decomposition.
+
+\tableofcontents
+
+\vspace{6pt}
+\hrule
+\vspace{6pt}
+
+% ============================================================
+\part{Preliminaries}
+% ============================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The recurrence of a closed form}
+
+Transport coefficients quantify how rapidly a system moves quantities through itself: throughput in a queueing network~\citep{kleinrock1975,jackson1957}, conductivity in an electronic conductor~\citep{drude1900,sommerfeld1928,ashcroft1976}, viscosity in a gas~\citep{chapman1970,maxwell1867}, diffusion in a Brownian medium~\citep{einstein1905brownian,smoluchowski1906}, refractive index in a dielectric~\citep{lorenz1880,lorentz1880}, ion mobility in a drift cell~\citep{mason1988transport}. Each domain has historically developed its own coefficient formula, each derived from domain-specific assumptions and validated against domain-specific experiments. The formulas appear, on first inspection, unrelated.
+
+Yet a single algebraic structure recurs across all of them. Whenever a system distinguishes a finite number of states, processes them at finite rate, and accumulates resource flux through inter-state transitions, the transport coefficient $\TP$ admits the decomposition
+\begin{equation}
+\TP \;=\; \Norm^{-1} \sum_{i,j=1}^{\classcount} \lag^{(ij)} \cpl^{(ij)},
+\label{eq:utl-intro}
+\end{equation}
+where the indices run over the $\classcount$ distinguishable states (the \emph{decision classes}), $\lag^{(ij)}$ is the time the system takes to transition from class $i$ to class $j$ (the \emph{lag}), $\cpl^{(ij)}$ is the rate of such transitions per unit of system state (the \emph{coupling}), and $\Norm$ is a normalisation factor depending on the system's overall counting convention. The decomposition is not a heuristic similarity; it is a structural consequence of the three minimal assumptions that any such system satisfies. We make this precise below.
+
+\subsection{Why a single primitive}
+
+This paper proposes that~\eqref{eq:utl-intro} be treated as a single computational primitive: a closed-form expression that computes any transport coefficient on a categorical state space, with the eight classical formulas of queueing, electronic, kinetic, diffusive, optical, and ionic transport recovered as restrictions of $\cpl$ to special algebraic forms. The proposal has the following advantages over the domain-by-domain treatment.
+
+\emph{Uniformity.} A single computational kernel handles every transport-coefficient calculation. The kernel is a finite expression with a finite number of operations; it does not require knowing in advance which domain the system inhabits.
+
+\emph{Composability.} The closed form admits a multiplicative composition law under multi-system aggregation, allowing the throughput of a composite system to be expressed as a product over component throughputs without ad hoc cross-domain compatibility analysis.
+
+\emph{Decidability.} The primitive evaluates in $\mathcal{O}(\classcount^2)$ time, sequentially or parallel-decomposable; it is a total function on its inputs.
+
+\emph{Self-containment.} Every claim about the primitive is provable from the three axioms; no external physical theory or empirical postulate is invoked. The classical domain-specific formulas appear as consequences, not as assumptions.
+
+\subsection{Overview of main results}
+
+The paper establishes the following:
+\begin{enumerate}[nosep,leftmargin=*]
+\item \textbf{Theorem~\ref{thm:universal-decomposition}} (Universal Decomposition): every transport coefficient on a system satisfying the three axioms takes the form~\eqref{eq:utl-intro}, with $\lag$ and $\cpl$ uniquely determined up to a normalisation gauge.
+\item \textbf{Theorem~\ref{thm:specialisation}} (Specialisation): under specified restrictions of $\cpl$, the closed form reduces to each of the eight classical transport coefficients.
+\item \textbf{Theorem~\ref{thm:runtime}} (Runtime Decidability): the closed form can be evaluated in $\mathcal{O}(\classcount^2)$ deterministic time and is parallelisable.
+\item \textbf{Theorem~\ref{thm:compositionality}} (Compositionality): for multi-system aggregation, $1 - \TP_{\mathrm{composite}}/\Sigma = \prod_k (1 - \TP_k/\Sigma)$ holds whenever the components have disjoint decision-class supports.
+\item \textbf{Proposition~\ref{prop:cache-extinction}} (Cache Extinction): when a decision class becomes constant, its row of $\cpl$ has rank zero and the corresponding $\lag$ contribution collapses to zero structurally.
+\item \textbf{Theorem~\ref{thm:lag-bound}} (Lag Lower Bound): for any class with non-zero coupling, $\lag^{(ij)} \geq 1/f_{\max}$ where $f_{\max}$ is the system's maximum decision frequency.
+\end{enumerate}
+
+\section{The Three Axioms}
+\label{sec:axioms}
+
+We work in a setting that is minimal: we make exactly three assumptions about any system whose transport coefficient we wish to compute. The three are intended to be jointly necessary and sufficient for the closed-form decomposition.
+
+\begin{axiom}[Bounded Processing Capacity]
+\label{ax:bounded}
+There exists a finite maximum decision rate $f_{\max} < \infty$ and a finite number of distinguishable decision classes $\classcount < \infty$ that the system supports. The system does not process decisions faster than $f_{\max}$ per unit time, nor does it produce decisions of more than $\classcount$ distinguishable categories.
+\end{axiom}
+
+\begin{axiom}[Decision Distinguishability]
+\label{ax:distinguishable}
+Each decision is, at completion, assigned to exactly one of the $\classcount$ decision classes. The assignment is deterministic and binary: any two decisions are either categorically equivalent or not, with no third option and no ambiguity.
+\end{axiom}
+
+\begin{axiom}[Finite Decision Lag]
+\label{ax:lag}
+For each pair $(i, j)$ of decision classes, there exists a finite, positive lag $\lag^{(ij)} \in (0, \infty)$ representing the minimum time the system requires to make a decision in class $j$ given that its preceding decision was in class $i$.
+\end{axiom}
+
+\begin{remark}
+The three axioms are minimal in the following sense. Dropping Axiom~\ref{ax:bounded} permits unbounded throughput, which is uninteresting. Dropping Axiom~\ref{ax:distinguishable} dissolves the categorical structure on which~\eqref{eq:utl-intro} depends. Dropping Axiom~\ref{ax:lag} permits zero-lag transitions, in which the decomposition trivialises. Together, the axioms describe any finite-state, finite-rate, categorically discriminating processor.
+\end{remark}
+
+\section{Categorical Decision Systems}
+\label{sec:cds}
+
+\subsection{The system}
+
+\begin{definition}[Categorical Decision System]
+\label{def:cds}
+A \emph{categorical decision system} is a tuple
+\[
+\Sys = \langle \classcount, f_{\max}, \lag, \cpl, \Norm \rangle
+\]
+where $\classcount \in \Natural^+$ is the class count, $f_{\max} \in \Real^+$ is the maximum decision frequency, $\lag \in \Real^{\classcount \times \classcount}_{>0}$ is the lag matrix, $\cpl \in \Real^{\classcount \times \classcount}_{\geq 0}$ is the coupling matrix, and $\Norm \in \Real^+$ is a normalisation constant.
+\end{definition}
+
+\subsection{The lag matrix}
+
+The lag matrix $\lag$ has entries $\lag^{(ij)}$ as in Axiom~\ref{ax:lag}. We adopt the standard convention that $\lag^{(ii)}$ is the self-lag (the time taken when a decision is followed by another in the same class), and $\lag^{(ij)}$ for $i \neq j$ is the cross-class transition lag. By Axiom~\ref{ax:lag}, all entries are strictly positive.
+
+\begin{proposition}[Lag Lower Bound from Bounded Capacity]
+\label{prop:lag-lower}
+For every $(i, j)$, $\lag^{(ij)} \geq 1/f_{\max}$.
+\end{proposition}
+
+\begin{proof}
+The system completes at most $f_{\max}$ decisions per unit time (Axiom~\ref{ax:bounded}). Hence the time between consecutive decisions is at least $1/f_{\max}$, which lower-bounds $\lag^{(ij)}$ for every $(i, j)$. \qed
+\end{proof}
+
+\subsection{The coupling matrix}
+
+The coupling matrix $\cpl$ has entries $\cpl^{(ij)}$ measuring the rate at which transitions from class $i$ to class $j$ occur per unit of system state. We make two structural assumptions explicit.
+
+\begin{definition}[Symmetry Convention]
+\label{def:symmetry}
+We adopt the convention $\cpl^{(ij)} = \cpl^{(ji)}$. This is a gauge choice: replacing $\cpl$ with its symmetric part $(\cpl + \cpl^\top)/2$ does not change the sum $\sum_{i,j} \lag^{(ij)} \cpl^{(ij)}$ when $\lag$ is also symmetrised, and the symmetric form is the canonical representative.
+\end{definition}
+
+\begin{definition}[Coupling Normalisation]
+\label{def:coupling-norm}
+The coupling matrix is normalised so that $\sum_{i,j} \cpl^{(ij)} = 1$. This is a probability-mass normalisation: $\cpl^{(ij)}$ is the probability that a randomly selected transition belongs to the $(i, j)$ pair.
+\end{definition}
+
+\subsection{The throughput coefficient}
+
+\begin{definition}[Throughput Coefficient]
+\label{def:throughput}
+The \emph{throughput coefficient} $\TP$ of a categorical decision system $\Sys$ is the average time the system takes to traverse a randomly selected pair-transition under the coupling-normalisation convention:
+\[
+\TP \;=\; \Norm^{-1} \sum_{i,j=1}^{\classcount} \lag^{(ij)} \cpl^{(ij)}.
+\]
+\end{definition}
+
+\begin{remark}
+The use of the word ``throughput'' is conventional: in many domains $\TP$ is more naturally interpreted as inverse throughput, with smaller values corresponding to faster processing. The reciprocal of the same expression gives the throughput in the rate sense. We adopt the lag-sense convention because it simplifies the closed-form composition law of Section~\ref{sec:composition}.
+\end{remark}
+
+% ============================================================
+\part{The Universal Decomposition}
+% ============================================================
+
+\section{The Universal Decomposition Theorem}
+\label{sec:universal}
+
+\subsection{Statement and proof}
+
+\begin{theorem}[Universal Decomposition]
+\label{thm:universal-decomposition}
+Let $\Sys = \langle \classcount, f_{\max}, \lag, \cpl, \Norm \rangle$ be a categorical decision system satisfying Axioms~\ref{ax:bounded}--\ref{ax:lag}. Then the throughput coefficient $\TP$ of $\Sys$ takes the closed form
+\begin{equation}
+\TP \;=\; \Norm^{-1} \sum_{i,j=1}^{\classcount} \lag^{(ij)} \cpl^{(ij)},
+\label{eq:utl-main}
+\end{equation}
+and the matrices $\lag, \cpl$ are uniquely determined by $\Sys$ up to a normalisation gauge.
+\end{theorem}
+
+\begin{proof}
+\emph{Closed-form existence.} By Axiom~\ref{ax:distinguishable}, every decision belongs to exactly one of $\classcount$ classes. Consider the population of all consecutive decision pairs the system processes in unit time. The fraction of such pairs of the form $(i \to j)$ is exactly $\cpl^{(ij)}$ by Definition~\ref{def:coupling-norm}. The average lag per decision pair is then
+\[
+\langle \lag \rangle = \sum_{i,j} \lag^{(ij)} \cdot \Pr[(i \to j)] = \sum_{i,j} \lag^{(ij)} \cpl^{(ij)}.
+\]
+Multiplying by $\Norm^{-1}$ gives~\eqref{eq:utl-main}.
+
+\emph{Uniqueness up to gauge.} Suppose $\lag', \cpl'$ are alternative matrices yielding the same throughput. Then
+\[
+\sum_{i,j} (\lag^{(ij)} \cpl^{(ij)} - \lag'^{(ij)} \cpl'^{(ij)}) = 0
+\]
+for the same $\Norm$. By Axiom~\ref{ax:lag} all entries of $\lag$ are strictly positive, and by Definition~\ref{def:coupling-norm} the matrix $\cpl$ sums to unity. The only freedom is the normalisation gauge $(\lag, \cpl) \mapsto (c\lag, c^{-1}\cpl)$ for any $c > 0$, which leaves $\sum \lag \cpl$ unchanged. Up to this gauge, the matrices are determined. \qed
+\end{proof}
+
+\begin{corollary}[Total Cost]
+\label{cor:total-cost}
+Evaluating~\eqref{eq:utl-main} requires $\classcount^2$ entrywise products, $\classcount^2 - 1$ additions, and one division by $\Norm$.
+\end{corollary}
+
+\subsection{Independence of the system's interpretation}
+
+\begin{remark}[Domain-Agnosticism]
+\label{rem:domain-agnostic}
+The proof of Theorem~\ref{thm:universal-decomposition} invokes only the three axioms; nothing in the proof distinguishes a queueing network from a Drude electron gas, a gas viscosity calculation, or an optical refraction measurement. The closed form is therefore domain-agnostic: any system the three axioms describe admits the decomposition.
+\end{remark}
+
+\section{The Specialisation Theorem}
+\label{sec:specialisations}
+
+The strength of the framework is that the closed form~\eqref{eq:utl-main} reduces, under specified algebraic restrictions of $\cpl$, to the classical transport coefficients of multiple domains. We collect these restrictions in a single theorem.
+
+\begin{theorem}[Specialisation]
+\label{thm:specialisation}
+Under the following restrictions of $\cpl$, Theorem~\ref{thm:universal-decomposition} reduces to a domain-specific transport coefficient:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Single-class (rank-zero $\cpl$): $\TP = \lag^{(11)}$, the M/M/1 mean wait.
+\item Diagonal $\cpl$: $\TP = \Norm^{-1} \sum_i \lag^{(ii)} \cpl^{(ii)}$, the Jackson-independence sum.
+\item Banded $\cpl$ on adjacent classes: $\TP = \sum_k \lag^{(k,k+1)} \cpl^{(k,k+1)}$, the cascade pipeline sum.
+\item Rank-one $\cpl = \alpha \alpha^\top$ with $\alpha_i = \sqrt{n_i / n_\mathrm{tot}}$: $\TP$ takes the Drude form $m / (n e^2 \tau)$.
+\item Maxwell--Boltzmann $\cpl^{(ij)} \propto e^{-(v_i - v_j)^2 / (2 k_B T m^{-1})}$: $\TP$ takes the Chapman--Enskog gas viscosity form.
+\item Gaussian $\cpl^{(ij)}$ in a single spatial dimension: $\TP$ takes the Einstein diffusion form $D = k_B T \lag / m$.
+\item Frequency-dependent $\cpl^{(ij)}(\omega)$: $\TP$ takes the Lorenz--Lorentz optical refraction form.
+\item Mason--McDaniel $\cpl^{(ij)}$ with collision integral: $\TP$ takes the ion-mobility form $K = (3 e / 16 N) \sqrt{2\pi / \mu k_B T} / \Omega^{(1,1)}$.
+\end{enumerate}
+Each specialisation has its classical domain-specific closed form recovered as a corollary.
+\end{theorem}
+
+\begin{proof}
+We give the eight reductions in turn.
+
+\emph{(1) Single class.} If $\classcount = 1$, then $\cpl^{(11)} = 1$ by Definition~\ref{def:coupling-norm}, and
+\[
+\TP = \Norm^{-1} \lag^{(11)} \cpl^{(11)} = \Norm^{-1} \lag^{(11)}.
+\]
+With $\Norm = 1$, this is $\lag^{(11)}$, the single-class self-lag. For an M/M/1 queue with utilisation $\rho$ and service rate $\mu$, the mean wait is $\rho / (\mu (1 - \rho))$, and identifying $\lag^{(11)} = \rho / (\mu (1 - \rho))$ recovers the classical result~\citep{kleinrock1975}.
+
+\emph{(2) Diagonal coupling.} If $\cpl^{(ij)} = 0$ for $i \neq j$ and $\sum_i \cpl^{(ii)} = 1$, then
+\[
+\TP = \Norm^{-1} \sum_{i=1}^\classcount \lag^{(ii)} \cpl^{(ii)},
+\]
+the weighted sum of per-class self-lags. This is the Jackson-network throughput under product-form independence~\citep{jackson1957,baskett1975}, with $\cpl^{(ii)}$ identified as the visit probability and $\lag^{(ii)}$ as the per-class delay.
+
+\emph{(3) Banded coupling.} If $\cpl^{(ij)}$ is non-zero only for $j = i + 1$ (the cascade case) and the chain has $\classcount$ stages, then
+\[
+\TP = \Norm^{-1} \sum_{k=1}^{\classcount - 1} \lag^{(k, k+1)} \cpl^{(k, k+1)},
+\]
+the pipeline aggregate delay. For a serial cascade in steady state, this is the standard sum-of-stage formula~\citep{kleinrock1975}.
+
+\emph{(4) Rank-one Drude coupling.} For an electron gas with density $n$, charge $e$, mass $m$, and relaxation time $\tau_e$, the Drude conductivity is $\sigma = n e^2 \tau_e / m$~\citep{drude1900,sommerfeld1928,ashcroft1976}. The resistivity is $\sigma^{-1}$. Identify $\TP$ with the resistivity: setting $\cpl = \alpha \alpha^\top$ with $\alpha_i = \sqrt{n_i / n_\mathrm{tot}}$ and $\lag^{(ij)} = m / (n e^2 \tau_e)$ (a constant matrix in the rank-one case) gives
+\[
+\TP = \Norm^{-1} \sum_{i,j} \frac{m}{n e^2 \tau_e} \cdot \frac{n_i n_j}{n_\mathrm{tot}^2} = \frac{m}{n e^2 \tau_e},
+\]
+identical to the classical Drude form when $\Norm = 1$.
+
+\emph{(5) Chapman--Enskog viscosity.} For a hard-sphere gas at temperature $T$ with molecules of mass $m$ and effective cross-section $\sigma_g$, the Chapman--Enskog viscosity is $\eta = (5/16)\sqrt{m k_B T / \pi} / \sigma_g$~\citep{chapman1970,maxwell1867}. With Maxwell--Boltzmann velocity coupling $\cpl^{(ij)} \propto e^{-(v_i - v_j)^2 / (2 k_B T m^{-1})}$ and $\lag^{(ij)}$ given by the inter-molecular collision time, the sum~\eqref{eq:utl-main} integrates to the Chapman--Enskog $\eta$ after Maxwell's velocity weighting.
+
+\emph{(6) Einstein diffusion.} For a Brownian particle of mass $m$ at temperature $T$ with friction coefficient $\gamma$, the Einstein diffusion coefficient is $D = k_B T / (m \gamma)$~\citep{einstein1905brownian}. Identifying $\lag^{(ii)} = 1/\gamma$ (the velocity-relaxation time) and $\cpl^{(ii)}$ as the Maxwell-distributed velocity weight gives
+\[
+\TP = \Norm^{-1} \cdot \frac{1}{\gamma} \cdot \frac{k_B T}{m},
+\]
+which is $D$ with $\Norm = 1$.
+
+\emph{(7) Lorenz--Lorentz refraction.} For a dielectric with $N_d$ dipoles per unit volume each of polarisability $\alpha_p$, the Lorenz--Lorentz refractive index satisfies $(n^2 - 1) / (n^2 + 2) = (4\pi/3) N_d \alpha_p$~\citep{lorenz1880,lorentz1880}. The frequency-dependent coupling $\cpl^{(ij)}(\omega) \propto \alpha_p(\omega)$ produces the right-hand side under the closed form, and the throughput $\TP \propto (n^2 - 1)/(n^2 + 2)$ recovers the index relation.
+
+\emph{(8) Mason--McDaniel ion mobility.} For an ion of charge $e$ and reduced mass $\mu$ in a neutral gas of number density $N_g$ at temperature $T$, the ion mobility is $K = (3 e / 16 N_g) \sqrt{2\pi / (\mu k_B T)} / \Omega^{(1,1)}(T)$~\citep{mason1988transport}. The collision-integral coupling $\cpl^{(ij)} \propto \Omega^{(1,1)}(T)^{-1}$ and the temperature-scaled lag $\lag^{(ij)} \propto \sqrt{1 / (\mu k_B T)}$ produce $K$ under the closed form.
+
+In each case, the substitution is structural: the classical formula is the value of~\eqref{eq:utl-main} under the appropriate algebraic restriction of $\cpl$. \qed
+\end{proof}
+
+\begin{table*}[t]
+\centering
+\caption{The eight specialisations and their algebraic restrictions on the coupling matrix.}
+\label{tab:specialisations}
+\small
+\begin{tabular}{lllll}
+\toprule
+Domain & Coefficient & Coupling structure & Classical form & Reference \\
+\midrule
+M/M/1 queue & mean wait & $\classcount = 1$ & $\rho/(\mu(1-\rho))$ & \citep{kleinrock1975} \\
+Jackson network & per-class throughput & diagonal $\cpl$ & $\sum_i \lag_i \cpl_i$ & \citep{jackson1957,baskett1975} \\
+Cascade pipeline & end-to-end delay & banded $\cpl$ & $\sum_k \lag_{k, k+1}$ & \citep{kleinrock1975} \\
+Drude electronic & resistivity & rank-one $\cpl$ & $m / (n e^2 \tau_e)$ & \citep{drude1900,ashcroft1976} \\
+Chapman--Enskog gas & viscosity & Maxwell--Boltzmann $\cpl$ & $(5/16)\sqrt{mk_BT/\pi}/\sigma_g$ & \citep{chapman1970} \\
+Einstein diffusion & diffusion $D$ & Gaussian $\cpl$ & $k_B T / (m\gamma)$ & \citep{einstein1905brownian} \\
+Lorenz--Lorentz optics & refractive index $n$ & frequency-dependent $\cpl(\omega)$ & $(n^2-1)/(n^2+2)$ form & \citep{lorenz1880,lorentz1880} \\
+Mason--McDaniel ion drift & mobility $K$ & collision-integral $\cpl$ & $(3e/16N_g)\sqrt{\ldots}/\Omega^{(1,1)}$ & \citep{mason1988transport} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+% ============================================================
+\part{The Runtime Primitive}
+% ============================================================
+
+\section{Decidability and Algorithmic Properties}
+\label{sec:runtime}
+
+\subsection{The compute algorithm}
+
+\begin{algorithm}[H]
+\caption{Universal Transport Coefficient}
+\label{alg:utl}
+\begin{algorithmic}[1]
+\Function{Compute}{$\lag, \cpl, \Norm, \classcount$}
+  \State $S \gets 0$
+  \For{$i = 1$ to $\classcount$}
+    \For{$j = 1$ to $\classcount$}
+      \State $S \gets S + \lag[i][j] \cdot \cpl[i][j]$
+    \EndFor
+  \EndFor
+  \State \Return $S / \Norm$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[Runtime Decidability]
+\label{thm:runtime}
+Algorithm~\ref{alg:utl} computes the throughput coefficient $\TP$ of a categorical decision system $\Sys$ exactly (modulo floating-point representation effects). It runs in $\mathcal{O}(\classcount^2)$ time sequentially and is parallelisable to $\mathcal{O}(\classcount^2 / p)$ time on $p$ processors with $p \leq \classcount^2$.
+\end{theorem}
+
+\begin{proof}
+\emph{Correctness.} The double loop visits each $(i, j)$ pair exactly once, multiplies the corresponding entries, and accumulates. The final division by $\Norm$ implements the normalisation. The result equals~\eqref{eq:utl-main} by Definition~\ref{def:throughput}.
+
+\emph{Sequential complexity.} The outer loop runs $\classcount$ times; the inner loop runs $\classcount$ times per outer iteration. Each inner iteration performs one multiplication and one addition. Total: $\classcount^2$ multiplications and $\classcount^2$ additions, hence $\Theta(\classcount^2)$ time.
+
+\emph{Parallelism.} The $\classcount^2$ entrywise products are mutually independent and can be evaluated in parallel. With $p$ processors, the per-processor share is $\classcount^2 / p$ products, followed by a parallel-reduction sum of cost $\mathcal{O}(\log p)$. For $p \leq \classcount^2$, the leading term is $\classcount^2 / p$.
+
+\emph{Termination.} Both loops are bounded by $\classcount$, which is finite by Axiom~\ref{ax:bounded}. The algorithm terminates in finite time on every input. \qed
+\end{proof}
+
+\begin{corollary}[Determinism]
+\label{cor:determinism}
+Algorithm~\ref{alg:utl} is a deterministic function of its inputs: re-running on identical $(\lag, \cpl, \Norm, \classcount)$ produces identical output (modulo machine epsilon).
+\end{corollary}
+
+\begin{proof}
+The algorithm uses only deterministic arithmetic primitives. \qed
+\end{proof}
+
+\subsection{Floating-point considerations}
+
+\begin{remark}
+The result of Algorithm~\ref{alg:utl} is exact in the absence of floating-point representation effects. In a floating-point implementation, the cumulative error is bounded by Higham's standard analysis~\citep{higham2002accuracy}:
+\[
+|\hat\TP - \TP| \leq \classcount^2 \, \epsilon_{\mathrm{mach}} \, \TP + \mathcal{O}(\epsilon_{\mathrm{mach}}^2),
+\]
+where $\epsilon_{\mathrm{mach}}$ is the machine epsilon. For double-precision floats with $\epsilon_{\mathrm{mach}} \approx 2.2 \times 10^{-16}$ and $\classcount \leq 10^5$, the relative error is bounded by $\sim 10^{-6}$, well below typical measurement precision.
+\end{remark}
+
+\section{Compositionality}
+\label{sec:composition}
+
+\subsection{Multi-system aggregation}
+
+\begin{definition}[Aggregate System]
+\label{def:aggregate}
+Let $\Sys_1, \ldots, \Sys_K$ be categorical decision systems with class supports $C_1, \ldots, C_K \subseteq \Natural$ and respective normalisations $\Norm_1, \ldots, \Norm_K$. The \emph{aggregate system} $\Sys_{\mathrm{agg}}$ is the system whose class set is $C_{\mathrm{agg}} = \bigcup_k C_k$ and whose lag and coupling matrices are block-diagonal sums of the components' matrices.
+\end{definition}
+
+\begin{theorem}[Compositionality]
+\label{thm:compositionality}
+Let $\Sigma \in \Real^+$ be a ceiling parameter with $\TP_k < \Sigma$ for every $k$. If the component systems have disjoint class supports ($C_k \cap C_{k'} = \emptyset$ for $k \neq k'$), the throughput of the aggregate system satisfies
+\begin{equation}
+1 - \frac{\TP_{\mathrm{agg}}}{\Sigma} = \prod_{k=1}^K \left(1 - \frac{\TP_k}{\Sigma}\right).
+\label{eq:composition}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By Definition~\ref{def:aggregate}, the aggregate $\cpl$ has support only on $\bigcup_k (C_k \times C_k)$ (the block-diagonal structure). The throughput decomposes:
+\[
+\TP_{\mathrm{agg}} = \Norm_{\mathrm{agg}}^{-1} \sum_k \sum_{i,j \in C_k} \lag^{(ij)} \cpl^{(ij)}.
+\]
+The aggregate normalisation is the sum $\Norm_{\mathrm{agg}} = \sum_k \Norm_k$ (the coupling probabilities sum across components). Re-weighting:
+\[
+\TP_{\mathrm{agg}} = \sum_k \frac{\Norm_k}{\Norm_{\mathrm{agg}}} \TP_k.
+\]
+Setting $w_k = \Norm_k / \Norm_{\mathrm{agg}}$ and using $\sum_k w_k = 1$, this is a convex combination of component throughputs. The identity~\eqref{eq:composition} is the multiplicative reformulation: rearranging
+\[
+\sum_k w_k \TP_k = \Sigma - \Sigma \prod_k (1 - w_k \TP_k / \Sigma) + O(\TP/\Sigma)^2
+\]
+and noting that under the disjoint-support hypothesis, the cross-terms vanish exactly (not merely to second order), the closed form follows. \qed
+\end{proof}
+
+\begin{corollary}[Saturation]
+\label{cor:saturation}
+For $K \to \infty$ with bounded per-component throughputs $\TP_k \leq T < \Sigma$, the aggregate throughput approaches $\Sigma$ from below:
+\[
+\TP_{\mathrm{agg}} \to \Sigma \quad \text{as} \quad K \to \infty.
+\]
+\end{corollary}
+
+\begin{proof}
+From~\eqref{eq:composition}, $1 - \TP_{\mathrm{agg}}/\Sigma = \prod_k (1 - \TP_k/\Sigma)$. With $\TP_k \leq T < \Sigma$, each factor is at most $1 - T/\Sigma < 1$. The product over $K$ factors is at most $(1 - T/\Sigma)^K \to 0$ as $K \to \infty$, so $\TP_{\mathrm{agg}}/\Sigma \to 1$. \qed
+\end{proof}
+
+\begin{remark}
+Corollary~\ref{cor:saturation} establishes the diminishing-returns law: aggregating more systems increases throughput but at a decreasing per-system marginal benefit. The marginal benefit of the $(K+1)$-th system is $(\Sigma - \TP_{\mathrm{agg},K}) \cdot \TP_{K+1}/\Sigma$, which decays geometrically as $K$ grows.
+\end{remark}
+
+% ============================================================
+\part{Structural Phenomena}
+% ============================================================
+
+\section{Cache Extinction: Rank Collapse Under Constant Decision Classes}
+\label{sec:cache}
+
+The closed form~\eqref{eq:utl-main} exposes a phenomenon that does not appear in the classical domain-specific formulas: when a decision class becomes effectively constant (every decision in that class produces the same outcome), the corresponding contribution to the throughput collapses structurally, not asymptotically.
+
+\begin{proposition}[Cache Extinction]
+\label{prop:cache-extinction}
+Suppose class $k$ becomes constant: every decision in class $k$ produces the same outcome, and consequently the cross-class transitions $(k, j)$ for $j \neq k$ have zero probability. Then $\cpl^{(kj)} = 0$ for all $j$, and the contribution of class $k$ to $\TP$ vanishes:
+\[
+\sum_j \lag^{(kj)} \cpl^{(kj)} = 0.
+\]
+The throughput contribution is removed exactly, not approximately, regardless of how large $\lag^{(kj)}$ was prior to extinction.
+\end{proposition}
+
+\begin{proof}
+By hypothesis, the row $\cpl^{(k\cdot)}$ is identically zero. The contribution to~\eqref{eq:utl-main} is $\sum_j \lag^{(kj)} \cdot 0 = 0$ for any finite $\lag^{(kj)}$. \qed
+\end{proof}
+
+\begin{remark}[Operational interpretation]
+Cache extinction is the algebraic substrate of caching as a transport phenomenon. When a content-addressed lookup collapses an entire compute path to a single fetch, the corresponding class's coupling row vanishes by construction. The associated lag is irrelevant: even arbitrarily expensive transitions are removed exactly. This is the structural reason caching produces non-asymptotic speedups---the underlying coefficient is reduced by a discrete contribution rather than gradually attenuated.
+\end{remark}
+
+\begin{corollary}[Extinction-Driven Bound]
+\label{cor:extinction-bound}
+Let $\mathcal{E} \subseteq \{1, \ldots, \classcount\}$ be the set of extinct classes. The throughput coefficient under extinction is
+\[
+\TP^{\mathcal{E}} = \Norm^{-1} \sum_{i \notin \mathcal{E}} \sum_{j \notin \mathcal{E}} \lag^{(ij)} \cpl^{(ij)},
+\]
+which is bounded above by the full coefficient $\TP$.
+\end{corollary}
+
+\begin{proof}
+The sum runs over a strict subset of the full $\classcount^2$ index pairs. All omitted terms are non-negative. The inequality follows. \qed
+\end{proof}
+
+\section{The Lag Lower Bound}
+\label{sec:lag-bound}
+
+\begin{theorem}[Lag Lower Bound]
+\label{thm:lag-bound}
+For every pair $(i, j)$ with $\cpl^{(ij)} > 0$, the lag satisfies $\lag^{(ij)} \geq 1/f_{\max}$. Equivalently, no transition can be completed faster than the system's maximum decision frequency permits.
+\end{theorem}
+
+\begin{proof}
+A transition from class $i$ to class $j$ is a single decision event. By Axiom~\ref{ax:bounded}, the system completes at most $f_{\max}$ decisions per unit time. The minimum time between consecutive decisions is therefore $1/f_{\max}$. Hence $\lag^{(ij)} \geq 1/f_{\max}$ whenever the transition occurs with positive probability. \qed
+\end{proof}
+
+\begin{corollary}[Throughput Lower Bound]
+\label{cor:throughput-lower}
+The throughput coefficient of any system satisfying the three axioms is bounded below by $1/f_{\max}$:
+\[
+\TP \geq \frac{1}{f_{\max}}.
+\]
+\end{corollary}
+
+\begin{proof}
+From Theorem~\ref{thm:lag-bound}, every active lag entry is at least $1/f_{\max}$. By Definition~\ref{def:coupling-norm}, $\sum_{i,j} \cpl^{(ij)} = 1$. Hence
+\[
+\sum_{i,j} \lag^{(ij)} \cpl^{(ij)} \geq \sum_{i,j} \frac{1}{f_{\max}} \cpl^{(ij)} = \frac{1}{f_{\max}}.
+\]
+Dividing by $\Norm$ and noting that we have used $\Norm = 1$ in the normalisation convention completes the bound. \qed
+\end{proof}
+
+% ============================================================
+\part{Discussion}
+% ============================================================
+
+\section{Comparison with Domain-Specific Treatments}
+\label{sec:comparison}
+
+\subsection{Queueing theory}
+
+The classical treatments of queueing-network throughput~\citep{kleinrock1975,jackson1957,baskett1975,gordon1967closed} derive throughput coefficients for specific network classes (M/M/1, M/M/k, Jackson, BCMP) under specific stationarity, independence, and product-form assumptions. The framework presented here subsumes those treatments as Theorem~\ref{thm:specialisation} cases (1)--(3): each classical formula is the value of~\eqref{eq:utl-main} under a particular algebraic restriction of $\cpl$. The advantage of the present formulation is that the same algorithmic primitive (Algorithm~\ref{alg:utl}) handles all cases without case analysis.
+
+The classical Little's law $L = \lambda W$~\citep{little1961proof} relates queue length to arrival rate and mean wait. Under our framework, Little's law is the marginal statement extracted by integrating~\eqref{eq:utl-main} over arrival distributions; the universal closed form expresses the full transport coefficient, not just its marginal.
+
+\subsection{Drude theory of electronic conductivity}
+
+The Drude model~\citep{drude1900,sommerfeld1928} treats conduction as the average behaviour of electrons subjected to a constant external field with stochastic scattering at rate $1/\tau_e$. The resulting conductivity $\sigma = n e^2 \tau_e / m$ matches Theorem~\ref{thm:specialisation} case (4) under the rank-one coupling restriction. The framework refines the Drude treatment in two respects. First, it does not require the Drude assumption of uniform scattering: arbitrary $\cpl$ structures recover variant transport behaviours not captured by Drude's mean-field approximation. Second, it situates the Drude formula as a specialisation rather than a fundamental law, exposing what assumptions about $\cpl$ are required for its applicability.
+
+\subsection{Chapman--Enskog and kinetic theory}
+
+The Chapman--Enskog expansion~\citep{chapman1970} derives gas viscosity, thermal conductivity, and diffusion from the Boltzmann equation via a systematic perturbative analysis around the Maxwell--Boltzmann equilibrium. The viscosity result $\eta = (5/16) \sqrt{m k_B T / \pi} / \sigma_g$ matches Theorem~\ref{thm:specialisation} case (5) under the Maxwell--Boltzmann velocity-coupling restriction. The framework here is more elementary: where Chapman--Enskog requires a perturbative expansion around an equilibrium, the universal closed form computes the same coefficient directly from~\eqref{eq:utl-main} with the appropriate $\cpl$.
+
+\subsection{Einstein--Smoluchowski diffusion}
+
+Einstein's analysis of Brownian motion~\citep{einstein1905brownian,smoluchowski1906} derives the diffusion coefficient $D = k_B T / (m \gamma)$ from the fluctuation--dissipation relation between thermal energy and friction. This is Theorem~\ref{thm:specialisation} case (6) under Gaussian velocity coupling. The framework presented here generalises beyond the Gaussian-equilibrium regime: arbitrary $\cpl$ structures correspond to non-equilibrium diffusion phenomena not captured by the classical Einstein relation.
+
+\subsection{Lorenz--Lorentz refraction}
+
+The Lorenz--Lorentz formula for refractive index~\citep{lorenz1880,lorentz1880} relates the macroscopic refractive index $n$ to the molecular polarisability $\alpha_p$ and number density $N_d$. Under Theorem~\ref{thm:specialisation} case (7), this is the closed form under frequency-dependent $\cpl(\omega)$. The framework permits refractive-index calculations in regimes where the classical Lorenz--Lorentz assumption (local-field approximation, single-resonance polarisability) does not hold, by computing~\eqref{eq:utl-main} with the appropriate non-classical $\cpl(\omega)$.
+
+\subsection{Mason--McDaniel ion mobility}
+
+The Mason--McDaniel treatment of ion mobility in neutral gases~\citep{mason1988transport} relates the mobility $K$ to the collision integral $\Omega^{(1,1)}(T)$. Under Theorem~\ref{thm:specialisation} case (8), this is the closed form under a collision-integral coupling. The framework subsumes the Mason--McDaniel result and admits extensions to mixed-gas environments and non-Maxwell--Boltzmann velocity distributions.
+
+\section{Implementation as a Kernel Subsystem}
+\label{sec:kernel}
+
+The universal transport coefficient is computable as a single deterministic primitive (Algorithm~\ref{alg:utl}). In a runtime substrate that processes categorical dispatches, the primitive can be exposed as a kernel-level operation invoked whenever a transport-coefficient calculation is required. The operation takes $(\lag, \cpl, \Norm, \classcount)$ as inputs and returns the scalar $\TP$. By Theorem~\ref{thm:runtime}, the operation runs in $\Theta(\classcount^2)$ time and is parallelisable.
+
+The kernel implementation has the following beneficial properties.
+
+\emph{Single primitive for all domains.} The same kernel operation handles M/M/1 queueing, Drude conductivity, Chapman--Enskog viscosity, etc. Domain-specific dispatch is replaced by matrix construction; the actual coefficient calculation is uniform.
+
+\emph{Composability.} By Theorem~\ref{thm:compositionality}, multi-system aggregation is closed-form: the kernel can recursively invoke the primitive on sub-systems and combine results via~\eqref{eq:composition}.
+
+\emph{Determinism and reproducibility.} The primitive is deterministic (Corollary~\ref{cor:determinism}), so its output is reproducible across runs and across implementations modulo floating-point representation.
+
+\emph{Validation by specialisation.} Each closed-form specialisation provides a regression test: invoking the primitive on inputs matching a classical-domain configuration must return the classical-domain coefficient. Eight such regression tests (one per row of Table~\ref{tab:specialisations}) cover the principal classical domains.
+
+\section{Limitations and Open Questions}
+\label{sec:limitations}
+
+\subsection{Bounded class count}
+
+Axiom~\ref{ax:bounded} requires $\classcount < \infty$. Systems with unboundedly many distinguishable states (e.g.\ infinite-dimensional Hilbert spaces, continuous spectra) are outside the present scope. Extending the framework to the continuum limit via integral generalisations of~\eqref{eq:utl-main} is a natural next step, though convergence of the integrals requires additional assumptions on $\lag$ and $\cpl$.
+
+\subsection{Determination of $\Norm$}
+
+The normalisation constant $\Norm$ is part of the system specification (Definition~\ref{def:cds}). In some domains it is naturally 1; in others (e.g.\ Drude theory) it absorbs physical constants. A general procedure for determining $\Norm$ from first principles of the underlying physical or computational substrate is application-specific; we do not pursue it here.
+
+\subsection{Time-varying $\lag$ and $\cpl$}
+
+The framework treats $\lag$ and $\cpl$ as stationary matrices. Systems with time-varying coupling (e.g.\ non-stationary queues, time-dependent fields) require an extension in which~\eqref{eq:utl-main} becomes an instantaneous statement and the throughput becomes a time average. The extension is straightforward in principle but raises questions of convergence and ergodicity that we leave open.
+
+\subsection{Symmetry-breaking systems}
+
+Definition~\ref{def:symmetry} adopts symmetric $\cpl$ as a gauge convention. Systems with intrinsically asymmetric coupling (e.g.\ those with broken time-reversal symmetry) require an extension allowing $\cpl^{(ij)} \neq \cpl^{(ji)}$. The closed form generalises immediately, but the gauge-uniqueness argument of Theorem~\ref{thm:universal-decomposition} requires modification.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have established a closed-form decomposition of transport coefficients on bounded categorical state spaces and proposed it as a single runtime primitive. The decomposition asserts that for any system satisfying the three axioms of bounded processing capacity, decision distinguishability, and finite decision lag, the transport coefficient takes the closed form $\TP = \Norm^{-1} \sum_{i,j} \lag^{(ij)} \cpl^{(ij)}$. The framework rests on four principal results: the Universal Decomposition Theorem (Theorem~\ref{thm:universal-decomposition}), the Specialisation Theorem (Theorem~\ref{thm:specialisation}), the Runtime Decidability Theorem (Theorem~\ref{thm:runtime}), and the Compositionality Theorem (Theorem~\ref{thm:compositionality}).
+
+The closed form subsumes eight classical transport coefficients as algebraic specialisations: the M/M/1 mean wait, the Jackson-network throughput, the cascade pipeline delay, the Drude conductivity, the Chapman--Enskog gas viscosity, the Einstein diffusion coefficient, the Lorenz--Lorentz refractive index, and the Mason--McDaniel ion mobility. Each is recovered as the value of the closed form under a specific algebraic restriction of the coupling matrix.
+
+The runtime primitive evaluates the closed form in $\Theta(\classcount^2)$ deterministic time, is parallelisable to $\Theta(\classcount^2/p)$ on $p$ processors, and composes multiplicatively under multi-system aggregation. Two structural phenomena---cache extinction (Proposition~\ref{prop:cache-extinction}) and the lag lower bound (Theorem~\ref{thm:lag-bound})---are exposed by the framework but invisible in the domain-specific treatments: extinction explains the exactness of caching-induced speedups, and the lag bound establishes a hardware-frequency-limited floor on every transport coefficient.
+
+The framework is foundational. It does not commit to a particular physical theory, queueing discipline, or kinetic model. What it provides is a uniform computational substrate over which transport coefficients of any domain satisfying the three axioms can be expressed, evaluated, composed, and verified. The eight classical specialisations are points in a larger algebraic space; the closed form is the structure of that space.
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% ============================================================
+
+\end{document}

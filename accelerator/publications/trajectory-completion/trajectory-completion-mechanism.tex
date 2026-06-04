@@ -880,14 +880,26 @@ rules $\Delta\ell = \pm 1$, $\Delta m \in \{0,\pm 1\}$ constrain which
 transitions between partition states are physically realizable. In the
 backward completion framework, this has a direct consequence:
 
-\begin{theorem}[Selection Rules as Dead Zones]
+\begin{theorem}[Selection Rules as Type Errors]
 \label{thm:selection_rules}
 Trigger backgrounds that require selection-rule-violating intermediate
-transitions between partition states cannot be reached by backward completion
-from any physically realizable endpoint.
+transitions between partition states are \emph{type errors} in the vaHera
+fragment representing the event. They are rejected by the pre-dispatch
+validation engine at static time before any backward completion is attempted,
+and they have no pre-image under the backward parent map from any physically
+realizable endpoint.
 \end{theorem}
 
 \begin{proof}
+In the refinement-type system over the vaHera AST
+\citep{companion:types}, every detector subsystem is a refined operation
+whose output type carries the partition coordinate it measures, and whose
+output refinement predicate is the conjunction of all registered selection
+rules. A vaHera Compose chain whose implied transition violates any selection
+rule has an uninhabited refinement type (the Forbidden-Transition Theorem of
+\citealt{companion:types}) and is rejected by $\mathrm{typecheck}$ at static
+time before execution.
+
 In the ternary hierarchy, a transition $\Delta\ell = \pm 2$ (for example)
 would require a parent cell at level $j-1$ that is two angular levels removed
 from the child cell at level $j$. By the partition capacity formula
@@ -897,12 +909,11 @@ are connected by $|\Delta\ell| \geq 2$ transitions. Therefore, no backward
 step from a physical leaf $p_k$ can traverse such a transition: it would
 require a non-existent parent block.
 
-Formally: the backward algorithm uses only the parent map
-$p_j \mapsto p_{j-1}$, which by definition respects the refinement order.
-The refinement order imposes exactly the selection rules. Backgrounds
-requiring forbidden transitions are not merely rare — they have no pre-image
-under the parent map and thus have zero probability under any backward
-completion from a physical endpoint.
+The two arguments are equivalent and reinforce each other: the
+partition-hierarchy argument shows the background has no pre-image under
+the backward parent map; the type-theoretic argument shows that any vaHera
+expression attempting to construct such a transition is syntactically
+ill-typed. Forbidden backgrounds are not merely rare --- they cannot be written.
 \end{proof}
 
 \begin{remark}[Type error vs.\ probabilistic suppression]

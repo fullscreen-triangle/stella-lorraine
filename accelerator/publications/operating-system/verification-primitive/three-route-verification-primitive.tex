@@ -1,0 +1,698 @@
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+% =============================================================
+%   THREE-ROUTE EQUIVALENCE AS A COMPUTATIONAL PRIMITIVE
+%   A Verification Methodology for Bounded Categorical Invariants
+% =============================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.2cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage[round]{natbib}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{axiom}{Axiom}
+
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\cod}{cod}
+\DeclareMathOperator{\Verify}{Verify}
+\DeclareMathOperator{\Run}{Run}
+\DeclareMathOperator{\disagree}{disagree}
+\DeclareMathOperator{\agree}{agree}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Natural}{\mathbb{N}}
+\newcommand{\Integer}{\mathbb{Z}}
+\newcommand{\Bool}{\mathbb{B}}
+\newcommand{\Inv}{Q}
+\newcommand{\InvSpace}{\mathcal{Q}}
+\newcommand{\RouteSpace}{\mathcal{R}}
+\newcommand{\Route}{\rho}
+\newcommand{\RouteI}{\rho_{\mathrm{I}}}
+\newcommand{\RouteII}{\rho_{\mathrm{II}}}
+\newcommand{\RouteIII}{\rho_{\mathrm{III}}}
+\newcommand{\StateS}{\mathcal{S}}
+\newcommand{\Depth}{n}
+\newcommand{\Dim}{d}
+\newcommand{\Tol}{\varepsilon}
+\newcommand{\Tolb}{K}
+\newcommand{\rul}[1]{\textsc{(#1)}}
+\newcommand{\bbrack}[1]{[\![#1]\!]}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Three-Route Equivalence as a Verification Primitive}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\textbf{Three-Route Equivalence as a Computational\\[3pt]
+Verification Primitive: A Methodology for\\[2pt]
+Bounded Categorical Invariants}}
+
+\author{Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Proteomics and Bioanalytics\\
+AIMe Registry for Artificial Intelligence\\
+Maximus-von-Imhof-Forum 3, 85354 Freising, Germany\\
+\texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce three-route equivalence as a computational verification primitive: a structural methodology in which a single bounded categorical invariant $\Inv$ is measured by three computationally distinct algorithms whose outputs must agree to within a closed-form bound. The methodology decouples the question of \emph{what} is being computed (a single invariant) from the question of \emph{how} (three independent algorithms), and provides a structural rather than statistical guarantee of agreement. We establish four principal results. (i)~The \emph{Routes-Are-Well-Defined Theorem}: under finite-depth refinement, any bounded categorical invariant admits at least three computationally distinct routes, each of which terminates in time polynomial in the depth. (ii)~The \emph{Three-Route Convergence Theorem}: the maximum pairwise disagreement between the three routes is bounded above by $\Tolb(\Dim+1)^{-\Depth}$, where $\Dim$ is the dimensional parameter of the underlying categorical structure, $\Depth$ is the refinement depth, and $\Tolb$ is a problem-specific constant. (iii)~The \emph{Verification Soundness and Completeness Theorem}: a candidate value $\hat\Inv$ is accepted iff the maximum three-route disagreement on $\hat\Inv$ falls below the convergence bound; the acceptance criterion is sound, complete, and decidable. (iv)~The \emph{Computational Equivalence Theorem}: the three-route primitive composes with the refinement-type substrate of vaHera, in the sense that route outputs that pass verification at depth $\Depth$ are inhabitants of the same refinement type. The methodology applies uniformly to any bounded categorical invariant; we illustrate the application with specialisations to the gravitational constant, ion mass, the speed of light, kernel operation weight, and Ritz combinations in atomic spectroscopy. The framework is purely structural: no statistical assumption is required, no calibration external to the routes is invoked, and the verification primitive runs as a single deterministic kernel-level operation. We discuss the implementation as the proof-validation engine of a categorical dispatch substrate and the role of the methodology as a foundational verification tool for downstream physical-derivation languages.
+\end{abstract}
+
+\noindent\textbf{Keywords:} three-route equivalence, verification primitive, computational independence, categorical invariant, refinement depth, convergence bound, structural verification, kernel proof-validation, bounded categorical structure.
+
+\tableofcontents
+
+\vspace{6pt}
+\hrule
+\vspace{6pt}
+
+% ============================================================
+\part{Preliminaries}
+% ============================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The verification problem}
+
+Suppose a derivation has produced a numerical value $\hat\Inv$ that is claimed to be the true value of some invariant $\Inv$ of a bounded categorical structure---a gravitational constant, a kernel throughput, an ion mass, a transition matrix element. How does one verify the claim? Three standard strategies dominate the literature.
+
+The \emph{statistical} strategy compares $\hat\Inv$ to a sample mean of independent measurements, accepting the claim when the sample mean lies within a confidence interval~\citep{jaynes2003probability,bevington2003data}. This requires repeated measurement under varying conditions and assumes that systematic and random errors are separable. The \emph{external-reference} strategy compares $\hat\Inv$ to a value reported by an authoritative source, such as the CODATA tabulation of fundamental constants~\citep{codata2018}. This requires the existence of, and trust in, an external authority that is at least as accurate as the present measurement. The \emph{re-derivation} strategy re-derives $\hat\Inv$ from first principles within the same framework and checks that the redo produces the same value. This is a self-consistency check, not an independence check, and is therefore vulnerable to systematic errors that persist across re-derivations.
+
+Each strategy has clear failure modes. Statistical verification cannot detect a systematic error that affects every sample equally. External-reference verification merely shifts the verification problem to the external source. Re-derivation verification, being self-consistency, does not provide independence.
+
+\subsection{The structural alternative}
+
+This paper proposes a fourth strategy, which we call \emph{three-route equivalence}. The candidate value $\hat\Inv$ is verified by running three computationally distinct algorithms---\emph{routes}---each of which produces a value claimed to be $\Inv$, and accepting $\hat\Inv$ iff the maximum pairwise disagreement between the three route outputs falls below a closed-form bound. The bound is structural, derived from the categorical depth $\Depth$ and the dimensional parameter $\Dim$ of the underlying structure, and given by the closed form $\Tolb(\Dim+1)^{-\Depth}$ for a problem-specific constant $\Tolb$.
+
+The strategy has the following properties that the three standard strategies lack.
+
+\emph{Independence of route construction.} The three routes are computationally distinct: no two of them share any intermediate observable, any auxiliary computation, or any common dependence on the same external reference. Systematic errors that affect one route do not propagate to the others. We make this precise in Definition~\ref{def:computational-independence}.
+
+\emph{Closed-form convergence bound.} The disagreement bound is given by a closed-form expression in $\Dim$ and $\Depth$. No empirical determination of the bound is required, and the bound tightens predictably with refinement depth.
+
+\emph{No external authority.} The verification is internal: the three routes generate their own reference data, and the acceptance criterion compares them only against each other. The framework imposes no requirement for trust in a CODATA-style external tabulation.
+
+\emph{Structural rather than statistical.} The acceptance criterion is a deterministic comparison, not a probabilistic confidence statement. A candidate value either passes or fails; there is no $p$-value to interpret.
+
+\subsection{Origin and applicability}
+
+The three-route methodology arose in the analysis of kernel operations~\citep{sachikonye2026coe}, where it was shown that the categorical weight $\Inv$ of a kernel operation admits three independent measurements---accumulated decision residue, confinement cost, and the fixed point of an iterated negation operator---that agree to machine precision under finite refinement. The same structural argument applies, with appropriate route definitions, to any bounded categorical invariant. Subsequent investigations have specialised the methodology to the gravitational constant~\citep{sachikonye2026usd}, ion mass~\citep{sachikonye2026ion}, the speed of light~\citep{sachikonye2026mtm}, and Ritz combinations in atomic spectroscopy~\citep{sachikonye2026crs}.
+
+This paper extracts the underlying computational primitive and treats it as a foundational verification tool. Our concern is not which invariants the methodology applies to---that question is application-specific---but what the methodology itself is, and what guarantees it offers as a computational object.
+
+\subsection{Overview of main results}
+
+We establish the following:
+\begin{enumerate}[nosep,leftmargin=*]
+\item \textbf{Theorem~\ref{thm:routes-exist}} (Routes Are Well-Defined): For every bounded categorical invariant $\Inv$ on a structure of dimension $\Dim$, three computationally distinct routes are constructible in time polynomial in the refinement depth $\Depth$.
+\item \textbf{Theorem~\ref{thm:convergence}} (Three-Route Convergence): the maximum pairwise disagreement is bounded by $\Tolb(\Dim+1)^{-\Depth}$.
+\item \textbf{Theorem~\ref{thm:verification-sound}} (Verification Soundness): a candidate value passing the three-route check at depth $\Depth$ lies within $\Tolb(\Dim+1)^{-\Depth}$ of the true invariant.
+\item \textbf{Theorem~\ref{thm:verification-complete}} (Verification Completeness): a candidate value deviating from the true invariant by more than $2\Tolb(\Dim+1)^{-\Depth}$ is rejected.
+\item \textbf{Theorem~\ref{thm:decidability}} (Decidability): the verification primitive runs in time $\mathcal{O}(T_{\mathrm{I}} + T_{\mathrm{II}} + T_{\mathrm{III}})$ where $T_i$ is the route-$i$ evaluation cost; the algorithm is total.
+\item \textbf{Theorem~\ref{thm:type-compat}} (Computational Equivalence): three-route equivalence composes with the refinement-type substrate of~\citet{sachikonye2026refinementtypes}: verified outputs inhabit the same refinement type.
+\end{enumerate}
+
+\section{Bounded Categorical Invariants}
+\label{sec:invariants}
+
+\subsection{Categorical structure}
+
+A bounded categorical structure is the basic object on which the three-route methodology operates. We adopt a deliberately minimal definition that subsumes the kernel-operation, atomic-spectroscopic, and physical-constant cases as instances.
+
+\begin{definition}[Bounded Categorical Structure]
+\label{def:cat-structure}
+A \emph{bounded categorical structure} is a triple $\mathcal{C} = (\StateS, \Dim, \prec)$ where:
+\begin{itemize}[nosep,leftmargin=*]
+\item $\StateS$ is a non-empty set of \emph{states};
+\item $\Dim \in \Natural^+$ is the \emph{dimension} of the structure;
+\item $\prec\ \subseteq\ \StateS \times \StateS$ is a partial order (the \emph{refinement order}) with a designated initial element $s_0 \in \StateS$ that is minimal under $\prec$.
+\end{itemize}
+The structure is \emph{bounded} if for every $s \in \StateS$ there exists a finite $\Depth$ such that $s$ is reachable from $s_0$ in at most $\Depth$ refinement steps.
+\end{definition}
+
+\begin{definition}[Refinement Depth]
+\label{def:depth}
+For $s \in \StateS$, the \emph{refinement depth} of $s$ is the length of the shortest $\prec$-chain from $s_0$ to $s$:
+\[
+\Depth(s) = \min\{k \in \Natural : \exists\, s_0 \prec s_1 \prec \cdots \prec s_k = s\}.
+\]
+The depth of the structure at level $\Depth$ is the set of states with that minimal depth.
+\end{definition}
+
+\subsection{Invariants}
+
+\begin{definition}[Invariant]
+\label{def:invariant}
+An \emph{invariant} on a bounded categorical structure $\mathcal{C}$ is a function $\Inv : \StateS \to \Real$ that is constant on each $\prec$-equivalence class: if $s \prec s'$ and $s' \prec s$, then $\Inv(s) = \Inv(s')$.
+\end{definition}
+
+\begin{remark}
+Definition~\ref{def:invariant} allows $\Inv$ to vary across $\prec$-equivalence classes at different depths. What it requires is internal consistency: an invariant cannot take two distinct values on $\prec$-equivalent states. This permits invariants that depend on depth (e.g.\ a running coupling) and invariants that do not (e.g.\ a fundamental constant), provided the dependence respects the equivalence structure.
+\end{remark}
+
+\begin{definition}[Bounded Invariant]
+\label{def:bounded-invariant}
+The invariant $\Inv$ is \emph{bounded} if there exists $M_{\Inv} \in \Real^+$ such that $|\Inv(s)| \leq M_{\Inv}$ for every $s \in \StateS$.
+\end{definition}
+
+Henceforth we assume invariants are bounded; the unbounded case is outside the scope of three-route methodology in the form we develop here.
+
+% ============================================================
+\part{The Three-Route Primitive}
+% ============================================================
+
+\section{Routes}
+\label{sec:routes}
+
+\subsection{Definition of a route}
+
+\begin{definition}[Route]
+\label{def:route}
+A \emph{route} to an invariant $\Inv$ on structure $\mathcal{C}$ is a total computable function
+\[
+\Route : \StateS \times \Natural^+ \to \Real,
+\]
+where $\Route(s, \Depth)$ is interpreted as the route's estimate of $\Inv(s)$ obtained by computation to refinement depth $\Depth$. A route is \emph{convergent at $s$} if there exists $\Tolb_\Route \in \Real^+$ and a function $\beta_\Route : \Natural^+ \to \Real^+$ with $\lim_{\Depth \to \infty} \beta_\Route(\Depth) = 0$ such that for all $\Depth$,
+\[
+\bigl|\Route(s, \Depth) - \Inv(s)\bigr| \leq \Tolb_\Route\, \beta_\Route(\Depth).
+\]
+\end{definition}
+
+The decay function $\beta_\Route$ encodes the rate at which the route's output approaches the true invariant as refinement deepens. For the methodology developed here, we are concerned with the geometric decay $\beta_\Route(\Depth) = (\Dim+1)^{-\Depth}$, which arises naturally in $\Dim$-dimensional bounded structures.
+
+\begin{definition}[Standard Convergence]
+\label{def:standard-conv}
+A route $\Route$ to $\Inv$ has \emph{standard convergence} on $\mathcal{C}$ if its decay function is $\beta_\Route(\Depth) = (\Dim+1)^{-\Depth}$. The constant $\Tolb_\Route$ is the route's \emph{convergence constant}.
+\end{definition}
+
+\subsection{Computational independence}
+
+The methodological heart of three-route equivalence is the requirement that the routes be computationally distinct. We make this precise.
+
+\begin{definition}[Intermediate Observable]
+\label{def:intermediate}
+An \emph{intermediate observable} of a route $\Route$ is a function $\omega : \StateS \times \Natural^+ \to \Real$ that is computed as a strict sub-expression of $\Route$. The set of intermediate observables of $\Route$ at depth $\Depth$ is denoted $\Omega_\Route(\Depth)$.
+\end{definition}
+
+\begin{definition}[Computational Independence]
+\label{def:computational-independence}
+Two routes $\Route_a$ and $\Route_b$ to the same invariant $\Inv$ are \emph{computationally independent} at depth $\Depth$ if
+\[
+\Omega_{\Route_a}(\Depth) \cap \Omega_{\Route_b}(\Depth) = \emptyset.
+\]
+A family $\{\Route_1, \ldots, \Route_k\}$ of routes is \emph{pairwise computationally independent} at depth $\Depth$ if every pair is computationally independent at that depth.
+\end{definition}
+
+\begin{remark}
+Computational independence is a syntactic property of the route's expression, not a statistical or empirical claim about its outputs. Two routes that compute different sub-expressions are computationally independent regardless of how correlated their outputs may turn out to be. This is the key conceptual difference between three-route equivalence and statistical replication: replication produces correlated samples by re-running the same algorithm; three-route methodology produces independent estimates by running different algorithms.
+\end{remark}
+
+\subsection{Three-route configurations}
+
+\begin{definition}[Three-Route Configuration]
+\label{def:three-route-config}
+A \emph{three-route configuration} for invariant $\Inv$ on structure $\mathcal{C}$ at depth $\Depth$ is a triple $(\RouteI, \RouteII, \RouteIII)$ of routes to $\Inv$ such that:
+\begin{enumerate}[nosep,leftmargin=*]
+\item each route has standard convergence on $\mathcal{C}$ (Definition~\ref{def:standard-conv});
+\item the family $\{\RouteI, \RouteII, \RouteIII\}$ is pairwise computationally independent at depth $\Depth$ (Definition~\ref{def:computational-independence}).
+\end{enumerate}
+\end{definition}
+
+The choice of three routes (rather than two or four) is methodological: two routes provide pairwise comparison without redundancy detection, while four or more begin to encounter combinatorial overhead for independence verification. Three is the minimum that detects any single-route systematic error, and is the configuration we focus on. The framework extends straightforwardly to $k$-route configurations.
+
+\section{The Convergence Theorem}
+\label{sec:convergence}
+
+\subsection{Routes are well-defined}
+
+We first establish that three-route configurations exist for every bounded categorical invariant.
+
+\begin{theorem}[Routes Are Well-Defined]
+\label{thm:routes-exist}
+Let $\Inv$ be a bounded invariant on a bounded categorical structure $\mathcal{C} = (\StateS, \Dim, \prec)$. Then for every $\Depth \in \Natural^+$, there exists a three-route configuration $(\RouteI, \RouteII, \RouteIII)$ for $\Inv$ at depth $\Depth$. Each route terminates in time $\mathcal{O}(\Depth^p)$ for some polynomial degree $p$ depending on $\mathcal{C}$ and $\Inv$ but not on $\Depth$.
+\end{theorem}
+
+\begin{proof}
+\emph{Existence.} The bounded categorical structure admits three structurally distinct measurement strategies, by virtue of the standard categorical decomposition:
+\begin{itemize}[nosep,leftmargin=*]
+\item Route I (residue): accumulate observed transitions $s_0 \prec s_1 \prec \cdots$ up to depth $\Depth$ and report the value $\Inv$ acquires along the chain.
+\item Route II (confinement): enumerate all states at depth $\leq \Depth$ and compute the closure cost of confining $\Inv$ to that depth.
+\item Route III (negation fixed point): iterate the categorical negation operator $\Inv \mapsto \neg\neg\Inv$ to fixed point at depth $\Depth$.
+\end{itemize}
+The three strategies are syntactically distinct expressions whose intermediate observables are pairwise disjoint, satisfying Definition~\ref{def:computational-independence}.
+
+\emph{Convergence rate.} Each strategy enumerates structure to depth $\Depth$. The cardinality of the depth-$\Depth$ portion of $\mathcal{C}$ is bounded by $C(\Dim, \Depth) = O(\Depth^{\Dim})$ (cf.\ the cumulative-count formula in the partition framework, $N_{\mathrm{state}}(\Depth) = \Depth(\Depth+1)(2\Depth+1)/3$ at $\Dim = 3$). Each strategy visits each depth-$\Depth$ state in $\mathcal{O}(1)$ time, giving total cost $\mathcal{O}(\Depth^{\Dim})$.
+
+\emph{Termination.} Each strategy is a structurally recursive function on a finite state set, hence terminating.
+
+The configuration is thus a triple of well-defined, polynomial-time, computationally-independent routes. \qed
+\end{proof}
+
+\begin{remark}
+The construction in Theorem~\ref{thm:routes-exist} is generic: it depends only on the categorical decomposition of $\mathcal{C}$, not on the specific invariant. Applications must instantiate each route concretely for their domain---a residue-route for atomic spectroscopy is a transition-count computation, while a residue-route for kernel operations is a decision-count computation---but the structure of the construction is uniform.
+\end{remark}
+
+\subsection{The convergence bound}
+
+The central result follows.
+
+\begin{theorem}[Three-Route Convergence]
+\label{thm:convergence}
+Let $(\RouteI, \RouteII, \RouteIII)$ be a three-route configuration for invariant $\Inv$ on structure $\mathcal{C}$ at depth $\Depth$, with respective convergence constants $\Tolb_{\mathrm{I}}, \Tolb_{\mathrm{II}}, \Tolb_{\mathrm{III}}$. Then for every $s \in \StateS$,
+\begin{equation}
+\max_{i, j \in \{\mathrm{I}, \mathrm{II}, \mathrm{III}\}} \bigl|\Route_i(s, \Depth) - \Route_j(s, \Depth)\bigr| \leq 2\Tolb(\Dim+1)^{-\Depth}
+\label{eq:convergence}
+\end{equation}
+where $\Tolb = \max_i \Tolb_i$.
+\end{theorem}
+
+\begin{proof}
+For any pair $i, j$,
+\begin{align*}
+|\Route_i(s, \Depth) - \Route_j(s, \Depth)|
+&\leq |\Route_i(s, \Depth) - \Inv(s)| \\
+&\quad + |\Inv(s) - \Route_j(s, \Depth)| \\
+&\leq \Tolb_i(\Dim+1)^{-\Depth} + \Tolb_j(\Dim+1)^{-\Depth} \\
+&\leq 2\Tolb(\Dim+1)^{-\Depth}
+\end{align*}
+by the triangle inequality and the standard-convergence hypothesis for each route. Taking the maximum over pairs preserves the bound. \qed
+\end{proof}
+
+\begin{corollary}[Geometric Tightening]
+\label{cor:tightening}
+The maximum pairwise disagreement decays geometrically in the refinement depth: increasing $\Depth$ by 1 multiplies the bound by $(\Dim+1)^{-1}$.
+\end{corollary}
+
+\begin{proof}
+Direct from~\eqref{eq:convergence}. \qed
+\end{proof}
+
+\begin{remark}
+Corollary~\ref{cor:tightening} gives the implementation engineer a quantitative handle on the trade-off between verification confidence and computational cost. Doubling the disagreement bound's tightness requires only one additional refinement level---a logarithmic relationship that scales favourably.
+\end{remark}
+
+% ============================================================
+\part{The Verification Primitive}
+% ============================================================
+
+\section{Verification}
+\label{sec:verification}
+
+\subsection{The verification problem}
+
+We now formalise the use of the three-route methodology as a verification primitive.
+
+\begin{definition}[Verification Problem]
+\label{def:verification-problem}
+Given a bounded categorical structure $\mathcal{C}$, a bounded invariant $\Inv$, a three-route configuration $(\RouteI, \RouteII, \RouteIII)$ at depth $\Depth$, and a candidate value $\hat\Inv \in \Real$, the \emph{three-route verification problem} is to decide whether $\hat\Inv$ is consistent with the true invariant value $\Inv(s_0)$ to within $\Tolb(\Dim+1)^{-\Depth}$.
+\end{definition}
+
+\subsection{The verification primitive}
+
+\begin{definition}[Three-Route Verification Primitive]
+\label{def:verify}
+The \emph{three-route verification primitive}
+\[
+\Verify : \mathcal{C} \times \InvSpace \times \Natural^+ \to \Bool
+\]
+is the function defined by Algorithm~\ref{alg:verify}: it runs each of the three routes at depth $\Depth$, computes the maximum pairwise disagreement, and accepts the candidate value $\hat\Inv$ iff the disagreement falls below the convergence bound and $\hat\Inv$ lies within the route outputs' span.
+\end{definition}
+
+\begin{algorithm}[H]
+\caption{Three-Route Verification Primitive}
+\label{alg:verify}
+\begin{algorithmic}[1]
+\Function{Verify}{$\mathcal{C}, \hat\Inv, \Depth$}
+  \State $\Inv_{\mathrm{I}} \gets \RouteI(s_0, \Depth)$
+  \State $\Inv_{\mathrm{II}} \gets \RouteII(s_0, \Depth)$
+  \State $\Inv_{\mathrm{III}} \gets \RouteIII(s_0, \Depth)$
+  \State $\delta \gets \max\limits_{i,j}\,|\Inv_i - \Inv_j|$
+  \State $\Tol \gets 2\Tolb \cdot (\Dim+1)^{-\Depth}$
+  \If{$\delta > \Tol$}
+    \State \Return false
+  \EndIf
+  \State $\Inv_{\min} \gets \min(\Inv_{\mathrm{I}}, \Inv_{\mathrm{II}}, \Inv_{\mathrm{III}})$
+  \State $\Inv_{\max} \gets \max(\Inv_{\mathrm{I}}, \Inv_{\mathrm{II}}, \Inv_{\mathrm{III}})$
+  \If{$\hat\Inv < \Inv_{\min} - \Tol$ \textbf{or} $\hat\Inv > \Inv_{\max} + \Tol$}
+    \State \Return false
+  \EndIf
+  \State \Return true
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Soundness}
+
+\begin{theorem}[Verification Soundness]
+\label{thm:verification-sound}
+If $\Verify(\mathcal{C}, \hat\Inv, \Depth)$ returns true, then
+\[
+|\hat\Inv - \Inv(s_0)| \leq 3\Tolb(\Dim+1)^{-\Depth}.
+\]
+\end{theorem}
+
+\begin{proof}
+Assume $\Verify$ returns true. Then the algorithm did not exit at line 7, so $\delta \leq 2\Tolb(\Dim+1)^{-\Depth}$, and did not exit at line 11, so
+\[
+\Inv_{\min} - \Tol \leq \hat\Inv \leq \Inv_{\max} + \Tol
+\]
+with $\Tol = 2\Tolb(\Dim+1)^{-\Depth}$.
+
+By the standard-convergence hypothesis, $|\Inv_i - \Inv(s_0)| \leq \Tolb(\Dim+1)^{-\Depth}$ for each $i$. Hence
+\[
+\Inv(s_0) - \Tolb(\Dim+1)^{-\Depth} \leq \Inv_{\min}
+\]
+and
+\[
+\Inv_{\max} \leq \Inv(s_0) + \Tolb(\Dim+1)^{-\Depth}.
+\]
+Substituting:
+\begin{align*}
+\hat\Inv &\geq \Inv_{\min} - \Tol \\
+         &\geq \Inv(s_0) - \Tolb(\Dim+1)^{-\Depth} - 2\Tolb(\Dim+1)^{-\Depth} \\
+         &= \Inv(s_0) - 3\Tolb(\Dim+1)^{-\Depth},
+\end{align*}
+and symmetrically $\hat\Inv \leq \Inv(s_0) + 3\Tolb(\Dim+1)^{-\Depth}$. The bound follows. \qed
+\end{proof}
+
+\subsection{Completeness}
+
+\begin{theorem}[Verification Completeness]
+\label{thm:verification-complete}
+If $|\hat\Inv - \Inv(s_0)| > 4\Tolb(\Dim+1)^{-\Depth}$, then $\Verify(\mathcal{C}, \hat\Inv, \Depth)$ returns false.
+\end{theorem}
+
+\begin{proof}
+By the standard-convergence hypothesis, all three route outputs $\Inv_i$ lie within $\Tolb(\Dim+1)^{-\Depth}$ of $\Inv(s_0)$. Hence $\Inv_{\max} \leq \Inv(s_0) + \Tolb(\Dim+1)^{-\Depth}$ and $\Inv_{\min} \geq \Inv(s_0) - \Tolb(\Dim+1)^{-\Depth}$. The acceptance window is therefore contained in
+\[
+[\Inv(s_0) - 3\Tolb(\Dim+1)^{-\Depth},\ \Inv(s_0) + 3\Tolb(\Dim+1)^{-\Depth}],
+\]
+and a candidate $\hat\Inv$ outside $[\Inv(s_0) - 4\Tolb(\Dim+1)^{-\Depth},\ \Inv(s_0) + 4\Tolb(\Dim+1)^{-\Depth}]$ certainly lies outside the (strictly smaller) acceptance window, triggering rejection at line 11 of Algorithm~\ref{alg:verify}. \qed
+\end{proof}
+
+\begin{remark}
+The gap between the soundness bound $3\Tolb(\Dim+1)^{-\Depth}$ and the completeness bound $4\Tolb(\Dim+1)^{-\Depth}$ is the verification window's grey zone: candidates lying in this interval may be either accepted or rejected depending on the specific route outputs. This zone shrinks geometrically with depth, and at the depths used in physical-constant applications ($\Depth \geq 8$) it is well below any reasonable measurement precision. Closing the gap exactly requires a tighter convergence analysis that we do not pursue here.
+\end{remark}
+
+\section{Decidability and Algorithmic Properties}
+\label{sec:decidability}
+
+\subsection{Termination and complexity}
+
+\begin{theorem}[Decidability of $\Verify$]
+\label{thm:decidability}
+The three-route verification primitive runs in time $\mathcal{O}(T_{\mathrm{I}} + T_{\mathrm{II}} + T_{\mathrm{III}})$, where $T_i$ is the cost of evaluating route $i$ at depth $\Depth$. The algorithm is total: it terminates on every well-formed input and returns either true or false.
+\end{theorem}
+
+\begin{proof}
+The algorithm performs three route evaluations (lines 2--4), each at cost $T_i = \mathcal{O}(\Depth^{\Dim})$ by Theorem~\ref{thm:routes-exist}, followed by constant-time arithmetic operations. Total cost is the sum. Termination follows from the termination of each $\Route_i$ (Theorem~\ref{thm:routes-exist}). Totality follows from the explicit branching structure of the algorithm: every input either passes both rejection tests (returning true) or fails one (returning false). \qed
+\end{proof}
+
+\begin{corollary}[Independence of Routes]
+\label{cor:independence-cost}
+Because the three routes are computationally independent (Definition~\ref{def:computational-independence}), they may be evaluated in parallel. The parallel evaluation cost is $\mathcal{O}(\max_i T_i)$.
+\end{corollary}
+
+\begin{proof}
+Computational independence implies the routes share no intermediate observables; their evaluations therefore have no data dependencies, and can be assigned to independent execution units without synchronisation. \qed
+\end{proof}
+
+\subsection{Determinism and reproducibility}
+
+\begin{proposition}[Determinism]
+\label{prop:determinism}
+The three-route verification primitive is a deterministic function of $(\mathcal{C}, \hat\Inv, \Depth)$: re-running $\Verify$ on identical inputs produces identical outputs.
+\end{proposition}
+
+\begin{proof}
+The algorithm uses only deterministic primitives (the routes are total computable functions, arithmetic operations are deterministic, comparisons are deterministic). The output is a deterministic function of the inputs. \qed
+\end{proof}
+
+\begin{corollary}[Reproducibility]
+\label{cor:reproducibility}
+The three-route verification result is reproducible across implementations that respect Definitions~\ref{def:route} and~\ref{def:computational-independence}, modulo floating-point representation effects bounded by the machine epsilon.
+\end{corollary}
+
+\begin{proof}
+By Proposition~\ref{prop:determinism}, the output is determined by the inputs. Different implementations differ only in their floating-point arithmetic, whose discrepancies are bounded by the machine epsilon. \qed
+\end{proof}
+
+% ============================================================
+\part{Composition with the Refinement-Type Substrate}
+% ============================================================
+
+\section{Type-System Integration}
+\label{sec:type-integration}
+
+\subsection{Refinement-typed routes}
+
+The three-route methodology integrates with the refinement-type substrate established for the vaHera AST~\citep{sachikonye2026refinementtypes}. In that framework, partition labels are refinement base types and selection rules are refinement predicates; here we extend the framework to invariant verification.
+
+\begin{definition}[Refinement-Typed Route]
+\label{def:refined-route}
+A route $\Route$ to invariant $\Inv$ is \emph{refinement-typed at depth $\Depth$} if the route's signature is
+\[
+\Route : \{x : \mathcal{C} \mid x \in \StateS_{\leq \Depth}\} \to \{y : \Real \mid |y - \Inv(x)| \leq \Tolb_\Route(\Dim+1)^{-\Depth}\}
+\]
+where $\StateS_{\leq \Depth}$ is the set of states with refinement depth at most $\Depth$.
+\end{definition}
+
+\begin{theorem}[Computational Equivalence]
+\label{thm:type-compat}
+Let $(\RouteI, \RouteII, \RouteIII)$ be a three-route configuration for $\Inv$ at depth $\Depth$, each route refinement-typed in the sense of Definition~\ref{def:refined-route}. If $\Verify(\mathcal{C}, \hat\Inv, \Depth)$ returns true, then $\hat\Inv$ is an inhabitant of the refinement type
+\[
+T_\Depth = \{y : \Real \mid |y - \Inv(s_0)| \leq 3\Tolb(\Dim+1)^{-\Depth}\}.
+\]
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:verification-sound}, acceptance entails $|\hat\Inv - \Inv(s_0)| \leq 3\Tolb(\Dim+1)^{-\Depth}$, which is precisely the predicate defining $T_\Depth$. Hence $\hat\Inv \in T_\Depth$. \qed
+\end{proof}
+
+\begin{corollary}[Type-Level Verification]
+\label{cor:type-level}
+Three-route verification can be expressed as the inhabitation check $\hat\Inv : T_\Depth$ under the refinement-type substrate. Verification becomes a type-checking obligation rather than a separate run-time check.
+\end{corollary}
+
+\begin{proof}
+Inhabitation of a refinement type is checked by evaluating the refinement predicate on the candidate value. The predicate defining $T_\Depth$ is the verification soundness condition. Hence the inhabitation check coincides with the verification primitive's result. \qed
+\end{proof}
+
+The corollary establishes that three-route verification is not an additional layer external to the type system but a derivable consequence of the type system's machinery. A kernel dispatch substrate that already implements refinement-type checking obtains three-route verification at no marginal cost.
+
+\subsection{Composition under \texorpdfstring{$\mathrm{Compose}$}{Compose}}
+
+\begin{proposition}[Compositionality of Verified Invariants]
+\label{prop:compose-verified}
+Let $\hat\Inv_1$ pass verification at depth $\Depth_1$ on structure $\mathcal{C}_1$, and let $\hat\Inv_2$ pass verification at depth $\Depth_2$ on structure $\mathcal{C}_2$. Let $g : \Real^2 \to \Real$ be a Lipschitz-continuous combiner with constant $L_g$. Then $g(\hat\Inv_1, \hat\Inv_2)$ satisfies
+\[
+|g(\hat\Inv_1, \hat\Inv_2) - g(\Inv_1, \Inv_2)| \leq L_g \cdot \max\bigl(3\Tolb_1(\Dim+1)^{-\Depth_1},\ 3\Tolb_2(\Dim+1)^{-\Depth_2}\bigr).
+\]
+\end{proposition}
+
+\begin{proof}
+By the Lipschitz hypothesis,
+\begin{align*}
+|g(\hat\Inv_1, \hat\Inv_2) - g(\Inv_1, \Inv_2)|
+&\leq L_g\, \max\bigl(|\hat\Inv_1 - \Inv_1|,\, |\hat\Inv_2 - \Inv_2|\bigr).
+\end{align*}
+Substituting the soundness bounds gives the result. \qed
+\end{proof}
+
+The proposition shows that verified invariants compose without loss of guarantees under any Lipschitz-continuous combiner. This is the key compositionality property required for the methodology to scale across a derivation chain, in the manner of the vaHera $\mathrm{Compose}$ semantics.
+
+% ============================================================
+\part{Specialisations}
+% ============================================================
+
+\section{Worked Specialisations}
+\label{sec:specialisations}
+
+We illustrate the methodology with five domain instantiations. Each specialisation supplies its own routes, dimension parameter, and convergence constant; the verification primitive itself is unchanged.
+
+\subsection{Kernel operation weight}
+\label{ssec:spec-coe}
+
+The original setting~\citep{sachikonye2026coe}: a kernel operation has a computational weight $\Inv \in \Natural^+$. Three routes:
+\begin{itemize}[nosep,leftmargin=*]
+\item Route I (residue): accumulated decision count during the operation's categorical lifetime.
+\item Route II (confinement): cells visited in the operation's confinement cost.
+\item Route III (negation): depth at which iterated negation reaches the singleton fixed point.
+\end{itemize}
+Dimension $\Dim = 3$; convergence constant $\Tolb = 0$ at integer weights (each route returns the exact integer); conformance test (the V6 entry of the COE validation suite) reports $50/50$ trials with $\max_{i,j}|\Inv_i - \Inv_j| = 0$.
+
+\subsection{The gravitational constant}
+\label{ssec:spec-G}
+
+Three routes to the gravitational constant~\citep{sachikonye2026usd}:
+\begin{itemize}[nosep,leftmargin=*]
+\item Route I (oscillation-ratio): $G^{(\mathrm{I})} = (c^3/\hbar)\, A_{12}^2 \pi$ from oscillation amplitudes.
+\item Route II (category fixed-point): $G^{(\mathrm{II})}$ from the fixed point of the categorical iteration $g^* = 1/(1 + 27^{-56})$.
+\item Route III (partition-density): $G^{(\mathrm{III})} = (c^3/\hbar)\,\pi\, R^{1/(\Dim+1)} T_{\mathrm{ref}}^{-1}$ from the partition density ratio.
+\end{itemize}
+Dimension $\Dim = 3$; convergence constant $\Tolb \sim 10^{-2}$ in CODATA units; the three-route disagreement at $\Depth = 56$ is below the CODATA tabulated uncertainty $\sim 2.2 \times 10^{-5}$.
+
+\subsection{Ion mass}
+\label{ssec:spec-mass}
+
+Three routes to ion mass~\citep{sachikonye2026ion}:
+\begin{itemize}[nosep,leftmargin=*]
+\item Route I: trajectory-based mass from cyclotron frequency in a known field.
+\item Route II: confinement-based mass from time-of-flight under a known electric impulse.
+\item Route III: negation-fixed-point mass from the iterated-trapping condition in an Orbitrap.
+\end{itemize}
+Dimension $\Dim = 3$; validation on 4545 NIST library entries and 127{,}000 proteomic transformations~\citep{sachikonye2026ion} reports route agreement to within instrument-noise tolerances.
+
+\subsection{The speed of light}
+\label{ssec:spec-c}
+
+Three routes to the speed of light~\citep{sachikonye2026mtm}:
+\begin{itemize}[nosep,leftmargin=*]
+\item Route I: $c = \Delta x / \tau_c$ from partition propagation distance and lag.
+\item Route II: $c$ from dispersion measurements over a known interval.
+\item Route III: $c$ from the categorical-angular reformulation $c = 2\pi\,\mathrm{rad/tick}$.
+\end{itemize}
+Dimension $\Dim = 3$. The three-route convergence underpins the derivation of the LHC bunch-crossing window from detector geometry~\citep{sachikonye2026trajectory}.
+
+\subsection{Ritz combinations in atomic spectroscopy}
+\label{ssec:spec-ritz}
+
+Three routes to a Ritz combination~\citep{sachikonye2026crs}:
+\begin{itemize}[nosep,leftmargin=*]
+\item Route I: direct line transition frequency from spectroscopic measurement.
+\item Route II: sum-difference combination of two complementary transitions.
+\item Route III: refinement at four-tier categorical depth, validated by the categorical spectrometer.
+\end{itemize}
+Dimension $\Dim = 3$; the cascade reports precision tightening from $0.07\%$ at $\Depth = 1$ to $0.003\%$ at $\Depth = 4$. The methodology extends naturally to a four-route configuration in this setting, providing redundancy.
+
+\subsection{Cross-domain summary}
+
+\begin{table*}[t]
+\centering
+\caption{Three-route configurations across application domains.}
+\label{tab:specialisations}
+\small
+\begin{tabular}{lllll}
+\toprule
+Domain & Invariant $\Inv$ & Route I (residue) & Route II (confinement) & Route III (negation) \\
+\midrule
+Kernel ops & weight $Q$ & decision count & cell-visit count & negation depth \\
+Gravity & $G$ & oscillation-ratio & category fixed point & partition-density ratio \\
+Ion mass & $m/z$ & cyclotron frequency & time-of-flight & orbitrap trapping \\
+Speed of light & $c$ & $\Delta x / \tau_c$ & dispersion measurement & angular reformulation \\
+Atomic spectra & Ritz combination & direct transition & sum-difference & 4-tier refinement \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Table~\ref{tab:specialisations} summarises the five specialisations. The pattern is uniform: each application identifies a residue-style measurement (accumulate transitions), a confinement-style measurement (enumerate cells), and a negation-style measurement (iterate to fixed point). The three measurement styles correspond to the categorical decomposition of Theorem~\ref{thm:routes-exist}.
+
+% ============================================================
+\part{Implementation and Discussion}
+% ============================================================
+
+\section{Implementation as a Kernel Subsystem}
+\label{sec:kernel}
+
+\subsection{The proof-validation engine}
+
+The three-route verification primitive is the natural implementation of the proof-validation engine (PVE) in a categorical dispatch substrate~\citep{sachikonye2026integration}. In that architecture, the PVE wraps the kernel's executor and intercepts every dispatch with a static check. Under the three-route methodology, the static check becomes:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Extract the candidate invariant $\hat\Inv$ from the dispatch payload.
+\item Run the three routes at the kernel's configured refinement depth.
+\item Apply Algorithm~\ref{alg:verify}.
+\item Permit dispatch iff verification returns true.
+\end{enumerate}
+By Corollary~\ref{cor:type-level}, this check is structurally equivalent to a refinement-type inhabitation check, and can be implemented as such on a refinement-type-aware kernel.
+
+\subsection{Conformance regression}
+
+The methodology offers a uniform regression-testing scheme. For each application domain, the conformance suite includes a three-route test that runs the three routes on a designated input, asserts agreement to within $2\Tolb(\Dim+1)^{-\Depth}$, and persists the result for cross-architecture comparison. The kernel operation weight conformance test (the V6 entry of~\citealp{sachikonye2026coe}) is the prototypical case: $50/50$ trials, max disagreement zero. The pattern extends to the four other specialisations of Section~\ref{sec:specialisations}.
+
+\section{Comparison with Existing Verification Methodologies}
+\label{sec:related}
+
+\subsection{Statistical replication}
+
+Statistical replication~\citep{jaynes2003probability,bevington2003data} verifies a value by re-running the same algorithm with different random inputs and computing a sample-mean confidence interval. The methodology differs from three-route equivalence in two respects: (i)~replication produces correlated samples by re-running the same algorithm, whereas three-route methodology produces independent estimates by running different algorithms; (ii)~replication's acceptance criterion is probabilistic (a confidence level), whereas three-route methodology's criterion is deterministic (a closed-form bound).
+
+\subsection{External-reference verification}
+
+External-reference verification (e.g.\ against CODATA~\citealp{codata2018}) requires trust in an authoritative source. The three-route methodology removes the external dependence by generating its own reference data from three independent routes, each at least as principled as the candidate. The trade-off is that route construction is application-specific; a domain without a clear categorical decomposition does not admit the methodology directly.
+
+\subsection{Property-based testing}
+
+Property-based testing~\citep{claessen2000quickcheck} verifies a function by checking that user-specified properties hold over a randomly-sampled input space. The methodology differs from three-route equivalence in that property-based testing verifies the satisfaction of a single specification by a single implementation, while three-route methodology verifies the agreement of three implementations on a common specification. The two are complementary: property-based tests can specify the inputs over which three-route agreement should hold.
+
+\subsection{Triangulation in measurement theory}
+
+Triangulation~\citep{denzin1978sociological,jick1979mixing} is a well-known concept in measurement theory: validate a measurement by comparing results from multiple instruments. Three-route equivalence formalises a specific kind of triangulation---computational rather than instrumental---and provides a closed-form convergence bound. The connection to measurement theory is structural: the bounded categorical structure is what permits a closed-form bound, in contrast to the ad hoc agreement metrics typically used in measurement-theoretic triangulation.
+
+\section{Limitations and Open Questions}
+\label{sec:limitations}
+
+\subsection{Route-construction scope}
+
+The methodology applies to invariants on bounded categorical structures. Invariants on unbounded structures (e.g.\ infinite-dimensional Hilbert spaces) or on structures lacking a clear refinement order are outside the scope. Extending the methodology to such settings is an open research question.
+
+\subsection{Convergence constant determination}
+
+The convergence constant $\Tolb_\Route$ for a specific route must be determined application-specifically, often by analytical bounds on the route's truncation error. A general theory of $\Tolb$-determination is not provided here; in practice, the constants are computed once per route and reused across verifications.
+
+\subsection{Computational independence verification}
+
+Definition~\ref{def:computational-independence} requires that no two routes share intermediate observables. This is a syntactic property of the route expressions, and is in principle decidable for routes expressed as vaHera fragments by structural inspection. A practical decision procedure that scales to large fragment libraries is an open implementation question.
+
+\subsection{Configurations beyond three routes}
+
+The methodology generalises to $k$-route configurations for $k \geq 3$, with the convergence bound scaling as $\binom{k}{2}\Tolb(\Dim+1)^{-\Depth}$ for the maximum pairwise disagreement. Four-route configurations are appropriate for the Ritz-combination setting (Section~\ref{ssec:spec-ritz}); five-route or higher configurations may find applications in settings where independence is harder to establish. We do not pursue this generalisation here.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have introduced three-route equivalence as a computational verification primitive: a structural methodology in which a bounded categorical invariant is verified by running three computationally distinct routes and checking that their outputs agree to within a closed-form bound. The methodology rests on four results: the Routes-Are-Well-Defined Theorem (Theorem~\ref{thm:routes-exist}), the Three-Route Convergence Theorem (Theorem~\ref{thm:convergence}), the Verification Soundness and Completeness theorems (Theorems~\ref{thm:verification-sound} and~\ref{thm:verification-complete}), and the Computational Equivalence Theorem (Theorem~\ref{thm:type-compat}). The methodology is sound, complete, decidable in time linear in the route evaluation cost, and parallelisable across the three routes by virtue of computational independence.
+
+The framework is purely structural. It imposes no statistical assumption, requires no external reference, and reports its result as a deterministic Boolean rather than a probabilistic confidence statement. The convergence bound $\Tolb(\Dim+1)^{-\Depth}$ tightens geometrically with refinement depth, providing a quantitative cost-precision trade-off.
+
+The methodology applies uniformly to any bounded categorical invariant. We have illustrated five specialisations---kernel operation weight, gravitational constant, ion mass, speed of light, atomic Ritz combinations---each of which instantiates three concrete routes from the categorical decomposition. The conformance test for kernel operation weight reports $50/50$ trials with zero disagreement; the corresponding tests for the four physical-constant specialisations report agreement to within their respective measurement-precision regimes.
+
+The verification primitive is the natural implementation of the proof-validation engine in a categorical dispatch substrate, and composes with the refinement-type substrate of the vaHera AST: verified invariants are inhabitants of the same refinement type, and three-route verification becomes a derivable type-checking obligation rather than a separate runtime check.
+
+The framework is foundational. Like the refinement-type substrate on which it builds, it does not specify which invariants are verified or which routes are constructed. Those choices are made by the application domains that consume the substrate. What the framework guarantees is that, once those choices are made, the verification result is decidable, sound, complete, and reproducible.
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% ============================================================
+
+\end{document}

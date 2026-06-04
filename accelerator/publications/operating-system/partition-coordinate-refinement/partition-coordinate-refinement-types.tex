@@ -1,0 +1,762 @@
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+% =============================================================
+%   vaHera AND PARTITION-COORDINATE REFINEMENT TYPES
+%   A Refinement-Type System for Symbolic Physical Derivations
+% =============================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.2cm,top=2.4cm,bottom=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{amsfonts}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\usepackage[round]{natbib}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{axiom}{Axiom}
+
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\cod}{cod}
+\DeclareMathOperator{\typecheck}{typecheck}
+\DeclareMathOperator{\refine}{refine}
+\DeclareMathOperator{\eval}{eval}
+\DeclareMathOperator{\sat}{sat}
+\DeclareMathOperator{\Sat}{SAT}
+
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\Natural}{\mathbb{N}}
+\newcommand{\Integer}{\mathbb{Z}}
+\newcommand{\Bool}{\mathbb{B}}
+\newcommand{\Lab}{\mathcal{L}}
+\newcommand{\Reg}{\mathcal{R}}
+\newcommand{\Sel}{\sigma}
+\newcommand{\Frag}{F}
+\newcommand{\Ctx}{\Gamma}
+\newcommand{\Op}{\mathcal{O}}
+\newcommand{\Pl}{\mathcal{P}}
+\newcommand{\Val}{V}
+\newcommand{\Hole}{\square}
+\newcommand{\bbrack}[1]{[\![#1]\!]}
+\newcommand{\rul}[1]{\textsc{(#1)}}
+\newcommand{\vCall}[2]{\mathrm{Call}(#1,#2)}
+\newcommand{\vComp}[1]{\mathrm{Compose}(#1)}
+\newcommand{\vLit}[1]{\mathrm{Literal}(#1)}
+\newcommand{\vHol}[1]{\mathrm{Hole}(#1)}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Partition-Coordinate Refinement Types}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\textbf{vaHera and Partition-Coordinate Refinement Types:\\[3pt]
+A Type System for Symbolic Physical\\[2pt]
+Derivations and Selection-Rule Enforcement}}
+
+\author{Kundai Farai Sachikonye\\
+Technical University of Munich\\
+Chair of Proteomics and Bioanalytics\\
+AIMe Registry for Artificial Intelligence\\
+Maximus-von-Imhof-Forum 3, 85354 Freising, Germany\\
+\texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce a refinement-type system over the vaHera abstract syntax tree (AST) in which partition coordinates $(n, \ell, m, s)$ and the selection rules $\Delta\ell = \pm 1$, $\Delta m \in \{0, \pm 1\}$, $\Delta s = 0$ are first-class type-theoretic predicates rather than runtime constraints. The vaHera AST consists of four frozen variants---$\mathrm{Literal}$, $\mathrm{Call}$, $\mathrm{Compose}$, and $\mathrm{Hole}$---and provides the symbolic substrate over which physical derivations expressing transitions between partition labels are written. We prove three principal results. (i)~The \emph{Compositionality Lemma}: refinement types compose under $\mathrm{Compose}$ via predicate conjunction, with no loss of decidability. (ii)~The \emph{Forbidden-Transition Theorem}: a vaHera fragment whose $\mathrm{Compose}$ chain implies a transition violating any registered selection rule is rejected by $\typecheck$ at static time; the rejection is structural, not probabilistic, and requires no run-time observation. (iii)~The \emph{Decidability Theorem}: refinement-type checking under a finite selection-rule set is decidable in $\mathcal{O}(|\Frag| \cdot |\Sel|)$ where $|\Frag|$ is the syntactic size of the fragment and $|\Sel|$ is the rule-set cardinality, and the checker is a total function. We provide a complete inference-rule system, soundness and completeness proofs, and a worked example illustrating the rejection of a fragment encoding an $\ell = 0 \to \ell = 2$ transition. The framework is purely syntactic: every theorem is provable from the four vaHera variants, the partition-label invariants, and the algebra of selection-rule predicates, without recourse to physical postulates or runtime evaluation. We outline how the type system serves as the formal substrate for physical-derivation languages that compile to vaHera, including the temporal-programming Tempus calculus, partition-mechanics expressions over bounded Hamiltonian systems, and detector-classification predicates in real-time event-selection systems.
+\end{abstract}
+
+\noindent\textbf{Keywords:} refinement types, partition coordinates, selection rules, vaHera, symbolic computation, static verification, type-directed rejection, compositionality, physical derivation, categorical type theory.
+
+\tableofcontents
+
+\vspace{6pt}
+\hrule
+\vspace{6pt}
+
+% ============================================================
+\part{Preliminaries}
+% ============================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Motivation}
+
+Symbolic representations of physical derivations are everywhere: Feynman diagrams encode interaction amplitudes; partition-state transition graphs encode bounded Hamiltonian dynamics; cell-registry programs encode real-time event-selection logic; and ion-trajectory equations encode mass-spectrometric measurement. In every case, the symbolic representation must obey constraints that arise from the underlying categorical structure of partition coordinates---in particular, from the \emph{selection rules} that determine which transitions between partition labels are admissible. Without a type-level mechanism for enforcing such rules, the symbolic substrate admits expressions that have no physical interpretation and that, if executed, produce well-formed but operationally meaningless results.
+
+The standard response to this problem is to detect ill-formed expressions at runtime: the dispatch path evaluates a fragment and rejects results that fail to satisfy the relevant constraints. This response is unsatisfactory in three ways. First, it requires actual execution before rejection, which is prohibitively expensive for high-throughput dispatch substrates such as kernels driving real-time detector systems. Second, it conflates two distinct categories of failure---those arising from runtime conditions (resource exhaustion, network unavailability) and those arising from structural ill-formedness---producing diagnostics that cannot be attributed to the right cause. Third, and most fundamentally, it forfeits the structural certainty available at compile time: a fragment whose composition chain implies a forbidden transition is ill-formed as a syntactic object, not merely as a runtime computation.
+
+This paper proposes that the right response is to lift selection-rule enforcement into the type system. We define a refinement-type discipline over the vaHera AST in which partition labels are types and selection rules are refinement predicates. A vaHera fragment is well-typed if and only if every $\mathrm{Compose}$-stage transition respects every registered selection rule; type-checking is decidable in linear time in the fragment size; and the typing relation is structurally compositional.
+
+\subsection{The vaHera substrate}
+
+The vaHera AST is a four-variant inductive datatype originally introduced as the symbolic interchange format between resolvers and providers in the Purpose framework~\citep{sachikonye2026integration}. The four variants are:
+\begin{itemize}[nosep,leftmargin=*]
+\item $\vLit{v}$, the embedding of a runtime value;
+\item $\vCall{\Op}{\overline{\Frag}}$, the invocation of a named operation $\Op$ with argument fragments;
+\item $\vComp{\overline{\Frag}}$, the sequential composition of fragments with carry threading;
+\item $\vHol{x}$, a typed placeholder awaiting substitution.
+\end{itemize}
+The variants are frozen: no version of the framework adds, removes, or renames them, and downstream consumers may rely on their permanence (per the stability contract in~\citealp{sachikonye2026integration} §2.1). This stability is what permits a refinement-type system to be defined once and to apply uniformly across all clients of the AST.
+
+\subsection{Selection rules as type predicates}
+
+The central technical move of this paper is to interpret selection rules---binary predicates on pairs of partition labels asserting that a given transition is admissible---as refinement predicates over partition-coordinate types. In standard refinement-type discipline~\citep{rondon2008liquid,vazou2014refinement,freeman1991refinement}, a refinement type $\{x : B \mid \phi(x)\}$ is the subset of values of base type $B$ satisfying predicate $\phi$. Our generalisation is mild: we replace the single-value predicate $\phi(x)$ with a transition predicate $\Sel(x_1, x_2)$ relating the input and output labels of an operation. This allows a single operation type signature
+\[
+\Op : \{x_1 : \Lab \mid \mathrm{true}\} \to \{x_2 : \Lab \mid \Sel(x_1, x_2)\}
+\]
+to express \emph{any transition admissible under $\Sel$}, with $\Sel$ ranging over an arbitrary finite set of selection rules. Composition then accumulates the conjunction of the per-stage transition predicates, and the Compositionality Lemma (Theorem~\ref{thm:compositionality}) ensures the accumulated predicate is itself decidable.
+
+\subsection{Overview of main results}
+
+The paper establishes the following:
+\begin{enumerate}[nosep,leftmargin=*]
+\item \textbf{Theorem~\ref{thm:label-formation}} (Label Formation): the four-tuple partition labels $(n, \ell, m, s)$ form a well-defined inductive type with closed-form bounds.
+\item \textbf{Theorem~\ref{thm:refinement-formation}} (Refinement Type Formation): refinements $\{x : B \mid \phi(x)\}$ over partition-label base types are well-formed and yield decidable subsets.
+\item \textbf{Theorem~\ref{thm:compositionality}} (Compositionality Lemma): for any $\vComp{\overline{\Frag}}$, the refinement type of the composite equals the conjunction of per-stage refinement types under carry-threading semantics.
+\item \textbf{Theorem~\ref{thm:typecheck-sound}} (Soundness of $\typecheck$): every fragment accepted by $\typecheck$ produces, on execution, a Value whose label satisfies every registered selection rule.
+\item \textbf{Theorem~\ref{thm:typecheck-complete}} (Completeness of $\typecheck$): every fragment whose composition chain implies a transition violating any registered selection rule is rejected by $\typecheck$.
+\item \textbf{Theorem~\ref{thm:forbidden-transition}} (Forbidden-Transition Theorem): the principal consequence: typecheck rejection of selection-rule-violating fragments is structural, not probabilistic, and occurs at static time with no runtime observation required.
+\item \textbf{Theorem~\ref{thm:decidability}} (Decidability): refinement-type checking under finite $\Sel$ is decidable in $\mathcal{O}(|\Frag| \cdot |\Sel|)$.
+\end{enumerate}
+
+\section{The vaHera AST}
+\label{sec:vahera}
+
+\subsection{Syntax}
+
+\begin{definition}[vaHera AST]
+\label{def:vahera-ast}
+The vaHera AST is the inductive datatype $\Frag$ defined by the grammar
+\begin{align*}
+\Frag &::= \vLit{v} \mid \vCall{\Op}{\overline{\Frag}} \mid \vComp{\overline{\Frag}} \mid \vHol{x}
+\end{align*}
+where $v$ ranges over runtime Values, $\Op$ over operation names, $\overline{\Frag}$ over finite sequences of fragments (the $\mathrm{Call}$ case carries a named-argument map, and the $\mathrm{Compose}$ case carries an ordered list), and $x$ over identifiers.
+\end{definition}
+
+\begin{remark}
+The four variants are pairwise disjoint and exhaustive over the AST. Every well-formed fragment is, syntactically, exactly one of these four shapes. This is the frozen surface from~\citet{sachikonye2026integration} §2.1.
+\end{remark}
+
+\subsection{Values and base types}
+
+\begin{definition}[Value]
+\label{def:value}
+The runtime Value space $\Val$ is the inductive datatype
+\begin{align*}
+v &::= \mathrm{Null} \mid \mathrm{Bool}(b) \mid \mathrm{Num}(r) \mid \mathrm{Str}(s) \\
+  &\quad\mid \mathrm{List}(\overline{v}) \mid \mathrm{Record}(\overline{(k, v)})
+\end{align*}
+where $b \in \Bool$, $r \in \Real$, $s$ is a finite character string, $\overline{v}$ is a finite sequence of Values, and $\overline{(k,v)}$ is a finite map from string keys to Values.
+\end{definition}
+
+\begin{definition}[Base type]
+\label{def:base-type}
+A base type $B$ is one of $\{\mathrm{Str}, \mathrm{Num}, \mathrm{Bool}, \mathrm{Unit}\}$ or a parameterised constructor $\mathrm{List}(B')$, a Named type $\mathrm{Named}(\tau)$ for a type name $\tau$, or a type variable $\mathrm{Var}(\alpha)$. The set of base types is denoted $\mathcal{B}$.
+\end{definition}
+
+The base-type discipline is the standard Hindley-Milner-style typing layer~\citep{hindley1969principal,milner1978theory,damas1982principal}. Every Value has a most-general base type, and the typing judgement $\vdash v : B$ is decidable in linear time.
+
+\subsection{Operations}
+
+\begin{definition}[Operation]
+\label{def:operation}
+An operation $\Op$ is a record
+\[
+\Op = \langle \mathrm{name}, \mathrm{inputs}, \mathrm{output}, \mathrm{desc}\rangle
+\]
+where $\mathrm{name}$ is a string identifier, $\mathrm{inputs}$ is a finite map from named argument keys to base types, $\mathrm{output}$ is a base type, and $\mathrm{desc}$ is a human-readable description. The set of operations registered in a given context is the \emph{operation registry} $\Reg$.
+\end{definition}
+
+\begin{remark}
+The $\mathrm{desc}$ field carries no semantic content for the type system. We retain it for compatibility with the runtime substrate, which uses it for introspection.
+\end{remark}
+
+\subsection{Standard typing judgement}
+
+The standard (non-refinement) typing judgement $\Ctx \vdash \Frag : B$ asserts that under typing context $\Ctx$, the fragment $\Frag$ has base type $B$.
+
+\begin{definition}[Standard typing]
+\label{def:standard-typing}
+The typing relation $\Ctx \vdash \Frag : B$ is the least relation closed under the rules:
+\[
+\frac{\vdash v : B}{\Ctx \vdash \vLit{v} : B} \rul{T-Lit}
+\quad
+\frac{\Ctx(x) = B}{\Ctx \vdash \vHol{x} : B} \rul{T-Hol}
+\]
+\[
+\frac{\Op = \langle\_,\overline{(k_i, B_i)}, B,\_\rangle \in \Reg \quad \forall i:\ \Ctx \vdash \Frag_i : B_i}{\Ctx \vdash \vCall{\Op}{\overline{(k_i, \Frag_i)}} : B} \rul{T-Call}
+\]
+\[
+\frac{\Ctx \vdash \Frag_1 : B_1 \quad \cdots \quad \Ctx \vdash \Frag_n : B_n \quad \forall i \geq 2:\ B_{i-1} \mathrel{\succeq} \mathrm{in}_i}{\Ctx \vdash \vComp{\overline{\Frag}} : B_n} \rul{T-Comp}
+\]
+where $\mathrm{in}_i$ is the carry-input type of stage $i$ (the type of the implicit \texttt{input} argument), and $\mathrel{\succeq}$ is the standard subtyping relation.
+\end{definition}
+
+\begin{proposition}[Standard typing is decidable]
+\label{prop:standard-decidable}
+For every $\Ctx$ and every well-formed $\Frag$, the judgement $\Ctx \vdash \Frag : B$ is decidable in linear time in $|\Frag|$.
+\end{proposition}
+
+\begin{proof}
+Straightforward structural induction over $\Frag$: each rule has a unique conclusion shape, premises decrease in fragment size, and base-type subtyping is decidable in constant time per check. \qed
+\end{proof}
+
+The standard typing judgement is the foundation on which we layer refinement.
+
+% ============================================================
+\part{Partition Coordinates as Refinement Base Types}
+% ============================================================
+
+\section{Partition Labels}
+\label{sec:partition-labels}
+
+\subsection{Definition}
+
+\begin{definition}[Partition Label]
+\label{def:partition-label}
+A \emph{partition label} is a 4-tuple
+\[
+\lambda = (n, \ell, m, s) \in \Natural \times \Natural \times \Integer \times \{-\tfrac{1}{2}, +\tfrac{1}{2}\}
+\]
+subject to the constraints
+\begin{align}
+n &\geq 1, \label{eq:n-bound}\\
+0 \leq \ell &\leq n - 1, \label{eq:l-bound}\\
+-\ell \leq m &\leq +\ell. \label{eq:m-bound}
+\end{align}
+The set of all partition labels is denoted $\Lab$.
+\end{definition}
+
+\begin{remark}
+The constraints~\eqref{eq:n-bound}--\eqref{eq:m-bound} are the nested boundary conditions of three-dimensional bounded oscillatory systems, derived from first principles in~\citet{sachikonye2026bpst}. We adopt them here as axiomatic for the type system; the question of how they arise physically is orthogonal to the present development.
+\end{remark}
+
+\subsection{Label cardinality}
+
+\begin{theorem}[Label Formation]
+\label{thm:label-formation}
+The set $\Lab$ of partition labels is well-defined and admits the following cardinality structure:
+\begin{enumerate}[nosep,leftmargin=*]
+\item For each $n \geq 1$, the number of labels with that principal value is $C(n) = 2n^2$.
+\item The cumulative count of labels with principal value at most $n_{\max}$ is $N(n_{\max}) = n_{\max}(n_{\max}+1)(2n_{\max}+1)/3$.
+\item There exists a canonical bijection $\Phi : \Natural^+ \to \Lab$ assigning each positive integer to a unique label.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i)~At principal level $n$, $\ell$ ranges over $\{0, 1, \ldots, n-1\}$ (by~\eqref{eq:l-bound}); for each $\ell$, $m$ ranges over $2\ell + 1$ values (by~\eqref{eq:m-bound}); and $s$ contributes a factor of 2. Summing:
+\[
+C(n) = 2 \sum_{\ell=0}^{n-1}(2\ell + 1) = 2(n^2 - n) + 2n = 2n^2.
+\]
+(ii)~Applying $\sum_{n=1}^{N} n^2 = N(N+1)(2N+1)/6$ with the factor of 2 from (i):
+\[
+N(n_{\max}) = \sum_{n=1}^{n_{\max}} 2n^2 = \tfrac{n_{\max}(n_{\max}+1)(2n_{\max}+1)}{3}.
+\]
+(iii)~Define $\Phi(M)$ by determining $n = \lfloor \sqrt{M/2}\rfloor + 1$ via inversion of (ii), then enumerating $(\ell, m, s)$ lexicographically within level $n$. The construction is total and injective; surjectivity follows from $\bigsqcup_n \{(n, \ell, m, s) : 0 \leq \ell < n, |m|\leq\ell, s \in \{\pm 1/2\}\} = \Lab$. \qed
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:label-formation} (iii) gives an effective procedure for label enumeration: every positive integer indexes a unique label, and every label has a unique integer index. We will exploit this bijection in Section~\ref{sec:decidability} to obtain a constant-time membership test.
+\end{remark}
+
+\subsection{Label projection}
+
+For a label $\lambda = (n, \ell, m, s)$, we write $\pi_n(\lambda) = n$, $\pi_\ell(\lambda) = \ell$, $\pi_m(\lambda) = m$, $\pi_s(\lambda) = s$ for the four canonical projections, and $\Delta : \Lab \times \Lab \to \Integer^4$ for the componentwise difference $\Delta(\lambda_1, \lambda_2) = (n_2 - n_1, \ell_2 - \ell_1, m_2 - m_1, s_2 - s_1)$.
+
+\section{Refinement Types over Partition Labels}
+\label{sec:refinement-types}
+
+\subsection{Refinement formation}
+
+\begin{definition}[Refinement Type]
+\label{def:refinement-type}
+A \emph{refinement type} over base type $B \in \mathcal{B}$ with predicate $\phi$ is the pair
+\[
+\{x : B \mid \phi(x)\}
+\]
+where $\phi$ is a computable Boolean-valued function on values of base type $B$. The set of refinement types is denoted $\mathcal{R}$.
+\end{definition}
+
+The base-type refinements in standard literature~\citep{rondon2008liquid,vazou2014refinement} are single-value predicates of the form $\phi(x)$. Our development requires a generalisation: predicates that relate \emph{pairs} of labels, the input and output of a transition.
+
+\begin{definition}[Transition Refinement]
+\label{def:transition-refinement}
+A \emph{transition refinement} is a refinement of the form
+\[
+\{x_2 : B_2 \mid \Sel(x_1, x_2)\}
+\]
+where $x_1$ is the input value of a transition and $x_2$ is the output value, and $\Sel : \Lab \times \Lab \to \Bool$ is a binary predicate.
+\end{definition}
+
+\begin{theorem}[Refinement Type Formation]
+\label{thm:refinement-formation}
+For every base type $B \in \mathcal{B}$ and every computable predicate $\phi$, the refinement type $\{x : B \mid \phi(x)\}$ is well-formed. Membership in $\{x : B \mid \phi(x)\}$ is decidable in time $\mathcal{O}(T_\phi)$, where $T_\phi$ is the cost of evaluating $\phi$ on a single value.
+\end{theorem}
+
+\begin{proof}
+Membership: $v \in \{x : B \mid \phi(x)\}$ iff $\vdash v : B$ and $\phi(v) = \mathrm{true}$. The first conjunct is decidable in linear time by Proposition~\ref{prop:standard-decidable}; the second conjunct is decidable in $\mathcal{O}(T_\phi)$ by hypothesis. The conjunction is therefore decidable in $\mathcal{O}(|v| + T_\phi)$. Well-formedness follows from $B \in \mathcal{B}$ being a base type and $\phi$ being computable. \qed
+\end{proof}
+
+\subsection{Selection rules}
+
+\begin{definition}[Selection Rule]
+\label{def:selection-rule}
+A \emph{selection rule} is a predicate $\Sel \in \Lab \times \Lab \to \Bool$ asserting that a transition from $\lambda_1$ to $\lambda_2$ is admissible (true) or forbidden (false).
+\end{definition}
+
+\begin{example}[Standard physical selection rules]
+\label{ex:physical-selection-rules}
+The following are commonly used:
+\begin{itemize}[nosep,leftmargin=*]
+\item Electric dipole (E1): $\Sel_{\mathrm{E1}}(\lambda_1, \lambda_2) \iff \pi_\ell(\lambda_2) - \pi_\ell(\lambda_1) \in \{-1, +1\}$ and $\pi_m(\lambda_2) - \pi_m(\lambda_1) \in \{-1, 0, +1\}$.
+\item Magnetic dipole (M1): $\Sel_{\mathrm{M1}}(\lambda_1, \lambda_2) \iff \pi_\ell(\lambda_2) = \pi_\ell(\lambda_1)$ and $\pi_m(\lambda_2) - \pi_m(\lambda_1) \in \{-1, 0, +1\}$.
+\item Spin conservation: $\Sel_{\mathrm{spin}}(\lambda_1, \lambda_2) \iff \pi_s(\lambda_2) = \pi_s(\lambda_1)$.
+\item Principal advancement: $\Sel_{\Delta n}(\lambda_1, \lambda_2) \iff \pi_n(\lambda_2) \geq \pi_n(\lambda_1)$.
+\end{itemize}
+We emphasise that the type system is parametric in $\Sel$: any computable binary predicate yields a selection rule, and the framework imposes no preference among rule sets.
+\end{example}
+
+\begin{definition}[Selection-Rule Registry]
+\label{def:rule-registry}
+A \emph{selection-rule registry} is a finite set $\Sel_\star = \{\Sel_1, \ldots, \Sel_k\}$ of selection rules. A transition $(\lambda_1, \lambda_2)$ is \emph{admissible under $\Sel_\star$} iff $\bigwedge_{i=1}^k \Sel_i(\lambda_1, \lambda_2)$.
+\end{definition}
+
+The registry is the unit of policy: changing the registered rules changes which transitions are admissible. For the remainder of the paper, we fix an arbitrary $\Sel_\star$.
+
+\subsection{Operations with refinement}
+
+\begin{definition}[Refined Operation]
+\label{def:refined-operation}
+A \emph{refined operation} extends Definition~\ref{def:operation} with input and output refinements:
+\[
+\Op^\Reg = \langle \mathrm{name}, \overline{(k_i, B_i, \phi_i^{\mathrm{in}})}, B, \phi^{\mathrm{out}}, \mathrm{desc}\rangle
+\]
+where $\phi_i^{\mathrm{in}}$ is the refinement predicate on the $i$-th input and $\phi^{\mathrm{out}}$ is the refinement predicate on the output. The set of refined operations is $\Reg^+$.
+\end{definition}
+
+The output refinement may depend on the input values; in the partition-label setting, $\phi^{\mathrm{out}}(\lambda_2) = \Sel_\star(\lambda_1^{\mathrm{in}}, \lambda_2)$ for a designated input $\lambda_1^{\mathrm{in}}$ carrying the source label.
+
+% ============================================================
+\part{Refinement Typing}
+% ============================================================
+
+\section{Refined Typing Judgement}
+\label{sec:refined-typing}
+
+\subsection{Definition}
+
+The refined typing judgement $\Ctx \vdash \Frag : \{x : B \mid \phi(x)\}$ extends Definition~\ref{def:standard-typing}.
+
+\begin{definition}[Refined typing]
+\label{def:refined-typing}
+The refined typing relation is closed under the rules
+\[
+\frac{\vdash v : B \quad \phi(v) = \mathrm{true}}{\Ctx \vdash \vLit{v} : \{x : B \mid \phi(x)\}} \rul{R-Lit}
+\]
+\[
+\frac{\Ctx(x) = \{y : B \mid \phi(y)\}}{\Ctx \vdash \vHol{x} : \{y : B \mid \phi(y)\}} \rul{R-Hol}
+\]
+\[
+\frac{\Op^\Reg \in \Reg^+ \quad \forall i: \Ctx \vdash \Frag_i : \{y_i : B_i \mid \phi_i^{\mathrm{in}}(y_i)\}}{\Ctx \vdash \vCall{\Op^\Reg}{\overline{(k_i, \Frag_i)}} : \{x : B \mid \phi^{\mathrm{out}}(x, \overline{y_i})\}} \rul{R-Call}
+\]
+\[
+\frac{\Ctx \vdash \Frag_1 : \{y_1 : B_1 \mid \phi_1\} \quad \cdots \quad \Ctx \vdash \Frag_n : \{y_n : B_n \mid \phi_n\}}{\Ctx \vdash \vComp{\overline{\Frag}} : \{x : B_n \mid \bigwedge_{i=1}^n \phi_i \mathrel{\#} \mathrm{thread}\}} \rul{R-Comp}
+\]
+where $\#\mathrm{thread}$ denotes that the carry value of stage $i$ is the input value $y_{i+1}^{\mathrm{in}}$ of stage $i+1$.
+\end{definition}
+
+The carry-threading premise of \rul{R-Comp} is what makes the rule non-trivial: the output refinement of one stage is fed into the input refinement of the next, accumulating constraints as the composition chain grows.
+
+\subsection{The Compositionality Lemma}
+
+\begin{theorem}[Compositionality Lemma]
+\label{thm:compositionality}
+Let $\Frag = \vComp{\Frag_1, \Frag_2, \ldots, \Frag_n}$ be a Compose chain. For all $i$, let
+\[
+\Ctx \vdash \Frag_i : \{y_i : B_i \mid \phi_i(y_{i-1}, y_i)\}
+\]
+under the carry-threading semantics, with $y_0$ a designated initial value. Then
+\[
+\Ctx \vdash \Frag : \left\{x : B_n \mid \bigwedge_{i=1}^n \phi_i(y_{i-1}, y_i)\right\}.
+\]
+\end{theorem}
+
+\begin{proof}
+By structural induction on $n$.
+
+\textbf{Base case} ($n = 1$): $\Frag = \vComp{\Frag_1}$. The hypothesis gives $\Ctx \vdash \Frag_1 : \{y_1 : B_1 \mid \phi_1(y_0, y_1)\}$, and \rul{R-Comp} with $n = 1$ reduces to the same judgement (the conjunction over a single conjunct is the conjunct itself). The result holds.
+
+\textbf{Inductive case} ($n = k+1$, assuming the result for $n = k$): Let $\Frag^{(k)} = \vComp{\Frag_1, \ldots, \Frag_k}$ and $\Frag = \vComp{\Frag^{(k)}, \Frag_{k+1}}$. By the inductive hypothesis,
+\[
+\Ctx \vdash \Frag^{(k)} : \{y_k : B_k \mid \Psi_k(y_0, y_1, \ldots, y_k)\}
+\]
+where $\Psi_k = \bigwedge_{i=1}^k \phi_i$. By \rul{R-Comp} applied to the binary case (two-stage compose),
+\[
+\Ctx \vdash \vComp{\Frag^{(k)}, \Frag_{k+1}} : \{x : B_{k+1} \mid \Psi_k \wedge \phi_{k+1}(y_k, y_{k+1})\}.
+\]
+Since $\Psi_k \wedge \phi_{k+1} = \bigwedge_{i=1}^{k+1} \phi_i$, the inductive step holds.
+
+By induction, the result holds for all $n \geq 1$. \qed
+\end{proof}
+
+\begin{corollary}[Conjunction-Preservation]
+\label{cor:conj-preserve}
+The refinement type of a Compose chain is the conjunction of the per-stage refinements modulo carry-threading. In particular, if any single $\phi_i$ is unsatisfiable, the type of the composite is uninhabited.
+\end{corollary}
+
+\begin{proof}
+Direct from Theorem~\ref{thm:compositionality}: if $\phi_i \equiv \mathrm{false}$, then $\bigwedge_j \phi_j \equiv \mathrm{false}$, and no value satisfies $\mathrm{false}$. \qed
+\end{proof}
+
+\subsection{The selection-rule refinement convention}
+
+For the remainder of the paper, we work under the \emph{selection-rule refinement convention}: every refined operation $\Op^\Reg$ whose input and output are partition-label types has output refinement
+\[
+\phi^{\mathrm{out}}(\lambda_2, \lambda_1) = \bigwedge_{\Sel \in \Sel_\star} \Sel(\lambda_1, \lambda_2),
+\]
+i.e.\ the operation's output is well-typed iff the implied transition respects every registered selection rule. The convention is a notational specialisation; the underlying type system is unchanged.
+
+\section{Soundness and Completeness}
+\label{sec:soundness}
+
+\subsection{Operational semantics}
+
+To state soundness, we recall the standard operational semantics of vaHera~\citep{sachikonye2026integration}. The dispatch evaluation $\eval(\Frag) \in \Val \cup \{\bot\}$ is defined by structural recursion:
+\begin{align*}
+\eval(\vLit{v}) &= v\\
+\eval(\vCall{\Op}{\overline{(k_i, \Frag_i)}}) &= \Op(\overline{(k_i, \eval(\Frag_i))})\\
+\eval(\vComp{\Frag_1, \ldots, \Frag_n}) &= \mathrm{thread}(\eval(\Frag_1), \ldots, \eval(\Frag_n))\\
+\eval(\vHol{x}) &= \bot
+\end{align*}
+where $\mathrm{thread}$ pipes the output of each stage into the implicit input of the next, and $\bot$ denotes the failure to dispatch (unresolved Hole).
+
+\subsection{Soundness}
+
+\begin{theorem}[Soundness of $\typecheck$]
+\label{thm:typecheck-sound}
+If $\Ctx \vdash \Frag : \{x : B \mid \phi(x)\}$ and $\eval(\Frag) = v \neq \bot$, then $\vdash v : B$ and $\phi(v) = \mathrm{true}$.
+\end{theorem}
+
+\begin{proof}
+By induction on the derivation of $\Ctx \vdash \Frag : \{x : B \mid \phi(x)\}$.
+
+\textbf{Case \rul{R-Lit}}: $\Frag = \vLit{v}$. The premises give $\vdash v : B$ and $\phi(v) = \mathrm{true}$. The conclusion follows by $\eval(\vLit{v}) = v$.
+
+\textbf{Case \rul{R-Hol}}: $\Frag = \vHol{x}$. Then $\eval(\Frag) = \bot$, contradicting the hypothesis $\eval(\Frag) \neq \bot$. The case is vacuous.
+
+\textbf{Case \rul{R-Call}}: $\Frag = \vCall{\Op^\Reg}{\overline{(k_i, \Frag_i)}}$. By the inductive hypothesis, each $\eval(\Frag_i)$ is a value of type $B_i$ satisfying $\phi_i^{\mathrm{in}}$. The operation $\Op^\Reg$ is, by Definition~\ref{def:refined-operation}, refined: its output, computed as $\Op(\overline{(k_i, \eval(\Frag_i))})$, has type $B$ and satisfies $\phi^{\mathrm{out}}$. The conclusion follows.
+
+\textbf{Case \rul{R-Comp}}: $\Frag = \vComp{\Frag_1, \ldots, \Frag_n}$. By Theorem~\ref{thm:compositionality}, the type of $\Frag$ is $\{x : B_n \mid \bigwedge_i \phi_i\}$. By the inductive hypothesis applied to each $\Frag_i$, each intermediate value $v_i = \eval(\Frag_i)$ has type $B_i$ and satisfies $\phi_i$. The final value $v_n = \mathrm{thread}(v_1, \ldots, v_n)$ inherits type $B_n$ from the last stage and satisfies $\bigwedge_i \phi_i$ by the threading invariant.
+
+The induction is complete. \qed
+\end{proof}
+
+\subsection{Completeness}
+
+\begin{theorem}[Completeness of $\typecheck$]
+\label{thm:typecheck-complete}
+If $\Frag$ is a Compose chain whose $\mathrm{thread}$ semantics implies a transition $(\lambda_i, \lambda_{i+1})$ for some $i$ that violates some registered selection rule $\Sel \in \Sel_\star$, then $\typecheck(\Frag)$ fails: there is no derivation $\Ctx \vdash \Frag : T$ for any refinement type $T$ under the selection-rule refinement convention.
+\end{theorem}
+
+\begin{proof}
+Suppose, for contradiction, that $\Ctx \vdash \Frag : \{x : B \mid \phi(x)\}$ for some $\phi$. By Theorem~\ref{thm:compositionality}, $\phi = \bigwedge_{j=1}^n \phi_j$ where $\phi_j$ is the refinement of stage $j$ in the Compose chain.
+
+By the selection-rule refinement convention, stage $i$ (the stage whose transition is forbidden) has refinement $\phi_i(\lambda_i, \lambda_{i+1}) = \bigwedge_{\Sel \in \Sel_\star} \Sel(\lambda_i, \lambda_{i+1})$. By hypothesis, some $\Sel(\lambda_i, \lambda_{i+1}) = \mathrm{false}$. Hence $\phi_i = \mathrm{false}$ at the relevant transition.
+
+By Corollary~\ref{cor:conj-preserve}, the conjunction $\bigwedge_j \phi_j$ is unsatisfiable; the type $\{x : B \mid \bigwedge_j \phi_j\}$ is uninhabited.
+
+By Soundness (Theorem~\ref{thm:typecheck-sound}), an inhabited refinement type would be required for a successful $\eval$ producing a non-$\bot$ value. The uninhabited type forces $\eval(\Frag) = \bot$ (the fragment has no well-typed evaluation). But this contradicts the assumption that $\typecheck$ accepted $\Frag$---$\typecheck$ requires inhabitation. \qed
+\end{proof}
+
+\subsection{The Forbidden-Transition Theorem}
+
+We can now state the principal consequence.
+
+\begin{theorem}[Forbidden-Transition Theorem]
+\label{thm:forbidden-transition}
+Under the selection-rule refinement convention with registry $\Sel_\star$:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Every vaHera Compose chain $\Frag$ whose implied transitions all respect $\Sel_\star$ is accepted by $\typecheck$ (modulo standard typing requirements).
+\item Every vaHera Compose chain $\Frag$ that implies a transition violating any $\Sel \in \Sel_\star$ is rejected by $\typecheck$ at static time, with no runtime observation required.
+\end{enumerate}
+The acceptance/rejection is a decidable function of the syntactic structure of $\Frag$ and the predicates in $\Sel_\star$.
+\end{theorem}
+
+\begin{proof}
+Combine Theorems~\ref{thm:typecheck-sound} and~\ref{thm:typecheck-complete}: soundness gives (i), completeness gives (ii). Decidability of the joint judgement follows from each $\Sel$ being computable and the Compose chain being finite. \qed
+\end{proof}
+
+\begin{remark}[Rejection is structural]
+Theorem~\ref{thm:forbidden-transition} (ii) is the key claim of this paper. It says that selection-rule-violating fragments are rejected for a structural reason---the refinement type is uninhabited---rather than because of a probabilistic event at runtime. The rejection occurs before dispatch, requires no execution, and is reproducible across implementations.
+\end{remark}
+
+% ============================================================
+\part{Decidability and Algorithms}
+% ============================================================
+
+\section{Decidability}
+\label{sec:decidability}
+
+\subsection{Complexity of $\typecheck$}
+
+\begin{theorem}[Decidability of $\typecheck$]
+\label{thm:decidability}
+Refinement-type checking of a vaHera fragment $\Frag$ under selection-rule registry $\Sel_\star$ runs in time $\mathcal{O}(|\Frag| \cdot |\Sel_\star|)$, where $|\Frag|$ is the syntactic size of $\Frag$ and $|\Sel_\star|$ is the cardinality of $\Sel_\star$, assuming constant-time evaluation of each $\Sel \in \Sel_\star$.
+\end{theorem}
+
+\begin{proof}
+We give a constructive algorithm.
+
+\textbf{Algorithm.} Walk $\Frag$ once in pre-order. For each Compose node, examine the per-stage refinements pairwise: for the transition from stage $i$ to stage $i+1$, evaluate each $\Sel \in \Sel_\star$ on the implied $(\lambda_i, \lambda_{i+1})$ pair. Reject if any $\Sel$ returns false; else continue. For each Call node, validate the operation signature against the standard typing premises (Proposition~\ref{prop:standard-decidable}, linear time). For Literal and Hole, return immediately.
+
+\textbf{Complexity.} Walking $\Frag$ visits each AST node exactly once. At each Compose node with $k$ stages, the per-stage refinement check costs $\mathcal{O}(|\Sel_\star|)$ per transition for $k - 1$ transitions, totalling $\mathcal{O}(k \cdot |\Sel_\star|)$. Summing over all Compose nodes gives $\mathcal{O}(N_C \cdot |\Sel_\star|)$ where $N_C$ is the total stage count, which is bounded by $|\Frag|$. The standard typing component adds $\mathcal{O}(|\Frag|)$. Total: $\mathcal{O}(|\Frag| \cdot |\Sel_\star|)$.
+
+\textbf{Termination.} Pre-order walk is structurally recursive on a finite AST, hence terminating. \qed
+\end{proof}
+
+\begin{remark}
+The constant-time assumption on $\Sel \in \Sel_\star$ holds for all selection rules in Example~\ref{ex:physical-selection-rules}: they are pure arithmetic comparisons on partition labels with bounded data. For more elaborate $\Sel$ involving, say, table lookups, the bound generalises to $\mathcal{O}(|\Frag| \cdot |\Sel_\star| \cdot T_{\mathrm{max}})$ where $T_{\mathrm{max}}$ is the maximum per-rule evaluation cost.
+\end{remark}
+
+\subsection{The $\typecheck$ algorithm}
+
+\begin{algorithm}[H]
+\caption{Refinement-type check}
+\label{alg:typecheck}
+\begin{algorithmic}[1]
+\Function{Check}{$F, \Gamma, \Sigma_\star$}
+  \If{$F$ is a literal $\mathrm{Literal}(v)$}
+    \State \Return $\vdash v : B$ for some base type $B$
+  \ElsIf{$F$ is a hole $\mathrm{Hole}(x)$}
+    \State \Return $x \in \mathrm{dom}(\Gamma)$
+  \ElsIf{$F$ is a call $\mathrm{Call}(\Omega, \mathrm{args})$}
+    \State \textbf{require} $\Omega \in \mathcal{R}^+$
+    \For{each named argument $\mathrm{args}[k_i] = F_i$}
+      \State $r_i \gets \textsc{Check}(F_i, \Gamma, \Sigma_\star)$
+      \If{$r_i$ is false}
+        \State \Return false
+      \EndIf
+    \EndFor
+    \State \Return true
+  \ElsIf{$F$ is a compose $\mathrm{Compose}(F_1, \ldots, F_n)$}
+    \State $\lambda_{\mathrm{prev}} \gets \mathrm{init}$
+    \For{$i = 1$ to $n$}
+      \State $r_i \gets \textsc{Check}(F_i, \Gamma, \Sigma_\star)$
+      \If{$r_i$ is false}
+        \State \Return false
+      \EndIf
+      \State $\lambda_i \gets \mathrm{labelOf}(F_i)$
+      \If{$i > 1$}
+        \For{each $\sigma \in \Sigma_\star$}
+          \If{$\sigma(\lambda_{\mathrm{prev}}, \lambda_i)$ is false}
+            \State \Return false
+          \EndIf
+        \EndFor
+      \EndIf
+      \State $\lambda_{\mathrm{prev}} \gets \lambda_i$
+    \EndFor
+    \State \Return true
+  \EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{proposition}[Algorithm correctness]
+\label{prop:alg-correctness}
+Algorithm~\ref{alg:typecheck} returns $\mathrm{true}$ iff there is a refinement-typing derivation for $\Frag$ under $\Ctx$ and $\Sel_\star$.
+\end{proposition}
+
+\begin{proof}
+The algorithm directly mirrors the inference rules of Definition~\ref{def:refined-typing}: each branch corresponds to one rule, the recursion follows the structural premises, and the per-stage refinement check at Compose nodes implements the conjunction of Theorem~\ref{thm:compositionality}. Correctness then follows from Theorems~\ref{thm:typecheck-sound} and~\ref{thm:typecheck-complete}. \qed
+\end{proof}
+
+\subsection{The role of the bijection $\Phi$}
+
+\begin{proposition}[Label representation cost]
+\label{prop:label-cost}
+Under the bijection $\Phi : \Natural^+ \to \Lab$ from Theorem~\ref{thm:label-formation}, each partition label is representable as a single positive integer; label comparison, hashing, and ordering are constant-time operations.
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:label-formation}, $\Phi$ is a constructive bijection. Comparison and hashing of integers are standard $\mathcal{O}(1)$ operations on bounded-precision arithmetic. Ordering is the natural integer order. \qed
+\end{proof}
+
+\begin{corollary}[Selection-rule evaluation is constant-time]
+\label{cor:rule-eval-const}
+Under the bijection $\Phi$, each of the selection rules in Example~\ref{ex:physical-selection-rules} evaluates in $\mathcal{O}(1)$ time on a transition $(\lambda_1, \lambda_2)$.
+\end{corollary}
+
+\begin{proof}
+Each rule reduces to integer subtraction and bounded-range membership tests (e.g.\ ``is $\ell_2 - \ell_1 \in \{-1, +1\}$''), both $\mathcal{O}(1)$. \qed
+\end{proof}
+
+Together, Theorem~\ref{thm:decidability}, Proposition~\ref{prop:alg-correctness}, and Corollary~\ref{cor:rule-eval-const} give us a complete static-time enforcement mechanism: any vaHera fragment whose Compose chain implies a forbidden transition is rejected at compile time, in linear time in the fragment size.
+
+% ============================================================
+\part{Worked Example}
+% ============================================================
+
+\section{The $\ell = 0 \to \ell = 2$ Rejection}
+\label{sec:worked-example}
+
+We illustrate Theorem~\ref{thm:forbidden-transition} on a small but representative example.
+
+\subsection{Setup}
+
+Fix the selection-rule registry $\Sel_\star = \{\Sel_{\mathrm{E1}}, \Sel_{\mathrm{spin}}\}$ from Example~\ref{ex:physical-selection-rules}. We register two operations:
+\begin{align*}
+\Op_1 &: \{y : \Lab \mid y = (n_1, 0, 0, +\tfrac{1}{2})\} \to \\
+      &\hspace{4em} \{x : \Lab \mid \Sel_{\mathrm{E1}}((n_1, 0, 0, +\tfrac{1}{2}), x) \\
+      &\hspace{6em} \wedge \Sel_{\mathrm{spin}}((n_1, 0, 0, +\tfrac{1}{2}), x)\}\\
+\Op_2 &: \{y : \Lab \mid y = (n_2, 2, 0, +\tfrac{1}{2})\} \to \\
+      &\hspace{4em} \{x : \Lab \mid \Sel_{\mathrm{E1}}((n_2, 2, 0, +\tfrac{1}{2}), x) \\
+      &\hspace{6em} \wedge \Sel_{\mathrm{spin}}((n_2, 2, 0, +\tfrac{1}{2}), x)\}
+\end{align*}
+
+The first operation takes an $\ell = 0$ source and produces any output reachable from it under E1 and spin-conserving rules. The second operation takes an $\ell = 2$ source and produces any reachable output. We attempt to compose them.
+
+\subsection{Direct composition: rejected}
+
+Consider the fragment
+\[
+\Frag = \vComp{\vLit{(1, 0, 0, +\tfrac{1}{2})}, \vCall{\Op_2}{\emptyset}}.
+\]
+The Compose chain threads the literal $\lambda_0 = (1, 0, 0, +\tfrac{1}{2})$ into the input of $\Op_2$. The input refinement of $\Op_2$ requires $\lambda_0 = (n_2, 2, 0, +\tfrac{1}{2})$; in particular, $\pi_\ell(\lambda_0) = 2$. But $\pi_\ell((1, 0, 0, +\tfrac{1}{2})) = 0$. The input refinement is violated, and by \rul{R-Call}, the typing judgement fails. $\typecheck$ rejects $\Frag$.
+
+\subsection{Through-route composition: also rejected}
+
+Consider the fragment
+\[
+\Frag' = \vComp{\vLit{(1, 0, 0, +\tfrac{1}{2})}, \vCall{\Op_1}{\emptyset}, \vCall{\Op_2}{\emptyset}}.
+\]
+The first stage is typed at $\{(1, 0, 0, +\tfrac{1}{2})\}$ (a singleton refinement). The second stage, $\Op_1$, accepts this input and outputs a label $\lambda_1$ satisfying $\Sel_{\mathrm{E1}}(\lambda_0, \lambda_1)$ and $\Sel_{\mathrm{spin}}(\lambda_0, \lambda_1)$. Reading off:
+\[
+\pi_\ell(\lambda_1) - 0 \in \{-1, +1\} \implies \pi_\ell(\lambda_1) \in \{-1, +1\} \cap \Natural = \{1\},
+\]
+forcing $\pi_\ell(\lambda_1) = 1$.
+
+The third stage, $\Op_2$, requires its input to satisfy $\pi_\ell = 2$. But the output of $\Op_1$ has $\pi_\ell = 1$. The carry-threading transition $\lambda_1 \to \lambda_2$ feeds $\lambda_1$ with $\pi_\ell = 1$ into $\Op_2$'s input refinement, which demands $\pi_\ell = 2$. This is a violation: \rul{R-Comp} fails, and $\typecheck$ rejects $\Frag'$.
+
+\subsection{Significance}
+
+The two rejections are structurally distinct---one fails at the Call stage, the other at the Compose threading---but both arise from the same underlying principle: the refinement type of the composed fragment is uninhabited. No physical $\ell = 0 \to \ell = 2$ single-photon transition exists under E1 selection rules, and no vaHera fragment can express it as a well-typed expression. The rejection is structural: there is no possible runtime that produces the implied transition, because no fragment can be written that implies it without violating the type system.
+
+This is the central content of Theorem~\ref{thm:forbidden-transition}: forbidden transitions are not rare; they are type errors.
+
+% ============================================================
+\part{Connections to Applications}
+% ============================================================
+
+\section{Applications across the Symbolic-Physics Substrate}
+\label{sec:applications}
+
+The refinement-type system specified here is parametric in the partition-coordinate structure and the selection-rule registry. We outline how the system applies as a foundational substrate for several downstream developments.
+
+\subsection{Bounded Hamiltonian Systems}
+
+The partition coordinates $(n, \ell, m, s)$ are the closure labels of bounded three-dimensional oscillatory systems, derived from first principles in~\citet{sachikonye2026bpst}. Every transition between such labels in a bounded Hamiltonian system must respect the closure constraints; the selection-rule registry $\Sel_\star$ encodes precisely those constraints. The present type system thereby provides the symbolic vocabulary for stating any bounded-Hamiltonian transition: a fragment is well-typed if and only if every transition it implies is admissible under the closure structure.
+
+\subsection{Mass-Spectrometric Trajectories}
+
+Ion trajectories in mass-spectrometric instruments---Orbitrap, FT-ICR, TOF, quadrupole---are governed by a partition Lagrangian whose Euler-Lagrange equation reduces to the Lorentz force law~\citep{sachikonye2026ion}. The state space of trajectories is parametrised by partition coordinates plus inertia and charge, and the trajectory's evolution respects a set of motion-derived selection rules. Under the present framework, ion trajectories become well-typed vaHera fragments over the partition-label type, with the motion-derived rules as $\Sel_\star$.
+
+\subsection{Temporal Programming and Cell Registries}
+
+The temporal-programming Tempus calculus~\citep{sachikonye2026temporal} defines a cell registry that classifies timing deviations into operationally-defined cells. The cells are compile-time-immutable, partitioning a $\Delta P$-space into action-equivalent regions. Under our framework, each cell becomes a refinement-typed operation: the cell's bounds are the input refinement, the dispatched action is the operation body, and the cell-disjointness invariant is enforced as a type-system property. Selection rules over cell-to-action transitions become first-class predicates rather than hand-coded checks.
+
+\subsection{Real-Time Event-Selection Systems}
+
+In high-throughput event-selection systems---trigger systems for high-energy experiments---each detector subsystem registers as a refined operation whose output Value carries one partition coordinate of the detected particle. The full classification of a particle is a Compose chain over the subsystems, and the per-stage selection rules enforce the physical admissibility of the combined classification. Backgrounds whose hypothesised classification violates any selection rule fail $\typecheck$ before dispatch, requiring no runtime observation.
+
+\subsection{Three-Route Verification}
+
+The Three-Route Equivalence Theorem of computational operations~\citep{sachikonye2026coe} asserts that any partition-state invariant admits three independent computational measurements that agree to within a closed-form bound. Under the present type system, each route becomes a refined operation, all sharing the same output type but with distinct internal computations. Verification reduces to running all three operations and checking that the outputs lie in the same refinement equivalence class---a type-level check rather than a numerical comparison.
+
+% ============================================================
+\part{Discussion}
+% ============================================================
+
+\section{Comparison with Existing Refinement-Type Systems}
+\label{sec:related}
+
+The refinement-type literature contains several mature systems. We comment on the relationship of the present development to each.
+
+\subsection{Liquid Types}
+
+The Liquid Types system of~\citet{rondon2008liquid} establishes refinement-type inference via predicate abstraction: refinements are SMT-decidable predicates over base types, and refinement inference is reduced to Horn-clause solving. Our system is restricted to the partition-coordinate domain, where the predicates are simple arithmetic comparisons; we obtain decidability in linear time without invoking SMT machinery. The trade-off is generality: Liquid Types apply to arbitrary base types, while ours is specialised to $\Lab$.
+
+\subsection{Refinement Types for Haskell}
+
+The system of~\citet{vazou2014refinement} extends Liquid Types to a real-world functional language. The treatment of dependent function types and the encoding of inductive datatypes parallel our treatment of refined operations and Compose chains. We differ chiefly in the binary-predicate generalisation~\eqref{def:transition-refinement}, which is not standard in the Haskell setting; binary predicates appear in dependent-type systems~\citep{coquand1988calculus,norell2007agda} but in fully general form, without our compositionality lemma's special-case efficiency.
+
+\subsection{ML-Style Refinements}
+
+Freeman and Pfenning's refinement types for ML~\citep{freeman1991refinement} introduced regular tree types as refinements of inductive types. The Compose chain corresponds, structurally, to a tree-shaped value flow, and our compositionality lemma is a strengthening of the tree-product property they establish. The forbidden-transition theorem is, in their language, a statement that the regular tree language defined by uninhabited refinements is empty.
+
+\subsection{Dependent Types}
+
+Coquand and Huet's Calculus of Constructions~\citep{coquand1988calculus} and its successors (Agda~\citep{norell2007agda}, Lean~\citep{demoura2015lean}, Coq~\citep{bertot2004interactive}) admit selection-rule predicates as dependent function types directly. Our framework can be viewed as a restricted, decidable fragment of such a dependent system, in which the predicate language is constrained to ensure the linear-time complexity of Theorem~\ref{thm:decidability}.
+
+\subsection{Hoare Logic}
+
+The Hoare-logic tradition~\citep{hoare1969axiomatic,dijkstra1975guarded} encodes pre- and post-conditions as assertions over program states. Our refined operations, with input refinement $\phi^{\mathrm{in}}$ and output refinement $\phi^{\mathrm{out}}$, are Hoare triples specialised to vaHera dispatch. The compositionality lemma is the sequential composition rule of Hoare logic, with the carry-threading providing the implicit state.
+
+\section{Limitations and Open Questions}
+\label{sec:limitations}
+
+\subsection{Predicate language}
+
+Our predicate language is restricted to constant-time computable Boolean functions on partition labels. More expressive predicates---second-order quantification, transitive closures, fixpoint computations---are outside the scope of the linear-time decidability result. Extending the framework to richer predicate logics would require a corresponding relaxation of the complexity bound.
+
+\subsection{Hole substitution}
+
+The treatment of Holes in Definition~\ref{def:standard-typing} assumes that all Holes have been resolved before $\typecheck$ runs. A more refined treatment would address Hole-resolution under refinement: given a fragment with unresolved Holes, what is the most general refinement type compatible with all possible Hole substitutions? This question generalises principal-typing for parametric polymorphism~\citep{milner1978theory,damas1982principal} and is left for future work.
+
+\subsection{Operation registration}
+
+Operations are registered in a global registry $\Reg^+$. In a distributed setting, multiple registries may coexist with different selection-rule registries. Reconciling fragments typed against different registries---particularly the question of when a fragment well-typed under $\Reg^+_A$ remains well-typed under $\Reg^+_B$---is a federation question that the present framework does not address.
+
+\subsection{Selection-rule learning}
+
+We treat the selection-rule registry $\Sel_\star$ as fixed and externally provided. The inverse problem---given a corpus of accepted transitions, infer the minimal $\Sel_\star$---is an automated specification synthesis problem; we do not pursue it here.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have introduced a refinement-type system over the vaHera AST in which partition coordinates are first-class types and selection rules are first-class refinement predicates. The system rests on three principal results: the Compositionality Lemma (Theorem~\ref{thm:compositionality}), which establishes that refinements compose under $\mathrm{Compose}$ via conjunction; the Forbidden-Transition Theorem (Theorem~\ref{thm:forbidden-transition}), which establishes that selection-rule-violating fragments are rejected by $\typecheck$ at static time; and the Decidability Theorem (Theorem~\ref{thm:decidability}), which establishes that the joint judgement is decidable in linear time in the fragment size.
+
+These results provide the symbolic substrate over which physical derivations expressing transitions between partition labels can be written and statically verified. The substrate is sufficient to specify any selection rule expressible as a computable binary predicate, and the resulting type discipline rejects every fragment whose composition chain implies a forbidden transition---without runtime observation, without probabilistic argument, and without recourse to external verification machinery.
+
+The framework is foundational: it does not specify which partition coordinates are used, which selection rules are registered, or which operations populate the registry. These choices are downstream, made by the applications that build on the substrate. What the framework guarantees is that, once those choices are made, the resulting symbolic representation has a statically-decidable well-formedness criterion, and that the criterion is structural rather than probabilistic.
+
+The downstream applications outlined in Section~\ref{sec:applications}---bounded Hamiltonian dynamics, mass-spectrometric trajectories, temporal-programming cell registries, real-time event-selection systems, and three-route verification---each adopt the substrate by registering an appropriate partition-coordinate domain and selection-rule registry. None of them re-implements the type-checking machinery; each cites the present development for its symbolic foundations and contributes its domain-specific operations on top.
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+% ============================================================
+
+\end{document}

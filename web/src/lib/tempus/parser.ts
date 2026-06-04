@@ -1,10 +1,13 @@
-import { Token, TType, Decl, Stmt, CellDecl, SyncDecl, ComposeDecl, WhenDecl, Program } from './types';
+import { Token, TType, Decl, Stmt, CellDecl, SyncDecl, ComposeDecl, WhenDecl, Program, Diag } from './types';
 
 export class ParseError extends Error {
   constructor(msg: string, public pos: number) { super(msg); }
 }
 
-export function parse(tokens: Token[]): Program {
+// Optional `diagnostics` out-param: when supplied, parse errors are collected
+// into it (with source positions) instead of being silently swallowed. The
+// returned Program contains every declaration that parsed cleanly.
+export function parse(tokens: Token[], diagnostics?: Diag[]): Program {
   let cur = 0;
 
   const peek  = (): Token => tokens[cur];
@@ -114,12 +117,17 @@ export function parse(tokens: Token[]): Program {
 
   const decls: Decl[] = [];
   while (!check('EOF')) {
+    const before = cur;
     try {
       const d = parseDecl();
       if (d) decls.push(d);
     } catch (e) {
-      // skip to next line on parse error in a declaration
-      while (!check('EOF') && peek().pos === cur) adv();
+      if (e instanceof ParseError) {
+        diagnostics?.push({ severity: 'error', message: e.message, pos: e.pos });
+      }
+      // Error recovery: guarantee forward progress so we never loop, then
+      // continue parsing subsequent declarations.
+      if (cur === before && !check('EOF')) adv();
     }
   }
   return { decls };

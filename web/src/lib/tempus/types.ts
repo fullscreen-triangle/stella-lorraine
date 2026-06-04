@@ -8,6 +8,14 @@ export type TType =
 
 export interface Token { type: TType; value: string; pos: number; }
 
+// ── Diagnostics (compile-time) ────────────────────────────────────────────────
+export type Severity = 'error' | 'warning' | 'info';
+export interface Diag {
+  severity: Severity;
+  message:  string;
+  pos?:     number;   // byte offset into source, for line/col resolution
+}
+
 // ── AST ───────────────────────────────────────────────────────────────────────
 export type Stmt =
   | { kind: 'emit'; name: string }
