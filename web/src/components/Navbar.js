@@ -49,7 +49,7 @@ export default function Navbar() {
         <NavLink href="/ritonavir" label="Synthesis" />
         <NavLink href="/psdr" label="PSDR" />
         <NavLink href="/tempus" label="Tempus" />
-        <NavLink href="/tempus-tutorial" label="Tutorial" />
+        <NavLink href="/tempus-tutorial" label="Sandbox" />
       </nav>
 
       {/* Right: theme toggle */}
