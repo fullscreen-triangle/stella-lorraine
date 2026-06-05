@@ -5,12 +5,12 @@ import {
   Files, Search, GitBranch, Play, Blocks, Settings, ChevronRight, ChevronDown,
   X, Circle, FileCode2, FileText, Folder, FolderOpen,
   AlertCircle, Bell, PanelBottomClose, Check, ShieldX,
-  BookOpen, Activity, ListTree, Cpu,
+  BookOpen, Activity, ListTree, Cpu, Terminal as TerminalIcon,
 } from "lucide-react";
 
 import { compile, type CompileResult } from "../lib/tempus/compile";
 import { createSimulator } from "../lib/tempus/runtime";
-import { LESSONS, type Lesson } from "../lib/tempus/lessons";
+import { LESSONS, EXAMPLES, type Lesson } from "../lib/tempus/lessons";
 import type { Diag, SimEvent } from "../lib/tempus/types";
 import { CanvasScatter, CanvasHistogram, CanvasStrip } from "../components/charts";
 import type { ScatterPoint, ScatterBand, HistBand, StripEntry } from "../components/charts";
@@ -41,6 +41,11 @@ const LESSON_FILES = LESSONS.map((l, i) => ({
   index: i,
   name: `${String(i + 1).padStart(2, "0")}_${l.id.replace(/-/g, "_")}.tempus`,
 }));
+const EXAMPLE_FILES = EXAMPLES.map((l) => ({
+  lesson: l,
+  name: `${l.id.replace(/-/g, "_")}.tempus`,
+}));
+const ALL_FILES = [...LESSON_FILES, ...EXAMPLE_FILES];
 
 const README = `# Tempus — Interactive Tutorial
 
@@ -62,7 +67,9 @@ of the k-th pulse from the reference oscillator's tick. A program is a set
 of cells over ΔP-space, each mapping to a pre-compiled action. There is no
 content parser — and therefore no injection surface.
 
-Work through the lessons in order; each builds on the last.`;
+Work through the lessons in order; each builds on the last. Then open
+examples/ to see the other instruments — thin-film, polymorphism, bioreactor,
+synthesis QC, and PSDR — each re-expressed as a runnable Tempus partition.`;
 
 const initialFiles: Record<string, FNode> = {
   lessons: {
@@ -71,11 +78,17 @@ const initialFiles: Record<string, FNode> = {
       LESSON_FILES.map(f => [f.name, { type: "file", lang: "tempus", content: f.lesson.script } as FileNode]),
     ),
   },
+  examples: {
+    type: "folder",
+    children: Object.fromEntries(
+      EXAMPLE_FILES.map(f => [f.name, { type: "file", lang: "tempus", content: f.lesson.script } as FileNode]),
+    ),
+  },
   "README.md": { type: "file", lang: "md", content: README },
 };
 
 const lessonForName = (name: string): Lesson | null =>
-  LESSON_FILES.find(f => f.name === name)?.lesson ?? null;
+  ALL_FILES.find(f => f.name === name)?.lesson ?? null;
 
 /* ------------------------------------------------------------------ *
  *  Helpers                                                            *
@@ -253,11 +266,12 @@ function LessonView({ lesson, readme, cellCount }: { lesson: Lesson | null; read
       </div>
     );
   }
+  const isEx = lesson.kind === "example";
   const i = LESSON_FILES.findIndex(f => f.lesson.id === lesson.id);
   return (
     <div className="h-full overflow-y-auto px-6 py-5">
       <div style={{ fontSize: 9, color: theme.accentBright, letterSpacing: "0.22em", fontFamily: "monospace" }}>
-        LESSON {String(i + 1).padStart(2, "0")}
+        {isEx ? "INSTRUMENT EXAMPLE" : `LESSON ${String(i + 1).padStart(2, "0")}`}
       </div>
       <h1 style={{ fontSize: 21, fontWeight: 700, color: "#eafaf8", margin: "6px 0 3px" }}>{lesson.title}</h1>
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.42)", fontStyle: "italic", marginBottom: 14 }}>{lesson.tagline}</div>
@@ -412,6 +426,71 @@ function RegistryView({ result }: { result: CompileResult | null }) {
   );
 }
 
+interface RunMeta { name: string; events: number; noise: number; seed: number; freq: number }
+
+function OutputLogView({ events, result, runMeta }: { events: SimEvent[]; result: CompileResult | null; runMeta: RunMeta | null }) {
+  if (!runMeta || events.length === 0) return <Placeholder text="press RUN to produce the output log + values" />;
+  const reg = result?.registry;
+  const cells = result?.runtime ? Array.from(result.runtime.cells.values()) : [];
+  const actionOf = (name: string) => result?.runtime?.cells.get(name)?.action;
+  const counts = new Map<string, number>();
+  events.forEach(e => counts.set(e.cell, (counts.get(e.cell) ?? 0) + 1));
+  const dispatched = events.filter(e => e.actionFired !== null).length;
+  const anomalies = events.filter(e => e.cell === "anomaly").length;
+  const mean = events.reduce((a, e) => a + e.dp, 0) / events.length;
+  const CAP = 800;
+  const rows = events.slice(0, CAP);
+  const COLS = "44px 84px 86px 1fr 64px 74px 80px 40px";
+  const dim = "rgba(255,255,255,0.32)";
+  return (
+    <div className="h-full overflow-y-auto p-3 font-mono text-[11px]" style={{ color: "rgba(255,255,255,0.72)" }}>
+      <div style={{ color: "#9cdcfe" }}>$ tempus run {runMeta.name}</div>
+      <div style={{ color: dim }}>registry  {reg?.cells.length ?? 0} cells · d={reg?.channels.length ?? 0} · span [{reg?.span ? fmtDP(reg.span[0]) : "—"}, {reg?.span ? fmtDP(reg.span[1]) : "—"}]</div>
+      <div style={{ color: dim }}>params    events={runMeta.events} · noise σ={runMeta.noise} · seed={runMeta.seed} · f_ref={runMeta.freq.toExponential(2)} Hz</div>
+      <div className="my-2" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }} />
+      <div className="grid" style={{ gridTemplateColumns: COLS, color: dim, paddingBottom: 3 }}>
+        <span>k</span><span>channel</span><span>ΔP</span><span>cell</span><span>M</span><span>phase</span><span>t(s)</span><span>act</span>
+      </div>
+      {rows.map((e, i) => (
+        <div key={i} className="grid" style={{ gridTemplateColumns: COLS, padding: "1px 0" }}>
+          <span style={{ color: dim }}>{e.index}</span>
+          <span style={{ color: "rgba(255,255,255,0.5)" }} className="truncate">{e.channel}</span>
+          <span style={{ color: e.dp >= 0 ? "#7fd1c8" : "#f0b072" }}>{fmtDP(e.dp)}</span>
+          <span style={{ color: e.cell === "anomaly" ? "#ef4444" : "#9fe8e0" }} className="truncate">{e.cell}</span>
+          <span style={{ color: "rgba(255,255,255,0.4)" }}>{e.M}</span>
+          <span style={{ color: e.phase === "EXECUTE" ? "#f59e0b" : "#60a5fa" }}>{e.phase}</span>
+          <span style={{ color: dim }}>{e.time.toExponential(2)}</span>
+          <span style={{ color: e.actionFired ? "#34d399" : "rgba(255,255,255,0.18)" }}>{actionOf(e.cell) ?? "—"}</span>
+        </div>
+      ))}
+      {events.length > CAP && <div style={{ color: dim }}>… {events.length - CAP} more rows</div>}
+
+      <div className="mb-1 mt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 6, color: dim }}>─ summary ─────────────</div>
+      {[["events", String(events.length)], ["dispatched", String(dispatched)], ["anomalies", String(anomalies)], ["mean ΔP", fmtDP(mean)]].map(([k, v]) => (
+        <div key={k} className="grid" style={{ gridTemplateColumns: "120px 1fr" }}>
+          <span style={{ color: dim }}>{k}</span>
+          <span style={{ color: k === "anomalies" && anomalies > 0 ? "#ef4444" : "rgba(255,255,255,0.72)" }}>{v}</span>
+        </div>
+      ))}
+      <div className="mt-1" style={{ color: dim }}>per-cell:</div>
+      {[...cells.map(c => c.name), "anomaly"].map(name => {
+        const n = counts.get(name) ?? 0;
+        if (n === 0 && name === "anomaly") return null;
+        const pct = ((100 * n) / events.length).toFixed(1);
+        const col = name === "anomaly" ? ANOMALY : (paletteFor(cells.map(c => c.name)).get(name) ?? "#888");
+        return (
+          <div key={name} className="grid" style={{ gridTemplateColumns: "16px 120px 56px 1fr" }}>
+            <span />
+            <span style={{ color: col }}>{name}</span>
+            <span style={{ color: "rgba(255,255,255,0.6)", textAlign: "right" }}>{n}</span>
+            <span style={{ color: dim, paddingLeft: 8 }}>({pct}%)</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function Placeholder({ text }: { text: string }) {
   return <div className="flex h-full items-center justify-center font-mono text-[10px] italic" style={{ color: "rgba(255,255,255,0.16)" }}>{text}</div>;
 }
@@ -430,12 +509,13 @@ function Stat({ k, v }: { k: string; v: string }) {
 /* ------------------------------------------------------------------ *
  *  Output column                                                      *
  * ------------------------------------------------------------------ */
-type OutTab = "lesson" | "simulation" | "diagnostics" | "registry";
+type OutTab = "lesson" | "output" | "simulation" | "diagnostics" | "registry";
 
-function OutputColumn({ tab, setTab, lesson, readme, derived, showPhase, result, src, diagCount, cellCount, onCompile, onRun, running }: any) {
+function OutputColumn({ tab, setTab, lesson, readme, events, runMeta, derived, showPhase, result, src, diagCount, cellCount, onCompile, onRun, running }: any) {
   const tabs: { id: OutTab; label: string; Icon: any }[] = [
     { id: "lesson", label: "Lesson", Icon: BookOpen },
-    { id: "simulation", label: "Simulation", Icon: Activity },
+    { id: "output", label: "Output", Icon: TerminalIcon },
+    { id: "simulation", label: "Charts", Icon: Activity },
     { id: "diagnostics", label: "Diagnostics", Icon: ListTree },
     { id: "registry", label: "Registry", Icon: Cpu },
   ];
@@ -467,6 +547,7 @@ function OutputColumn({ tab, setTab, lesson, readme, derived, showPhase, result,
       </div>
       <div className="min-h-0 flex-1">
         {tab === "lesson" && <LessonView lesson={lesson} readme={readme} cellCount={cellCount} />}
+        {tab === "output" && <OutputLogView events={events} result={result} runMeta={runMeta} />}
         {tab === "simulation" && <SimulationView derived={derived} showPhase={showPhase} />}
         {tab === "diagnostics" && <DiagnosticsView result={result} src={src} />}
         {tab === "registry" && <RegistryView result={result} />}
@@ -481,7 +562,7 @@ function OutputColumn({ tab, setTab, lesson, readme, derived, showPhase, result,
 function TempusTutorial() {
   const firstKey = `lessons/${LESSON_FILES[0].name}`;
   const [files, setFiles] = useState<Record<string, FNode>>(initialFiles);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(["lessons"]));
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(["lessons", "examples"]));
   const [openTabs, setOpenTabs] = useState<string[][]>([["lessons", LESSON_FILES[0].name]]);
   const [activeTab, setActiveTab] = useState<string | null>(firstKey);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -495,6 +576,7 @@ function TempusTutorial() {
   const [events, setEvents] = useState<SimEvent[]>([]);
   const [running, setRunning] = useState(false);
   const [outTab, setOutTab] = useState<OutTab>("lesson");
+  const [runMeta, setRunMeta] = useState<RunMeta | null>(null);
   const [termLog, setTermLog] = useState<string[]>(["tempus tutorial — ready."]);
 
   const [editorWidth, setEditorWidth] = useState(52);
@@ -572,9 +654,12 @@ function TempusTutorial() {
     setEvents([]);
     const total = activeLesson.events;
     const batch = Math.max(1, Math.floor(total / 40));
+    const ch0 = res.registry?.channels[0] ?? "";
+    const freq = res.runtime.syncs.get(ch0)?.freq ?? 10e6;
+    setRunMeta({ name: activeName, events: total, noise: activeLesson.noise, seed: 42, freq });
     simRef.current = createSimulator(res.runtime, { totalEvents: total, noiseSigma: activeLesson.noise, seed: 42, batchSize: batch });
     log(`$ tempus run ${activeName} → simulating ${total} pulses on ${res.registry?.channels.length} channel(s)…`);
-    setOutTab("simulation");
+    setOutTab("output");
     setRunning(true);
     intervalRef.current = setInterval(() => {
       const sim = simRef.current;
@@ -780,6 +865,7 @@ function TempusTutorial() {
 
           {/* Output column */}
           <OutputColumn tab={outTab} setTab={setOutTab} lesson={activeLesson} readme={activeLang === "md" ? source : null}
+            events={events} runMeta={runMeta}
             derived={derived} showPhase={activeLesson?.feature === "phase"} result={result} src={source}
             diagCount={diags.length} cellCount={result?.registry?.cells.length ?? 0}
             onCompile={handleCompile} onRun={handleRun} running={running} />
