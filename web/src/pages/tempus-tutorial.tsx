@@ -9,11 +9,16 @@ import {
 } from "lucide-react";
 
 import { compile, type CompileResult } from "../lib/tempus/compile";
+import { compileConstruct, type ConstructResult, type ConstructScene } from "../lib/tempus/construct";
 import { createSimulator } from "../lib/tempus/runtime";
 import { LESSONS, EXAMPLES, type Lesson } from "../lib/tempus/lessons";
+import { LAB } from "../lib/tempus/constructions";
 import type { Diag, SimEvent } from "../lib/tempus/types";
 import { CanvasScatter, CanvasHistogram, CanvasStrip } from "../components/charts";
 import type { ScatterPoint, ScatterBand, HistBand, StripEntry } from "../components/charts";
+import { InterferenceCanvas, type Observables } from "../components/tempus/InterferenceCanvas";
+
+type AnyResult = { ok: boolean; diagnostics: Diag[] };
 
 /* ------------------------------------------------------------------ *
  *  THEME — tinted to the site's dark-teal palette.                    *
@@ -45,7 +50,11 @@ const EXAMPLE_FILES = EXAMPLES.map((l) => ({
   lesson: l,
   name: `${l.id.replace(/-/g, "_")}.tempus`,
 }));
-const ALL_FILES = [...LESSON_FILES, ...EXAMPLE_FILES];
+const LAB_FILES = LAB.map((l, i) => ({
+  lesson: l,
+  name: `${String(i + 1).padStart(2, "0")}_${l.id.replace(/-/g, "_")}.lab`,
+}));
+const ALL_FILES = [...LESSON_FILES, ...EXAMPLE_FILES, ...LAB_FILES];
 
 const README = `# Tempus — Interactive Tutorial
 
@@ -69,7 +78,11 @@ content parser — and therefore no injection surface.
 
 Work through the lessons in order; each builds on the last. Then open
 examples/ to see the other instruments — thin-film, polymorphism, bioreactor,
-synthesis QC, and PSDR — each re-expressed as a runnable Tempus partition.`;
+synthesis QC, and PSDR — each re-expressed as a runnable Tempus partition.
+
+The lab/ folder is a second track: instead of classifying timing events, you
+CONSTRUCT an item from oscillator modes (a spectrum) and the GPU renders the
+interference — rendering IS the computation. Start with the double slit.`;
 
 const initialFiles: Record<string, FNode> = {
   lessons: {
@@ -82,6 +95,12 @@ const initialFiles: Record<string, FNode> = {
     type: "folder",
     children: Object.fromEntries(
       EXAMPLE_FILES.map(f => [f.name, { type: "file", lang: "tempus", content: f.lesson.script } as FileNode]),
+    ),
+  },
+  lab: {
+    type: "folder",
+    children: Object.fromEntries(
+      LAB_FILES.map(f => [f.name, { type: "file", lang: "construct", content: f.lesson.script } as FileNode]),
     ),
   },
   "README.md": { type: "file", lang: "md", content: README },
@@ -128,10 +147,11 @@ const SEV = {
 
 const fileIcon = (name: string): { Icon: any; color: string } => {
   if (name.endsWith(".tempus")) return { Icon: FileCode2, color: "#58E6D9" };
+  if (name.endsWith(".lab")) return { Icon: FileCode2, color: "#f59e0b" };
   if (name.endsWith(".md")) return { Icon: FileText, color: "#7aa2a0" };
   return { Icon: FileText, color: "#858585" };
 };
-const langLabel = (lang: string) => (({ tempus: "Tempus", md: "Markdown" } as Record<string, string>)[lang] || "Plain Text");
+const langLabel = (lang: string) => (({ tempus: "Tempus", construct: "Tempus·construct", md: "Markdown" } as Record<string, string>)[lang] || "Plain Text");
 const getNode = (tree: Record<string, FNode>, path: string[]): any => {
   let n: any = { children: tree };
   for (const p of path) { n = n.children?.[p]; if (!n) return null; }
@@ -266,12 +286,14 @@ function LessonView({ lesson, readme, cellCount }: { lesson: Lesson | null; read
       </div>
     );
   }
-  const isEx = lesson.kind === "example";
   const i = LESSON_FILES.findIndex(f => f.lesson.id === lesson.id);
+  const headerLabel = lesson.kind === "example" ? "INSTRUMENT EXAMPLE"
+    : lesson.kind === "lab" ? "INTERFERENCE LAB"
+    : `LESSON ${String(i + 1).padStart(2, "0")}`;
   return (
     <div className="h-full overflow-y-auto px-6 py-5">
       <div style={{ fontSize: 9, color: theme.accentBright, letterSpacing: "0.22em", fontFamily: "monospace" }}>
-        {isEx ? "INSTRUMENT EXAMPLE" : `LESSON ${String(i + 1).padStart(2, "0")}`}
+        {headerLabel}
       </div>
       <h1 style={{ fontSize: 21, fontWeight: 700, color: "#eafaf8", margin: "6px 0 3px" }}>{lesson.title}</h1>
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.42)", fontStyle: "italic", marginBottom: 14 }}>{lesson.tagline}</div>
@@ -348,7 +370,7 @@ function SimulationView({ derived, showPhase }: { derived: SimDerived | null; sh
   );
 }
 
-function DiagnosticsView({ result, src }: { result: CompileResult | null; src: string }) {
+function DiagnosticsView({ result, src }: { result: AnyResult | null; src: string }) {
   if (!result) return <Placeholder text="press COMPILE (or edit a .tempus file) to see diagnostics" />;
   const { diagnostics, ok } = result;
   const c = {
@@ -509,16 +531,51 @@ function Stat({ k, v }: { k: string; v: string }) {
 /* ------------------------------------------------------------------ *
  *  Output column                                                      *
  * ------------------------------------------------------------------ */
-type OutTab = "lesson" | "output" | "simulation" | "diagnostics" | "registry";
-
-function OutputColumn({ tab, setTab, lesson, readme, events, runMeta, derived, showPhase, result, src, diagCount, cellCount, onCompile, onRun, running }: any) {
-  const tabs: { id: OutTab; label: string; Icon: any }[] = [
-    { id: "lesson", label: "Lesson", Icon: BookOpen },
-    { id: "output", label: "Output", Icon: TerminalIcon },
-    { id: "simulation", label: "Charts", Icon: Activity },
-    { id: "diagnostics", label: "Diagnostics", Icon: ListTree },
-    { id: "registry", label: "Registry", Icon: Cpu },
+function RenderView({ scene, observables, onObserve }: { scene: ConstructScene | null; observables: Observables | null; onObserve: (o: Observables) => void }) {
+  if (!scene) return <Placeholder text="press RUN to render the interference field" />;
+  const o = observables;
+  const cells: [string, string, string | undefined][] = [
+    ["visibility", o ? o.visibility.toFixed(3) : "—", theme.accentBright],
+    ["fringes", o ? String(o.fringes) : "—", undefined],
+    ["sources", String(scene.waves.length), undefined],
+    ["I max", o ? o.intensity_max.toFixed(2) : "—", undefined],
   ];
+  return (
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="relative min-h-0 flex-1">
+        <InterferenceCanvas scene={scene} onObserve={onObserve} />
+        <div className="pointer-events-none absolute left-2 top-2 font-mono text-[9px]" style={{ color: "rgba(255,255,255,0.5)" }}>
+          domain {(scene.domain.w * 1000).toFixed(0)}×{(scene.domain.h * 1000).toFixed(0)} mm · {scene.waves.length} source{scene.waves.length !== 1 ? "s" : ""}
+        </div>
+      </div>
+      <div className="grid shrink-0 grid-cols-4" style={{ borderTop: `1px solid ${theme.border}` }}>
+        {cells.map(([k, v, c]) => (
+          <div key={k} className="px-1.5 py-2 text-center" style={{ borderRight: `1px solid ${theme.border}` }}>
+            <div style={{ fontSize: 7.5, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>{k}</div>
+            <div style={{ fontSize: 14, fontFamily: "monospace", fontWeight: 700, marginTop: 2, color: (c ?? "rgba(255,255,255,0.65)") as string }}>{v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type OutTab = "lesson" | "output" | "simulation" | "diagnostics" | "registry" | "render";
+
+function OutputColumn({ tab, setTab, lang, lesson, readme, events, runMeta, derived, showPhase, result, diagResult, scene, observables, onObserve, src, diagCount, cellCount, onCompile, onRun, running }: any) {
+  const tabs: { id: OutTab; label: string; Icon: any }[] = lang === "construct"
+    ? [
+        { id: "lesson", label: "Lesson", Icon: BookOpen },
+        { id: "render", label: "Render", Icon: Activity },
+        { id: "diagnostics", label: "Diagnostics", Icon: ListTree },
+      ]
+    : [
+        { id: "lesson", label: "Lesson", Icon: BookOpen },
+        { id: "output", label: "Output", Icon: TerminalIcon },
+        { id: "simulation", label: "Charts", Icon: Activity },
+        { id: "diagnostics", label: "Diagnostics", Icon: ListTree },
+        { id: "registry", label: "Registry", Icon: Cpu },
+      ];
   return (
     <div className="flex min-w-0 flex-1 flex-col" style={{ background: theme.editor, borderLeft: `1px solid ${theme.border}` }}>
       <div className="flex h-9 shrink-0 items-center justify-between pr-2" style={{ background: theme.tabInactive }}>
@@ -549,7 +606,8 @@ function OutputColumn({ tab, setTab, lesson, readme, events, runMeta, derived, s
         {tab === "lesson" && <LessonView lesson={lesson} readme={readme} cellCount={cellCount} />}
         {tab === "output" && <OutputLogView events={events} result={result} runMeta={runMeta} />}
         {tab === "simulation" && <SimulationView derived={derived} showPhase={showPhase} />}
-        {tab === "diagnostics" && <DiagnosticsView result={result} src={src} />}
+        {tab === "render" && <RenderView scene={scene} observables={observables} onObserve={onObserve} />}
+        {tab === "diagnostics" && <DiagnosticsView result={diagResult} src={src} />}
         {tab === "registry" && <RegistryView result={result} />}
       </div>
     </div>
@@ -562,7 +620,7 @@ function OutputColumn({ tab, setTab, lesson, readme, events, runMeta, derived, s
 function TempusTutorial() {
   const firstKey = `lessons/${LESSON_FILES[0].name}`;
   const [files, setFiles] = useState<Record<string, FNode>>(initialFiles);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(["lessons", "examples"]));
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(["lessons", "examples", "lab"]));
   const [openTabs, setOpenTabs] = useState<string[][]>([["lessons", LESSON_FILES[0].name]]);
   const [activeTab, setActiveTab] = useState<string | null>(firstKey);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -573,6 +631,9 @@ function TempusTutorial() {
   const [cursor, setCursor] = useState({ ln: 1, col: 1 });
 
   const [result, setResult] = useState<CompileResult | null>(null);
+  const [constructResult, setConstructResult] = useState<ConstructResult | null>(null);
+  const [scene, setScene] = useState<ConstructScene | null>(null);
+  const [observables, setObservables] = useState<Observables | null>(null);
   const [events, setEvents] = useState<SimEvent[]>([]);
   const [running, setRunning] = useState(false);
   const [outTab, setOutTab] = useState<OutTab>("lesson");
@@ -598,17 +659,25 @@ function TempusTutorial() {
   }, []);
   useEffect(() => () => stopLoop(), [stopLoop]);
 
-  // ── live compile (debounced) for the active .tempus file ──────────────────
+  // ── live compile (debounced) for the active file ──────────────────────────
   useEffect(() => {
+    if (activeLang === "construct") {
+      setResult(null);
+      const t = setTimeout(() => setConstructResult(compileConstruct(source)), 250);
+      return () => clearTimeout(t);
+    }
+    setConstructResult(null);
     if (activeLang !== "tempus") { setResult(null); return; }
     const t = setTimeout(() => setResult(compile(source)), 250);
     return () => clearTimeout(t);
   }, [source, activeLang]);
 
-  // ── on file switch: reset sim, default to the lesson tab ──────────────────
+  // ── on file switch: reset sim/render, default to the lesson tab ───────────
   useEffect(() => {
     stopLoop();
     setEvents([]);
+    setScene(null);
+    setObservables(null);
     setOutTab("lesson");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
@@ -632,7 +701,15 @@ function TempusTutorial() {
 
   const handleCompile = useCallback(() => {
     stopLoop();
-    if (activeLang !== "tempus") { log(`$ tempus compile ${activeName} — not a .tempus file`); return; }
+    if (activeLang === "construct") {
+      const res = compileConstruct(source);
+      setConstructResult(res);
+      const e = res.diagnostics.filter(d => d.severity === "error").length;
+      const w = res.diagnostics.filter(d => d.severity === "warning").length;
+      log(`$ tempus construct ${activeName} → ${res.ok ? "ok" : "FAILED"} (${e} error${e !== 1 ? "s" : ""}, ${w} warning${w !== 1 ? "s" : ""})`);
+      setOutTab("diagnostics"); setPanelTab("problems"); return;
+    }
+    if (activeLang !== "tempus") { log(`$ tempus compile ${activeName} — not a runnable script`); return; }
     const res = compile(source);
     setResult(res);
     const e = res.diagnostics.filter(d => d.severity === "error").length;
@@ -644,6 +721,18 @@ function TempusTutorial() {
 
   const handleRun = useCallback(() => {
     stopLoop();
+    if (activeLang === "construct") {
+      const res = compileConstruct(source);
+      setConstructResult(res);
+      if (!res.ok || !res.scene) {
+        log(`$ tempus render ${activeName} → blocked: fix ${res.diagnostics.filter(d => d.severity === "error").length} error(s) first`);
+        setOutTab("diagnostics"); setPanelTab("problems"); return;
+      }
+      setObservables(null);
+      setScene(res.scene);
+      log(`$ tempus render ${activeName} → ${res.scene.waves.length} source(s) interfering…`);
+      setOutTab("render"); return;
+    }
     if (activeLang !== "tempus" || !activeLesson) { log(`$ tempus run ${activeName} — open a lesson script to run`); return; }
     const res = compile(source);
     setResult(res);
@@ -711,7 +800,8 @@ function TempusTutorial() {
     };
   }, [events, result, palette]);
 
-  const diags = result?.diagnostics ?? [];
+  const activeRes: AnyResult | null = activeLang === "construct" ? constructResult : result;
+  const diags = activeRes?.diagnostics ?? [];
   const errCount = diags.filter(d => d.severity === "error").length;
   const warnCount = diags.filter(d => d.severity === "warning").length;
 
@@ -864,9 +954,10 @@ function TempusTutorial() {
             className="w-1 shrink-0 cursor-col-resize" style={{ background: theme.border }} title="Drag to resize" />
 
           {/* Output column */}
-          <OutputColumn tab={outTab} setTab={setOutTab} lesson={activeLesson} readme={activeLang === "md" ? source : null}
+          <OutputColumn tab={outTab} setTab={setOutTab} lang={activeLang} lesson={activeLesson} readme={activeLang === "md" ? source : null}
             events={events} runMeta={runMeta}
-            derived={derived} showPhase={activeLesson?.feature === "phase"} result={result} src={source}
+            derived={derived} showPhase={activeLesson?.feature === "phase"} result={result} diagResult={activeRes} src={source}
+            scene={scene} observables={observables} onObserve={setObservables}
             diagCount={diags.length} cellCount={result?.registry?.cells.length ?? 0}
             onCompile={handleCompile} onRun={handleRun} running={running} />
         </div>
@@ -880,7 +971,9 @@ function TempusTutorial() {
             <span className="flex items-center gap-1"><X size={13} /> {errCount}</span>
             <span className="flex items-center gap-1"><AlertCircle size={13} /> {warnCount}</span>
           </span>
-          {result?.registry && <span style={{ opacity: 0.85 }}>d = {result.registry.channels.length} · {result.registry.cells.length} cells</span>}
+          {activeLang === "construct"
+            ? (constructResult?.scene && <span style={{ opacity: 0.85 }}>{constructResult.scene.waves.length} sources</span>)
+            : (result?.registry && <span style={{ opacity: 0.85 }}>d = {result.registry.channels.length} · {result.registry.cells.length} cells</span>)}
         </div>
         <div className="flex items-center gap-3">
           <span>Ln {cursor.ln}, Col {cursor.col}</span>
