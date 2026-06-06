@@ -1,0 +1,823 @@
+% ============================================================
+%  DIRECTED MOMENTUM FUNNELLING AND SELF-SELECTING COHERENCE
+%  IN CONFINED COUPLED LATTICES
+% ============================================================
+
+\documentclass[twocolumn,10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=2cm,bottom=2.2cm,left=1.8cm,right=1.8cm,columnsep=0.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[round,sort&compress]{natbib}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\small Directed Momentum Funnelling in Confined Coupled Lattices}
+\fancyhead[LO]{\small Sachikonye}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  citecolor=blue!50!black,
+  urlcolor=blue!50!black,
+  pdftitle={Directed Momentum Funnelling and Self-Selecting Coherence in Confined Coupled Lattices},
+  pdfauthor={Kundai Farai Sachikonye}
+}
+
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{principle}[theorem]{Principle}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\vsig}{v_{\mathrm{sig}}}
+\newcommand{\vnode}{v_{\mathrm{el}}}
+\newcommand{\xstar}{\mathbf{x}^{\ast}}
+
+% ============================================================
+\title{\textbf{Directed Momentum Funnelling and Self-Selecting\\
+Coherence in Confined Coupled Lattices:\\
+A Substrate-Independent Mechanism for\\
+Single-Element State Delivery and Passive Recording}}
+
+\author{
+Kundai Farai Sachikonye\\
+Independent Researcher\\
+\texttt{kundai.sachikonye@bitspark.com}
+}
+\date{\today}
+% ============================================================
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\begin{abstract}
+\noindent
+We study a general class of physical systems --- \emph{confined coupled
+lattices} --- consisting of identical elements held in a bounded region by
+an external potential and interacting through a repulsive, inverse-square
+coupling. We establish a sequence of structural properties of such systems
+and show that, taken together, they constitute a mechanism for delivering a
+single element to a high directed momentum while requiring no active
+high-precision control. The mechanism rests on four results. \textbf{(I)
+Funnelling disparity:} a perturbation propagates through the coupled lattice
+at a signal velocity $\vsig=\sqrt{\kappa/(m\,d)}$ that diverges as the
+inter-element spacing $d$ contracts and that exceeds the velocity of any
+individual element by an arbitrary factor; consequently the momentum stored
+across many elements can be delivered to one leading element over a time set
+by $\vsig$, not by element transport. \textbf{(II) Compression cascade:} a
+velocity-graded sequential release --- leading elements slowest --- forces
+the lattice to self-compress, raising $\vsig$ monotonically along the chain
+and funnelling momentum forward, in direct analogy with the tip of a tapered
+elastic medium. \textbf{(III) Self-selecting coherence:} the coherent output
+configuration is a fixed-point attractor with a basin of positive measure;
+its existence is therefore its own confirmation, with no thresholding step
+and a structurally vanishing false-positive rate. A stochastic source
+operated at low per-trial success but high throughput yields output whose
+purity is set by causal construction rather than by statistical subtraction.
+\textbf{(IV) Passive recording:} a metastable variant of the same lattice
+records the sequence of perturbing transits as persistent local
+destabilizations, functioning as an integrating recorder that is written by
+the transits themselves and read once. We further show that staged
+confirmation chains produce single-outcome selectivity, that a threshold
+conversion event is confirmed by detecting its reverse signature, and that
+under a precise time reference the entire measurement reduces to timestamped
+counting. The construction is substrate-independent; we close by noting the
+regime in which it instantiates as a compact directed-delivery and recording
+device.
+
+\bigskip
+\noindent\textbf{Keywords:} coupled lattices, signal velocity, momentum
+funnelling, compression cascade, fixed-point selection, metastable
+recording, confinement, self-organization, inverse-square coupling
+\end{abstract}
+
+\tableofcontents
+
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================
+
+\subsection{The problem and an organizing principle}
+
+The delivery of a single element of a many-body system to a high directed
+momentum is conventionally approached by \emph{control}: one prepares a
+coherent collective object and imposes precise external fields to drive it,
+spending the engineering budget on suppressing every departure from the
+intended trajectory. The cost of this approach scales with the precision
+demanded and with the spatial extent over which the driving must be
+maintained.
+
+This paper develops an alternative in which the quantities that the
+control-based approach suppresses are instead repurposed as the operating
+mechanism. We organize the development around a single principle, which we
+state once and apply repeatedly.
+
+\begin{principle}[Inversion]
+\label{prin:inversion}
+In a confined coupled lattice, three phenomena ordinarily treated as
+obstacles --- (i) the mutual repulsion that disperses a confined collection,
+(ii) the instability of a driven collective state, and (iii) the high failure
+rate of an uncontrolled release --- can each be configured as the mechanism
+that performs, respectively, momentum delivery, recording, and selection.
+\end{principle}
+
+The repulsion that disperses a confined collection, when the collection is
+released with an appropriate velocity grading, becomes the forward
+momentum-funnelling interaction (Sec.~\ref{sec:cascade}). The instability of
+a driven collective state, left uncorrected, becomes the write mechanism of a
+passive recorder (Sec.~\ref{sec:recording}). The high failure rate of an
+uncontrolled release, paired with a fixed-point selection criterion, becomes
+a purity-by-construction filter (Secs.~\ref{sec:selection}--\ref{sec:chains}).
+Each application is a consequence of structural properties of the lattice,
+derived below.
+
+\subsection{The system}
+
+Throughout, the object of study is the following.
+
+\begin{definition}[Confined coupled lattice]
+\label{def:lattice}
+A \emph{confined coupled lattice} is a system of $N$ identical elements of
+mass $m$ and coordinates $\{\mathbf{x}_i\}_{i=1}^N$, evolving under the
+Hamiltonian
+\begin{equation}
+H = \sum_{i=1}^N \frac{|\mathbf{p}_i|^2}{2m}
+  + \sum_{i<j} \frac{\kappa}{|\mathbf{x}_i-\mathbf{x}_j|}
+  + \sum_{i=1}^N V_{\mathrm{ext}}(\mathbf{x}_i),
+\label{eq:hamiltonian}
+\end{equation}
+where $\kappa>0$ sets the strength of the repulsive inverse-square coupling
+and $V_{\mathrm{ext}}$ is an external confining potential with bounded
+sublevel sets.
+\end{definition}
+
+The pairwise potential $\kappa/r$ is the generic form of a like-signed
+inverse-square coupling; systems realizing Eq.~\eqref{eq:hamiltonian} include
+trapped single-species charged ensembles \citep{dubin1999,birkl1992},
+charged colloidal suspensions, and the one-component plasma whose ground
+state is the Wigner lattice \citep{wigner1934}. We make no further
+commitment as to the physical identity of the elements; the results are
+properties of Eq.~\eqref{eq:hamiltonian}.
+
+\subsection{Overview of results}
+
+Section~\ref{sec:equilibrium} establishes the equilibrium configuration: a
+nested-shell lattice, with the linear chain as its one-dimensional limit.
+Section~\ref{sec:release} formalizes stored collective modes and directed
+release. Section~\ref{sec:signal} derives the signal velocity and the
+funnelling disparity (Result I). Section~\ref{sec:cascade} derives the
+compression cascade (Result II). Section~\ref{sec:transverse} establishes the
+self-confinement of the co-moving lattice. Section~\ref{sec:selection}
+develops self-selecting coherence (Result III), and Section~\ref{sec:chains}
+extends it to staged confirmation chains. Section~\ref{sec:recording}
+develops the metastable recorder (Result IV). Section~\ref{sec:threshold}
+treats threshold conversion and reverse-signature confirmation.
+Section~\ref{sec:counting} reduces measurement to timestamped counting.
+Section~\ref{sec:discussion} discusses generality and the regime of
+instantiation.
+
+% ============================================================
+\section{Equilibrium Configuration}
+\label{sec:equilibrium}
+% ============================================================
+
+\subsection{Nested shells}
+
+Minimizing Eq.~\eqref{eq:hamiltonian} under a cylindrically symmetric
+confinement yields a configuration of concentric shells. This is the
+generic ground-state morphology of confined inverse-square systems and is
+observed directly in trapped charged ensembles, where laser cooling reveals
+ordered concentric shells \citep{birkl1992,dubin1999}.
+
+\begin{proposition}[Shell structure]
+\label{prop:shells}
+For $V_{\mathrm{ext}}$ harmonic and cylindrically symmetric, the minimizers
+of Eq.~\eqref{eq:hamiltonian} organize into $K$ concentric shells, with the
+intershell spacing approaching a constant set by the balance of confinement
+and coupling, and the linear chain ($K=1$) recovered in the strong-confinement
+limit transverse to the symmetry axis.
+\end{proposition}
+
+\noindent The proof is the standard variational analysis of one-component
+confined plasmas \citep{dubin1999}; we use only the conclusion. The shell
+index will serve below as a transverse coordinate, the concentric shells
+providing mutual lateral support for one another
+(Sec.~\ref{sec:transverse}).
+
+\subsection{The chain limit and its instability}
+
+The one-dimensional limit --- a single chain of elements along the symmetry
+axis --- is the configuration in which the funnelling mechanism is cleanest,
+because all coupling forces are longitudinal. It is, however, unstable to
+transverse buckling: beyond a critical linear density the chain undergoes a
+structural transition to a zig-zag and then to multiple shells
+\citep{fishman2008}. We will see (Sec.~\ref{sec:transverse}) that the
+nested-shell configuration of Proposition~\ref{prop:shells} is precisely the
+stable endpoint of this transition, so that the multi-shell lattice realizes
+many longitudinal chains held mutually rigid --- the chain limit made stable
+by multiplicity.
+
+% ============================================================
+\section{Stored Collective Modes and Directed Release}
+\label{sec:release}
+% ============================================================
+
+\subsection{Stored rotational energy}
+
+Let the confined lattice be set into rigid collective rotation at angular
+velocity $\omega$ about the symmetry axis. An element at radius $r$ then
+carries tangential speed
+\begin{equation}
+v_{\mathrm{tan}}(r) = \omega r ,
+\label{eq:tangential}
+\end{equation}
+and the stored kinetic energy of the rotating configuration is
+$E_{\mathrm{rot}} = \tfrac12 I \omega^2$ with $I$ the moment of inertia about
+the axis. The rotation is a collective mode: it stores energy in the
+configuration without displacing any element from its shell
+\citep{goldstein2002,arnold1989}.
+
+\subsection{Directed release}
+
+\begin{definition}[Directed release]
+\label{def:release}
+A \emph{directed release} is the removal of the confining constraint on a
+single element at a chosen phase $\phi$ of the collective rotation. The
+released element departs with the instantaneous tangential velocity
+$v_{\mathrm{tan}}(r)$ of Eq.~\eqref{eq:tangential}, directed along the
+tangent at phase $\phi$.
+\end{definition}
+
+Directed release converts stored collective-mode energy into the directed
+translational energy of one element. Because only the released element leaves,
+the collective mode is perturbed only at order $1/N$; the configuration acts
+as a quasi-stationary reservoir from which single elements are drawn at the
+rim speed. We emphasize that release at a definite phase $\phi$ requires only
+that the constraint be opened, not that the element be steered: the direction
+is supplied by the rotation, not by an external field.
+
+% ============================================================
+\section{Signal Velocity and the Funnelling Disparity}
+\label{sec:signal}
+% ============================================================
+
+\subsection{Propagation of a longitudinal perturbation}
+
+Consider a chain of elements at uniform spacing $d$ along the symmetry axis.
+The longitudinal stiffness of a single bond is the curvature of the pair
+potential at the equilibrium spacing,
+\begin{equation}
+k(d) = \left.\frac{d^2}{dr^2}\frac{\kappa}{r}\right|_{r=d}
+     = \frac{2\kappa}{d^3}.
+\label{eq:stiffness}
+\end{equation}
+A chain of masses $m$ coupled by springs of stiffness $k$ and spacing $d$
+transmits longitudinal disturbances at the lattice sound speed
+\citep{ashcroft1976,toda1967}
+\begin{equation}
+\vsig(d) = d\sqrt{\frac{k(d)}{m}}
+         = \sqrt{\frac{2\kappa}{m\,d}}.
+\label{eq:vsig}
+\end{equation}
+
+\begin{theorem}[Funnelling disparity]
+\label{thm:disparity}
+The signal velocity $\vsig(d)$ of Eq.~\eqref{eq:vsig} increases without bound
+as $d\to 0$, scaling as $d^{-1/2}$, and is independent of the velocity of any
+individual element. Hence a perturbation injected at one end of the chain
+arrives at the far end after a time $L/\vsig$, where $L$ is the chain length,
+which can be made arbitrarily small relative to the transit time $L/\vnode$
+of any element moving at speed $\vnode$.
+\end{theorem}
+
+\begin{proof}
+Equation~\eqref{eq:vsig} gives $\partial \vsig/\partial d<0$ and
+$\vsig\to\infty$ as $d\to0$. The element velocity $\vnode$ enters neither
+$k(d)$ nor $\vsig$; the disturbance is carried by the coupling, not by element
+transport. The ratio $\vsig/\vnode$ is therefore unbounded as $d$ or $\vnode$
+is varied independently.\qed
+\end{proof}
+
+\subsection{Consequence: momentum delivery without transport}
+
+Theorem~\ref{thm:disparity} is the central enabling fact. A momentum stored
+across many elements of the chain can be delivered to the leading element in
+the time $L/\vsig$ taken by the perturbation to traverse the chain --- a time
+governed by the coupling, while the elements themselves barely move. The
+acceleration imparted to the leading element is then
+\begin{equation}
+a_{\mathrm{lead}} \sim \frac{\sum_i p_i}{m}\cdot\frac{\vsig}{L},
+\label{eq:lead-accel}
+\end{equation}
+large precisely because $\vsig\gg\vnode$. The total deliverable momentum is
+bounded above by the stored momentum $\sum_i p_i$ (no momentum is created);
+the mechanism is one of \emph{funnelling}, concentrating distributed momentum
+onto one element, not of generation.
+
+\begin{remark}
+The mechanism is the same as the transfer of a collision through a line of
+near-touching equal masses, in which the disturbance traverses the line far
+faster than any mass moves and a single mass departs the far end
+\citep{hutzler2004}. Equation~\eqref{eq:vsig} is the continuum statement of
+that transfer for an inverse-square-coupled chain.
+\end{remark}
+
+% ============================================================
+\section{The Compression Cascade}
+\label{sec:cascade}
+% ============================================================
+
+\subsection{Graded release}
+
+Consider releasing a sequence of $n$ elements along the axis, the leading
+element first, with speeds
+\begin{equation}
+v_1 < v_2 < \cdots < v_n ,
+\label{eq:grading}
+\end{equation}
+so that each trailing element is faster than the one ahead of it. This is the
+\emph{velocity-graded release}. Its defining consequence is geometric: the
+trailing elements close on the leading ones, the chain self-compresses, and
+the inter-element spacing $d$ decreases with time.
+
+\begin{theorem}[Self-compression and forward funnelling]
+\label{thm:cascade}
+Under the grading of Eq.~\eqref{eq:grading}, the chain spacing $d(t)$ is
+monotonically decreasing while the elements remain ordered. By
+Eq.~\eqref{eq:vsig}, the signal velocity $\vsig(d(t))$ is then monotonically
+increasing, and the momentum of the trailing elements is funnelled forward to
+the leading element through the compressing chain.
+\end{theorem}
+
+\begin{proof}
+Order the elements $1,\dots,n$ from front to back with positions
+$x_1>x_2>\cdots>x_n$ and velocities satisfying Eq.~\eqref{eq:grading}. While
+the ordering holds, $\dot x_i - \dot x_{i+1} = v_i - v_{i+1} <0$, so each gap
+$x_i-x_{i+1}$ shrinks and the mean spacing $d(t)$ decreases. By
+Eq.~\eqref{eq:vsig}, $\vsig\propto d^{-1/2}$ increases. The compression raises
+the bond stiffness $k(d)\propto d^{-3}$ (Eq.~\eqref{eq:stiffness}), so each
+successive bond transmits momentum forward more stiffly than the last; the
+net longitudinal momentum flux is toward the leading element.\qed
+\end{proof}
+
+\subsection{The tapered-medium analogy}
+
+Theorem~\ref{thm:cascade} reproduces, in a discrete setting, the
+acceleration of the free end of a tapered elastic medium: a disturbance
+launched into the thick end funnels its energy into the progressively lighter
+tip, whose speed grows as the cross-section shrinks. Here the role of the
+geometric taper is played by the velocity grading, which drives the
+compression that raises $\vsig$ toward the front. The grading of
+Eq.~\eqref{eq:grading} is the only ingredient required; release the same
+elements in the opposite order and the chain disperses, $\vsig$ falls, and no
+funnelling occurs. The sign of the grading is therefore the entire stability
+criterion of the cascade.
+
+\subsection{Recovery of the dense-lattice limit}
+
+As compression proceeds, $d$ approaches the equilibrium spacing of a dense
+lattice and $\vsig$ approaches the intrinsic sound speed of that lattice. The
+graded-release chain thus interpolates continuously between a sparse,
+slowly-propagating configuration and a dense, fast-propagating one; the
+fully-compressed limit is an ordinary dense coupled lattice
+\citep{ashcroft1976}. The cascade is the controlled traversal of this
+interpolation.
+
+% ============================================================
+\section{Self-Confinement of the Co-Moving Lattice}
+\label{sec:transverse}
+% ============================================================
+
+The chain limit is transversely unstable (Sec.~\ref{sec:equilibrium}); we now
+show that the co-moving multi-shell lattice is not, and that its transverse
+stability \emph{improves} with the very speed the cascade produces.
+
+\subsection{Two opposing transverse forces}
+
+A set of co-moving like-coupled chains constitutes parallel co-directed
+currents of the coupling charge. Such currents exert two transverse forces on
+one another: a static repulsion from the inverse-square coupling, and an
+attraction from the motion-induced field of co-directed currents
+\citep{bennett1934}. For elements co-moving at speed $v$, the attraction
+grows with $v$, and the net transverse force per element scales as
+\begin{equation}
+F_\perp \;\propto\; \left(1-\beta^2\right) = \frac{1}{\gamma^2},
+\qquad \beta=\frac{v}{c_{\ast}},\quad \gamma=(1-\beta^2)^{-1/2},
+\label{eq:net-transverse}
+\end{equation}
+where $c_{\ast}$ is the propagation-speed ceiling of the medium (the limiting
+value of $\vsig$).
+
+\begin{corollary}[Speed-induced self-confinement]
+\label{cor:selfconfine}
+The net transverse defocusing force of Eq.~\eqref{eq:net-transverse} vanishes
+as $\beta\to1$. The co-moving lattice therefore becomes transversely
+force-free in the high-speed limit: the configuration that the cascade drives
+the lattice toward is the configuration in which it is most stable.
+\end{corollary}
+
+This is the second instance of Principle~\ref{prin:inversion}: the dispersive
+repulsion that destabilizes a static chain is, for a co-moving chain,
+progressively cancelled by the current attraction, leaving the external
+confinement responsible only for the low-speed head of the process. The
+multi-shell morphology of Proposition~\ref{prop:shells} supplies the residual
+lateral support: each shell is held by its neighbours, and the
+linear-to-zig-zag-to-shell sequence \citep{fishman2008} terminates in exactly
+the mutually rigid configuration required.
+
+\begin{remark}[The hard regime is the start, not the run]
+By Corollary~\ref{cor:selfconfine}, the transverse confinement burden is
+maximal at $\beta\to0$ and falls monotonically thereafter. The design effort
+concentrates entirely at initiation; the high-speed stage stabilizes itself.
+\end{remark}
+
+% ============================================================
+\section{Self-Selecting Coherence}
+\label{sec:selection}
+% ============================================================
+
+We now address operation without precise control. The claim is that a
+suitably configured cascade produces a coherent output only from initial
+conditions lying in a basin of positive measure, and that the existence of
+the coherent output is therefore its own confirmation.
+
+\subsection{The coherent output as a fixed point}
+
+Let $\mathcal{S}$ denote the space of release configurations (phase, grading,
+shell alignment) and let $T:\mathcal{S}\to\mathcal{S}$ be the map advancing a
+release to the asymptotic state of the cascade.
+
+\begin{definition}[Coherent attractor]
+\label{def:attractor}
+A \emph{coherent output} is a fixed point $\xstar=T(\xstar)$ of the cascade
+map that is attracting on a basin $\mathcal{B}\subseteq\mathcal{S}$ of
+positive measure: there is a neighbourhood norm under which $T$ is a
+contraction on $\mathcal{B}$, so that every release in $\mathcal{B}$ converges
+to $\xstar$ \citep{banach1922}.
+\end{definition}
+
+\begin{proposition}[Detection equals existence]
+\label{prop:detection}
+If the cascade map admits a coherent attractor with basin $\mathcal{B}$ of
+positive measure, then a release either lies in $\mathcal{B}$ and converges to
+the coherent output $\xstar$, or lies outside $\mathcal{B}$ and does not
+produce $\xstar$. The presence of the coherent output is thus a binary,
+all-or-nothing event: its existence certifies that the release lay in
+$\mathcal{B}$, with no intermediate or partial output to be thresholded.
+\end{proposition}
+
+\begin{proof}
+By Definition~\ref{def:attractor}, convergence to $\xstar$ occurs for and only
+for releases in $\mathcal{B}$. The complement produces trajectories that do
+not approach $\xstar$. Since the output is the fixed point or its absence,
+there is no continuum of partial outputs; the readout is the indicator
+function of $\mathcal{B}$.\qed
+\end{proof}
+
+Proposition~\ref{prop:detection} requires that the cascade be a contraction
+toward a fixed point rather than a continuous amplifier; this is the precise
+condition under which ``did the coherent output appear'' is a well-posed
+binary question. The basin measure $|\mathcal{B}|$ is the single quantity on
+which both yield and resolution depend, and its positivity is the central
+physical requirement of the entire construction.
+
+\subsection{Throughput-dominated yield}
+
+Operate the source by releasing at a fixed rate, uncorrelated with the
+collective phase, so that the release phase is uniform on $[0,2\pi)$. Then
+the per-release success probability is
+\begin{equation}
+P = \frac{|\mathcal{B}|}{2\pi},
+\qquad
+\text{Yield} = N_{\mathrm{rel}}\,P\,\Gamma,
+\label{eq:yield}
+\end{equation}
+where $N_{\mathrm{rel}}$ is the number of releases and $\Gamma$ the cascade
+gain. Because each release involves a single element, a failed release
+perturbs nothing and carries no penalty; there is no collective object to
+spoil. The yield is therefore maximized by increasing $N_{\mathrm{rel}}$
+(throughput), not by increasing $P$ (precision).
+
+\begin{remark}
+This is the third instance of Principle~\ref{prin:inversion}. A high failure
+rate is not corrected; it is rendered costless by single-element operation and
+compensated by throughput. The output is selected by the basin
+$\mathcal{B}$, not by suppression of failures.
+\end{remark}
+
+% ============================================================
+\section{Staged Confirmation Chains}
+\label{sec:chains}
+% ============================================================
+
+The selection of Sec.~\ref{sec:selection} composes. Let stages
+$k=1,\dots,K$ be cascades arranged so that the coherent output of stage $k$ is
+the input release of stage $k+1$.
+
+\begin{theorem}[Single-outcome selectivity]
+\label{thm:chain}
+In a staged confirmation chain, a completed run --- one producing coherent
+output at the final stage --- occurs only when the coherent attractor is
+reached at every stage. The output of the chain therefore contains only the
+conjunction of all stage confirmations; any stage that fails to reach its
+attractor terminates the run and produces no output.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:detection}, stage $k$ produces its coherent output
+$\xstar_k$ iff its input lies in $\mathcal{B}_k$. Stage $k+1$ receives
+$\xstar_k$ as input; absent $\xstar_k$ there is no input and stage $k+1$
+cannot fire. By induction, the final output exists iff every stage reached its
+attractor, i.e.\ iff the input to stage $1$ lay in the preimage
+$\bigcap_k T_{1}^{-1}\cdots T_{k-1}^{-1}(\mathcal{B}_k)$. The output is thus
+the conjunction of all stage confirmations.\qed
+\end{proof}
+
+\subsection{Purity by construction}
+
+Theorem~\ref{thm:chain} has a consequence that distinguishes the chain from a
+statistical filter. A configuration that fails any stage produces a
+\emph{terminated} run --- no output. It is therefore not a contaminant in the
+output to be subtracted; it is absent from the output entirely. The output
+contains only completed chains, and a completed chain is, by construction, the
+unique configuration consistent with every stage confirmation. Selectivity is
+achieved causally, not by background subtraction.
+
+\subsection{The completion-rate trade}
+
+The completion probability of a $K$-stage chain is $P_{\mathrm{cplt}}
+=\prod_k P_k$, which may be small. This is the deliberate trade: the chain
+exchanges rate for purity. Because each stage after the first receives a
+pre-conditioned input --- the coherent output of the previous stage, already
+within tolerance --- the conditional pass probabilities $P_{k\geq2}$ approach
+unity, and the selection cost is paid essentially once, at stage~$1$. The
+chain delivers a low rate of unambiguous outputs in place of a high rate of
+ambiguous ones, and the low rate is affordable for the same reason failures
+are costless: single-element operation.
+
+% ============================================================
+\section{Passive Recording in a Metastable Lattice}
+\label{sec:recording}
+% ============================================================
+
+We now use the lattice not as a source but as a recorder, by configuring it in
+a metastable rather than a stable state and declining to correct the
+perturbations imposed on it.
+
+\subsection{The metastable configuration}
+
+\begin{definition}[Metastable phase-locked lattice]
+\label{def:metastable}
+A \emph{metastable phase-locked lattice} is a confined coupled lattice held in
+a locally stable but globally non-minimal configuration, such that a localized
+perturbation nucleates a persistent local destabilization (a \emph{mark}) of
+finite lifetime $\tau_{\mathrm{mark}}$, without triggering relaxation of the
+whole lattice.
+\end{definition}
+
+This is the configuration of a system poised at a metastable point, where a
+local disturbance nucleates a persistent feature rather than decaying or
+propagating globally \citep{langer1969}. The requirement is a window: the
+lattice must be stable enough to hold a mark (the mark does not self-erase)
+yet metastable enough that the mark persists without correction (the lattice
+does not relax it away).
+
+\subsection{Transits write; the lattice integrates}
+
+Let a sequence of external transits pass through the lattice, each
+destabilizing the local region it crosses. In the metastable configuration the
+destabilization persists; successive transits write marks into distinct
+regions. The accumulated pattern of marks is the integrated record of the
+transit sequence.
+
+\begin{proposition}[Recording by accumulation]
+\label{prop:recording}
+In a metastable phase-locked lattice with mark lifetime $\tau_{\mathrm{mark}}$
+and characteristic local relaxation (lag) time $\tau$, the lattice records a
+transit sequence as a spatial pattern of persistent marks, with per-region
+rate capacity $\tau^{-1}$ and total capacity set by the number of
+distinguishable lattice regions. The record is read once, after accumulation.
+\end{proposition}
+
+\begin{proof}
+By Definition~\ref{def:metastable}, each transit nucleates a mark that
+persists for $\tau_{\mathrm{mark}}$. Two transits through the same region
+within the local lag time $\tau$ are not resolved; hence the per-region rate
+capacity is $\tau^{-1}$. Distinct regions record independently, giving total
+capacity equal to the count of resolvable regions. Persistence over
+$\tau_{\mathrm{mark}}$ permits deferred, single readout.\qed
+\end{proof}
+
+\begin{remark}[The recorder is written by what it measures]
+The transits are simultaneously the objects measured and the styli that write
+the record. No active element is energized during accumulation; the recorder
+is a passive integrating medium, in the manner of historical track-recording
+media in which a traversing object nucleates a persistent local feature in a
+metastable bulk. This is the second application of
+Principle~\ref{prin:inversion}: the instability that would have to be actively
+suppressed in a sustained reference is exactly the write mechanism here.
+\end{remark}
+
+\subsection{Resolution limit}
+
+The recording resolution is bounded by the local lag time through a
+time--energy relation: a mark localized to energy width $\Delta E$ cannot be
+nucleated faster than $\tau\gtrsim\hbar/\Delta E$, so the product of the
+resolvable mark count and the lag time satisfies $\Delta n\cdot\tau\gtrsim
+\hbar$. The recorder is thus lag-limited, with the same characteristic time
+that governs the propagation of Sec.~\ref{sec:signal} setting its temporal
+resolution.
+
+% ============================================================
+\section{Threshold Conversion and Reverse-Signature Confirmation}
+\label{sec:threshold}
+% ============================================================
+
+A leading element delivered to sufficient directed momentum can, on
+interaction with a suitable conversion medium, undergo a threshold process: a
+portion of its energy is converted into a bound doublet of opposite-coupling
+carriers. The process has a sharp energy threshold $E_{\mathrm{th}}$, below
+which no doublet forms and above which one may.
+
+\begin{proposition}[Reverse-signature confirmation]
+\label{prop:reverse}
+Let a forward conversion above threshold produce a bound doublet, and let the
+doublet subsequently recombine, emitting two equal quanta in opposite
+directions. Then detection of the back-to-back equal-quanta signature confirms
+that the forward threshold $E_{\mathrm{th}}$ was crossed, with a
+structurally vanishing false-confirmation rate.
+\end{proposition}
+
+\begin{proof}
+The recombination signature --- two quanta of equal magnitude, emitted
+back-to-back and time-coincident --- is a fourfold coincidence. Its occurrence
+requires a doublet to have formed, which requires the forward energy to have
+exceeded $E_{\mathrm{th}}$. No sub-threshold interaction produces the doublet
+and hence none produces the signature. The fourfold coincidence cannot be
+assembled from uncorrelated background to any significant rate, so the
+confirmation is effectively background-free.\qed
+\end{proof}
+
+This realizes detection-by-reverse-process: rather than observe the forward
+delivery directly, one observes the unmistakable signature of the reverse
+(recombination) process, which exists only if the forward threshold was met.
+The threshold makes the confirmation binary; the coincidence makes it pure.
+The conversion medium is a thin interaction region, since the doublet forms
+only in the presence of a third body to balance momentum.
+
+% ============================================================
+\section{Measurement by Timestamped Counting}
+\label{sec:counting}
+% ============================================================
+
+Given a precise time reference, the measurement of a delivered element reduces
+to counting arrivals and recording their times. The directed speed follows
+from a single arrival as
+\begin{equation}
+v = \frac{\Delta x}{\Delta t},
+\qquad
+\frac{\Delta p}{p} = \frac{\Delta t}{t_{\mathrm{flight}}},
+\label{eq:counting}
+\end{equation}
+where $\Delta x$ is the known flight gap and $\Delta t$ the measured flight
+time. No reconstruction of the element's history is required; a timestamped
+count is the complete kinematic datum, and the momentum resolution is set
+directly by the timing resolution. The recorder of Sec.~\ref{sec:recording}
+and the counter of Eq.~\eqref{eq:counting} are complementary readouts of the
+same delivery: the former integrates a sequence passively, the latter resolves
+single arrivals against a clock.
+
+\begin{remark}
+Equation~\eqref{eq:counting} expresses the measurement entirely in terms of
+counts and times. The information cost of acquiring a record is the standard
+cost of recording a distinguishable outcome \citep{landauer1961}; reading the
+fixed record afterward carries no such cost. Acquisition and readout are
+thereby cleanly separated.
+\end{remark}
+
+% ============================================================
+\section{Generality and Instantiation}
+\label{sec:discussion}
+% ============================================================
+
+\subsection{Substrate independence}
+
+Every result above is a property of the Hamiltonian
+Eq.~\eqref{eq:hamiltonian}: a confined ensemble of identical elements with a
+repulsive inverse-square coupling. Nothing in the derivations fixes the
+physical identity of the elements or the numerical value of $\kappa$. The
+signal velocity (Theorem~\ref{thm:disparity}), the compression cascade
+(Theorem~\ref{thm:cascade}), the self-confinement (Corollary~\ref{cor:selfconfine}),
+the fixed-point selection (Proposition~\ref{prop:detection}), the confirmation
+chain (Theorem~\ref{thm:chain}), and the metastable recorder
+(Proposition~\ref{prop:recording}) hold for any realization of
+Eq.~\eqref{eq:hamiltonian}. Candidate realizations span a wide range of scales,
+from charged colloidal ensembles and trapped macroscopic grains to the
+one-component plasma of the Wigner lattice \citep{wigner1934,dubin1999,birkl1992}.
+
+\subsection{The regime of instantiation}
+
+The construction acquires its sharpest form when the elements are the
+lightest available carriers of the coupling charge and the conversion medium
+of Sec.~\ref{sec:threshold} is present. In that regime the chain of results
+composes into a single capability: a stochastic source
+(Sec.~\ref{sec:release}) feeds a velocity-graded compression cascade
+(Sec.~\ref{sec:cascade}) that funnels distributed momentum onto one leading
+element over a coupling-set time (Sec.~\ref{sec:signal}); the co-moving
+multi-shell lattice self-confines as it speeds up
+(Sec.~\ref{sec:transverse}); the coherent delivery is selected by a
+fixed-point basin and confirmed by its own existence
+(Sec.~\ref{sec:selection}); staged confirmation yields a single, pure outcome
+(Sec.~\ref{sec:chains}); a threshold conversion is confirmed by its reverse
+signature (Sec.~\ref{sec:threshold}); and the whole measurement reduces to
+timestamped counting (Sec.~\ref{sec:counting}), with a metastable variant of
+the same lattice available as a passive integrating recorder
+(Sec.~\ref{sec:recording}).
+
+The notable feature of this regime is what it does \emph{not} require. It
+requires no extended driving structure, because momentum is funnelled at the
+signal velocity rather than accumulated along a path. It requires no
+high-precision source, because selection is performed downstream by the
+fixed-point basin. It requires no reconstruction apparatus, because
+confirmation is the existence of the coherent output and measurement is
+counting. The spatial extent and control precision that dominate the cost of
+conventional directed-delivery systems are, in this construction, replaced by
+the intrinsic properties of the coupled lattice. We leave the detailed
+engineering of any specific instantiation, and the question of which carriers
+and conversion media are most favourable, to subsequent and separate work.
+
+\subsection{The decisive open quantity}
+
+One quantity governs whether the construction functions: the measure
+$|\mathcal{B}|$ of the fixed-point basin (Proposition~\ref{prop:detection}),
+equivalently the width $\Delta\phi_{\mathrm{acc}}$ of the acceptance window in
+release configuration space. If $|\mathcal{B}|>0$ with a computable value,
+the yield (Eq.~\eqref{eq:yield}) is nonzero and the detection is binary; if
+$|\mathcal{B}|$ is vanishing, no throughput recovers it. Likewise, the
+metastable recorder functions only within the stability window of
+Definition~\ref{def:metastable}, between self-erasure and global relaxation.
+These two windows --- the basin measure and the metastability band --- are the
+physical content on which the construction stands or falls, and they are the
+proper targets of any test.
+
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+We have set out a substrate-independent mechanism, resident in confined
+inverse-square-coupled lattices, for delivering a single element to high
+directed momentum without active high-precision control, and for recording
+sequences of transits passively. The mechanism is organized throughout by a
+single inversion (Principle~\ref{prin:inversion}): the mutual repulsion, the
+collective instability, and the high failure rate that a control-based design
+must suppress are here configured, respectively, as the momentum-funnelling
+interaction, the recording mechanism, and the selection filter. The central
+enabling fact is the funnelling disparity (Theorem~\ref{thm:disparity}): a
+perturbation traverses the coupled lattice far faster than any element moves,
+so distributed momentum can be concentrated onto one element over a time set
+by the coupling. The central enabling structure is the fixed-point selection
+(Proposition~\ref{prop:detection}): the coherent output exists only on a basin
+of positive measure, so its existence is its own confirmation. Everything
+else --- the graded cascade, the self-confinement, the confirmation chain, the
+metastable recorder, the reverse-signature threshold, the counting readout ---
+is a consequence or composition of these two facts. The construction's
+validity reduces to two measurable quantities: the basin measure and the
+metastability band. We have framed the development entirely as properties of a
+class of dynamical systems, and we regard the identification of favourable
+specific realizations as a separate question, deliberately left open.
+
+% ============================================================
+\section*{Acknowledgements}
+The author thanks colleagues for discussions on coupled-lattice dynamics and
+metastable media.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

@@ -10,13 +10,21 @@ import {
 
 import { compile, type CompileResult } from "../lib/tempus/compile";
 import { compileConstruct, type ConstructResult, type ConstructScene } from "../lib/tempus/construct";
+import { compileComposition, inflation, type CompositionResult, type CompositionScene } from "../lib/tempus/composition";
 import { createSimulator } from "../lib/tempus/runtime";
 import { LESSONS, EXAMPLES, type Lesson } from "../lib/tempus/lessons";
-import { LAB } from "../lib/tempus/constructions";
+import { LAB, ATOMS } from "../lib/tempus/constructions";
 import type { Diag, SimEvent } from "../lib/tempus/types";
-import { CanvasScatter, CanvasHistogram, CanvasStrip } from "../components/charts";
-import type { ScatterPoint, ScatterBand, HistBand, StripEntry } from "../components/charts";
+import { CanvasScatter, CanvasHistogram, CanvasStrip, CanvasLine, CanvasBar } from "../components/charts";
+import type { ScatterPoint, ScatterBand, HistBand, StripEntry, BarEntry } from "../components/charts";
+import dynamic from "next/dynamic";
 import { InterferenceCanvas, type Observables } from "../components/tempus/InterferenceCanvas";
+
+// Heavy react-three-fiber stack — load only when the Atom domain is opened.
+const AtomViewer = dynamic(() => import("../components/tempus/AtomViewer").then(m => m.AtomViewer), {
+  ssr: false,
+  loading: () => <div className="flex h-full items-center justify-center font-mono text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>loading 3D atom…</div>,
+});
 
 type AnyResult = { ok: boolean; diagnostics: Diag[] };
 
@@ -54,7 +62,11 @@ const LAB_FILES = LAB.map((l, i) => ({
   lesson: l,
   name: `${String(i + 1).padStart(2, "0")}_${l.id.replace(/-/g, "_")}.lab`,
 }));
-const ALL_FILES = [...LESSON_FILES, ...EXAMPLE_FILES, ...LAB_FILES];
+const ATOM_FILES = ATOMS.map((l, i) => ({
+  lesson: l,
+  name: `${String(i + 1).padStart(2, "0")}_${l.id.replace(/-/g, "_")}.atom`,
+}));
+const ALL_FILES = [...LESSON_FILES, ...EXAMPLE_FILES, ...LAB_FILES, ...ATOM_FILES];
 
 const README = `# Tempus — Interactive Tutorial
 
@@ -82,7 +94,12 @@ synthesis QC, and PSDR — each re-expressed as a runnable Tempus partition.
 
 The lab/ folder is a second track: instead of classifying timing events, you
 CONSTRUCT an item from oscillator modes (a spectrum) and the GPU renders the
-interference — rendering IS the computation. Start with the double slit.`;
+interference — rendering IS the computation. Start with the double slit.
+
+The atoms/ folder is the composition-trajectory method: a script IS a labeled
+composition (refine an S-entropy axis for so many ticks). Walk it and it lands
+on a partition state (n,ℓ,m,s) — a part of an atom. Manipulate the composition
+to address a different part. T(n,3) = 3·4^(n-1) parts are reachable.`;
 
 const initialFiles: Record<string, FNode> = {
   lessons: {
@@ -101,6 +118,12 @@ const initialFiles: Record<string, FNode> = {
     type: "folder",
     children: Object.fromEntries(
       LAB_FILES.map(f => [f.name, { type: "file", lang: "construct", content: f.lesson.script } as FileNode]),
+    ),
+  },
+  atoms: {
+    type: "folder",
+    children: Object.fromEntries(
+      ATOM_FILES.map(f => [f.name, { type: "file", lang: "compose", content: f.lesson.script } as FileNode]),
     ),
   },
   "README.md": { type: "file", lang: "md", content: README },
@@ -148,10 +171,11 @@ const SEV = {
 const fileIcon = (name: string): { Icon: any; color: string } => {
   if (name.endsWith(".tempus")) return { Icon: FileCode2, color: "#58E6D9" };
   if (name.endsWith(".lab")) return { Icon: FileCode2, color: "#f59e0b" };
+  if (name.endsWith(".atom")) return { Icon: FileCode2, color: "#a78bfa" };
   if (name.endsWith(".md")) return { Icon: FileText, color: "#7aa2a0" };
   return { Icon: FileText, color: "#858585" };
 };
-const langLabel = (lang: string) => (({ tempus: "Tempus", construct: "Tempus·construct", md: "Markdown" } as Record<string, string>)[lang] || "Plain Text");
+const langLabel = (lang: string) => (({ tempus: "Tempus", construct: "Tempus·construct", compose: "Tempus·compose", md: "Markdown" } as Record<string, string>)[lang] || "Plain Text");
 const getNode = (tree: Record<string, FNode>, path: string[]): any => {
   let n: any = { children: tree };
   for (const p of path) { n = n.children?.[p]; if (!n) return null; }
@@ -531,23 +555,94 @@ function Stat({ k, v }: { k: string; v: string }) {
 /* ------------------------------------------------------------------ *
  *  Output column                                                      *
  * ------------------------------------------------------------------ */
+type Domain = "field" | "time" | "frequency" | "massenergy";
+
+function fmtEnergy(lambdaM: number): string {
+  const eV = 1240 / (lambdaM * 1e9);   // photon energy E = hc/λ (1240 eV·nm)
+  if (eV < 1e-3) return `${(eV * 1e6).toFixed(1)} µeV`;
+  if (eV < 1) return `${(eV * 1e3).toFixed(2)} meV`;
+  return `${eV.toFixed(2)} eV`;
+}
+
 function RenderView({ scene, observables, onObserve }: { scene: ConstructScene | null; observables: Observables | null; onObserve: (o: Observables) => void }) {
-  if (!scene) return <Placeholder text="press RUN to render the interference field" />;
+  const [domain, setDomain] = useState<Domain>("field");
+
+  const data = useMemo(() => {
+    if (!scene || scene.waves.length === 0) return null;
+    const modes = scene.waves.map(w => ({ f: 1 / w.wavelength, lambda: w.wavelength, amp: w.amp, phase: w.phase }));
+    const fmin = Math.min(...modes.map(m => m.f));
+    // time-domain waveform s(t) = Σ A cos(2π f t + φ) over ~3 periods of the slowest mode
+    const M = 400, T = 3 / fmin, wave: number[] = [];
+    for (let i = 0; i < M; i++) {
+      const t = (i / (M - 1)) * T;
+      let s = 0;
+      for (const m of modes) s += m.amp * Math.cos(2 * Math.PI * m.f * t + m.phase);
+      wave.push(s);
+    }
+    // frequency-domain spectrum: aggregate coherent modes by wavelength
+    const byL = new Map<string, { re: number; im: number; lambda: number }>();
+    for (const m of modes) {
+      const key = m.lambda.toExponential(4);
+      const e = byL.get(key) ?? { re: 0, im: 0, lambda: m.lambda };
+      e.re += m.amp * Math.cos(m.phase); e.im += m.amp * Math.sin(m.phase);
+      byL.set(key, e);
+    }
+    const peaks = Array.from(byL.values()).sort((a, b) => a.lambda - b.lambda);
+    let re = 0, im = 0;
+    for (const m of modes) { re += m.amp * Math.cos(m.phase); im += m.amp * Math.sin(m.phase); }
+    return {
+      wave,
+      freqBars: peaks.map<BarEntry>(e => ({ label: `${(e.lambda * 1000).toFixed(1)}mm`, value: Math.hypot(e.re, e.im), color: theme.accentBright })),
+      energyBars: peaks.map<BarEntry>(e => ({ label: fmtEnergy(e.lambda), value: Math.hypot(e.re, e.im), color: "#f59e0b" })),
+      resultant: Math.hypot(re, im),
+      nModes: modes.length,
+    };
+  }, [scene]);
+
+  if (!scene || !data) return <Placeholder text="press RUN to render the constructed item" />;
+
   const o = observables;
   const cells: [string, string, string | undefined][] = [
     ["visibility", o ? o.visibility.toFixed(3) : "—", theme.accentBright],
     ["fringes", o ? String(o.fringes) : "—", undefined],
     ["sources", String(scene.waves.length), undefined],
-    ["I max", o ? o.intensity_max.toFixed(2) : "—", undefined],
+    ["⟨S⟩ resultant", data.resultant.toFixed(2), "#f59e0b"],
   ];
+  const TABS: { id: Domain; label: string }[] = [
+    { id: "field", label: "Field" }, { id: "time", label: "Time" },
+    { id: "frequency", label: "Frequency" }, { id: "massenergy", label: "Mass·Energy" },
+  ];
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="relative min-h-0 flex-1">
-        <InterferenceCanvas scene={scene} onObserve={onObserve} />
-        <div className="pointer-events-none absolute left-2 top-2 font-mono text-[9px]" style={{ color: "rgba(255,255,255,0.5)" }}>
-          domain {(scene.domain.w * 1000).toFixed(0)}×{(scene.domain.h * 1000).toFixed(0)} mm · {scene.waves.length} source{scene.waves.length !== 1 ? "s" : ""}
-        </div>
+      {/* domain toggle — same item, re-projected (mean-recovery invariant) */}
+      <div className="flex shrink-0 items-center gap-1.5 px-2 py-1.5" style={{ borderBottom: `1px solid ${theme.border}` }}>
+        <span className="mr-1 font-mono text-[8px]" style={{ letterSpacing: "0.14em", color: "rgba(255,255,255,0.28)" }}>DOMAIN</span>
+        {TABS.map(d => (
+          <button key={d.id} onClick={() => setDomain(d.id)} className="font-mono text-[10px]"
+            style={{ padding: "2px 9px", cursor: "pointer",
+                     border: `1px solid ${domain === d.id ? theme.accentBright + "88" : "rgba(255,255,255,0.08)"}`,
+                     color: domain === d.id ? theme.accentBright : "rgba(255,255,255,0.42)",
+                     background: domain === d.id ? theme.accentBright + "14" : "transparent" }}>{d.label}</button>
+        ))}
+        <span className="ml-auto font-mono text-[8.5px]" style={{ color: "rgba(255,255,255,0.32)" }}>{data.nModes} modes · invariant ⟨S⟩</span>
       </div>
+
+      <div className="relative min-h-0 flex-1">
+        {domain === "field" && <>
+          <InterferenceCanvas scene={scene} onObserve={onObserve} />
+          <div className="pointer-events-none absolute left-2 top-2 font-mono text-[9px]" style={{ color: "rgba(255,255,255,0.5)" }}>
+            {(scene.domain.w * 1000).toFixed(0)}×{(scene.domain.h * 1000).toFixed(0)} mm · {scene.waves.length} source{scene.waves.length !== 1 ? "s" : ""}
+          </div>
+        </>}
+        {domain === "time" && <CanvasLine series={[{ values: data.wave, color: theme.accentBright, fill: true }]} title="TIME — s(t) = Σ A·cos(ωt + φ)" fmt={v => v.toFixed(1)} />}
+        {domain === "frequency" && <CanvasBar data={data.freqBars} title="FREQUENCY — spectrum by wavelength" />}
+        {domain === "massenergy" && <>
+          <CanvasBar data={data.energyBars} title="MASS · ENERGY — E = hc/λ" />
+          <div className="pointer-events-none absolute bottom-1 right-2 font-mono text-[8.5px]" style={{ color: "rgba(255,255,255,0.4)" }}>E = ħω · m = E/c²</div>
+        </>}
+      </div>
+
       <div className="grid shrink-0 grid-cols-4" style={{ borderTop: `1px solid ${theme.border}` }}>
         {cells.map(([k, v, c]) => (
           <div key={k} className="px-1.5 py-2 text-center" style={{ borderRight: `1px solid ${theme.border}` }}>
@@ -560,13 +655,132 @@ function RenderView({ scene, observables, onObserve }: { scene: ConstructScene |
   );
 }
 
+const AXIS_COLOR: Record<string, string> = { Sk: "#58E6D9", St: "#f59e0b", Se: "#a78bfa" };
+type CDomain = "composition" | "trajectory" | "atom" | "inflation";
+
+function CompositionRenderView({ scene }: { scene: CompositionScene | null }) {
+  const [domain, setDomain] = useState<CDomain>("composition");
+  if (!scene) return <Placeholder text="press RUN to walk the composition trajectory" />;
+
+  const sk = scene.path.map(p => p.sk), st = scene.path.map(p => p.st), se = scene.path.map(p => p.se);
+  const infBars: BarEntry[] = Array.from({ length: scene.n }, (_, i) => ({
+    label: String(i + 1), value: Math.log10(inflation(i + 1, scene.d)),
+    color: i + 1 === scene.n ? "#58E6D9" : "rgba(88,230,217,0.35)",
+  }));
+  const TABS: { id: CDomain; label: string }[] = [
+    { id: "composition", label: "Composition" }, { id: "trajectory", label: "Trajectory" },
+    { id: "atom", label: "Atom part" }, { id: "inflation", label: "Inflation" },
+  ];
+  const cells: [string, string, string | undefined][] = [
+    ["n cycles", String(scene.n), undefined],
+    ["T(n,d)", scene.T.toLocaleString(), theme.accentBright],
+    ["Δθ", scene.dTheta.toExponential(1), undefined],
+    ["bits", scene.bits.toFixed(1), "#a78bfa"],
+  ];
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="flex shrink-0 items-center gap-1.5 px-2 py-1.5" style={{ borderBottom: `1px solid ${theme.border}` }}>
+        <span className="mr-1 font-mono text-[8px]" style={{ letterSpacing: "0.14em", color: "rgba(255,255,255,0.28)" }}>DOMAIN</span>
+        {TABS.map(d => (
+          <button key={d.id} onClick={() => setDomain(d.id)} className="font-mono text-[10px]"
+            style={{ padding: "2px 9px", cursor: "pointer",
+                     border: `1px solid ${domain === d.id ? theme.accentBright + "88" : "rgba(255,255,255,0.08)"}`,
+                     color: domain === d.id ? theme.accentBright : "rgba(255,255,255,0.42)",
+                     background: domain === d.id ? theme.accentBright + "14" : "transparent" }}>{d.label}</button>
+        ))}
+        <span className="ml-auto font-mono text-[9px]" style={{ color: "#a78bfa" }}>→ {scene.element.symbol} ({scene.state.label})</span>
+      </div>
+
+      <div className="relative min-h-0 flex-1 overflow-auto">
+        {domain === "composition" && (
+          <div className="p-4">
+            <div className="mb-2 font-mono text-[9px]" style={{ color: "rgba(255,255,255,0.3)", letterSpacing: "0.12em" }}>LABELED COMPOSITION  ({scene.segments.map(s => s.count).join("+")} = {scene.n})</div>
+            <div className="flex h-12 w-full overflow-hidden" style={{ border: `1px solid ${theme.border}` }}>
+              {scene.segments.map((s, i) => (
+                <div key={i} className="flex items-center justify-center font-mono text-[10px]"
+                  style={{ flex: s.count, background: (AXIS_COLOR[s.axis] ?? "#888") + "26", borderRight: i < scene.segments.length - 1 ? `1px solid ${theme.border}` : "none", color: AXIS_COLOR[s.axis] ?? "#888" }}>
+                  {s.axis}×{s.count}
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex gap-3 font-mono text-[9px]">
+              {Object.entries(AXIS_COLOR).map(([a, c]) => (
+                <span key={a} style={{ color: c }}>■ {a}</span>
+              ))}
+            </div>
+            <div className="mt-3 font-mono text-[10px]" style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
+              Each part refines one S-entropy axis; ordering matters. This labeled composition is 1 of {scene.T.toLocaleString()} reachable trajectories (T(n,d) = d·(d+1)^&#8203;(n−1)).
+            </div>
+          </div>
+        )}
+        {domain === "trajectory" && (
+          <CanvasLine
+            series={[
+              { values: sk, color: AXIS_COLOR.Sk }, { values: st, color: AXIS_COLOR.St }, { values: se, color: AXIS_COLOR.Se },
+            ]}
+            title="TRAJECTORY in S-entropy [0,1]³  ·  Sk(teal) St(amber) Se(violet)" fmt={v => v.toFixed(2)} yMin={0} yMax={1} />
+        )}
+        {domain === "atom" && (
+          <div className="relative h-full w-full">
+            {scene.element.model ? (
+              <AtomViewer key={scene.element.model} src={`/atoms/${scene.element.model}`} />
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                <svg viewBox="0 0 160 160" width="180" height="180">
+                  <circle cx="80" cy="80" r="5" fill="#a78bfa" />
+                  {Array.from({ length: scene.state.n }, (_, i) => {
+                    const r = 14 + (i + 1) * (62 / scene.state.n);
+                    const on = i + 1 === scene.state.n;
+                    return <circle key={i} cx="80" cy="80" r={r} fill="none" stroke={on ? theme.accentBright : "rgba(255,255,255,0.12)"} strokeWidth={on ? 1.4 : 0.6} />;
+                  })}
+                  <circle cx={80 + 14 + 62} cy="80" r="4" fill={theme.accentBright} />
+                </svg>
+              </div>
+            )}
+            {/* element card overlay */}
+            <div className="pointer-events-none absolute left-3 top-3 font-mono" style={{ textShadow: "0 1px 6px #000" }}>
+              <div className="flex items-baseline gap-2">
+                <span className="text-[40px] font-bold leading-none" style={{ color: theme.accentBright }}>{scene.element.symbol}</span>
+                <span className="text-[12px]" style={{ color: "rgba(255,255,255,0.55)" }}>Z={scene.element.Z}</span>
+              </div>
+              <div className="mt-1 text-[12px]" style={{ color: "#eafaf8" }}>{scene.element.name}</div>
+              <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.5)" }}>{scene.element.config}</div>
+              <div className="mt-1.5 text-[9px]" style={{ color: "rgba(255,255,255,0.4)" }}>
+                part {scene.state.label} · n={scene.state.n} ℓ={scene.state.l} m={scene.state.m} s={scene.state.s > 0 ? "+½" : "−½"}
+              </div>
+            </div>
+            {!scene.element.model && (
+              <div className="pointer-events-none absolute bottom-2 left-3 font-mono text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+                no 3D model for {scene.element.symbol} — showing shell diagram
+              </div>
+            )}
+          </div>
+        )}
+        {domain === "inflation" && (
+          <CanvasBar data={infBars} title={`COMPOSITION-INFLATION  log₁₀ T(k,${scene.d})  ·  T(${scene.n},${scene.d}) = ${scene.T.toLocaleString()}`} />
+        )}
+      </div>
+
+      <div className="grid shrink-0 grid-cols-4" style={{ borderTop: `1px solid ${theme.border}` }}>
+        {cells.map(([k, v, c]) => (
+          <div key={k} className="px-1.5 py-2 text-center" style={{ borderRight: `1px solid ${theme.border}` }}>
+            <div style={{ fontSize: 7.5, letterSpacing: "0.1em", color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>{k}</div>
+            <div style={{ fontSize: 13, fontFamily: "monospace", fontWeight: 700, marginTop: 2, color: (c ?? "rgba(255,255,255,0.65)") as string }}>{v}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 type OutTab = "lesson" | "output" | "simulation" | "diagnostics" | "registry" | "render";
 
-function OutputColumn({ tab, setTab, lang, lesson, readme, events, runMeta, derived, showPhase, result, diagResult, scene, observables, onObserve, src, diagCount, cellCount, onCompile, onRun, running }: any) {
-  const tabs: { id: OutTab; label: string; Icon: any }[] = lang === "construct"
+function OutputColumn({ tab, setTab, lang, lesson, readme, events, runMeta, derived, showPhase, result, diagResult, scene, compositionScene, observables, onObserve, src, diagCount, cellCount, onCompile, onRun, running }: any) {
+  const tabs: { id: OutTab; label: string; Icon: any }[] = (lang === "construct" || lang === "compose")
     ? [
         { id: "lesson", label: "Lesson", Icon: BookOpen },
-        { id: "render", label: "Render", Icon: Activity },
+        { id: "render", label: lang === "compose" ? "Construct" : "Render", Icon: Activity },
         { id: "diagnostics", label: "Diagnostics", Icon: ListTree },
       ]
     : [
@@ -606,7 +820,9 @@ function OutputColumn({ tab, setTab, lang, lesson, readme, events, runMeta, deri
         {tab === "lesson" && <LessonView lesson={lesson} readme={readme} cellCount={cellCount} />}
         {tab === "output" && <OutputLogView events={events} result={result} runMeta={runMeta} />}
         {tab === "simulation" && <SimulationView derived={derived} showPhase={showPhase} />}
-        {tab === "render" && <RenderView scene={scene} observables={observables} onObserve={onObserve} />}
+        {tab === "render" && (lang === "compose"
+          ? <CompositionRenderView scene={compositionScene} />
+          : <RenderView scene={scene} observables={observables} onObserve={onObserve} />)}
         {tab === "diagnostics" && <DiagnosticsView result={diagResult} src={src} />}
         {tab === "registry" && <RegistryView result={result} />}
       </div>
@@ -620,7 +836,7 @@ function OutputColumn({ tab, setTab, lang, lesson, readme, events, runMeta, deri
 function TempusTutorial() {
   const firstKey = `lessons/${LESSON_FILES[0].name}`;
   const [files, setFiles] = useState<Record<string, FNode>>(initialFiles);
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(["lessons", "examples", "lab"]));
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(["lessons", "examples", "lab", "atoms"]));
   const [openTabs, setOpenTabs] = useState<string[][]>([["lessons", LESSON_FILES[0].name]]);
   const [activeTab, setActiveTab] = useState<string | null>(firstKey);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -634,6 +850,8 @@ function TempusTutorial() {
   const [constructResult, setConstructResult] = useState<ConstructResult | null>(null);
   const [scene, setScene] = useState<ConstructScene | null>(null);
   const [observables, setObservables] = useState<Observables | null>(null);
+  const [compositionResult, setCompositionResult] = useState<CompositionResult | null>(null);
+  const [compositionScene, setCompositionScene] = useState<CompositionScene | null>(null);
   const [events, setEvents] = useState<SimEvent[]>([]);
   const [running, setRunning] = useState(false);
   const [outTab, setOutTab] = useState<OutTab>("lesson");
@@ -662,11 +880,16 @@ function TempusTutorial() {
   // ── live compile (debounced) for the active file ──────────────────────────
   useEffect(() => {
     if (activeLang === "construct") {
-      setResult(null);
+      setResult(null); setCompositionResult(null);
       const t = setTimeout(() => setConstructResult(compileConstruct(source)), 250);
       return () => clearTimeout(t);
     }
-    setConstructResult(null);
+    if (activeLang === "compose") {
+      setResult(null); setConstructResult(null);
+      const t = setTimeout(() => setCompositionResult(compileComposition(source)), 250);
+      return () => clearTimeout(t);
+    }
+    setConstructResult(null); setCompositionResult(null);
     if (activeLang !== "tempus") { setResult(null); return; }
     const t = setTimeout(() => setResult(compile(source)), 250);
     return () => clearTimeout(t);
@@ -678,6 +901,7 @@ function TempusTutorial() {
     setEvents([]);
     setScene(null);
     setObservables(null);
+    setCompositionScene(null);
     setOutTab("lesson");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
@@ -701,12 +925,12 @@ function TempusTutorial() {
 
   const handleCompile = useCallback(() => {
     stopLoop();
-    if (activeLang === "construct") {
-      const res = compileConstruct(source);
-      setConstructResult(res);
+    if (activeLang === "construct" || activeLang === "compose") {
+      const res = activeLang === "compose" ? compileComposition(source) : compileConstruct(source);
+      if (activeLang === "compose") setCompositionResult(res as CompositionResult); else setConstructResult(res as ConstructResult);
       const e = res.diagnostics.filter(d => d.severity === "error").length;
       const w = res.diagnostics.filter(d => d.severity === "warning").length;
-      log(`$ tempus construct ${activeName} → ${res.ok ? "ok" : "FAILED"} (${e} error${e !== 1 ? "s" : ""}, ${w} warning${w !== 1 ? "s" : ""})`);
+      log(`$ tempus ${activeLang} ${activeName} → ${res.ok ? "ok" : "FAILED"} (${e} error${e !== 1 ? "s" : ""}, ${w} warning${w !== 1 ? "s" : ""})`);
       setOutTab("diagnostics"); setPanelTab("problems"); return;
     }
     if (activeLang !== "tempus") { log(`$ tempus compile ${activeName} — not a runnable script`); return; }
@@ -731,6 +955,17 @@ function TempusTutorial() {
       setObservables(null);
       setScene(res.scene);
       log(`$ tempus render ${activeName} → ${res.scene.waves.length} source(s) interfering…`);
+      setOutTab("render"); return;
+    }
+    if (activeLang === "compose") {
+      const res = compileComposition(source);
+      setCompositionResult(res);
+      if (!res.ok || !res.scene) {
+        log(`$ tempus compose ${activeName} → blocked: fix ${res.diagnostics.filter(d => d.severity === "error").length} error(s) first`);
+        setOutTab("diagnostics"); setPanelTab("problems"); return;
+      }
+      setCompositionScene(res.scene);
+      log(`$ tempus compose ${activeName} → n=${res.scene.n}, T=${res.scene.T.toLocaleString()} → ${res.scene.state.label}`);
       setOutTab("render"); return;
     }
     if (activeLang !== "tempus" || !activeLesson) { log(`$ tempus run ${activeName} — open a lesson script to run`); return; }
@@ -800,7 +1035,7 @@ function TempusTutorial() {
     };
   }, [events, result, palette]);
 
-  const activeRes: AnyResult | null = activeLang === "construct" ? constructResult : result;
+  const activeRes: AnyResult | null = activeLang === "compose" ? compositionResult : activeLang === "construct" ? constructResult : result;
   const diags = activeRes?.diagnostics ?? [];
   const errCount = diags.filter(d => d.severity === "error").length;
   const warnCount = diags.filter(d => d.severity === "warning").length;
@@ -957,7 +1192,7 @@ function TempusTutorial() {
           <OutputColumn tab={outTab} setTab={setOutTab} lang={activeLang} lesson={activeLesson} readme={activeLang === "md" ? source : null}
             events={events} runMeta={runMeta}
             derived={derived} showPhase={activeLesson?.feature === "phase"} result={result} diagResult={activeRes} src={source}
-            scene={scene} observables={observables} onObserve={setObservables}
+            scene={scene} compositionScene={compositionScene} observables={observables} onObserve={setObservables}
             diagCount={diags.length} cellCount={result?.registry?.cells.length ?? 0}
             onCompile={handleCompile} onRun={handleRun} running={running} />
         </div>
@@ -971,7 +1206,9 @@ function TempusTutorial() {
             <span className="flex items-center gap-1"><X size={13} /> {errCount}</span>
             <span className="flex items-center gap-1"><AlertCircle size={13} /> {warnCount}</span>
           </span>
-          {activeLang === "construct"
+          {activeLang === "compose"
+            ? (compositionResult?.scene && <span style={{ opacity: 0.85 }}>n={compositionResult.scene.n} · T={compositionResult.scene.T.toLocaleString()} · {compositionResult.scene.state.label}</span>)
+            : activeLang === "construct"
             ? (constructResult?.scene && <span style={{ opacity: 0.85 }}>{constructResult.scene.waves.length} sources</span>)
             : (result?.registry && <span style={{ opacity: 0.85 }}>d = {result.registry.channels.length} · {result.registry.cells.length} cells</span>)}
         </div>

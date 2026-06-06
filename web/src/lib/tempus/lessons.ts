@@ -16,7 +16,7 @@ export interface Lesson {
   expect:  'clean' | 'diagnostics';
   feature?: 'inject' | 'phase';   // optional lesson-specific panel
   kind?:   'example' | 'lab';     // instrument example / construction lab (vs. numbered lesson)
-  lang?:   'tempus' | 'construct';// surface language (default 'tempus')
+  lang?:   'tempus' | 'construct' | 'compose';// surface language (default 'tempus')
 }
 
 export const LESSONS: Lesson[] = [
