@@ -15,7 +15,8 @@ export interface Lesson {
   noise:   number;          // default RUN noise σ (0..1)
   expect:  'clean' | 'diagnostics';
   feature?: 'inject' | 'phase';   // optional lesson-specific panel
-  kind?:   'example';       // instrument example (vs. numbered lesson)
+  kind?:   'example' | 'lab';     // instrument example / construction lab (vs. numbered lesson)
+  lang?:   'tempus' | 'construct';// surface language (default 'tempus')
 }
 
 export const LESSONS: Lesson[] = [

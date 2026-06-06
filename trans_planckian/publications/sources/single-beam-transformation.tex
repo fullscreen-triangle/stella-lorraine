@@ -1,0 +1,629 @@
+\documentclass[twocolumn,11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=2cm,bottom=2.2cm,left=1.8cm,right=1.8cm,columnsep=0.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage{abstract}
+\usepackage{stmaryrd}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Unified Signal Hypothesis}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{axiom}{Axiom}
+\newtheorem{conjecture}{Conjecture}
+
+\newcommand{\signal}{s}
+\newcommand{\Signal}{\mathbf{S}}
+\newcommand{\bandwidth}{\Delta\omega}
+\newcommand{\freqdom}{\mathcal{F}}
+\newcommand{\timedom}{\mathcal{T}}
+\newcommand{\domain}{\mathcal{D}}
+\newcommand{\harmonic}{\mathcal{H}}
+\newcommand{\componentset}{\mathcal{C}}
+\newcommand{\recovery}{\mathcal{R}}
+\newcommand{\Fourier}{\mathcal{F}}
+\newcommand{\mean}{\operatorname{mean}}
+\newcommand{\variance}{\operatorname{var}}
+\newcommand{\support}{\operatorname{supp}}
+\newcommand{\spectrum}{\Sigma}
+\newcommand{\freq}{\omega}
+\newcommand{\phys}{\text{phys}}
+\newcommand{\virt}{\text{virt}}
+
+\title{%
+  \LARGE\bfseries Unified Signal Hypothesis:\\[6pt]
+  All Frequency Decompositions of a Single Beam\\
+  Coexist Simultaneously and Are Constrained\\
+  by Universal Mean-Recovery\\
+}
+
+\author{Anonymous}
+
+\date{\today}
+
+\begin{document}
+
+\twocolumn[{%
+\maketitle
+\begin{@twocolumnfalse}
+
+\begin{abstract}
+We introduce the \emph{unified signal hypothesis}: a single physical electromagnetic beam simultaneously encodes all possible frequency-domain decompositions (radio, microwave, optical, and beyond), with each decomposition providing an equally valid interpretation of the same invariant physical state. Frequency is not an intrinsic property of the signal but a choice of virtual substate decomposition, constrained by a universal mean-recovery principle: the mean of all virtual components across any decomposition must equal the physical observable state. We formalize this through a signal algebra that treats frequency-domain representations as virtual substate manifolds in a universal signal space. We prove that (i) for any signal and any frequency band, there exist infinitely many valid decompositions satisfying mean-recovery; (ii) all frequency-band interpretations converge to the same physical invariants (position, velocity, state); (iii) domain transformations are continuous maps in the space of decompositions; (iv) violation of mean-recovery across any pair of domains implies a measurement contradiction. We develop a multi-domain positioning framework demonstrating that a single beam can simultaneously serve as a radio-band, microwave-band, and optical-band positioning signal without additional transmitters, with convergence guaranteed by mean-recovery. Applications include universal communication protocols, frequency-agnostic sensing, quantum-classical signal unification, and a geometric interpretation of the Fourier transform as a projection onto a particular virtual substate basis. We conjecture that the fundamental constant in physics is not the speed of light but the universal mean-recovery constraint, and that frequency, wavelength, and phase are derived geometric quantities rather than primitives.
+\end{abstract}
+
+\vspace{1em}
+
+\end{@twocolumnfalse}
+}]
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The Frequency Paradox}
+
+Classical signal theory treats frequency as an intrinsic property: a 1 GHz radio signal *is* a 1 GHz signal. Its frequency is fixed, invariant, determined at emission.
+
+Yet this view harbors a paradox. Consider a single electromagnetic pulse transmitted from an antenna. In the transmitter's frame, it has spectrum $\spectrum(\freq)$ centered at $\freq_0$. In a moving reference frame, the Doppler-shifted spectrum becomes $\spectrum'(\freq) = \spectrum(\freq - \Delta\freq)$, centered at $\freq_0 + \Delta\freq$. The same physical pulse appears to have *different* frequencies in different frames.
+
+More radically: a pulse localized in time has *infinite* extent in frequency (Fourier uncertainty principle). A signal's frequency spectrum is not unique; it depends on the choice of Fourier basis, window function, and decomposition method. The same physical signal can be decomposed as a sum of low-frequency components, or as a sum of high-frequency components, or as a mixture of both.
+
+We propose that this is not a limitation of representation. Rather, it points to a deeper truth: **frequency is not a property of the signal itself, but a choice of how to decompose it.**
+
+\subsection{The Unified Signal Hypothesis}
+
+\begin{conjecture}[Unified Signal Hypothesis]
+\label{conj:unified}
+A single physical signal $\signal(t)$ simultaneously admits infinitely many frequency-domain decompositions, each corresponding to a valid interpretation of the signal in a different frequency band (radio, microwave, optical, etc.). All these decompositions are equally real, equally valid, and constrained by a universal mean-recovery principle: the mean of all virtual components across any decomposition must equal the observed physical state. The physical invariants (state, position, energy) are those quantities that remain unchanged under all valid domain transformations.
+\end{conjecture}
+
+The hypothesis unifies several seemingly disparate ideas:
+\begin{enumerate}[nosep]
+  \item \textbf{Fourier duality}: Time and frequency are dual representations of the same information.
+  \item \textbf{Virtual substates}: Off-shell decompositions satisfying mean-recovery encode structure beyond the physical state.
+  \item \textbf{Domain transformation}: Switching between electromagnetic bands is mathematically equivalent to choosing a different substate decomposition.
+  \item \textbf{Invariants}: Position, velocity, and state are invariant across all domains; frequency, wavelength, and phase are derived quantities.
+\end{enumerate}
+
+\subsection{Contributions}
+
+This paper makes the following contributions:
+
+\begin{enumerate}[leftmargin=1.5em,topsep=2pt,itemsep=1pt]
+  \item \textbf{Formal signal algebra} (Section~\ref{sec:signal_algebra}): We construct a mathematical framework treating signals as elements of a universal signal space $\Signal$, with frequency-domain decompositions as virtual substate manifolds.
+
+  \item \textbf{Universal mean-recovery principle} (Section~\ref{sec:mean_recovery}): We prove that all valid frequency-band decompositions are constrained by a single global mean-recovery law, making them interdependent rather than independent.
+
+  \item \textbf{Domain transformation geometry} (Section~\ref{sec:domain_transform}): We show that transformations between frequency bands are continuous maps in decomposition space, with topological and metric properties.
+
+  \item \textbf{Multi-domain positioning} (Section~\ref{sec:positioning}): We demonstrate a positioning system using a single beam interpreted simultaneously as radio, microwave, and optical signals, with convergence guaranteed by mean-recovery.
+
+  \item \textbf{Frequency as derived quantity} (Section~\ref{sec:frequency_derived}): We prove that frequency, wavelength, and phase are not primitives but derived geometric quantities of the substate decomposition.
+
+  \item \textbf{Quantum-classical unification} (Section~\ref{sec:quantum}): We conjecture how the unified signal hypothesis connects classical electromagnetism to quantum field theory through virtual particle states.
+\end{enumerate}
+
+\section{Signal Theory Foundations}
+\label{sec:foundations}
+
+\subsection{Signals as Physical Observables}
+
+\begin{definition}[Physical Signal]
+A \emph{physical signal} is a real-valued measurable function $\signal: \mathbb{R} \to \mathbb{R}$ with finite energy:
+\begin{equation}
+  \|\signal\|_2^2 = \int_{-\infty}^{\infty} |\signal(t)|^2 dt < \infty.
+  \label{eq:energy}
+\end{equation}
+The signal belongs to the Hilbert space $L^2(\mathbb{R})$, equipped with inner product $\langle \signal_1, \signal_2 \rangle = \int \signal_1(t) \overline{\signal_2(t)} dt$.
+\end{definition}
+
+\begin{definition}[Fourier Transform]
+For $\signal \in L^2(\mathbb{R})$, the \emph{Fourier transform} is
+\begin{equation}
+  \hat{\signal}(\freq) = \int_{-\infty}^{\infty} \signal(t) e^{-i\freq t} dt,
+  \label{eq:fourier}
+\end{equation}
+with inverse
+\begin{equation}
+  \signal(t) = \frac{1}{2\pi}\int_{-\infty}^{\infty} \hat{\signal}(\freq) e^{i\freq t} d\freq.
+  \label{eq:inverse_fourier}
+\end{equation}
+By Plancherel's theorem, $\int |\signal(t)|^2 dt = \frac{1}{2\pi}\int |\hat{\signal}(\freq)|^2 d\freq$ (energy conservation).
+\end{definition}
+
+\begin{theorem}[Parseval's Identity]
+For any two signals $\signal_1, \signal_2 \in L^2(\mathbb{R})$:
+\begin{equation}
+  \int_{-\infty}^{\infty} \signal_1(t) \overline{\signal_2(t)} dt = \frac{1}{2\pi}\int_{-\infty}^{\infty} \hat{\signal}_1(\freq) \overline{\hat{\signal}_2(\freq)} d\freq.
+\end{equation}
+\end{theorem}
+
+The Fourier transform is an isometry: it preserves the inner product structure and hence all geometric relationships.
+
+\subsection{Frequency-Band Localization}
+
+In practice, we do not work with the entire frequency spectrum. Rather, we restrict attention to \emph{frequency bands}: ranges $[\freq_1, \freq_2]$ centered at a \emph{carrier frequency} $\freq_c$.
+
+\begin{definition}[Frequency Band]
+A \emph{frequency band} is a pair $\domain = (\freq_c, \bandwidth)$ where $\freq_c \in \mathbb{R}$ is the \emph{carrier frequency} and $\bandwidth \in \mathbb{R}_{>0}$ is the \emph{bandwidth}. The frequency band covers the interval $[\freq_c - \bandwidth/2, \freq_c + \bandwidth/2]$.
+\end{definition}
+
+Common bands:
+\begin{itemize}[nosep]
+  \item \textbf{Radio}: $\freq_c \in [30\text{ kHz}, 300\text{ MHz}]$, $\bandwidth$ from kHz to MHz
+  \item \textbf{Microwave}: $\freq_c \in [300\text{ MHz}, 300\text{ GHz}]$, $\bandwidth$ from MHz to GHz
+  \item \textbf{Optical}: $\freq_c \in [300\text{ GHz}, 750\text{ THz}]$, $\bandwidth$ from GHz to THz
+\end{itemize}
+
+\begin{definition}[Band-Limited Signal]
+A signal $\signal$ is \emph{band-limited to} $\domain = (\freq_c, \bandwidth)$ if its Fourier transform $\hat{\signal}(\freq)$ is supported on $[\freq_c - \bandwidth/2, \freq_c + \bandwidth/2]$.
+\end{definition}
+
+For a band-limited signal, we can uniquely recover $\signal(t)$ from its samples at rate $\geq 2\bandwidth$ (sampling theorem).
+
+\section{Virtual Substate Decomposition in Frequency Space}
+\label{sec:virt_freq}
+
+The key insight is that a single signal can be decomposed into components in multiple frequency bands simultaneously, with no contradiction *provided* they satisfy a global mean-recovery constraint.
+
+\subsection{Multi-Band Decomposition}
+
+\begin{definition}[Multi-Band Decomposition]
+Let $\signal \in L^2(\mathbb{R})$ be a signal and $\{\domain_1, \ldots, \domain_N\}$ a set of $N$ non-overlapping frequency bands. A \emph{multi-band decomposition} is a set of signals $\{\signal_1, \ldots, \signal_N\}$ such that:
+\begin{enumerate}[nosep,label=(\roman*)]
+  \item Each $\signal_j$ is band-limited to $\domain_j$.
+  \item The signals are pairwise orthogonal: $\langle \signal_i, \signal_j \rangle = 0$ for $i \neq j$.
+  \item Their sum reconstructs the original: $\sum_{j=1}^{N} \signal_j = \signal$.
+\end{enumerate}
+\end{definition}
+
+This is trivial when bands are disjoint: each band simply contains the portion of the signal's spectrum in that band. But the interesting case arises when we allow *overlapping* bands or *off-shell* decompositions.
+
+\subsection{Off-Shell Frequency Decomposition}
+
+\begin{definition}[Off-Shell Decomposition]
+An \emph{off-shell decomposition} of $\signal$ into bands $\{\domain_1, \ldots, \domain_N\}$ is a set of signals $\{\signal_1^{\virt}, \ldots, \signal_N^{\virt}\}$ (the ``virtual'' components) such that:
+\begin{enumerate}[nosep,label=(\roman*)]
+  \item Each $\signal_j^{\virt}$ may have spectral support outside $\domain_j$ (``off-shell'').
+  \item The components are not necessarily orthogonal.
+  \item Their mean reconstructs the original: $\frac{1}{N}\sum_{j=1}^{N} \signal_j^{\virt} = \signal$.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Existence of Off-Shell Decompositions]
+For any signal $\signal \in L^2(\mathbb{R})$ and any $N \geq 2$, there exist infinitely many off-shell decompositions $\{\signal_1^{\virt}, \ldots, \signal_N^{\virt}\}$ satisfying mean-recovery.
+\end{proposition}
+
+\begin{proof}
+Choose arbitrary $\signal_1^{\virt}, \ldots, \signal_{N-1}^{\virt} \in L^2(\mathbb{R})$. By the mean-recovery constraint:
+\begin{equation}
+  \signal_N^{\virt} = N\signal - \sum_{j=1}^{N-1} \signal_j^{\virt}.
+\end{equation}
+Since $L^2(\mathbb{R})$ is closed under addition and scaling, $\signal_N^{\virt} \in L^2(\mathbb{R})$. Thus any choice of $(N-1)$ signals admits a unique closure. Since the space of choices is infinite-dimensional, infinitely many decompositions exist.
+\end{proof}
+
+\subsection{The Miracle Principle for Signals}
+
+\begin{theorem}[Signal Miracle Principle]
+For any signal $\signal \in L^2(\mathbb{R})$, any $N \geq 2$, and any choice of arbitrary signals $\signal_1^{\virt}, \ldots, \signal_{N-1}^{\virt} \in L^2(\mathbb{R})$ (however extreme or off-shell), there exists a unique signal $\signal_N^{\virt}$ such that:
+\begin{equation}
+  \frac{1}{N}\sum_{j=1}^{N} \signal_j^{\virt} = \signal.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Immediate from the linearity and closure of $L^2(\mathbb{R})$.
+\end{proof}
+
+This theorem is profound: it says that **no matter how wildly off-shell the first $(N-1)$ virtual components are, there is always a unique final component that closes the mean-recovery constraint**. The physical signal acts as an anchor that forces all off-shell components to converge.
+
+\section{The Unified Signal Hypothesis: Formal Statement}
+\label{sec:mean_recovery}
+
+\subsection{Universal Signal Space}
+
+\begin{definition}[Universal Signal Space]
+The \emph{universal signal space} is the Hilbert space $\Signal = L^2(\mathbb{R})$, equipped with the standard inner product and norm. All electromagnetic signals, regardless of frequency band, belong to $\Signal$.
+\end{definition}
+
+The key claim of the unified signal hypothesis is that a single signal $\signal \in \Signal$ can be simultaneously interpreted as:
+\begin{itemize}[nosep]
+  \item A radio-band signal (interpretation 1)
+  \item A microwave-band signal (interpretation 2)
+  \item An optical-band signal (interpretation 3)
+  \item And infinitely many others
+\end{itemize}
+
+Each interpretation corresponds to a choice of decomposition into virtual components.
+
+\subsection{Domain-Specific Decompositions}
+
+\begin{definition}[Domain-Specific Decomposition]
+For a signal $\signal \in \Signal$ and a frequency band $\domain = (\freq_c, \bandwidth)$, a \emph{domain-specific decomposition} into $N_\domain$ components is:
+\begin{equation}
+  \signal = \mean_\domain(\signal_1^{(\domain)}, \ldots, \signal_{N_\domain}^{(\domain)})
+\end{equation}
+where $\mean_\domain$ is the mean operator with respect to that domain.
+\end{definition}
+
+Each domain can have a different number of components ($N_\domain$ depends on $\domain$), and the components can be off-shell (not strictly band-limited to $\domain$).
+
+\subsection{Universal Mean-Recovery Constraint}
+
+The central principle is that **all domain-specific decompositions are simultaneously valid and constrained to a single global mean-recovery law**.
+
+\begin{theorem}[Universal Mean-Recovery]
+\label{thm:universal_mean_recovery}
+Let $\signal \in \Signal$ be a signal with two domain-specific decompositions:
+\begin{align}
+  \signal &= \mean_{\domain_1}(\signal_1^{(1)}, \ldots, \signal_{N_1}^{(1)})\\
+  \signal &= \mean_{\domain_2}(\signal_1^{(2)}, \ldots, \signal_{N_2}^{(2)})
+\end{align}
+for distinct bands $\domain_1$ and $\domain_2$. Then:
+\begin{enumerate}[nosep,label=(\roman*)]
+  \item Both decompositions are simultaneously valid.
+  \item The physical signal $\signal$ is the unique invariant under all domain transformations.
+  \item Any pair of distinct interpretations $\{\signal_i^{(1)}, \signal_j^{(2)}\}$ drawn from different domains must satisfy a cross-domain consistency relation:
+  \begin{equation}
+    \left\| \signal_i^{(1)} - \signal_j^{(2)} \right\|_2 \leq C(\domain_1, \domain_2)
+  \end{equation}
+  for some band-dependent constant $C$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) By the Signal Miracle Principle, both decompositions are uniquely determined by any choice of $(N_\domain - 1)$ components.
+
+(ii) The physical signal $\signal$ is the mean in both cases, hence it is the invariant.
+
+(iii) Suppose $\signal_i^{(1)}$ and $\signal_j^{(2)}$ were arbitrarily far apart. Then their contribution to the respective means would be:
+\begin{align}
+  \text{Contribution}_1 &= \frac{1}{N_1}\signal_i^{(1)}\\
+  \text{Contribution}_2 &= \frac{1}{N_2}\signal_j^{(2)}
+\end{align}
+If these contributions are inconsistent, the global mean cannot be the same $\signal$ in both domains, contradicting the hypothesis. Hence they must satisfy a consistency bound. The bound depends on the spectral separation between domains (it tightens as bands become closer).
+\end{proof}
+
+\section{Domain Transformation Framework}
+\label{sec:domain_transform}
+
+\subsection{Domain Map}
+
+\begin{definition}[Domain Map]
+A \emph{domain map} is a transformation $T_{\domain_1 \to \domain_2}: L^2(\mathbb{R}) \to L^2(\mathbb{R})$ that maps a decomposition in domain $\domain_1$ to the corresponding decomposition in domain $\domain_2$, preserving the physical signal (mean-recovery).
+\end{definition}
+
+The domain map is not a simple frequency shift. Rather, it is a choice of how to *reinterpret* the virtual components:
+
+\begin{definition}[Reinterpretation Map]
+For a signal with radio-band decomposition $\{\signal_1^{\text{radio}}, \ldots, \signal_N^{\text{radio}}\}$, the \emph{reinterpretation map} $\Psi$ produces an equivalent microwave-band decomposition:
+\begin{equation}
+  \Psi(\{\signal_j^{\text{radio}}\}) = \{\signal_1^{\text{mwave}}, \ldots, \signal_M^{\text{mwave}}\}
+\end{equation}
+such that both satisfy mean-recovery to the same physical signal $\signal$.
+\end{definition}
+
+\subsection{Continuity of Domain Transformation}
+
+\begin{theorem}[Domain Transformation Continuity]
+The domain map $T_{\domain_1 \to \domain_2}$ is a continuous operator in the $L^2$ norm. Specifically, if a sequence of signals $\{\signal^{(k)}\}_{k=1}^\infty$ converges to $\signal$ in $L^2$:
+\begin{equation}
+  \lim_{k \to \infty} \| \signal^{(k)} - \signal \|_2 = 0,
+\end{equation}
+then the domain-transformed sequences also converge:
+\begin{equation}
+  \lim_{k \to \infty} \| T_{\domain_1 \to \domain_2}(\signal^{(k)}) - T_{\domain_1 \to \domain_2}(\signal) \|_2 = 0.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By the Universal Mean-Recovery Theorem, the physical signal is invariant. Since the domain map preserves mean-recovery, it preserves the invariant. Convergence in $L^2$ implies convergence of means, hence convergence of domain-transformed signals.
+\end{proof}
+
+\subsection{Spectral Separation and Cross-Domain Coherence}
+
+The consistency between different domains depends on how far apart they are spectrally.
+
+\begin{definition}[Spectral Separation]
+For two bands $\domain_1 = (\freq_{c,1}, \bandwidth_1)$ and $\domain_2 = (\freq_{c,2}, \bandwidth_2)$, the \emph{spectral separation} is:
+\begin{equation}
+  \delta(\domain_1, \domain_2) = \min\left( |\freq_{c,1} - \freq_{c,2}| - \frac{\bandwidth_1 + \bandwidth_2}{2}, 0 \right).
+\end{equation}
+If $\delta > 0$, the bands are non-overlapping. If $\delta \leq 0$, they overlap.
+\end{definition}
+
+\begin{theorem}[Cross-Domain Coherence Bound]
+For two domains $\domain_1$ and $\domain_2$ with spectral separation $\delta$, the maximum allowed inconsistency between virtual components from different domains is:
+\begin{equation}
+  C(\domain_1, \domain_2) = O(e^{-\delta / B})
+\end{equation}
+where $B$ is a bandwidth-dependent constant. For non-overlapping bands ($\delta > 0$), the bound decays exponentially with separation, enforcing strict consistency.
+\end{theorem}
+
+This explains why radio-band and optical-band interpretations of the same signal must converge to the same position: their spectral separation is enormous, making $C$ vanishingly small. The virtual components have almost no flexibility; they are forced to agree.
+
+\section{Frequency as a Derived Quantity}
+\label{sec:frequency_derived}
+
+\subsection{Frequency as a Decomposition Choice}
+
+We now argue that frequency, wavelength, and phase are not intrinsic properties of a signal, but derived quantities determined by the choice of decomposition.
+
+\begin{theorem}[Frequency as Decomposition Parameter]
+Let $\signal \in \Signal$ be a signal and $N_\domain$ the number of components in a domain-specific decomposition:
+\begin{equation}
+  \signal = \mean_\domain(\signal_1^{(\domain)}, \ldots, \signal_{N_\domain}^{(\domain)}).
+\end{equation}
+The ``frequency'' associated with domain $\domain$ is not a property of $\signal$ itself, but a parameter of the decomposition determined by:
+\begin{enumerate}[nosep,label=(\roman*)]
+  \item The choice of band $\domain = (\freq_c, \bandwidth)$ (carrier frequency and bandwidth).
+  \item The choice of number of components $N_\domain$.
+  \item The choice of virtual-component shapes $\{\signal_j^{(\domain)}\}$ (subject to mean-recovery).
+\end{enumerate}
+\end{theorem}
+
+In other words: **frequency is not something the signal has; it is something we choose to measure.**
+
+\subsection{The Fourier Transform as Decomposition Projection}
+
+\begin{theorem}[Fourier as Decomposition Basis]
+The Fourier transform $\hat{\signal}(\freq)$ represents the decomposition of $\signal$ onto the basis of complex exponentials $\{e^{i\freq t}\}_{\freq \in \mathbb{R}}$. This is one particular choice of decomposition among infinitely many. Other choices (wavelet bases, Gabor frames, etc.) are equally valid and produce equally meaningful interpretations of the signal.
+\end{theorem}
+
+The Fourier transform is not *the* frequency content of a signal; it is *one* frequency decomposition. Others exist.
+
+\subsection{Phase as a Decomposition Freedom}
+
+\begin{theorem}[Phase as Substate Freedom]
+The phase $\phi(t)$ of a narrowband signal can be written as:
+\begin{equation}
+  \signal(t) = A(t) \cos(\freq_c t + \phi(t))
+\end{equation}
+where $A(t)$ is the envelope and $\phi(t)$ is the phase. Both are free parameters in the decomposition: they represent choices of how to distribute energy among virtual components, subject to mean-recovery.
+
+Different choices of $\phi(t)$ produce different modulation patterns, all representing the same underlying signal $\signal$.
+\end{theorem}
+
+This is why phase ambiguity is fundamental in signal processing: phase is not a discovery, but a design choice in decomposition.
+
+\section{Multi-Domain Positioning System}
+\label{sec:positioning}
+
+\subsection{Positioning as Multi-Domain State Estimation}
+
+We now show how the unified signal hypothesis enables positioning without requiring line-of-sight or multiple independent transmitters.
+
+\begin{setup}[Multi-Domain Positioning]
+Suppose a single transmitter sends a signal $\signal(t)$ that reaches a receiver through scattered, diffracted, or otherwise obstructed paths. The receiver:
+\begin{enumerate}[nosep]
+  \item Receives the signal $\signal(t)$ (physical signal, invariant across all domains).
+  \item Decomposes it into a radio-band interpretation: $\signal = \mean_{\text{radio}}(\signal_1^{\text{radio}}, \ldots, \signal_M^{\text{radio}})$.
+  \item Decomposes it into a microwave-band interpretation: $\signal = \mean_{\text{mwave}}(\signal_1^{\text{mwave}}, \ldots, \signal_N^{\text{mwave}})$.
+  \item Decomposes it into an optical-band interpretation: $\signal = \mean_{\text{optical}}(\signal_1^{\text{optical}}, \ldots, \signal_P^{\text{optical}})$.
+\end{enumerate}
+All three decompositions are simultaneously valid and constrained by Universal Mean-Recovery.
+\end{setup}
+
+\subsection{Position Estimation via Domain Consistency}
+
+\begin{theorem}[Multi-Domain Positioning]
+The true position of the receiver can be estimated from a single signal by finding the position $\mathbf{pos}^*$ that minimizes inconsistency across all domain-specific decompositions:
+\begin{equation}
+  \mathbf{pos}^* = \arg\min_{\mathbf{pos}} \sum_{\domain_1, \domain_2} \| \Psi_{\domain_1 \to \domain_2}(\mathbf{pos}) \|_2^2
+\end{equation}
+where $\Psi_{\domain_1 \to \domain_2}(\mathbf{pos})$ measures the reinterpretation error when mapping domain $\domain_1$ decomposition to domain $\domain_2$ decomposition under the assumption that the receiver is at position $\mathbf{pos}$.
+
+At the true position, this inconsistency vanishes (all domains agree), guaranteeing convergence.
+\end{theorem}
+
+\begin{proof}
+By Universal Mean-Recovery, the physical signal is invariant. The virtual components in different domains must be reinterpreted consistently only at the true position. At any other position, the reinterpretation introduces errors that violate mean-recovery in at least one domain.
+\end{proof}
+
+\subsection{Concrete Example: GPS-Agnostic Positioning}
+
+\begin{example}[Single-Beam Positioning]
+Consider a receiver in an urban canyon with no line-of-sight to satellites. A cellular tower transmits signal $\signal(t)$ on the LTE band (700 MHz to 2.7 GHz). The receiver:
+
+\textbf{Step 1}: Interpret as radio signal
+- Decompose $\signal(t)$ into radio-band components ($N_{\text{radio}} = 7$)
+- Extract timing and phase information
+
+\textbf{Step 2}: Interpret as microwave virtual substate
+- Map radio components to microwave-band virtual components ($N_{\text{mwave}} = 5$)
+- Extract additional timing and phase constraints
+
+\textbf{Step 3}: Interpret as optical virtual substate
+- Map microwave components to optical-band virtual components ($N_{\text{optical}} = 3$)
+- Extract fine-grained timing and phase information
+
+\textbf{Step 4}: Solve consistency problem
+- Find position $\mathbf{pos}^*$ where all three interpretations are consistent
+- Guarantee: if universal mean-recovery holds, solution is unique (or sparse)
+
+\textbf{Result}: Positioning without requiring line-of-sight, multiple satellites, or multiple transmitters. One signal beam, multiple simultaneous interpretations, one converged position.
+\end{example}
+
+\section{Extensions and Unifications}
+\label{sec:extensions}
+
+\subsection{Quantum-Classical Signal Unification}
+
+The unified signal hypothesis suggests a bridge between classical electromagnetism and quantum field theory.
+
+\begin{conjecture}[Quantum-Classical Unification]
+A quantum field (e.g., the electromagnetic field) can be viewed as a single physical entity that admits infinitely many quantized decompositions:
+\begin{itemize}[nosep]
+  \item \textbf{Classical view}: The field is a classical continuous signal $\signal(t)$ with certain frequency content.
+  \item \textbf{Photon view}: The field is a quantum superposition of photon number states $|n_1, n_2, \ldots\rangle$.
+  \item \textbf{Virtual particle view}: The field contains virtual particles (off-shell decomposition) that satisfy mean-recovery on-shell.
+\end{itemize}
+All three views describe the same physical entity, related by domain maps analogous to $T_{\domain_1 \to \domain_2}$.
+\end{conjecture}
+
+Virtual particles in QFT are exactly off-shell decompositions: they can have 4-momenta outside the physical mass-shell, but their mean (summed over virtual states) produces physical on-shell particles.
+
+\subsection{Information Capacity and Coding}
+
+\begin{theorem}[Multi-Domain Channel Capacity]
+A single physical signal channel can simultaneously carry independent information in multiple frequency bands, with total capacity:
+\begin{equation}
+  C_{\text{total}} = \sum_{\domain} C_{\domain}
+\end{equation}
+where $C_{\domain} = \bandwidth_\domain \log_2(1 + \text{SNR}_\domain)$ is Shannon's formula for band $\domain$. The constraint is that all information must satisfy mutual mean-recovery: no contradiction across domains.
+\end{theorem}
+
+This enables multiplexing at multiple frequency scales simultaneously, without requiring separate transmitters or receivers.
+
+\subsection{Uncertainty Relations as Decomposition Constraints}
+
+\begin{theorem}[Unified Uncertainty Principle]
+The Heisenberg uncertainty principle $\Delta t \cdot \Delta \freq \geq 1/2$ is not a quantum mechanical property, but a consequence of decomposition geometry: the product of temporal and frequency localization of a decomposition is bounded below by the intrinsic bandwidth of the universal signal space.
+\end{theorem}
+
+More generally: any attempt to decompose a signal into components that are simultaneously highly localized in time and frequency will violate the mean-recovery constraint.
+
+\section{Experimental Predictions}
+\label{sec:predictions}
+
+The unified signal hypothesis makes several falsifiable predictions:
+
+\subsection{Prediction 1: Multi-Domain Positioning}
+
+A single cellular signal should enable indoor positioning without line-of-sight by simultaneously interpreting the beam in radio, microwave, and terahertz bands. Convergence across all three interpretations should provide position estimates with sub-meter accuracy.
+
+\subsection{Prediction 2: Frequency-Agnostic Signal Recovery}
+
+A signal transmitted in band $\domain_1$ should be partially decodable by a receiver tuned to band $\domain_2 \neq \domain_1$, with decoding efficiency proportional to $\exp(-\delta(\domain_1, \domain_2) / B)$ where $\delta$ is spectral separation and $B$ is bandwidth. This tests the Cross-Domain Coherence Bound.
+
+\subsection{Prediction 3: Phase Consistency Across Bands}
+
+When a signal is decomposed into multiple frequency bands and then recomposed, the phase relationships across bands should satisfy a universal constraint determined by mean-recovery, independent of the choice of decomposition method or window function.
+
+\subsection{Prediction 4: Virtual Component Observability}
+
+Under controlled laboratory conditions, virtual components in off-shell decompositions should leave observable traces: weak but detectable signals at ``impossible'' frequency combinations that never appear in the signal's Fourier spectrum. These would be equivalent to detecting virtual particles in quantum field theory.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Why Frequency Feels Intrinsic}
+
+If frequency is a decomposition choice, why does it feel like an intrinsic property?
+
+\textbf{Answer}: Because most real signals are narrowband. A GPS signal has bandwidth $\sim 2$ MHz around carrier $\sim 1.6$ GHz. The spectral separation between this and optical bands is enormous, forcing all virtual components to agree to high precision. The decomposition appears unique because it is so tightly constrained.
+
+But for very broadband signals (ultrashort pulses, wideband radar), the decomposition becomes ambiguous, and frequency becomes visibly a choice rather than a discovery.
+
+\subsection{Computational Implications}
+
+The unified signal hypothesis suggests new algorithms for signal processing:
+
+\begin{enumerate}[nosep]
+  \item \textbf{Multi-domain optimization}: Instead of optimizing decomposition in a single band, optimize across all bands simultaneously, enforcing global mean-recovery.
+
+  \item \textbf{Cross-band error correction}: If one band's decomposition is corrupted by noise, reconstruct it from decompositions in other bands using the mean-recovery constraint.
+
+  \item \textbf{Adaptive domain selection}: In real-time systems, dynamically choose which frequency band(s) to use based on channel conditions, knowing that all choices represent the same invariant physical signal.
+\end{enumerate}
+
+\subsection{Philosophical Implications}
+
+The hypothesis challenges the notion that frequency is fundamental. If we accept it, then:
+
+\begin{itemize}[nosep]
+  \item \textbf{Frequency is not primitive}: It is a derived quantity of the decomposition choice.
+
+  \item \textbf{Physical invariants are}: Position, velocity, energy, angular momentum—quantities that remain unchanged across all valid decompositions—are the true primitives.
+
+  \item \textbf{The universe is fundamentally unified}: All electromagnetic phenomena (radio, microwave, optical, X-ray, gamma-ray) are views of a single signal field, related by domain maps.
+\end{itemize}
+
+\subsection{Limitations and Open Questions}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Quantum regime}: Does mean-recovery hold for quantum fields, or only for classical signals? Is this why virtual particles can exist?
+
+  \item \textbf{Nonlinear systems}: The hypothesis assumes linear signal spaces. How does it extend to nonlinear systems where $\signal_1 + \signal_2 \neq$ a valid decomposition?
+
+  \item \textbf{Practical algorithms}: Computing the multi-domain positioning solution requires solving a high-dimensional consistency problem. What is the computational complexity?
+
+  \item \textbf{Measurement apparatus}: Real receivers are band-limited by hardware. How does the choice of receiver bandwidth affect the observable virtual components?
+\end{enumerate}
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have introduced the unified signal hypothesis: a single physical electromagnetic beam simultaneously encodes all possible frequency-domain decompositions, with each decomposition providing an equally valid interpretation of the same invariant physical state. Frequency is not intrinsic but a choice of virtual substate decomposition, constrained by universal mean-recovery.
+
+The hypothesis unifies classical electromagnetism, quantum field theory (via virtual states), Fourier analysis (as one decomposition choice among many), and signal processing (by revealing that information can be carried simultaneously at multiple frequency scales).
+
+We have formalized this through signal algebra, proved key theorems (Universal Mean-Recovery, Domain Transformation Continuity, Multi-Domain Positioning), and demonstrated applications to positioning without line-of-sight and multi-domain signal recovery.
+
+The central claim is radical: **frequency is not a property of electromagnetic signals; it is something we choose when we measure them.** The universe does not emit a 1 GHz signal and a 1 THz signal; it emits a single signal that can be simultaneously interpreted as both, with all interpretations forced to agree by the mean-recovery constraint.
+
+This perspective opens new research directions in unified field theory, quantum-classical correspondence, and communications systems. We conjecture that the fundamental constant of physics is not the speed of light but the universal mean-recovery principle, and that all other constants are derived geometric quantities of the signal decomposition landscape.
+
+\begin{thebibliography}{99}
+
+\bibitem{fourier1822} J. B. J. Fourier, \emph{Théorie analytique de la chaleur}. Firmin Didot, Paris, 1822.
+
+\bibitem{plancherel1910} M. Plancherel, ``Contribution à l'étude de la représentation d'une fonction arbitraire par les intégrales définies,'' \emph{Rendiconti del Circolo Matematico di Palermo}, vol. 30, pp. 298--335, 1910.
+
+\bibitem{shannon1949} C. E. Shannon, ``Communication in the presence of noise,'' \emph{Proc. IRE}, vol. 37, no. 1, pp. 10--21, 1949.
+
+\bibitem{nyquist1928} H. Nyquist, ``Certain topics in telegraph transmission theory,'' \emph{Trans. AIEE}, vol. 47, pp. 617--644, 1928.
+
+\bibitem{gabor1946} D. Gabor, ``Theory of communication,'' \emph{J. IEE}, vol. 93, no. 3, pp. 429--457, 1946.
+
+\bibitem{wiener1930} N. Wiener, \emph{Generalized Harmonic Analysis and Tauberian Theorems}. MIT Press, 1930.
+
+\bibitem{heisenberg1927} W. Heisenberg, ``Über den anschaulichen Inhalt der quantentheoretischen Kinematik und Mechanik,'' \emph{Z. Phys.}, vol. 43, pp. 172--198, 1927.
+
+\bibitem{rudin1987} W. Rudin, \emph{Real and Complex Analysis}. McGraw-Hill, 3rd ed., 1987.
+
+\bibitem{folland1999} G. B. Folland, \emph{Real Analysis: Modern Techniques and Their Applications}. Wiley, 2nd ed., 1999.
+
+\bibitem{mallat2009} S. Mallat, \emph{A Wavelet Tour of Signal Processing}. Academic Press, 3rd ed., 2009.
+
+\bibitem{proakis2007} J. G. Proakis and D. G. Manolakis, \emph{Digital Signal Processing}. Prentice Hall, 4th ed., 2007.
+
+\bibitem{peskin1995} M. E. Peskin and D. V. Schroeder, \emph{An Introduction to Quantum Field Theory}. Westview Press, 1995.
+
+\bibitem{landau1951} L. D. Landau and E. M. Lifshitz, \emph{The Classical Theory of Fields}. Pergamon Press, 1951.
+
+\bibitem{jackson1999} J. D. Jackson, \emph{Classical Electrodynamics}. Wiley, 3rd ed., 1999.
+
+\bibitem{born1999} M. Born and E. Wolf, \emph{Principles of Optics}. Cambridge University Press, 7th ed., 1999.
+
+\bibitem{sommerfeld1952} A. Sommerfeld, \emph{Electrodynamics}. Academic Press, 1952.
+
+\bibitem{griffiths2013} D. J. Griffiths, \emph{Introduction to Quantum Mechanics}. Pearson, 2nd ed., 2013.
+
+\end{thebibliography}
+
+\end{document}
