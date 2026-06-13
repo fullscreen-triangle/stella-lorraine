@@ -120,7 +120,7 @@ What has not been adequately addressed in the literature is whether this structu
 
 \subsection{Counting as the Operational Definition of Time}
 
-The earliest insight connecting time to counting appears in the theory of oscillatory systems: in any periodic process, elapsed time may be recovered from the count of completed cycles. A pendulum counts time; a quartz oscillator counts time; an atomic transition counts time. In all cases, the count $M = ft$ --- where $f$ is the cycle frequency and $t$ is the elapsed duration --- is an exact identity, not an approximation, whenever ``elapsed time'' is itself defined operationally as the count of cycles of a reference oscillator \citep{planck1900,birkhoff1931,landau1976}.
+The earliest insight connecting time to counting appears in the theory of oscillatory systems: in any periodic process, elapsed time is the count of completed cycles. A pendulum counts time; a quartz oscillator counts time; an atomic transition counts time. We take this literally: time is not \emph{measured by} the count but \emph{is} the count of completed oscillatory closures of a reference process. Each closure is a topological event --- the return of an angle variable through $[0,2\pi)$ --- so the count is logically prior to, and does not presuppose, any notion of duration. Frequency and the SI second are then \emph{derived} from counts, not the reverse; we make this precise and free of circularity in Section~\ref{sec:noncircular} \citep{planck1900,birkhoff1931,landau1976}.
 
 This operational definition is not merely a convenient measurement procedure. It is a claim about the constitution of temporal quantities: time, in any system where it is measurable, is the count of completed oscillations of some reference process. The continuous-time formalism $t \in \R$ is the limit of this count as the oscillator frequency $f \to \infty$ \citep{arnold1989}. The discrete, integer-valued count is the more fundamental description.
 
@@ -147,9 +147,15 @@ The paper establishes the following results in order:
 
 \item \textbf{Theorem~\ref{thm:time-count}} (Time-Count Identity): The identity $\dM/\dt = \omega/(2\pi) = 1/\tp$ is exact, not an approximation.
 
+\item \textbf{Definition~\ref{def:time-as-count} and Proposition~\ref{prop:noncircular}} (Non-Circular Time): time \emph{is} the count of completed oscillatory closures; frequency and duration are derived from counts rather than presupposed, removing the circularity latent in $M=ft$.
+
 \item \textbf{Theorem~\ref{thm:monotone}} (Strict Monotonicity): The partition count $M(t)$ is strictly non-decreasing under any physical evolution of the system.
 
 \item \textbf{Theorem~\ref{thm:incoherence}} (Incoherence of Decrement): No physical operation can result in $\Delta M < 0$; such an operation would require two distinct partition states to share a single image under $\PhiMap$, violating Theorem~\ref{thm:bijection}.
+
+\item \textbf{Theorem~\ref{thm:reversal-point}} (Reversal-Point Incoherence): no moment is a terminus, so reversing at any moment initiates a new forward-counted branch rather than retracing the prior sequence.
+
+\item \textbf{Theorem~\ref{thm:causal-distinct}} (Causal-Neighbourhood Identity): a reversal target is individuated by the absence of the reversal point from its past, so the operation cannot reach the state it specifies.
 
 \item \textbf{Lemma~\ref{lem:loop}} (Loop Identity): A reversible, deterministic, non-trivial dynamics forces the observable state to carry partition structure beyond its phase-space coordinates.
 
@@ -160,6 +166,8 @@ The paper establishes the following results in order:
 \item \textbf{Theorem~\ref{thm:cpu}} (Causal-Partition Uniqueness): From any state $M_t$, the forward sequence $\{M_t + 1, M_t + 2, \ldots, \Mmax\}$ is a finitely enumerable subset of $\Zp$, and its elements are determined uniquely by the bijection.
 
 \item \textbf{Theorem~\ref{thm:cyclic}} (Cyclic Closure): The partition sequence closes into a cycle of total length $\Mmax$, and the terminal state is topologically equivalent to the initial state.
+
+\item \textbf{Theorem~\ref{thm:t-end}} (Structural Finiteness): genuine temporal position requires a terminus, so $\Mmax<\infty$ is a requirement of temporal identity, independent of and convergent with the thermodynamic estimate.
 
 \item \textbf{Remark~\ref{rem:self-ref}} (Self-Reference): Any objection to the foregoing is itself a partition event, instantiating Theorem~\ref{thm:cpu}.
 \end{enumerate}
@@ -612,9 +620,95 @@ The map $\PhiMap$ is invertible. For any $(n, \ell, m, s) \in \Parts$, the uniqu
 The existence of the bijection $\PhiMap$ means that the partition state space $\Parts$ and the positive integers $\Zp$ are in one-to-one correspondence. Every statement about elements of $\Zp$ has a direct translation into a statement about partition states, and vice versa. In particular, the Peano arithmetic of $\Zp$ --- including the successor operation --- applies verbatim to $\Parts$ under $\PhiMap$.
 \end{remark}
 
-\subsection{The Time-Count Identity as an Exact Theorem}
+\subsection{Time as Partition Count: A Non-Circular Foundation}
+\label{sec:noncircular}
 
-The identification of temporal evolution with partition counting requires the following exact identity.
+Before stating the time--count identity we remove a circularity latent in its
+usual presentation. Writing $M = ft$ with $f$ in cycles per second defines the
+count $M$ through a frequency $f$, and $f$ is itself \emph{cycles per unit
+time}: the right-hand side presupposes the very duration the identity purports
+to ground. We resolve this by taking the completed oscillatory \emph{closure}
+--- a topological event --- as primitive, and deriving frequency and duration
+from counts of closures rather than the reverse.
+
+\begin{definition}[Oscillatory Closure]
+\label{def:closure-event}
+An \emph{oscillatory closure} is the event of an angle variable $\theta$
+completing one full traversal of $[0,2\pi)$ and returning to its initial value
+(Definition~\ref{def:closure}). It is a topological event: the completion of a
+loop in configuration space.
+\end{definition}
+
+\begin{proposition}[Closure Does Not Presuppose Duration]
+\label{prop:closure-topological}
+An oscillatory closure is definable without reference to duration. It requires
+only (i) a configuration space carrying an angular coordinate $\theta$, and
+(ii) the fact that $\theta$ has traversed $[0,2\pi)$ exactly once and returned
+to its starting value. Neither (i) nor (ii) invokes any temporal unit.
+\end{proposition}
+
+\begin{proof}
+The traversal of $[0,2\pi)$ is a statement of angular extent, not temporal
+duration, and angular extent is dimensionless. The return to the starting value
+is a predicate on the system's state, not on how long the traversal took.
+Closure is therefore fixed entirely by the geometry of configuration space,
+with no reference to seconds or any other unit; on a compact energy surface
+such returns are guaranteed to occur (Theorem~\ref{thm:poincare}). \qed
+\end{proof}
+
+\begin{definition}[Time as Partition Count]
+\label{def:time-as-count}
+For a bounded oscillatory system, \emph{time} is the integer $M \in \Zp$
+counting completed oscillatory closures since an origin $M_0$. The count is not
+a measurement of a pre-existing duration; the count \emph{is} the temporal
+quantity, and the temporal state of the system is $M$ itself.
+\end{definition}
+
+\begin{proposition}[Non-Circularity: Frequency Is Derived From Counting]
+\label{prop:noncircular}
+Definition~\ref{def:time-as-count} presupposes neither frequency nor duration.
+Given two bounded oscillators $A,B$ with closure counts $M_A,M_B$, their
+\emph{relative rate} $f_{A/B} := M_A / M_B$ is a dimensionless ratio of counts.
+Duration enters only with a unit convention: the elapsed time of $M$ closures
+in a chosen unit is
+\begin{equation}
+    t_{\mathrm{unit}} = \frac{M}{M_{\mathrm{unit}}}\, t_{\mathrm{ref}},
+    \label{eq:t-unit}
+\end{equation}
+where $M_{\mathrm{unit}}$ is the number of closures of a reference oscillator
+stipulated to constitute the unit and $t_{\mathrm{ref}}$ is that unit's defined
+size. The SI second is the stipulation $M_{\mathrm{Cs}} = 9{,}192{,}631{,}770$
+of the caesium-133 counter; a ``frequency in hertz'' is the ratio of a system's
+count to the caesium count. Frequency is therefore a comparison of counts,
+\emph{defined after} time-as-count, not a primitive used to define it.
+\end{proposition}
+
+\begin{proof}
+$M$ counts closures, each topological by
+Proposition~\ref{prop:closure-topological}; hence $M$ is a pure integer with no
+dimensional content. Assigning a duration to $M$ closures requires choosing a
+reference counter and stipulating how many of its closures constitute the unit
+--- a convention, not a physical law --- which yields
+Equation~\eqref{eq:t-unit}. Two systems are compared by the dimensionless ratio
+$M_A/M_B$; absolute frequency in hertz is the special case in which $B$ is the
+caesium standard. No step invokes a duration prior to the count. \qed
+\end{proof}
+
+\begin{remark}[Relative Counting]
+\label{rem:relative-counting}
+The formulation makes explicit what is implicit in good metrology: one never
+measures absolute time, only ratios of closure counts. A caesium clock does not
+report how long a second is in some absolute sense; it reports how many of its
+closures fall within the duration stipulated to be one second. All temporal
+measurement is comparative, and the count $M$ captures this comparative
+structure directly, without the detour through absolute duration. The continuous
+parameter $t \in \R$ is the coarse-grained limit of Equation~\eqref{eq:t-unit}
+as the reference frequency tends to infinity \citep{arnold1989}.
+\end{remark}
+
+With time defined as the closure count, the familiar identity is recovered as a
+\emph{derived} consistency relation between the primitive count $M$ and a chosen
+continuous reference parameter $t$, not as the definition of time.
 
 \begin{theorem}[Time-Count Identity]
 \label{thm:time-count}
@@ -631,6 +725,20 @@ The first equality follows from the definition of counting. The oscillator compl
 
 The second equality follows from the residence time argument. Each partition state is occupied for exactly one oscillation period before the system transitions to the next state (by the identification of partition transitions with completed oscillation cycles in Section~\ref{sec:bounded}). Therefore $\tp = T = 2\pi/\omega$, and $1/\tp = \omega/(2\pi)$. \qed
 \end{proof}
+
+\begin{remark}[Status of the Identity]
+\label{rem:identity-status}
+Equation~\eqref{eq:time-count} is a derived relation between the primitive count
+$M$ (Definition~\ref{def:time-as-count}) and a chosen continuous reference
+$t := M/f_{\mathrm{ref}}$, not a definition of time. Read right-to-left it would
+be circular --- $\omega$ and $1/\tp$ presuppose $t$ --- but read as the
+definition of the derived parameter $t$ in terms of the primitive $M$ it is not.
+The identity records that the derived parameter remains consistent with the
+primitive count. Sub-cycle temporal structure is likewise enumerated rather than
+timed: the closures admit combinatorially many distinguishable labelled
+trajectories (the composition-inflation count of the companion development),
+a dimensionless quantity requiring no unit.
+\end{remark}
 
 \begin{corollary}[Time from Count]
 \label{cor:time-from-count}
@@ -1011,6 +1119,171 @@ Theorem~\ref{thm:time-dilation} clarifies what is sometimes called ``time travel
 This is not backward motion for any party. $A$ advanced forward; $B$ advanced forward more slowly. The ``time travel'' consists entirely of differential rates of forward traversal. Every component of the scenario --- $B$'s journey, $A$'s waiting, the reunion, the comparison of partition counts --- satisfies $\Delta M > 0$. The direction of the partition count is not the freedom available to a time traveler; the only freedom is its rate.
 \end{remark}
 
+\subsection{The Reversal-Point Incoherence Argument}
+\label{sec:reversal-point}
+
+The Loschmidt construction reverses all velocities at some moment $t_R$ and
+claims the system then retraces its prior sequence. This treats $t_R$ as a
+\emph{terminus} --- a hard boundary at which the direction of evolution can be
+turned around. We show no physical moment is a terminus, and that the claimed
+retracing is therefore incoherent independently of the bijection
+(Theorem~\ref{thm:bijection}).
+
+\begin{definition}[Interior Moment]
+\label{def:interior}
+A moment $t_n$ is \emph{interior} to a sequence if it has both a predecessor
+$t_{n-1}$ and a successor $t_{n+1}$ in the sequence; it is a \emph{terminus}
+if it has no successor.
+\end{definition}
+
+\begin{proposition}[Every Physical Moment Is Interior]
+\label{prop:interior}
+Every moment at which a physical process can be observed is interior. No
+physical moment is a terminus.
+\end{proposition}
+
+\begin{proof}
+Observing a moment $t_n$ is itself a physical event, which by strict
+monotonicity (Theorem~\ref{thm:monotone}) occurs at partition count
+$M > M(t_n)$; the observation thus requires a successor. The state $t_n$ was
+reached from a prior state, so it has a predecessor. A terminus would be a
+moment after which no partition event occurs; but every physical process
+terminates \emph{within} the count, which continues past it
+(Theorem~\ref{thm:successor} guarantees the successor $M+1$). Hence no physical
+moment is a terminus. \qed
+\end{proof}
+
+\begin{theorem}[Reversal-Point Incoherence]
+\label{thm:reversal-point}
+Let $t_0,\ldots,t_R$ be a forward sequence. The claim that reversing at $t_R$
+causes the system to retrace to $t_0$ is incoherent:
+\begin{enumerate}[leftmargin=1.5em,label=(\roman*),itemsep=0.1em]
+\item $t_R$ is interior (Proposition~\ref{prop:interior}): its successor exists
+  with partition count $M(t_R)+1$ already determined
+  (Theorem~\ref{thm:successor}), and no operation \emph{at} $t_R$ --- itself an
+  event within the count --- can cancel it.
+\item A reversed sequence cannot terminate at $t_0$, since $t_0$ is also
+  interior; by Corollary~\ref{cor:no-repeat} the partition state
+  $\PhiMap(M(t_0))$ is not revisited.
+\item The segment $t_0,\ldots,t_R$ is therefore not an isolated unit that can be
+  retraced. $t_0$ is interior --- there is genuine time before it
+  ($t_{-1}, t_{-2}, \ldots$) --- exactly as $t_R$ is interior, with genuine time
+  after it ($t_{R+1}, t_{R+2}, \ldots$); a reversal would have to be embedded
+  with continuations on \emph{both} sides, not a closed retracing of the bounded
+  segment. These continuations are further moments of the same finite sequence,
+  reached ultimately through cyclic closure (Section~\ref{sec:cyclic}); ``no
+  terminus'' means no hard stop, not an infinite regress. The configurations may
+  be replayed in reverse order, but the partition count still increments
+  (Theorem~\ref{thm:monotone}): as with a played-back recording, content-order
+  inverts while the count registering the playback advances. Reversal therefore
+  yields a distinct evolution --- the ``second universe going forward'' of
+  Corollary~\ref{cor:loschmidt} --- not a decrement of the original count, which
+  Theorem~\ref{thm:incoherence} forbids.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textit{(i)} By Proposition~\ref{prop:interior}, $t_R$ has a successor; the
+existence of $\PhiMap(M(t_R)+1)$ is fixed by Theorem~\ref{thm:successor}
+independently of any velocity reversal, since that reversal is an event at
+$t_R$ and increments the count rather than removing prior or successor states.
+\textit{(ii)} If a reversed branch reached $t_0$ it would re-occupy
+$\PhiMap(M(t_0))$ at a later count, contradicting Corollary~\ref{cor:no-repeat}.
+\textit{(iii)} Neither endpoint bounds an isolated unit: $t_0$ and $t_R$ are
+interior (Proposition~\ref{prop:interior}), so genuine moments precede $t_0$ and
+follow $t_R$, and the segment cannot be retraced as a closed loop. Whatever
+reversal produces is a distinct evolution whose count increases from $M(t_R)$
+onward (Theorem~\ref{thm:monotone}); a retracing would require the count to
+decrease, which is incoherent (Theorem~\ref{thm:incoherence}). \qed
+\end{proof}
+
+\begin{corollary}[No Zero of Time]
+\label{cor:zero-time}
+The velocity analogy --- where $v$ passes through $0$ before reversing ---
+fails for time. Reversal by analogy would require the count $M$ to pass through
+a ``zero of time'' at which the closure process constituting time
+(Definition~\ref{def:time-as-count}) has stopped; but resuming that process in
+the opposite sense would itself be a partition event, and a partition event
+cannot be used to exit a state in which no partition events occur. Time is the
+medium in which persistence and change are counted, not a property of an object
+that persists independently of it; it cannot be zeroed and reversed the way a
+velocity can.
+\end{corollary}
+
+\begin{corollary}[Velocity Reversal Demands a Forbidden Double Occurrence]
+\label{cor:double-occurrence}
+A Loschmidt velocity reversal passes the velocity through $v = 0$ at the turning
+point and is claimed to return the system to its initial configuration. A genuine
+return makes the initial moment $t_0$ --- hence its partition state
+$\PhiMap(M(t_0))$ --- occur \emph{twice} within one temporal sequence: once at
+the start, and once on return at a strictly later count $M' > M(t_0)$. By
+injectivity of $\PhiMap$ (Theorem~\ref{thm:bijection}) and the no-repeat property
+(Corollary~\ref{cor:no-repeat}), $\PhiMap(M') = \PhiMap(M(t_0))$ with $M' \neq
+M(t_0)$ is impossible: no partition state is occupied twice within a cycle. The
+nearest genuine recurrence of $\PhiMap(M(t_0))$ lies a full cycle later, at
+$M(t_0) + \Mmax$ (Corollary~\ref{cor:egg-cycle}) --- the original state advanced
+by one complete universe, not a return to it. Together with the incoherence of a
+zero of time (Corollary~\ref{cor:zero-time}), the velocity-reversal picture thus
+demands both a forbidden double occurrence of a partition state and an incoherent
+turning point.
+\end{corollary}
+
+\subsection{The Causal-Neighbourhood Identity Argument}
+\label{sec:causal-nbhd}
+
+We now restate the identification result of Theorem~\ref{thm:identification} in
+a vocabulary that makes the failure of reversal transparent, and resolve the
+notation $t \to -t$.
+
+\begin{definition}[Causal Neighbourhood]
+\label{def:causal-nbhd}
+The \emph{causal neighbourhood} of a moment $t_n$ is the pair
+$(\mathcal{P}(t_n), \mathcal{F}(t_n))$, where $\mathcal{P}(t_n)$ is the set of
+moments that causally precede $t_n$ and $\mathcal{F}(t_n)$ those that causally
+follow it. Two moments are the \emph{same} only if they share both their
+phase-space configuration and their causal neighbourhood.
+\end{definition}
+
+\begin{theorem}[Causal-Neighbourhood Distinctness]
+\label{thm:causal-distinct}
+Let $t_0,\ldots,t_R$ be a forward sequence. The original $t_0$ and any moment
+$t_0'$ arrived at from $t_R$ by reversal are distinct, even with identical
+phase-space configuration, because $t_R \in \mathcal{F}(t_0)$ (the reversal
+point lies in the \emph{future} of the original $t_0$) whereas
+$t_R \in \mathcal{P}(t_0')$ (it lies in the \emph{past} of $t_0'$).
+\end{theorem}
+
+\begin{proof}
+$\mathcal{P}(t_0)$ contains no $t_i$ with $i\ge 1$, so $t_R\in\mathcal{F}(t_0)$;
+any $t_0'$ reached after $t_R$ has $M(t_0')\ge M(t_R)>M(t_0)$, hence
+$t_R\in\mathcal{P}(t_0')$. The neighbourhoods differ, so $t_0\neq t_0'$. This is
+the causal-neighbourhood form of Theorem~\ref{thm:identification}: the original
+state, once actualised, is permanently deposited in the negation sequence of
+every later state (Theorem~\ref{thm:causal-negation}), so being arrived-at-from
+$t_R$ is constitutively incompatible with being the $t_0$ that preceded $t_R$.
+\qed
+\end{proof}
+
+\begin{corollary}[Reversal Cannot Reach Its Target]
+\label{cor:no-target}
+Specifying $t_0$ as the reversal target requires specifying its causal
+neighbourhood, which includes the \emph{absence} of $t_R$ from its past.
+Arriving from $t_R$ violates this specification, so any reversal necessarily
+produces a $t_0'\neq t_0$: the target is self-undermining.
+\end{corollary}
+
+\begin{remark}[The Notation $t\to -t$ and Genuine Negative Time]
+\label{rem:neg-time}
+This separates two objects the notation $t\to -t$ conflates. A genuinely
+preceding moment $t_{-R}\in\mathcal{P}(t_0)$ has $t_0$ in its future and has
+never encountered $t_R$; the moment $t_0'$ produced by reversing from $t_R$ has
+$t_R$ in its past. They have different causal neighbourhoods, different
+identities, and different relations to $t_0$. Treating time as a number line on
+which $t\mapsto -t$ is a well-defined operation obscures this; the partition
+count, a monotone map on $\Zp$ (Theorem~\ref{thm:monotone}), admits no such
+negation.
+\end{remark}
+
 % ============================================================
 \section{Successor Existence and State Completeness}
 \label{sec:successor}
@@ -1110,6 +1383,94 @@ The maximum partition count $\Mmax$ of a bounded physical system is the total nu
 
 \begin{remark}
 The finiteness of $\Mmax$ is established by combining three facts: (a) the universe contains finitely many particles at any finite time; (b) each particle has finitely many oscillatory modes at finite temperature (since $T = 0$ is thermodynamically inaccessible by the Third Law \citep{planck1900}); and (c) the number of distinct configurations of finitely many modes is finite. Therefore $\Mmax < \infty$, and the partition sequence $\{1, 2, \ldots, \Mmax\}$ is a finite subset of $\Zp$. For the observable universe, $\Mmax \approx (10^{84})^{(10^{80})}$ in tower notation, a number finite but incomprehensibly large \citep{penrose2004}.
+\end{remark}
+
+\subsection{A Structural Argument for Finiteness: Position Requires Bounds}
+\label{sec:position-bounds}
+
+The finiteness of $\Mmax$ above rests on thermodynamics. We give an independent,
+\emph{structural} argument: a finite partition sequence is required for any state
+to have a genuine position within it, not merely an offset from the origin.
+
+\begin{definition}[Genuine Temporal Position]
+\label{def:position}
+A state $M$ has a \emph{genuine position} in a sequence if its location is
+determinable from both its distance from the origin and its distance from the
+terminus; an \emph{offset} is determinable from the origin alone.
+\end{definition}
+
+\begin{proposition}[Two-Anchor Requirement]
+\label{prop:two-anchors}
+Genuine position requires anchors on both sides of the sequence. In a finite
+sequence of length $N$, the state $M$ occupies the determinate fraction $M/N$ of
+the whole; both anchors contribute. In an infinite sequence $M/N \to 0$ for every
+finite $M$, so only the offset $M$ survives, and the whole has no determinate
+extent against which to locate it.
+\end{proposition}
+
+\begin{theorem}[Offset Is Not Position]
+\label{thm:offset}
+In an infinite partition sequence the identity of every state reduces to its
+offset from the origin, and the structural relation of each state to the whole
+is identical: every finite $M$ is infinitely far from the (non-existent)
+terminus, hence at fractional position $0$.
+\end{theorem}
+
+\begin{proof}
+For any finite $M$ the forward extent is infinite, so $M/\infty = 0$ for all $M$;
+the fractional position is constant. Two states $M_1, M_2$ differ only by their
+offsets, which carry no information about standing within the complete
+structure. \qed
+\end{proof}
+
+\begin{theorem}[Insertion Invariance]
+\label{thm:insertion}
+In an infinite sequence, inserting $k$ states between the origin and $M$ leaves
+$M$'s structural position unchanged --- $M$ remains at fractional position $0$,
+infinitely far from any terminus. Accumulation of partition events therefore
+makes no structural difference, which would render the passage of time
+structurally inert and contradict its role as an index of physical reality. In a
+finite sequence the same insertion changes $N \to N+k$ and shifts every later
+state, so accumulation matters precisely when the sequence is finite.
+\end{theorem}
+
+\begin{theorem}[Structural Necessity of a Terminus]
+\label{thm:t-end}
+If the initial state $\PhiMap(1)$ has a genuine position
+(Definition~\ref{def:position}), then a terminal count $\Mmax < \infty$ exists.
+\end{theorem}
+
+\begin{proof}
+$\PhiMap(1)$ has a left anchor (the origin $M=1$). By
+Proposition~\ref{prop:two-anchors} a genuine position requires a right anchor: a
+terminal $\Mmax$ past which the sequence does not continue. If none existed,
+Theorem~\ref{thm:offset} reduces every state to a bare offset, denying genuine
+position. Hence $\Mmax$ exists. \qed
+\end{proof}
+
+\begin{theorem}[Uniform Distinguishability Requires Finite Extent]
+\label{thm:uniform}
+An infinite partition sequence lacks uniform distinguishability: every state has
+finitely many predecessors ($M-1$) but infinitely many successors --- a
+systematic asymmetry by which each state leans entirely on its past for identity
+and floats freely relative to its future. A finite sequence has $M-1$
+predecessors and $\Mmax - M$ successors, both finite, the same kind of condition
+on each side, and is uniformly distinguishable.
+\end{theorem}
+
+\begin{remark}[Status and Scope]
+\label{rem:position-scope}
+Theorem~\ref{thm:t-end} establishes $\Mmax$ as a structural requirement of
+temporal identity, independent of the thermodynamic estimate of
+Definition~\ref{def:mmax}; the two arguments converge on the same conclusion from
+different premises. It fixes neither the value of $\Mmax$ nor the conditions at
+the terminus --- those remain empirical, and cyclic closure
+(Theorem~\ref{thm:cyclic}) identifies the terminus with the next ground state.
+The argument rests on the premise that genuine position requires \emph{global}
+determinacy rather than mere local uniqueness; a defender of infinite time may
+contest this, and we regard the insertion argument
+(Theorem~\ref{thm:insertion}) as the strongest reason the local-uniqueness reply
+does not suffice.
 \end{remark}
 
 \subsection{The Cyclic Closure Theorem}
@@ -1223,7 +1584,7 @@ The Finitary Enumerability theorem raises a question of categorisation that is i
 A \emph{physical category} is a finite, closed collection of partition states $\mathcal{C} \subset \Parts$ together with a successor relation $\sigma\colon \mathcal{C} \to \mathcal{C}$ satisfying: (i)~$\sigma$ is a bijection on $\mathcal{C}$; (ii)~every element of $\mathcal{C}$ has a unique $\sigma$-successor and a unique $\sigma$-predecessor in $\mathcal{C}$. Finiteness is constitutive of the definition: an open or infinite collection does not determine a category.
 \end{definition}
 
-The finiteness requirement in Definition~\ref{def:category} is not an auxiliary technical convenience; it follows directly from the role categories play in the constitution of partition identity. A partition state $P \in \Parts$ is identified, as Theorem~\ref{thm:negation-identity} establishes, through its negation sequence $\mathcal{N}(P)$: the set of all states that are not $P$. For $\mathcal{N}(P)$ to constitute identity, the negation sequence must be fully specifiable. An infinite negation sequence has no finite specification and therefore cannot constitute the identity of any partition state within any physical counting process, which by Definition~\ref{def:mmax} has finite duration $\Mmax < \infty$.
+The finiteness requirement in Definition~\ref{def:category} is not an auxiliary technical convenience; it follows directly from the role categories play in the constitution of partition identity. A partition state $P \in \Parts$ is identified, as Theorem~\ref{thm:negation-duality} establishes, through its negation sequence $\mathcal{N}(P)$: the set of all states that are not $P$. For $\mathcal{N}(P)$ to constitute identity, the negation sequence must be fully specifiable. An infinite negation sequence has no finite specification and therefore cannot constitute the identity of any partition state within any physical counting process, which by Definition~\ref{def:mmax} has finite duration $\Mmax < \infty$.
 
 \begin{theorem}[Categorical Closure of the Partition Sequence]
 \label{thm:cat-closure}
@@ -1244,7 +1605,7 @@ All conditions of Definition~\ref{def:category} are satisfied. \qed
 
 \begin{remark}[Why No Infinite Partition Category Can Constitute Physical Identity]
 \label{rem:infinite-cat}
-Suppose a candidate category $\mathcal{C}$ were infinite. Its negation sequence relative to any member $P \in \mathcal{C}$ would be $\mathcal{C} \setminus \{P\}$, which is also infinite. By Theorem~\ref{thm:negation-identity}, $P$ is constituted by $\mathcal{N}(P)$. Instantiating each element of $\mathcal{N}(P)$ requires a partition event --- a cycle of the counting process. An infinite collection of partition events requires a count exceeding every finite $\Mmax$, contradicting Definition~\ref{def:mmax}. Infinite categories are therefore not merely impractical; they are structurally incoherent within any finite partition sequence. Categorical identity is only possible in a closed, finite system.
+Suppose a candidate category $\mathcal{C}$ were infinite. Its negation sequence relative to any member $P \in \mathcal{C}$ would be $\mathcal{C} \setminus \{P\}$, which is also infinite. By Theorem~\ref{thm:negation-duality}, $P$ is constituted by $\mathcal{N}(P)$. Instantiating each element of $\mathcal{N}(P)$ requires a partition event --- a cycle of the counting process. An infinite collection of partition events requires a count exceeding every finite $\Mmax$, contradicting Definition~\ref{def:mmax}. Infinite categories are therefore not merely impractical; they are structurally incoherent within any finite partition sequence. Categorical identity is only possible in a closed, finite system.
 \end{remark}
 
 \begin{definition}[Ground Category]
@@ -1524,20 +1885,24 @@ The argument clarifies that the two phenomena standardly called time reversal in
 
 \emph{Recurrence}: Poincar\'e recurrence (Theorem~\ref{thm:poincare}), spin echoes, cassette reversal (Remark~\ref{rem:cassette}), and cyclic closure (Theorem~\ref{thm:cyclic}) are all recurrence phenomena. The configuration at a later moment $t_k$ matches the configuration at $t_0$. But the history at $t_k$ contains $t_1, \ldots, t_{k-1}$. By Definition~\ref{def:distinguishability}, the state at $t_k$ is distinct from the state at $t_0$. Recurrence is forward progression to a resembling configuration; reversal would require returning to the original state. Corollary~\ref{cor:egg-cycle} makes this precise: the nearest recurrence of any configuration is the original partition index advanced by exactly $\Mmax$.
 
-\textbf{Convergence of Four Arguments.}
-The present paper contains four independent arguments for the incoherence of genuine time reversal. The first three are presented here; the fourth is developed in Section~\ref{sec:process-argument}.
+\textbf{Convergence of Six Arguments.}
+The present paper contains six independent arguments for the incoherence of genuine time reversal, developed across Sections~\ref{sec:reversal-point}, \ref{sec:causal-nbhd}, \ref{sec:deletion-argument}, and~\ref{sec:process-argument} and summarised here.
 
 \begin{enumerate}[leftmargin=1.5em,itemsep=0.2em]
 \item \textbf{Formal argument} (Theorems~\ref{thm:incoherence} and~\ref{thm:identification}): within the partition framework, any decrement $M \to M - k$ requires $\PhiMap$ to assign the same partition state to two distinct integers, violating injectivity of the bijection. The formal proof is strongest within the framework and provides an explicit algebraic contradiction.
 
 \item \textbf{Observational argument} (Theorems~\ref{thm:forward-all} and~\ref{thm:obs-recognition}): any observation of apparent time reversal is itself a forward partition event ($\Delta M > 0$). An observer must be moving forward in partition count to recognise apparent backward motion. Reversal is unwitnessable in principle because any witness instantiates the forward direction.
 
+\item \textbf{Reversal-point argument} (Theorem~\ref{thm:reversal-point}): no physical moment is a terminus, so reversing at any moment does not retrace the prior sequence but initiates a new forward-counted branch. The retracing the Loschmidt construction posits never occurs. This argument requires no partition machinery beyond strict monotonicity.
+
+\item \textbf{Causal-neighbourhood argument} (Theorem~\ref{thm:causal-distinct}): a temporal moment is individuated by its causal neighbourhood, and the reversal target $t_0$ is constituted by the \emph{absence} of the reversal point from its past. Any state arrived at from the reversal point therefore differs from the target; the operation cannot reach what it specifies.
+
 \item \textbf{Deletion argument} (Theorems~\ref{thm:deletion} and~\ref{thm:no-deletion}): genuine reversal requires deleting intervening moments from the universe's history. Deletion is unavailable because it requires an operation on temporal structure from outside time, erasing the distinguishability that constitutes temporal moments as moments. This argument requires no observer and no partition machinery.
 
 \item \textbf{Process argument} (Section~\ref{sec:process-argument}): a reversal process $R$ is a finite process whose endpoint is a past state. For $R$ to terminate at the correct moment it must either use memory of that past state --- making $R$ a forward-time controlled recurrence, not a reversal --- or have its future endpoint determine its current execution, which is circular. No third mechanism exists. Any framework with notions of both time and process is committed to irreversibility by the structure of what a process is.
 \end{enumerate}
 
-To maintain a coherent reversal claim, a defender must refute all four. The standard statistical-mechanical treatment refutes none: it grants reversal as a coherent notion and shows it to be improbable. The present arguments establish that genuine reversal is not a coherent notion, independently of probability.
+To maintain a coherent reversal claim, a defender must refute all six. The standard statistical-mechanical treatment refutes none: it grants reversal as a coherent notion and shows it to be improbable. The present arguments establish that genuine reversal is not a coherent notion, independently of probability.
 
 \subsection{The Process Argument: Reversal Has No Process Structure}
 \label{sec:process-argument}
