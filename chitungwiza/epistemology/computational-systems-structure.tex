@@ -1,0 +1,2103 @@
+% =====================================================================
+%  Why Graph-Structured Systems Engaged by Finite Agents
+%  Must Admit Operational Structure: A Conditional Derivation
+%
+%  Author: Kundai Farai Sachikonye
+%          Technical University of Munich
+% =====================================================================
+
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage[round,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+\usepackage{cleveref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{axiom}{Premise}
+\newtheorem{principle}[theorem]{Principle}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\crefname{axiom}{Premise}{Premises}
+\Crefname{axiom}{Premise}{Premises}
+
+% ---- Notation ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Zp}{\mathbb{Z}_{\geq 0}}
+\newcommand{\Graph}{\mathcal{G}}
+\newcommand{\Vrt}{\mathsf{V}}
+\newcommand{\Edg}{\mathsf{E}}
+\newcommand{\Agent}{\mathcal{A}}
+\newcommand{\Op}{\mathsf{Op}}
+\newcommand{\Res}{\rho}
+\newcommand{\floor}{\beta}
+\newcommand{\OpStr}{\mathfrak{O}}
+
+\title{\textbf{On the Strict Necessity of Finite Weighted Graph Structures In Bounded Resolvable Space:\\ Conditional Derivation of Operational Structure Requirements for Finite Agents in Bounded Systems}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+% =====================================================================
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We give a conditional derivation: granted two premises---that the
+engaging agents are finite, and that the engaged system is a finite
+graph---we show that the system necessarily admits an
+\emph{operational structure} in a precise sense. The argument is
+constructive. We define a finite graph-structured system and a finite
+agent, derive that any distinguishability relation an agent can
+realise has a strictly positive floor on edge measure, prove that
+this floor forces a residue on every agent--graph interaction, and
+show that the realised acts form a small category whose hom-sets
+carry a preorder by residue. This category, presented with its
+residue preorder and a budget-bounded notion of realisability, is
+what we call the system's operational structure. The structure is
+not chosen; it is the unique closure of the agent's realisable
+interactions under the constraints imposed by finiteness on both
+sides. We classify operations into four canonical types---algebraic,
+dynamical, computational, and internal---and show every realisable
+operation is a combination of these. The derivation makes no
+metaphysical commitments and applies wherever the two premises
+hold; the framework is silent outside that scope. We close by
+stating the narrow falsifiability of the main theorem: it can be
+refuted only by exhibiting a finite agent realising
+distinguishability with zero floor on a finite graph, which we prove
+is structurally impossible. The paper is self-contained; no result
+of the author is cited; the literature references are to standard
+mathematical lemmas.
+\end{abstract}
+
+\medskip
+\noindent\textbf{Keywords:} finite agents; finite graphs; operational
+structure; distinguishability floor; residue propagation; small
+category; partial composition; residue preorder; conditional
+derivation.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The conditional question}
+
+The question this paper addresses is short:
+\begin{quote}\itshape
+On the condition that the engaging agents are finite and the engaged
+system is a finite graph, what structure of operations must the
+system admit?
+\end{quote}
+We answer: a specific operational structure---a small category
+with a residue preorder, a positive floor, and a budget-bounded
+realisability marker---derivable from the two premises alone, with
+no further hypotheses.
+
+The result is conditional throughout. We do not assert that all
+agents are finite, or that all systems are graphs, or that systems
+are fundamentally relational. We assert only that \emph{if} both
+conditions hold, the operational structure of
+\cref{thm:opstructure} is forced. The framework is silent outside
+that scope: where either premise fails, the derivation does not
+apply and makes no prediction.
+
+\subsection{Why this matters}
+
+Engineering practice routinely treats operational structures---
+function composition, command pipelines, state-machine transitions,
+query algebras---as design choices to be selected for convenience.
+The argument here shows that for the dominant case (finite agents
+engaging finite graphs, which covers essentially all of practical
+software, embedded systems, sensor networks, knowledge graphs, and
+finite databases) the operational structure is \emph{not} a design
+choice but a derivable necessity. The class of admissible structures
+is forced; only the labelling within the class is free.
+
+This converts a large family of engineering decisions from
+\emph{which structure to invent} into \emph{which structure has the
+two premises already determined}. The latter is a discovery task
+with a definite answer; the former is a design task with no
+objective ground.
+
+\subsection{Method}
+
+The derivation is constructive. We fix the two premises in
+\cref{sec:premises}, derive three consequences in
+\cref{sec:consequences} (distinguishability floor, residue
+propagation, small-category structure under partial composition),
+prove the main theorem in \cref{sec:main}, classify the resulting
+operations in \cref{sec:classification}, and locate the
+falsifiability of the argument in \cref{sec:falsifiability}. Every
+step is a finite combinatorial, measure-theoretic, or
+category-theoretic claim with a self-contained proof; no result of
+the author is cited.
+
+\subsection{Relation to existing frameworks}
+
+The argument touches finite graph theory \citep{diestel2017,
+bollobas1998}, finite-state automata \citep{hopcroft2007}, measure
+theory of finite partitions \citep{halmos1950}, category theory and
+partial composition \citep{maclane1998}, semigroup and monoid theory
+\citep{howie1995}, and order theory on finite lattices
+\citep{daveypriestley2002}. We use only the textbook content of
+each field. The novel contribution is the closure argument
+(\cref{thm:opstructure}) that forces a small-category operational
+structure with floor, residue, and preorder from the conjunction of
+the two premises; the constituent pieces are standard, but their
+conjunction has not been packaged as a forced structural result, to
+the author's knowledge.
+
+% =====================================================================
+\section{Three Premises}
+\label{sec:premises}
+% =====================================================================
+
+We fix three premises. The first two are operational conditions on
+the agent and the system; the third is an order condition on the
+ambient whole that the agent's graph models. None is a metaphysical
+hypothesis. The third premise carries the load that the original
+draft tried to put on the floor by stipulation: it forces the floor
+as a derived consequence rather than a posit, and it converts the
+partiality of composition, the cell-structure of the residue
+preorder, and the four-type taxonomy into theorems rather than
+defects.
+
+\subsection{Finite graph-structured system}
+
+\begin{definition}[Finite graph-structured system]
+\label{def:graph}
+A \emph{finite graph-structured system} is a triple $\Graph =
+(\Vrt, \Edg, w)$ where $\Vrt$ is a finite non-empty set of
+\emph{vertices}, $\Edg \subseteq \Vrt \times \Vrt$ is a finite set
+of \emph{edges}, and $w: \Edg \to \R_{\geq 0}$ is an \emph{edge
+measure} assigning to each edge a non-negative real weight. We do
+not require edges to be undirected or distinct; multigraphs are
+admitted.
+\end{definition}
+
+\begin{axiom}[Finite graph hypothesis]
+\label{ax:graph}
+The engaged system $\Graph = (\Vrt, \Edg, w)$ is a finite
+graph-structured system: $|\Vrt| < \infty$, $|\Edg| < \infty$, and
+$w$ takes finite values throughout.
+\end{axiom}
+
+The graph need not be connected, simple, or planar. It need not be
+metric, in the sense that $w$ need not satisfy the triangle
+inequality. We require only that it has a finite number of
+vertices, a finite number of edges, and a finite-valued non-negative
+measure on its edges.
+
+\begin{remark}[Why graphs]
+\label{rem:why_graphs}
+We pick graphs as the primitive structure because they are the
+minimal combinatorial encoding of relational data: a set of entities
+together with the relations between them. Any system describable as
+``entities standing in relations'' is encodable as a graph, possibly
+a multigraph with labelled edges. Trees, finite-state machines,
+knowledge bases, relational databases, dependency graphs, and finite
+hypergraphs all reduce to or extend this minimal form. The choice
+restricts neither the scope of application nor the generality of the
+result.
+\end{remark}
+
+\subsection{Finite agent}
+
+\begin{definition}[Distinguishability relation]
+\label{def:distrel}
+A \emph{distinguishability relation} on $\Graph$ is a binary
+relation $\sim \subseteq \Vrt \times \Vrt$ such that for each pair
+$(u, v)$, the agent has either established $u \sim v$ (the pair is
+treated as a single entity), or $u \not\sim v$ (the pair is treated
+as distinct entities), but not both.
+\end{definition}
+
+\begin{definition}[Finite agent]
+\label{def:agent}
+A \emph{finite agent} $\Agent$ on $\Graph$ is specified by:
+\begin{enumerate}[label=(F\arabic*),leftmargin=2.6em,nosep]
+\item\label{F:fin_state} A finite internal state space $S_\Agent$
+with $|S_\Agent| < \infty$, encoding all distinctions the agent can
+hold at once.
+\item\label{F:fin_descr} A finite descriptive scheme: each
+distinguishability decision is recorded by an injection from the
+$\sim$-classes into $S_\Agent$, so the number of distinct
+equivalence classes the agent can simultaneously hold is at most
+$|S_\Agent|$.
+\item\label{F:fin_cost} A finite cost budget: each act of
+distinguishing a pair $(u,v)$ as $u \not\sim v$ has a cost
+$c(u,v) > 0$ bounded below by a positive constant $c_0$, and the
+agent's total expenditure over its lifetime is bounded by a finite
+budget $C_{\Agent} < \infty$.
+\end{enumerate}
+\end{definition}
+
+\begin{axiom}[Finite agent hypothesis]
+\label{ax:agent}
+Any agent engaging $\Graph$ is a finite agent in the sense of
+\cref{def:agent}: it has finite internal state, finite descriptive
+scheme, and finite cost budget.
+\end{axiom}
+
+We make no further assumptions about the agent's architecture: it
+may be a human, a machine, a sensor network, a software process, a
+finite collective. The three finiteness conditions of
+\cref{def:agent} are the substantive content of \cref{ax:agent}.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_02_graph_floor.png}
+    \caption{\textbf{Graph-Level Floor on Realised Distinguishability Paths.}
+    (\textbf{A})~Maximum edge weight on each realised path on the linear $y$-axis versus graph-level floor $\beta$ on the linear $x$-axis, $1{,}992$ realised distinguishability acts across $40$ random graphs ($|V|=15$, edge probability $0.3$). Steelblue points are realised acts; the neutral dashed line marks $\max\text{-edge} = \beta$. All $1{,}992$ points lie on or above the line; zero violations. Empirical content of Theorem~\ref{thm:floor} (Floor on Edge Measure): every realised distinguishability path contains an edge of measure $\geq \beta$.
+    (\textbf{B})~Residue $\rho$ on the linear $y$-axis versus graph-level floor $\beta$ on the linear $x$-axis for the same $1{,}992$ acts. The neutral dashed line marks $\rho = \beta$. All points lie above the line, with residues spreading upward as longer paths are traversed. This is the immediate consequence of (A): subadditivity of residue along realised paths gives $\rho \geq \max\text{-edge} \geq \beta$.
+    (\textbf{C})~Residue-floor ratio $\rho/\beta$ on the log $x$-axis ($10^{-1}$ to $10^{2}$) versus count on the linear $y$-axis. The crimson dashed reference at $\rho/\beta = 1$ marks the floor exactly; every observed value lies at or above $1$, with the bulk of the distribution at $\rho/\beta \in [1, 10]$. The histogram visualises the headroom realised acts carry above the floor.
+    (\textbf{D})~Three-dimensional cloud of $(\beta,\,\rho,\,|V|)$, viridis colourmap by $\rho/\beta$, viewing angle elevation $30^{\circ}$ azimuth $-60^{\circ}$. Each point is one realised act; the cloud lies entirely above the diagonal plane $\rho = \beta$ at every $|V|$ tested. Geometric realisation of Theorem~\ref{thm:floor}: the floor is a graph property and applies uniformly across vertex counts.}
+    \label{fig:panel-graph-floor}
+\end{figure*}
+
+\subsection{Non-completable whole}
+
+The agent engages a finite graph, but the graph is a
+\emph{model}---a finite individuated structure within an ambient
+whole that the agent's model does not exhaust. We name the
+ambient whole and require that it is not exhaustible by finite
+stages of modelling.
+
+\begin{definition}[Whole; medium]
+\label{def:medium}
+The \emph{whole} engaged by an agent is the totality
+$\mathcal{M}$ within which individuation occurs. The graph
+$\Graph = (\Vrt, \Edg, w)$ is a finitely-individuated model of
+$\mathcal{M}$. The \emph{medium} is $\mathcal{M}$ in its role as
+the reference against which the vertices of $\Graph$ are
+individuated: the totality simultaneously in contact with every
+vertex, such that the cut weight of a subset $U \subseteq \Vrt$ is
+the cost of separating $U$ from $\mathcal{M}\setminus U$.
+\end{definition}
+
+\begin{definition}[Non-completable whole]
+\label{def:noncompletable}
+The whole $\mathcal{M}$ is \emph{non-completable} if no finite
+stage of individuation exhausts it: for every finite individuation
+$\Graph$, there is at least one further distinction the agent could
+record but has not, i.e. a refinement of $\Graph$ that the agent's
+descriptive scheme can in principle extend to. This is an order
+condition (no terminal stage), not a cardinality posit on
+$\mathcal{M}$.
+\end{definition}
+
+\begin{axiom}[Non-completability hypothesis]
+\label{ax:noncompletable}
+The whole $\mathcal{M}$ the agent engages is non-completable in the
+sense of \cref{def:noncompletable}.
+\end{axiom}
+
+\Cref{ax:noncompletable} is not the claim that the world is
+infinite. It is the operational claim that the agent's modelling
+process does not terminate at a finite stage: there is always at
+least one more distinction available to draw beyond the current
+graph. For any realised engineering system this is observably the
+case---a sensor of finite resolution always admits a finer one; a
+classifier of finite vocabulary always admits a wider one; a query
+language of finite expressiveness always admits an extension. The
+operational content of \cref{ax:noncompletable} is exactly the
+practical fact that finite-agent modelling is open-ended in the
+direction of refinement.
+
+\begin{remark}[The third premise is what carries the floor]
+\label{rem:third_carries}
+In the original draft the positive floor $\floor$ on edge weights
+was stipulated as part of \cref{ax:graph}. Under
+\cref{ax:noncompletable}, $\floor > 0$ is no longer a stipulation
+but a theorem (\cref{thm:floor_from_infinitude} below): the floor
+is the trace of the non-completable whole on its finitely-modelled
+parts. With the floor derived, the remaining structural claims
+become theorems about the agent's engagement with the
+non-completable whole rather than artefacts of a stipulated bound.
+\end{remark}
+
+\subsection{What the premises do not say}
+
+\Cref{ax:graph,ax:agent} are sharp where they need to be sharp and
+silent elsewhere. We list three things the premises explicitly do
+not say.
+
+\begin{enumerate}[nosep,leftmargin=*]
+\item They do not say the world is finite. Reality at large is
+permitted to be infinite; the premises restrict only the system the
+agent engages and the agent itself, both of which are finite.
+\item They do not say the graph encodes everything about the system.
+A graph is a \emph{model} of the system the agent uses; what the
+system is in itself, outside the agent's modelling, is not
+addressed.
+\item They do not say agents must be physical. The argument applies
+to any agent satisfying~\ref{F:fin_state}--\ref{F:fin_cost},
+whatever its substrate.
+\end{enumerate}
+
+\subsection{Scope}
+
+The conjunction of the two premises covers the dominant case of
+engineering practice: software systems, embedded controllers,
+sensor networks, knowledge bases, finite databases, finite-state
+protocols, and finite communication graphs. It does not cover
+putative infinite agents (perfect oracles, unbounded computation) or
+putative infinite systems (continuous fields engaged directly,
+without finite discretisation). Where finite discretisation is
+imposed---which is the case in all realised engineering
+systems---the premises apply.
+
+% =====================================================================
+\section{Consequences of the Three Premises}
+\label{sec:consequences}
+% =====================================================================
+
+We derive four consequences of the conjunction of \cref{ax:graph},
+\cref{ax:agent}, and \cref{ax:noncompletable}. The first is the
+Floor from Infinitude theorem: the positive floor on edge weights
+that the original draft posited is now derived from
+non-completability. The remaining three---distinguishability floor,
+residue propagation, and small-category structure---are then
+recovered under the derived floor and the agent's finiteness. Each
+consequence is forced by the premises alone; no additional
+hypothesis is invoked.
+
+\subsection{The Floor from Infinitude}
+
+\begin{theorem}[Floor from Infinitude]
+\label{thm:floor_from_infinitude}
+Let $\Graph$ be a finitely-individuated model of a non-completable
+whole $\mathcal{M}$ (\cref{ax:noncompletable}). For every realisable
+distinguishability act $u \not\sim v$ by a finite agent
+(\cref{ax:agent}), the agent's individuation of $u$ from
+$\mathcal{M}\setminus\{u\}$ via the path through $\Graph$ deposits a
+strictly positive residual: no realisable individuation has zero
+residue. Equivalently, the cost of any realised separator in
+$\Graph$ is bounded below by a strictly positive constant.
+\end{theorem}
+
+\begin{proof}
+A realisable distinguishability act $u \not\sim v$ individuates $u$
+from the rest of the agent's model by depositing measure on a
+separator $\Sigma(u, v) \subseteq \Edg$ (the edges of the path the
+agent uses). To individuate $u$ \emph{completely} would be to
+finish the comparison of $u$ against the entirety of
+$\mathcal{M}\setminus\{u\}$. By \cref{ax:noncompletable},
+$\mathcal{M}\setminus\{u\}$ is non-completable: no finite stage of
+individuation exhausts it. Hence the comparison cannot finish at
+any finite stage. Therefore the separator $\Sigma(u, v)$ cannot
+have zero measure: were $w(\Sigma) = 0$, the agent's descriptive
+scheme would record no measure differential between $u$ and the
+rest, and $u$ would not be individuated. Since the act is realised,
+the separator carries strictly positive measure, and the infimum of
+such positive measures over the finite edge set $\Edg$ is itself a
+strictly positive constant
+$\floor := \min\{w(e) : e \in \Edg,\, w(e) > 0\} > 0$. $\qed$
+\end{proof}
+
+\begin{corollary}[The floor is the trace of the whole on its
+parts]
+\label{cor:floor_trace}
+$\floor$ is not an independent posit but the structural shadow that
+$\mathcal{M}$'s non-completability casts on each of its finite
+modelled parts. Were $\mathcal{M}$ completable (a finite whole),
+the comparison of any part against the rest could finish, the
+separator could shrink to zero measure, and $\floor = 0$ would be
+admissible. Because $\mathcal{M}$ is non-completable
+(\cref{ax:noncompletable}), the floor is positive.
+\end{corollary}
+
+\begin{proof}
+Immediate from \cref{thm:floor_from_infinitude}: $\floor > 0$ is
+forced by non-completability and would vanish in the completable
+case. The constant $\floor$ is the irreducible identification
+residual of the agent's finite individuating acts against the
+non-completable whole. $\qed$
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_01_floor_from_infinitude.png}
+    \caption{\textbf{Floor from Infinitude: the floor $\beta$ is the trace of the non-completable whole on its finitely-modelled parts.}
+    (\textbf{A})~Floor $\beta$ on a log $y$-axis ($10^{-2}$ to $10^{0}$) versus refinement stage $n$ on the linear $x$-axis ($0$ to $11$) across twelve stages of a non-completable whole $\mathcal{M}$. Steelblue circles connected by a line trace $\beta(n)$; the floor decreases monotonically from $\beta=0.5$ at stage $0$ to $\beta\approx 0.077$ at stage $11$ yet remains strictly positive at every tested stage. This is the empirical content of Theorem~\ref{thm:floor_from_infinitude} (Floor from Infinitude): finite individuation against a non-completable whole forces a strictly positive residual at every finite stage.
+    (\textbf{B})~Decay shape: measured $\beta(n)$ (steelblue circles) versus the theoretical refinement law $\beta_{\text{theory}}(n)=1/(n+2)$ (crimson solid reference) on the linear $y$-axis ($0$ to $0.5$) versus stage $n$ on the linear $x$-axis ($0$ to $11$). The measured values follow the prediction to floating-point precision, confirming that the refinement law in the harness reproduces the trace structure of Corollary~\ref{cor:floor_trace}.
+    (\textbf{C})~Graph size growth: $|V|$ (steelblue circles) and $|E|$ (teal squares) on the linear $y$-axis (up to $400$) versus stage $n$ on the linear $x$-axis ($0$ to $11$). Vertex count grows linearly ($|V|=5+3n$); edge count grows quadratically. The non-completable whole is unbounded in extension at every finite stage, capturing Definition~\ref{def:noncompletable} (no terminal stage).
+    (\textbf{D})~Three-dimensional scatter of edge-weight strata: $\log_{10} w$ on the vertical axis as a function of stage $n$ on the linear $x$-axis ($0$ to $7$) and normalised edge rank on the linear $y$-axis ($0$ to $1$), viridis colourmap by stage, viewing angle elevation $30^{\circ}$ azimuth $-60^{\circ}$. Each stage contributes a strictly finer family of edges, visible as descending viridis-coloured fans; the floor at each stage is the bottom of its fan and stays bounded below. Geometric realisation of Theorem~\ref{thm:floor_from_infinitude}: the floor is the bottom of an indefinitely extensible spectrum, never reaching zero.}
+    \label{fig:panel-floor-from-infinitude}
+\end{figure*}
+
+\subsection{The distinguishability floor}
+
+\begin{theorem}[Floor on edge measure for realisable
+distinguishability]
+\label{thm:floor}
+Let $\Graph$ satisfy \cref{ax:graph} and $\Agent$ satisfy
+\cref{ax:agent}. Define the graph-level floor
+\[
+  \floor := \min\{w(e) : e \in \Edg,\; w(e) > 0\}.
+\]
+This is a property of $\Graph$ alone, well-defined whenever
+$\Graph$ contains at least one positive-measure edge. Then
+$\floor > 0$, and for every pair $(u,v) \in \Vrt \times \Vrt$ that
+$\Agent$ can realise as $u \not\sim v$, the agent's
+distinguishability path through $\Graph$ contains an edge of measure
+$\geq \floor$.
+\end{theorem}
+
+\begin{proof}
+\emph{Positivity of $\floor$.} The set
+$W^{+} := \{w(e) : e \in \Edg,\; w(e) > 0\}$ is a finite (by
+$|\Edg| < \infty$ in \cref{ax:graph}) subset of $\R_{> 0}$. If
+$W^{+}$ is non-empty, $\floor = \min W^{+} > 0$. If $W^{+}$ is
+empty, every edge has measure $0$, no path can have positive
+total measure, and \cref{F:fin_descr} prevents the agent from
+recording any non-trivial distinguishability (a null path gives the
+agent no measure differential to record); in this degenerate case
+no realisable distinguishability acts exist and the claim holds
+vacuously.
+
+\emph{Realised paths contain a $\geq \floor$ edge.} Assume the
+non-degenerate case, so $\floor > 0$. Let $(u,v)$ be realised by
+$\Agent$ as $u \not\sim v$. By \cref{F:fin_descr}, the agent
+records the distinction by some path
+$P_\Agent(u,v) = (e_1, e_2, \ldots, e_k)$ in $\Graph$. If every
+edge of $P_\Agent(u,v)$ had measure $0$, the path would have total
+measure $0$, the agent's descriptive scheme would have no measure
+differential to encode the distinction, and the distinguishability
+would not be realised---contradicting the assumption. Hence at
+least one edge $e_i$ of $P_\Agent(u,v)$ has $w(e_i) > 0$, and
+therefore $w(e_i) \geq \floor$ by the definition of $\floor$ as
+the minimum positive edge measure. $\qed$
+\end{proof}
+
+\begin{remark}[The floor is a graph property, not an agent
+property]
+\label{rem:floor_graph_property}
+$\floor$ depends only on $\Graph$, not on $\Agent$. Different
+finite agents engaging the same graph share the same floor.
+$\Agent$ enters only in the second clause, where realisability
+guarantees that at least one edge above the floor lies on every
+realised distinguishability path.
+\end{remark}
+
+\begin{remark}[Floor is a finiteness floor]
+\label{rem:floor_is_finiteness}
+The floor $\floor$ is not a metaphysical lower bound on what edges
+``can be.'' It is the lower bound forced by the finiteness of
+$\Edg$ and the requirement that distinguishability be realisable.
+With a finite edge set having positive-measure edges, the minimum
+positive measure is itself positive. This is a combinatorial
+observation, not a substantive claim about the structure of
+reality.
+\end{remark}
+
+\subsection{Residue: every distinguishability act deposits content}
+
+\begin{definition}[Residue]
+\label{def:residue}
+The \emph{residue} $\Res(u,v)$ of a distinguishability act
+$u \not\sim v$ realised by $\Agent$ is the sum of edge measures
+along the path the agent uses:
+\[
+  \Res(u,v) = \sum_{e \in \mathrm{path}_\Agent(u,v)} w(e).
+\]
+By \cref{thm:floor}, $\Res(u,v) \geq \floor > 0$ for every
+realisable distinguishability act.
+\end{definition}
+
+\begin{theorem}[Residues are additive under composition]
+\label{thm:residue_additive}
+Let $u \not\sim v$ and $v \not\sim w$ be two distinguishability
+acts realised by $\Agent$. The composed act $u \not\sim w$ (if
+realisable) has residue:
+\[
+  \Res(u, w) \leq \Res(u, v) + \Res(v, w).
+\]
+Equality holds when the path the agent uses for the composed act is
+the concatenation of the individual paths.
+\end{theorem}
+
+\begin{proof}
+The residue of the composed act is the sum of edge measures along
+the agent's path from $u$ to $w$. By the triangle inequality for
+sums of non-negative numbers, the shortest such path has total
+measure no greater than the sum of any concatenated route. If the
+agent uses the concatenation $u \to v \to w$, equality holds;
+otherwise the agent has found a shorter path and the inequality is
+strict. $\qed$
+\end{proof}
+
+
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_03_residue_propagation.png}
+    \caption{\textbf{Residue Subadditivity and Cumulative Monotone Growth.}
+    (\textbf{A})~Composite residue $\rho(u,w)$ on the linear $y$-axis versus the sum $\rho(u,v)+\rho(v,w)$ on the linear $x$-axis for $1{,}174$ random triples across $30$ random graphs ($|V|=15$, edge probability $0.4$). Steelblue points lie at or below the neutral diagonal $y=x$, with $1{,}043$ trials strictly below (the agent found a shorter route than the $u\to v\to w$ concatenation) and $131$ trials exactly on the line (concatenation was the shortest). Zero subadditivity violations. Empirical content of Theorem~\ref{thm:residue_additive}: $\rho(u,w) \leq \rho(u,v) + \rho(v,w)$.
+    (\textbf{B})~Cumulative residue along $8$ independent realised walks on the linear $y$-axis ($0$ to $\sim 300$) versus act count $n$ on the linear $x$-axis ($0$ to $80$). Each steelblue curve is a separate walk; the corresponding crimson floor line $n\cdot\beta$ lies below it at every point. All eight cumulative trajectories are monotone non-decreasing, with $\sum\rho_i \geq n\beta$ holding throughout. Empirical content of Corollary~\ref{cor:res_accumulate}.
+    (\textbf{C})~Subadditivity gap $\rho(u,v)+\rho(v,w)-\rho(u,w)$ on the linear $x$-axis (up to $\sim 18$) versus count on the linear $y$-axis. The neutral vertical reference at $0$ marks the equality case; the distribution lies entirely in the non-negative half-line. The mode is at small positive values, with a heavy tail of triples where the agent found a substantially shorter composite path.
+    (\textbf{D})~Three-dimensional composition-triple cloud: $\rho(u,v)$ on the linear $x$-axis, $\rho(v,w)$ on the linear $y$-axis, $\rho(u,w)$ on the vertical axis, viridis colourmap by subadditivity gap, viewing angle elevation $30^{\circ}$ azimuth $-60^{\circ}$. The cloud lies below the diagonal plane $\rho(u,w) = \rho(u,v) + \rho(v,w)$; the subadditive structure is the geometric content of Theorem~\ref{thm:residue_additive}.}
+    \label{fig:panel-residue-propagation}
+\end{figure*}
+
+\begin{corollary}[Residue accumulates and does not refund]
+\label{cor:res_accumulate}
+For any sequence of distinguishability acts
+$u_0 \not\sim u_1 \not\sim u_2 \not\sim \cdots \not\sim u_n$, the
+total residue deposited satisfies:
+\[
+  \sum_{i=0}^{n-1} \Res(u_i, u_{i+1}) \geq n\floor > 0.
+\]
+The cumulative residue strictly grows with the number of acts and
+is bounded below by $n\floor$. No act reduces the cumulative total;
+the sum is monotone non-decreasing in $n$.
+\end{corollary}
+
+\begin{proof}
+By \cref{thm:floor}, each $\Res(u_i, u_{i+1}) \geq \floor$. Summing
+$n$ non-negative terms each $\geq \floor$ gives $\geq n\floor$.
+Monotonicity in $n$ is immediate from the non-negativity of each
+term. $\qed$
+\end{proof}
+
+\subsection{Closure: distinguishability acts form a small category}
+
+Composition of distinguishability acts is intrinsically
+\emph{partial}: $(u,v)$ and $(v,w)$ both being realised by $\Agent$
+does not imply that $(u,w)$ is realised. Realisability depends on
+the agent's path-choices and on the budget $C_\Agent$. The
+finite-budget premise \cref{F:fin_cost} actively limits which
+compositions are realised, so a total composition law cannot be
+assumed.
+
+The honest object is therefore a \emph{small category}, not a
+monoid. In a small category, composition is partial in exactly
+this controlled sense: a morphism $g: u \to v$ composes with a
+morphism $f: v \to w$ to give $f \circ g: u \to w$, but morphisms
+with mismatched source/target do not compose. We construct the
+category and verify the axioms.
+
+\begin{definition}[The distinguishability category]
+\label{def:dcat}
+The \emph{distinguishability category}
+$\mathbf{C}_{\Agent,\Graph}$ has:
+\begin{itemize}[nosep,leftmargin=*]
+\item \emph{Objects}: the vertices $\Vrt$ of $\Graph$.
+\item \emph{Morphisms}: a morphism $u \to v$ is either the
+identity $\mathrm{id}_u$ (with residue $0$), or a realised
+distinguishability act $(u,v) \in \mathcal{D}_\Agent$ together with
+the agent's path $\mathrm{path}_\Agent(u,v)$ used to realise it.
+\item \emph{Composition}: for morphisms $g: u \to v$ and
+$h: v \to w$, the composite $h \circ g: u \to w$ is defined iff
+$\Agent$ realises a distinguishability act $(u,w)$ whose path is
+recordable from the agent's record of $g$ and $h$. When defined,
+$h \circ g = (u, w, \mathrm{path}_\Agent(u,w))$.
+\item \emph{Identities}: for each $u \in \Vrt$, the identity
+$\mathrm{id}_u : u \to u$ is the trivial act with empty path and
+residue $0$.
+\end{itemize}
+\end{definition}
+
+\begin{lemma}[Identity laws]
+\label{lem:identity}
+For every realised morphism $g: u \to v$,
+$g \circ \mathrm{id}_u = g$ and $\mathrm{id}_v \circ g = g$.
+\end{lemma}
+
+\begin{proof}
+The composites $g \circ \mathrm{id}_u$ and $\mathrm{id}_v \circ g$
+have source $u$, target $v$, residue $\Res(g) + 0 = \Res(g)$, and
+path $\mathrm{path}_\Agent(u,v)$. Both are the realised morphism
+$g$. The identity composites are realisable because they require
+no agent effort beyond what $g$ itself already required. $\qed$
+\end{proof}
+
+\begin{lemma}[Associativity where defined]
+\label{lem:assoc}
+For realised morphisms $g_1: u \to v$, $g_2: v \to w$,
+$g_3: w \to x$ such that both $(g_3 \circ g_2) \circ g_1$ and
+$g_3 \circ (g_2 \circ g_1)$ are defined,
+\[
+  (g_3 \circ g_2) \circ g_1 \;=\; g_3 \circ (g_2 \circ g_1).
+\]
+\end{lemma}
+
+\begin{proof}
+Both composites have source $u$ and target $x$. By
+\cref{F:fin_descr}, the agent records a morphism by its
+endpoints and its realised path; if both composites are defined,
+the agent has recorded a realised morphism $u \to x$, and the
+record is unique up to the agent's path-choice. The agent's
+path-choice for the composite is a function only of the endpoints
+and the available realised sub-morphisms, which both bracketings
+present identically. Hence the two composites are the same
+morphism. $\qed$
+\end{proof}
+
+\begin{theorem}[Realised acts form a small category]
+\label{thm:category}
+Under \cref{ax:graph} and \cref{ax:agent},
+$\mathbf{C}_{\Agent,\Graph}$ is a small category: objects form a
+finite set ($|\Vrt| < \infty$), morphisms form a finite set
+(bounded by $|\Vrt| + |\mathcal{D}_\Agent| \leq |\Vrt| +
+|S_\Agent|^2 < \infty$), composition is partial and associative
+where defined (\cref{lem:assoc}), and identities exist
+(\cref{lem:identity}).
+\end{theorem}
+
+\begin{proof}
+Finiteness of objects and morphisms is immediate from the premises.
+\cref{lem:identity,lem:assoc} provide the identity and associativity
+axioms in the partial-composition setting. $\qed$
+\end{proof}
+
+\begin{theorem}[Partiality of composition is forced by
+non-completability]
+\label{thm:partiality_forced}
+Under \cref{ax:graph}, \cref{ax:agent}, and
+\cref{ax:noncompletable}, composition in
+$\mathbf{C}_{\Agent,\Graph}$ is genuinely partial: there exist
+agent--graph configurations in which $(u, v)$ and $(v, w)$ are both
+realised but $(u, w)$ is not. Partiality is not a contingent
+artefact of budget exhaustion; it is the structural consequence of
+modelling a non-completable whole with a finite agent.
+\end{theorem}
+
+
+
+\begin{proof}
+By \cref{thm:floor_from_infinitude}, every realised
+distinguishability act deposits residue $\geq \floor > 0$. The
+agent's individuating capacity over its lifetime is the cumulative
+residue it can deposit, bounded above by what the finite budget
+$C_\Agent$ permits at unit cost $c_0$:
+$\#\{\text{realised acts}\} \leq C_\Agent / c_0$.
+Composition of $(u, v)$ and $(v, w)$ into $(u, w)$ is realised only
+when the agent can record the composite act---which requires either
+that the composite path already lies in the agent's record, or that
+the agent has remaining capacity to traverse it.
+
+Now apply \cref{ax:noncompletable}: the whole $\mathcal M$ is
+non-completable, so the lattice of pairs $(u, w)$ the agent
+\emph{could} individuate exceeds any finite stage of realisations.
+For any finite agent there are pairs $(u, v), (v, w)$ both realised
+whose composite $(u, w)$ has not been realised at this stage---the
+non-completability of $\mathcal M$ guarantees that finite
+individuation is always strictly extensible, so the agent's record
+is always a proper sub-lattice of the closure under composition.
+
+Hence composition is partial, structurally: the gap between the
+realised category and its composition closure is a non-empty
+sub-lattice for every finite agent in a non-completable whole, and
+collapsing the gap would require the agent to have exhausted the
+whole (forbidden by \cref{ax:noncompletable}). $\qed$
+\end{proof}
+
+\begin{remark}[Small category is the honest structural object]
+\label{rem:why_category}
+\Cref{thm:partiality_forced} promotes partial composition from a
+contingent feature of budget exhaustion to a forced consequence of
+non-completability. The honest structural object is a small
+category \citep{maclane1998}, not a monoid. The category framework
+is exactly what the conjunction of the three premises supports: a
+finite collection of morphisms (the realised individuations), an
+identity on each object, an associative partial composition
+(\cref{lem:assoc}), with the gap from totality not a defect but the
+structural shadow of the non-completable whole. A small category in
+which every pair of composable morphisms does compose corresponds
+exactly to a completable whole (the agent has exhausted what is
+individuable); under \cref{ax:noncompletable} this case is
+excluded.
+\end{remark}
+
+\begin{remark}[Free monoid envelope]
+\label{rem:free_monoid}
+The path category over $\mathbf{C}_{\Agent,\Graph}$---formal
+sequences of composable morphisms, taken modulo the realised
+composites---is a free monoid on the morphisms of
+$\mathbf{C}_{\Agent,\Graph}$, modulo the relations imposed by
+realisation. This is a derived construction, useful for some
+applications, but not the primitive structure forced by the
+premises. The primitive structure is the small category.
+\end{remark}
+
+% --- Hom-set sizes ---
+
+\begin{proposition}[Hom-set bound]
+\label{prop:hom_bound}
+For any $u, v \in \Vrt$, the hom-set
+$\mathrm{Hom}_{\mathbf{C}_{\Agent,\Graph}}(u, v)$ contains at most
+one realised non-identity morphism plus (if $u = v$) the identity,
+totalling at most two elements.
+\end{proposition}
+
+\begin{proof}
+A realised distinguishability act $(u, v)$ is the assertion
+$u \not\sim v$; the agent records this assertion at most once in
+its descriptive scheme (it is either established or not). If the
+agent's path-choice changes during a run, the agent's record is
+updated, but the morphism remains the unique realised act between
+$u$ and $v$. The identity on $u$ exists when $u = v$. $\qed$
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_04_category.png}
+    \caption{\textbf{Small-Category Structure: Hom-Set Bound, Identity Laws, and Morphism Counts.}
+    (\textbf{A})~Hom-set size distribution on a log $y$-axis ($10^{0}$ to $10^{4}$) versus hom-set size on the linear $x$-axis ($\{0, 1, 2\}$). Across $9{,}000$ inspected hom-sets in $50$ random graphs, no hom-set has size $>2$ and the vast majority have size $1$ or $2$. Empirical content of Proposition~\ref{prop:hom_bound}: each hom-set $\mathrm{Hom}_{\mathbf{C}_{\mathcal{A},\mathcal{G}}}(u,v)$ contains at most one identity (if $u=v$) plus at most one realised non-identity morphism.
+    (\textbf{B})~Realised morphism count on the linear $y$-axis versus $n^{2}$ on the linear $x$-axis for graphs with $n \in [8, 22]$. Steelblue points are individual graphs; the neutral dashed line marks $|\mathrm{Mor}|=n^{2}$. All points lie at or below the line, with most graphs realising close to the full $n^{2}$ morphism count, confirming the finite morphism set bound $|\mathrm{Mor}(\mathbf{C}_{\mathcal{A},\mathcal{G}})| \leq |V|+|S_{\mathcal{A}}|^{2}$ of Theorem~\ref{thm:category}.
+    (\textbf{C})~Identity-law residual $\rho(f\circ\mathrm{id})-\rho(f)$ on the linear $y$-axis versus morphism index on the linear $x$-axis ($0$ to $\sim 130$), one random graph ($|V|=12$). The crimson dashed reference at $0$ marks the identity law; all $2{,}640$ identity checks return exactly zero residual. Empirical content of Lemma~\ref{lem:identity}: $f\circ\mathrm{id}_{u} = \mathrm{id}_{v}\circ f = f$ for every realised morphism $f:u\to v$.
+    (\textbf{D})~Three-dimensional Hom-graph: source $u$ on the linear $x$-axis, target $v$ on the linear $y$-axis, residue $\rho(f)$ on the vertical axis, viridis colourmap by residue, viewing angle elevation $30^{\circ}$ azimuth $-60^{\circ}$. Each marker is a realised morphism $u \to v$ in $\mathbf{C}_{\mathcal{A},\mathcal{G}}$; the cloud occupies the unit square $\{(u,v) : u \neq v\}$ exactly, with $z$-coordinate the residue. Geometric realisation of Theorem~\ref{thm:category}: the small category as a finite labelled morphism set with a residue function.}
+    \label{fig:panel-category}
+\end{figure*}
+
+% =====================================================================
+\section{The Operational Structure Theorem}
+\label{sec:main}
+% =====================================================================
+
+We now state and prove the main result: a finite agent engaging a
+finite graph cannot avoid admitting an operational structure in the
+following precise sense.
+
+\subsection{Operational structure}
+
+The previous section established three things: every realised
+distinguishability act has residue $\geq \floor > 0$
+(\cref{thm:floor}); residues compose subadditively
+(\cref{thm:residue_additive}); the realised acts form a small
+category $\mathbf{C}_{\Agent,\Graph}$ (\cref{thm:category}). The
+operational structure packages these into a single object.
+
+\begin{definition}[Residue equivalence and residue quotient]
+\label{def:residue_equiv}
+Two morphisms $f, g$ of $\mathbf{C}_{\Agent,\Graph}$ with
+$\Res(f) = \Res(g)$ are \emph{residue-equivalent}, written
+$f \equiv_\Res g$. The relation $\equiv_\Res$ is an equivalence on
+each hom-set; the \emph{residue quotient}
+$\widetilde{\mathbf{C}}_{\Agent,\Graph}$ identifies
+residue-equivalent morphisms.
+\end{definition}
+
+\begin{theorem}[Residue cells are the natural unit of operation]
+\label{thm:residue_cells}
+The residue equivalence classes of $\equiv_\Res$ are
+\emph{operation-cells}: regions of $\mathbf{C}_{\Agent,\Graph}$
+within which morphisms are agent-indistinguishable. The residue
+quotient $\widetilde{\mathbf{C}}_{\Agent,\Graph}$ is not a
+remedial collapse of an antisymmetry failure but the natural
+operational object: operations are individuated to their cell, not
+to their label.
+\end{theorem}
+
+\begin{proof}
+By \cref{thm:floor_from_infinitude}, individuation against the
+non-completable whole proceeds by depositing residue
+$\geq \floor > 0$; the agent's identification of a morphism with the
+act it performs is to the resolution $\floor$ of its residue, not
+finer. Two morphisms $f, g$ with $\Res(f) = \Res(g)$ deposit
+indistinguishable measure differentials in the agent's record (the
+agent's separator measure on $f$ equals that on $g$), so the
+agent's finite descriptive scheme \ref{F:fin_descr} cannot
+discriminate them by cost. The residue cells $[f]_{\equiv_\Res}$
+are therefore the regions of operational indistinguishability under
+the floor; the quotient
+$\widetilde{\mathbf{C}}_{\Agent,\Graph}$ identifies them as the
+natural unit of operation, and the residue preorder descends to a
+genuine partial order on the cells. The cells are bounded below in
+diameter by $\floor$ in the cost-metric on operations, mirroring
+\cref{thm:floor_from_infinitude}. $\qed$
+\end{proof}
+
+\begin{remark}[Preorder collapse is cell-truth]
+\label{rem:preorder_cell_truth}
+The antisymmetry failure of $\preceq$ on $\mathbf{C}_{\Agent,
+\Graph}$ is not a defect to be patched. It is the operational form
+of cell-truth: the agent's record assigns a residue to each
+operation; operations sharing a residue are the same operation to
+the resolution of the floor; the natural object on which the order
+lives is the residue-cell. To insist on antisymmetry over
+$\mathbf{C}_{\Agent,\Graph}$ would be to demand point-truth on
+operations, which \cref{thm:floor_from_infinitude} forbids. The
+residue quotient is the operational structure's cell-structure, and
+the partial order on the quotient is the unique order forced by
+the conjunction of the three premises.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_07_preorder.png}
+    \caption{\textbf{The Residue Preorder: Antisymmetry Fails on $\mathbf{C}_{\mathcal{A},\mathcal{G}}$, Holds on the Quotient.}
+    (\textbf{A})~Residue-cell count on the linear $y$-axis ($0$ to $\sim 600$) versus morphism count on the linear $x$-axis ($10$ to $600$). The neutral diagonal $y=x$ marks the hypothetical antisymmetric case where every morphism is its own cell. Steelblue circles trace the measured count of residue cells as the morphism set is enumerated; the curve lies strictly below the diagonal throughout, with a final ratio of cells-to-morphisms $\approx 0.5$. Empirical content of Definition~\ref{def:opstr}\,(O3): $\preceq$ is a preorder; the quotient collapses pairs of equal-residue morphisms.
+    (\textbf{B})~Residue collisions: residue $\rho$ on the linear $y$-axis versus ordered morphism index on the linear $x$-axis ($0$ to $\sim 380$). Crimson markers indicate residue collisions ($|\rho(f)-\rho(g)| < 10^{-9}$ between consecutive ordered morphisms), with $231$ such collisions in the $380$-morphism sample; steelblue markers indicate distinct residues. The collisions are exactly the antisymmetry-failure witnesses---pairs of distinct morphisms with equal residue.
+    (\textbf{C})~Transitivity check: residue $\rho(h)$ on the linear $y$-axis versus $\rho(f)$ on the linear $x$-axis, viridis colourmap by intermediate $\rho(g)$, $11{,}606$ triples with $\rho(f) \leq \rho(g) \leq \rho(h)$. The neutral diagonal $\rho(f) = \rho(h)$ is shown for reference; all points lie on or above it. Counts: $1{,}540$ pass, $0$ fail (the small displayed total reflects the random subsample plotted; the full check across $11{,}606$ triples returned zero violations). Empirical content of the reflexivity/transitivity clauses of the preorder.
+    (\textbf{D})~Three-dimensional cells with internal members: cell index on the linear $x$-axis ($0$ to $200$), residue on the linear $y$-axis ($0.5$ to $6$), intra-cell index on the vertical axis ($0$ to $1$), viridis colourmap by cell index, viewing angle elevation $30^{\circ}$ azimuth $-60^{\circ}$. Each cell has multiple members at the same residue (stacked vertically); the residue-quotient structure is visible as fan-shaped layers. Geometric realisation of Remark~\ref{rem:preorder_cell_truth}: the antisymmetry failure on $\mathbf{C}_{\mathcal{A},\mathcal{G}}$ is the structural cell-truth of operations, and the quotient is the natural object on which the order lives.}
+    \label{fig:panel-preorder}
+\end{figure*}
+
+
+\begin{definition}[Operational structure]
+\label{def:opstr}
+The \emph{operational structure} on a finite graph $\Graph$
+relative to a finite agent $\Agent$ is the quintuple
+\[
+  \OpStr_\Agent \;=\;
+  (\mathbf{C}_{\Agent,\Graph},\; \Res,\; \preceq,\; \floor,\;
+  \mathrm{Realisable})
+\]
+where:
+\begin{enumerate}[label=(O\arabic*),leftmargin=2.6em,nosep]
+\item\label{O:cat} $\mathbf{C}_{\Agent,\Graph}$ is the small
+category of \cref{def:dcat}.
+\item\label{O:residue} $\Res: \mathrm{Mor}(\mathbf{C}_{\Agent,
+\Graph}) \to \R_{\geq 0}$ is the residue function of
+\cref{def:residue}, subadditive under composition
+(\cref{thm:residue_additive}).
+\item\label{O:preorder} $\preceq$ is the residue \emph{preorder}:
+$f \preceq g$ iff $\Res(f) \leq \Res(g)$. On the residue quotient
+$\widetilde{\mathbf{C}}_{\Agent,\Graph}$ this descends to a partial
+order in the standard sense.
+\item\label{O:floor} For every non-identity morphism $f$,
+$\Res(f) \geq \floor > 0$, where $\floor$ is the graph-level floor
+of \cref{thm:floor}.
+\item\label{O:budget} $\mathrm{Realisable}: \mathrm{Mor}(\mathbf{C}_
+{\Agent,\Graph}) \to \{0,1\}$ marks each morphism as realised or
+not, subject to the budget constraint
+$\sum_{f\text{ realised}} c(f) \leq C_\Agent$.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[Why these five components]
+\label{rem:five}
+The category (\ref{O:cat}) captures composition; the residue
+function (\ref{O:residue}) captures cost; the preorder
+(\ref{O:preorder}) captures comparison; the floor (\ref{O:floor})
+captures the irreducible minimum; the realisability marker
+(\ref{O:budget}) captures the budget-constrained partiality. None
+of these can be dropped without losing structural content forced by
+the premises, and none requires more than the premises supply.
+Together they describe what the agent can do, at what cost, in what
+order, with what minimum, within what budget.
+\end{remark}
+
+\begin{theorem}[Operational Structure Theorem]
+\label{thm:opstructure}
+Under \cref{ax:graph} and \cref{ax:agent}, every distinguishability
+relation $\sim$ that the agent realises on $\Graph$ determines a
+unique operational structure $\OpStr_\Agent$. The structure is
+forced by the conjunction of the two premises: each of its five
+components is determined by $(\Agent, \Graph)$ together with the
+agent's path-choices, and no component can be denied without
+denying one of the premises.
+\end{theorem}
+
+\begin{proof}
+We verify each clause and the uniqueness and forcing claims.
+
+\emph{Category~\ref{O:cat}.} By \cref{thm:category},
+$\mathbf{C}_{\Agent,\Graph}$ is a small category with object set
+$\Vrt$, identity morphisms on each object, partial associative
+composition. The morphisms include the identities and the
+agent's realised distinguishability acts together with their paths.
+
+\emph{Residue~\ref{O:residue}.} The residue function of
+\cref{def:residue} assigns to each morphism the sum of edge
+measures along its path. Subadditivity under composition is
+\cref{thm:residue_additive}.
+
+\emph{Preorder~\ref{O:preorder}.} The relation $f \preceq g$ iff
+$\Res(f) \leq \Res(g)$ is reflexive ($\Res(f) \leq \Res(f)$) and
+transitive ($\Res(f) \leq \Res(g) \leq \Res(h)$ implies
+$\Res(f) \leq \Res(h)$). It is not antisymmetric on
+$\mathbf{C}_{\Agent,\Graph}$ itself: distinct morphisms can have
+equal residue, in which case both $f \preceq g$ and $g \preceq f$
+hold without $f = g$. The preorder descends to a partial order on
+the residue quotient
+$\widetilde{\mathbf{C}}_{\Agent,\Graph} = \mathbf{C}_{\Agent,
+\Graph}/\!\equiv_\Res$, where antisymmetry is recovered by
+construction.
+
+\emph{Floor~\ref{O:floor}.} By \cref{thm:floor}, the graph-level
+floor $\floor = \min\{w(e) : e \in \Edg, w(e) > 0\}$ is a property
+of $\Graph$ alone, and every realised non-identity morphism has
+residue $\geq \floor$. Identity morphisms have residue $0$, so the
+floor applies only to non-identity morphisms.
+
+\emph{Realisability~\ref{O:budget}.} The realisability marker is
+determined by the agent's actual run on $\Graph$, subject to
+\cref{F:fin_cost}. Compositions of realised morphisms are
+themselves realised only when the agent can record the composite
+within the remaining budget; this is the partial-composition
+phenomenon noted in \cref{rem:why_category}.
+
+\emph{Uniqueness.} Each of the five components is determined by
+$(\Agent, \Graph)$ together with the agent's path-choices: the
+category is fixed by the realised acts; the residue function is
+fixed by $w$; the preorder is fixed by residue comparison; the
+floor is fixed by $\min\{w(e) : w(e) > 0\}$; the realisability
+marker is fixed by the agent's run subject to the budget. Hence
+$\OpStr_\Agent$ is unique given $(\Agent, \Graph)$ and the path
+record.
+
+\emph{Forcing.} The five clauses follow from the premises alone:
+rejecting~\ref{O:cat} requires either infinite objects (denial of
+\cref{ax:graph}) or non-associative composition (denial of
+\cref{lem:assoc}, which uses only the agent's deterministic
+recording, \cref{F:fin_descr});
+rejecting~\ref{O:residue} requires negative or undefined edge
+measures (denial of \cref{def:graph});
+rejecting~\ref{O:preorder} requires denying the standard order on
+$\R_{\geq 0}$;
+rejecting~\ref{O:floor} requires zero-floor distinguishability acts
+(denial of \cref{thm:floor}, hence of finiteness of $\Edg$);
+rejecting~\ref{O:budget} requires unbounded budget (denial of
+\cref{F:fin_cost}). The structure is forced. $\qed$
+\end{proof}
+
+\begin{remark}[Strengthening to a partial monoid]
+\label{rem:partial_monoid}
+If the agent's budget $C_\Agent$ is large enough that composition
+of realised morphisms is always realised (no budget exhaustion on
+composites), the category becomes a small category in which every
+pair of composable morphisms composes---a one-object case of this
+being a monoid. The general statement above does not assume this;
+it admits the budget-exhausted case where some composites are not
+realised. The strengthened result is a corollary under the
+additional hypothesis $C_\Agent = \infty$ (or sufficient for
+closure), which we do not adopt by default.
+\end{remark}
+
+\begin{remark}[Path-choice dependence]
+\label{rem:path_choice}
+$\OpStr_\Agent$ depends on the agent's path-choices because two
+different paths between the same vertices can give different
+residues. This is genuine: an agent choosing a longer path pays
+more residue. We do not normalise to the shortest path; the
+operational structure records what the agent actually did, not
+what it could have done. To compare agents at the same graph, one
+fixes a path-choice rule (e.g.~shortest-path policy) and the
+remaining freedom collapses.
+\end{remark}
+
+\subsection{Consequences of the theorem}
+
+\begin{corollary}[Operations are determined up to labelling and
+path-choice]
+\label{cor:not_chosen}
+The category $\mathbf{C}_{\Agent,\Graph}$, the residue function
+$\Res$, the preorder $\preceq$, the floor $\floor$, and the
+realisability marker are determined by $(\Agent, \Graph)$ together
+with the agent's path-choices. Choosing an operational structure
+for a finite agent on a finite graph is choosing labels for
+elements of a structure that already exists and, where the agent
+has a choice of path between vertices, choosing the path; it is
+not creating the structure.
+\end{corollary}
+
+\begin{proof}
+Immediate from the uniqueness clause of \cref{thm:opstructure}.
+The freedom is two-fold: labelling of objects and morphisms
+(arbitrary names), and path-choice between vertices when multiple
+paths exist (\cref{rem:path_choice}). The structure underneath is
+fixed. $\qed$
+\end{proof}
+
+\begin{corollary}[Finite-system engineering is partly a discovery
+task]
+\label{cor:discovery}
+Designing operations for a finite system engaged by finite agents
+is partly the task of discovering the structure that
+$(\Agent, \Graph)$ determines, and partly the task of fixing
+path-choice and labelling conventions. Two designs disagreeing
+about which operations to admit are disagreeing about one or more
+of: which finite graph the system is modelled as; which finite
+agent the program is; which path-choice policy governs route
+selection.
+\end{corollary}
+
+\begin{proof}
+By \cref{cor:not_chosen}, the structure is determined up to
+labelling and path-choice. Differences between designs reduce to
+differences in $(\Agent, \Graph)$ or in the path-choice policy.
+Pure label differences do not affect the structure. $\qed$
+\end{proof}
+
+\begin{corollary}[Non-identity morphisms have residue
+$\geq \floor$]
+\label{cor:no_below}
+Every non-identity morphism of $\mathbf{C}_{\Agent,\Graph}$ has
+residue $\geq \floor > 0$. The floor is attained: morphisms of
+residue exactly $\floor$ exist whenever some single-edge path of
+the agent realises a distinction along an edge of weight $\floor$.
+The floor cannot be crossed downward by any realisable composition.
+\end{corollary}
+
+\begin{proof}
+The lower bound is~\ref{O:floor}. Attainment: pick any edge $e$ of
+$\Graph$ with $w(e) = \floor$ (such an edge exists by the
+definition of $\floor$ in \cref{thm:floor}). If the agent realises
+the distinguishability across this single edge, the resulting
+morphism has residue $\floor$. Non-crossable downward:
+\cref{thm:residue_additive} gives subadditivity, so the residue of
+a composite is bounded below by the sum of residues of its
+non-identity components, each $\geq \floor$; the sum cannot be
+less than $\floor$ unless all components are identities, in which
+case the composite is itself the identity. $\qed$
+\end{proof}
+
+
+% =====================================================================
+\section{Classification of Operational Structures}
+\label{sec:classification}
+% =====================================================================
+
+We classify the operations arising in $\OpStr_\Agent$ by the
+\emph{locus of their effect}. An operation acts on at most three
+loci: the graph $\Graph$, the equivalence structure
+$\sim$ on $\Vrt$, and the agent's internal state $S_\Agent$. We
+classify by which loci an operation touches. This yields four
+canonical types; we prove that these four exhaust the realisable
+operations and give the residue lower bound for each.
+
+\subsection{The four loci of effect}
+
+\begin{definition}[Effect tuple]
+\label{def:effect_tuple}
+The \emph{effect tuple} of a realised operation $f$ is the triple
+\[
+  \mathrm{eff}(f) \;=\; (\Delta\Graph(f),\; \Delta{\sim}(f),\;
+  \Delta S_\Agent(f))
+\]
+where $\Delta\Graph(f) \in \{0, 1\}$ records whether $f$ modifies
+$\Graph$ (vertex/edge set or $w$); $\Delta{\sim}(f) \in \{0, 1\}$
+records whether $f$ modifies the agent's equivalence relation on
+$\Vrt$; and $\Delta S_\Agent(f) \in \{0, 1\}$ records whether $f$
+modifies the agent's internal state $S_\Agent$ beyond what
+$\Delta\Graph$ and $\Delta{\sim}$ already entail.
+\end{definition}
+
+\begin{remark}[Internal effects beyond the graph]
+\label{rem:internal_beyond}
+The third component $\Delta S_\Agent$ accounts for internal
+bookkeeping not visible in $\Graph$ or $\sim$: counter increments,
+timer updates, allocation of internal registers, logging of
+realisations, garbage collection of stale records. By
+\cref{F:fin_state} the internal state is finite; changes to it are
+finite-step. By the finite-budget premise \cref{F:fin_cost} these
+changes too consume part of $C_\Agent$, even when no
+graph-side or equivalence-side effect occurs.
+\end{remark}
+
+\subsection{The four types}
+
+\begin{definition}[Operation type]
+\label{def:op_type}
+A realised operation $f$ has type:
+\begin{enumerate}[label=(T\arabic*),leftmargin=2.6em,nosep]
+\item\label{T:alg} \emph{Algebraic} if
+$\mathrm{eff}(f) = (0, 1, *)$: $f$ changes only the equivalence
+relation on $\Vrt$, not the graph itself.
+\item\label{T:dyn} \emph{Dynamical} if
+$\mathrm{eff}(f) = (1, *, *)$: $f$ modifies $\Graph$.
+\item\label{T:comp} \emph{Computational} if
+$\mathrm{eff}(f) = (0, 0, *)$ and $f$ produces a binary output
+(yes/no decision) by traversing a finite portion of $\Graph$
+without modifying $\Graph$ or $\sim$.
+\item\label{T:int} \emph{Internal} if
+$\mathrm{eff}(f) = (0, 0, 1)$ and $f$ produces no externally-
+visible output: $f$ updates only $S_\Agent$.
+\end{enumerate}
+The wildcard $*$ in \ref{T:alg} and \ref{T:dyn} indicates that
+internal bookkeeping is permitted but not required.
+\end{definition}
+
+\paragraph{Algebraic.} Equivalence-class formation, vertex
+relabelling under a graph automorphism, partition refinement.
+Algebraic operations re-express the agent's distinguishability
+relation without editing the graph or emitting output.
+
+\paragraph{Dynamical.} Graph edits: adding or removing vertices,
+adding or removing edges, modifying $w$. Dynamical operations
+transition $\Graph_t \to \Graph_{t+1}$.
+
+\paragraph{Computational.} Queries: membership tests, reachability
+checks, path-existence checks, equivalence tests. A computational
+operation returns a binary output by reading the graph.
+
+\paragraph{Internal.} Pure internal-state operations: counter
+increments, timer updates, allocation, logging, internal cache
+invalidation, garbage collection of agent-side records. An internal
+operation costs budget (it consumes finite agent resources) but
+deposits no residue on $\Graph$ and produces no externally-visible
+output.
+
+\begin{lemma}[Type-specific residue bounds]
+\label{lem:type_residues}
+\begin{enumerate}[nosep,leftmargin=*]
+\item Algebraic operations (\ref{T:alg}): residue $\geq \floor$
+when the equivalence change requires reading at least one edge of
+weight $\geq \floor$; residue $0$ when the equivalence change is a
+relabelling using no edge information (e.g.~renaming with no
+distinguishability assertion).
+\item Dynamical operations (\ref{T:dyn}): residue $\geq \floor$
+when the edit affects at least one edge of weight $\geq \floor$;
+residue $0$ when the edit touches only null edges (a vacuous case
+that cannot contribute to any distinguishability,
+\cref{thm:floor}).
+\item Computational operations (\ref{T:comp}): residue $\geq \floor$
+when the query reads at least one positive-measure edge; residue
+$0$ for queries answered without reading any positive-measure edge
+(e.g.~constant queries, queries decidable from $S_\Agent$ alone).
+\item Internal operations (\ref{T:int}): residue $0$ on $\Graph$
+(by definition no graph access), but cost $\geq c_0 > 0$ on the
+agent's budget by \cref{F:fin_cost}.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Each clause is immediate from the definitions and from
+\cref{thm:floor}. The residue bound applies to graph-side
+contributions; budget cost is bounded below by $c_0$ for any
+recorded operation, including internal ones. $\qed$
+\end{proof}
+
+\subsection{Four-type exhaustiveness}
+
+\begin{theorem}[Four-type exhaustiveness]
+\label{thm:three_types}
+Every realised operation $f \in \mathrm{Mor}(\mathbf{C}_{\Agent,
+\Graph})$ has effect tuple in
+$\{0,1\}^3 \setminus \{(0,0,0)\}$ and is therefore one of the four
+types of \cref{def:op_type}, or a composite whose components fall
+into these types. The all-zero tuple $(0,0,0)$ corresponds to the
+identity morphism, which is not a non-trivial operation.
+\end{theorem}
+
+\begin{proof}
+The effect tuple has $2^3 = 8$ possible values. We classify each:
+\begin{enumerate}[nosep,leftmargin=*]
+\item $(0,0,0)$: no effect anywhere; this is the identity morphism
+$\mathrm{id}$.
+\item $(0,0,1)$: only internal state changes; type \ref{T:int}
+(internal).
+\item $(0,1,0)$ and $(0,1,1)$: equivalence relation changes
+without graph modification; type \ref{T:alg} (algebraic). The
+internal-state component is permitted as bookkeeping
+(\cref{rem:internal_beyond}).
+\item $(1,0,0)$, $(1,0,1)$, $(1,1,0)$, $(1,1,1)$: graph
+modifications, possibly accompanied by equivalence or internal
+changes; type \ref{T:dyn} (dynamical), with the wildcard absorbing
+the other components.
+\end{enumerate}
+The eighth case, computational output, is not encoded in
+$\mathrm{eff}(f)$ as a fourth component because output by itself
+is an internal-state effect (the agent's internal state records the
+output). A computational operation that reads $\Graph$ without
+modifying it and writes its output to $S_\Agent$ has effect
+$(0,0,1)$, which is also the internal type; the distinguishing
+feature of computational versus internal is whether the operation
+\emph{reads the graph} during its execution. We refine: type
+\ref{T:comp} (computational) is the subtype of $(0,0,1)$ in which
+the agent traverses at least one edge of $\Graph$ during the
+operation; type \ref{T:int} (internal) is the subtype of $(0,0,1)$
+in which no graph edge is traversed.
+
+This gives four mutually exclusive types covering all
+non-identity effect tuples. Any realised operation is either an
+identity, falls into one of the four types, or is a composite
+whose components do. $\qed$
+\end{proof}
+
+\begin{theorem}[Four-type taxonomy is the scale homomorphism]
+\label{thm:scale_homomorphism}
+The four types of \cref{def:op_type} are not an ad hoc taxonomy
+but the image of a structural homomorphism between the
+operations-scale and the contact-graph scale that the agent
+engages. The four loci of effect---graph $\Graph$, equivalence
+relation $\sim$, internal state $S_\Agent$, traversed-edges
+trace---are the agent-scale projections of the four-place
+structure $(\text{unit},\,\text{whole},\,\text{selector},\,\text{
+invariant})$ at the operations scale. Specifically, the assignment
+\[
+  \begin{array}{rcl}
+  \text{whole at op-scale} & \longmapsto & \Graph \\
+  \text{individuating selector} & \longmapsto & \sim \\
+  \text{invariant residue} & \longmapsto & S_\Agent \\
+  \text{committed history} & \longmapsto & \text{edges traversed}
+  \end{array}
+\]
+maps each role of the operations-scale's four-place structure to
+the locus of effect that records it on the agent-scale, and the
+four operation types are exactly the four singletons (and their
+compositions) in this image.
+\end{theorem}
+
+\begin{proof}
+At the operations scale, the agent's individuating activity over
+$\Graph$ admits a four-place description: a whole the agent
+engages, a selector that picks out the next individuation, an
+invariant the selector deposits, and a committed history of
+selections made. These are the four roles any finite individuating
+agent in a non-completable whole exhibits
+(\cref{ax:noncompletable}, \cref{ax:agent}), and they are the
+operational counterpart of the four-place structure
+$(\text{part},\,\text{whole},\,\text{gate},\,\text{invariant})$
+that the contact-graph theory uses across scales.
+
+Each role surfaces on the agent-scale at exactly one locus of
+effect. The \emph{whole} surfaces as modifications of $\Graph$
+itself (dynamical, \ref{T:dyn}): the only way an operation engages
+the whole is to change the graph it models. The \emph{selector}
+surfaces as modifications of $\sim$ (algebraic, \ref{T:alg}): the
+selector is the equivalence relation through which the agent
+individuates parts; changing it is changing what is treated as one.
+The \emph{invariant residue} surfaces as modifications of
+$S_\Agent$ (internal, \ref{T:int}): the invariant the agent
+deposits is recorded internally. The \emph{committed history}
+surfaces as traversal of graph edges (computational, \ref{T:comp}):
+querying produces a record of edges read, the operation's commitment.
+
+The four types of \cref{def:op_type} are therefore the four
+singletons in the image of the role-to-locus assignment, and any
+realised operation is a composite of these (the agent acts on at
+most all four loci simultaneously). The taxonomy is forced by the
+scale homomorphism; it is not a definition with attached
+completeness claim but a theorem about which loci the four roles
+surface at. $\qed$
+\end{proof}
+
+\begin{remark}[Why the taxonomy is structural, not stipulated]
+\label{rem:taxonomy_honest}
+\Cref{thm:scale_homomorphism} converts the four-type taxonomy from
+a stipulation about loci of effect into a structural fact about
+roles at one scale projecting to loci at the next. The same
+four-place structure recurs at every scale at which an agent
+engages a non-completable whole: a unit individuating against a
+whole, with a selector and an invariant, over a committed history.
+At each scale the four roles surface as the four loci, and the
+operations are typed by which roles they exercise. The
+exhaustiveness is structural---there are exactly four roles---not
+contingent on the locus model. An extension to additional roles
+(e.g.\ inter-agent communication as a fifth role) would extend the
+taxonomy by exactly one type, but the conjunction of the three
+premises supplies four roles, hence four types.
+\end{remark}
+
+\begin{remark}[Composition across types]
+\label{rem:cross_type}
+Operations of different types compose where defined: a query
+followed by an edit followed by a relabelling is a single
+composite morphism in $\mathbf{C}_{\Agent,\Graph}$. The
+classification labels the type of each component; composition
+operates on the composites. As before, composition is partial
+(\cref{rem:why_category}); not every composite of realised
+operations is itself realised.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_08_scale_homomorphism.png}
+    \caption{\textbf{Scale Homomorphism: Four Roles Surface as Four Loci.}
+    (\textbf{A})~Effect-tuple count per type on the linear $y$-axis ($0$ to $8$) versus operation type on the linear $x$-axis (identity, algebraic, dynamical, computational, internal). Bars are coloured by type: neutral grey for identity, teal for algebraic, crimson for dynamical, steelblue for computational, sand for internal. Across the exhaustive enumeration of $2^{3} \times \{\text{reads-edge}\} = 16$ effect tuples, the partition is $\{2, 4, 8, 1, 1\}$. Each non-identity type is realised by at least one effect tuple; identity covers the $(0,0,0)$ case under either value of reads-edge. Empirical content of Theorem~\ref{thm:three_types} (Four-Type Exhaustiveness).
+    (\textbf{B})~Effect-tuple matrix coloured by type: $(\Delta G, \Delta\sim)$ on the linear $y$-axis (00, 01, 10, 11) versus $(\Delta S, \text{reads})$ on the linear $x$-axis (00, 01, 10, 11), viridis colourmap by type index. The matrix has a block structure: the $\Delta G = 1$ rows are uniform crimson (dynamical, by~\ref{T:dyn}); the $\Delta G = 0, \Delta\sim = 1$ row is uniform teal (algebraic); the $\Delta G = 0, \Delta\sim = 0$ row splits into identity, internal, and computational subtypes by $(\Delta S, \text{reads})$. Geometric content of Definition~\ref{def:op_type}: type is a function of the effect tuple.
+    (\textbf{C})~Role-to-locus bijection: four roles on the left column (whole, selector, invariant, history) connected by lines to four loci on the right column ($\Delta G$, $\Delta\sim$, $\Delta S$, reads-$E$). Each role maps to exactly one locus; the assignment is a bijection. Empirical content of Theorem~\ref{thm:scale_homomorphism}: the four-place structure (unit, whole, selector, invariant, committed history) at the operations scale projects onto exactly four loci at the agent scale.
+    (\textbf{D})~Three-dimensional effect-tuple cube: $\Delta G$ on the linear $x$-axis ($0$ or $1$), $\Delta\sim$ on the linear $y$-axis ($0$ or $1$), $\Delta S$ on the vertical axis ($0$ or $1$), viewing angle elevation $30^{\circ}$ azimuth $-60^{\circ}$. Markers at the cube vertices are coloured by type (grey identity, teal algebraic, crimson dynamical, steelblue computational, sand internal) and shaped by the reads-edge bit (circle for reads $=0$, triangle for reads $=1$). The cube is fully populated; the geometric realisation of the scale homomorphism makes the four types visible as four colour-clusters on the eight-vertex cube.}
+    \label{fig:panel-scale-homomorphism}
+\end{figure*}
+
+
+
+
+% =====================================================================
+\section{Composition Inflation: Trajectory Counting in the
+Operational Structure}
+\label{sec:inflation}
+% =====================================================================
+
+The Operational Structure Theorem (\cref{thm:opstructure}) bounds the
+size of $\mathbf{C}_{\Agent,\Graph}$ at $|\Vrt| + |S_\Agent|^2$
+morphisms. This is the bound on \emph{individual} realised acts. The
+agent, however, does not realise acts in isolation: it commits a
+sequence of acts, and the sequence carries its own categorical
+structure. We now derive the count of distinguishable operation
+\emph{trajectories} as a function of trajectory length, and show
+that the count grows exponentially against a linearly-growing
+committed cost.
+
+The result is a closed-form formula
+$T(n, d) = d \cdot (d+1)^{n-1}$ for the number of categorically
+distinguishable operation trajectories of length $n$ in a structure
+with $d$ operation types. It is proved here from first principles
+using only the four-type taxonomy
+(\cref{thm:scale_homomorphism}) and the agent's commitment record
+(\cref{F:fin_descr}, \cref{F:fin_cost}). The closed form supplies
+the precise rate at which the operational structure's trajectory
+space inflates relative to the agent's committed-act count.
+
+\subsection{Operation trajectories and commitment blocks}
+
+\begin{definition}[Operation trajectory]
+\label{def:trajectory}
+An \emph{operation trajectory} of length $n$ in $\OpStr_\Agent$ is
+an ordered sequence
+\[
+  \tau \;=\; (f_1, f_2, \ldots, f_n)
+\]
+of $n$ realised non-identity morphisms $f_i \in \mathbf{C}_{\Agent,
+\Graph}$, recorded by the agent's descriptive scheme
+(\cref{F:fin_descr}) in commitment order. Each $f_i$ carries a type
+$t(f_i) \in \{\text{algebraic}, \text{dynamical}, \text{computational},
+\text{internal}\}$ from \cref{def:op_type}.
+\end{definition}
+
+\begin{definition}[Commitment block; type-segmentation]
+\label{def:block}
+A \emph{commitment block} of a trajectory $\tau$ is a maximal
+contiguous sub-sequence of acts that the agent records as a single
+recorded unit. Formally, given $\tau = (f_1, \ldots, f_n)$, a
+\emph{block structure} on $\tau$ is a composition
+$(c_1, c_2, \ldots, c_k)$ of $n$ with $c_1 + \cdots + c_k = n$,
+$c_i \geq 1$, indicating that the first $c_1$ acts form the first
+block, the next $c_2$ acts form the second block, and so on. The
+\emph{type-labeling} of a block structure assigns each block a type
+$t_j \in \{1, 2, 3, 4\}$ (one of the four operation types of
+\cref{def:op_type}). The number of blocks $k$ is the
+\emph{commitment depth} of the trajectory.
+\end{definition}
+
+\begin{remark}[Why block structure is data, not derived]
+\label{rem:why_blocks}
+A naive view would treat the type sequence $(t(f_1), \ldots, t(f_n))$
+as the full trajectory data and read block boundaries off as
+positions of type change. This conflates two distinct
+trajectories: the agent committing acts in pairs $(f_1, f_2)$ then
+$(f_3, f_4)$ versus committing four separate acts $f_1, f_2, f_3,
+f_4$ of the same type sequence. The two have different commitment
+records: the first records two checkpoints; the second records
+four. By \cref{F:fin_descr}, the agent's descriptive scheme
+distinguishes these, so they are distinct trajectories in the
+operational structure. The block structure is therefore part of the
+trajectory data, not a derived quantity.
+\end{remark}
+
+\subsection{The composition count}
+
+\begin{lemma}[Compositions of $n$]
+\label{lem:compositions}
+The number of compositions of a positive integer $n$ into $k$
+positive parts is $\binom{n-1}{k-1}$. Summing over $k$, the total
+number of compositions of $n$ is $2^{n-1}$.
+\end{lemma}
+
+\begin{proof}
+A composition of $n$ into $k$ parts corresponds bijectively to a
+choice of $k - 1$ dividers placed into the $n - 1$ gaps between
+$n$ ordered unit objects: each divider marks a boundary between
+adjacent parts. The number of such choices is $\binom{n-1}{k-1}$.
+Summing,
+\[
+  \sum_{k=1}^{n} \binom{n-1}{k-1}
+  \;=\; \sum_{j=0}^{n-1} \binom{n-1}{j}
+  \;=\; (1+1)^{n-1}
+  \;=\; 2^{n-1}
+\]
+by the binomial theorem applied to $(1+1)^{n-1}$. $\qed$
+\end{proof}
+
+\subsection{The composition-inflation theorem}
+
+\begin{theorem}[Composition Inflation in Operation Space]
+\label{thm:composition_inflation}
+Let $\OpStr_\Agent$ have $d$ operation types (with $d = 4$ in the
+canonical setting of \cref{def:op_type}). The number of
+categorically distinguishable operation trajectories of length $n$
+in $\OpStr_\Agent$ is
+\[
+  \boxed{\;T(n, d) \;=\; d \cdot (d + 1)^{n - 1}.\;}
+\]
+\end{theorem}
+
+\begin{proof}
+A trajectory of length $n$ is uniquely specified by:
+\begin{enumerate}[nosep,leftmargin=*]
+\item A block structure: a composition $(c_1, \ldots, c_k)$ of $n$
+into $k$ parts, for some $1 \leq k \leq n$
+(\cref{def:block}).
+\item A type-labeling: an assignment of one of $d$ types to each
+of the $k$ blocks.
+\end{enumerate}
+By \cref{lem:compositions}, the number of compositions of $n$ into
+$k$ parts is $\binom{n-1}{k-1}$. For each such composition, the
+$k$ type labels are chosen independently from $d$ options, yielding
+$d^k$ labelings. Hence the number of trajectories with commitment
+depth exactly $k$ is
+\[
+  N_k(n, d) \;=\; \binom{n-1}{k-1} \cdot d^k.
+\]
+Summing over commitment depth:
+\begin{align*}
+  T(n, d) &\;=\; \sum_{k=1}^{n} \binom{n-1}{k-1} \cdot d^k \\
+  &\;=\; d \sum_{k=1}^{n} \binom{n-1}{k-1} \cdot d^{k-1} \\
+  &\;=\; d \sum_{j=0}^{n-1} \binom{n-1}{j} \cdot d^{j}
+  \quad [\text{substitute } j = k - 1] \\
+  &\;=\; d \cdot (1 + d)^{n-1}
+\end{align*}
+by the binomial theorem applied to $(1 + d)^{n-1}$. $\qed$
+\end{proof}
+
+\begin{corollary}[Recurrence and initial condition]
+\label{cor:inflation_recurrence}
+$T(n, d)$ satisfies the recurrence
+$T(n+1, d) = (d + 1) \cdot T(n, d)$ with initial condition
+$T(1, d) = d$. Equivalently, each additional committed act
+multiplies the trajectory count by $d + 1$.
+\end{corollary}
+
+\begin{proof}
+$T(1, d) = d \cdot (d+1)^0 = d$, agreeing with the direct count
+(one act, $d$ type choices). For $n \geq 1$,
+$T(n + 1, d) = d \cdot (d+1)^{n} = (d+1) \cdot T(n, d)$. $\qed$
+\end{proof}
+
+\begin{remark}[Where the extra $+1$ comes from]
+\label{rem:plus_one}
+The exponential base $d + 1$ has a structural meaning. At each of
+the $n - 1$ internal boundaries between consecutive committed acts,
+the agent has two independent decisions: (i) start a new block or
+continue the current one (binary, contributing the composition
+factor); (ii) if starting a new block, choose its type (one of $d$).
+Together these are $1 + d$ effective branches per boundary
+($1$ for ``continue'', $d$ for ``branch into one of $d$ types''),
+yielding base $d + 1$. This is the agent-scale reading of the
+combinatorial constant.
+\end{remark}
+
+\subsection{Linear cost, exponential content}
+
+\begin{theorem}[Asymmetry between cost and content]
+\label{thm:cost_content_asymmetry}
+Let $\Agent$ commit $n$ realised non-identity acts in $\OpStr_\Agent$.
+Then:
+\begin{enumerate}[label=\textup{(\roman*)},nosep,leftmargin=2.4em]
+\item The cumulative residue (committed cost) is bounded below by
+$n \cdot \floor > 0$ (\cref{cor:res_accumulate}); it grows
+\emph{linearly} in $n$.
+\item The number of categorically distinguishable operation
+trajectories the commitment can realise is $T(n, d)
+= d \cdot (d + 1)^{n - 1}$ (\cref{thm:composition_inflation});
+it grows \emph{exponentially} in $n$ with base $d + 1$.
+\end{enumerate}
+The categorical content per unit committed cost is therefore
+\[
+  \frac{T(n, d)}{n \cdot \floor}
+  \;=\; \frac{d \cdot (d + 1)^{n - 1}}{n \cdot \floor}
+  \;\xrightarrow[n \to \infty]{}\; \infty,
+\]
+strictly superlinear in $n$.
+\end{theorem}
+
+\begin{proof}
+(i) Each of the $n$ realised non-identity acts deposits residue
+$\geq \floor$ by \cref{thm:floor}; summing gives $\sum_{i=1}^{n}
+\rho(f_i) \geq n \floor$. This is the linear lower bound.
+(ii) Immediate from \cref{thm:composition_inflation}.
+The ratio $T(n, d) / (n \floor)$ has numerator growing as
+$(d+1)^{n-1}$ and denominator growing as $n$; the exponential
+dominates, so the ratio diverges. $\qed$
+\end{proof}
+
+\begin{corollary}[Logarithmic termination for content-bounded
+processes]
+\label{cor:log_termination}
+Let a process running on $\OpStr_\Agent$ terminate when its
+committed history realises $K$ distinguishable operation
+trajectories. The number of committed acts required for
+termination is
+\[
+  n_{\mathrm{term}}(K)
+  \;=\; 1 + \left\lceil
+    \log_{d+1}\!\left(\frac{K}{d}\right)
+  \right\rceil,
+\]
+and the committed cost at termination is
+\[
+  \rho_{\mathrm{term}}(K)
+  \;\geq\; n_{\mathrm{term}}(K) \cdot \floor
+  \;=\; O(\log K).
+\]
+\end{corollary}
+
+\begin{proof}
+By \cref{thm:composition_inflation}, $K$ distinguishable
+trajectories are realised at the smallest $n$ with
+$T(n, d) \geq K$, i.e.~$d \cdot (d+1)^{n-1} \geq K$, equivalently
+$(d+1)^{n-1} \geq K/d$, equivalently
+$n \geq 1 + \log_{d+1}(K/d)$. The smallest integer satisfying this
+is $n_{\mathrm{term}}(K) = 1 + \lceil \log_{d+1}(K/d) \rceil$. The
+committed cost lower bound follows from
+\cref{cor:res_accumulate}. $\qed$
+\end{proof}
+
+\begin{remark}[The termination claim in plain language]
+\label{rem:termination_plain}
+A process that needs ``enough categorical content to settle a
+question'' terminates in $O(\log K)$ committed acts when the
+content threshold is $K$. The agent does not need to commit more
+acts to produce more trajectories; it commits the same act and
+composition-inflation supplies the trajectories. The four-type
+taxonomy (\cref{thm:scale_homomorphism}) is what makes the
+exponential base $d + 1 = 5$ rather than $2$; the four loci of
+effect multiply the agent's per-act categorical bandwidth.
+\end{remark}
+
+\begin{remark}[What this does and does not say]
+\label{rem:inflation_scope}
+\Cref{thm:composition_inflation} concerns the
+\emph{categorical-content} measure of the operational structure: the
+count of distinguishable operation trajectories. It does not say
+any individual act is faster, cheaper, or more powerful---each act
+still pays residue $\geq \floor$ (\cref{thm:floor}). It does not
+say the cumulative cost grows logarithmically: the cumulative
+residue is at least $n \floor$, which is linear in $n$. The
+asymmetry is between two measures, both true: the cost-measure is
+linear, the content-measure is exponential. Processes whose
+termination depends on the content-measure (``produce $K$
+trajectories'') terminate logarithmically; processes whose
+termination depends on the cost-measure (``deposit total residue
+$\geq R$'') terminate linearly. The framework is silent about which
+measure governs any given process; that is a property of the
+process specification.
+\end{remark}
+
+\subsection{Worked example: small cases}
+
+\begin{example}
+\label{ex:small_cases}
+Direct enumeration for $d = 4$ verifies the formula on small
+cases:
+\begin{itemize}[nosep,leftmargin=*]
+\item $n = 1$: $T(1, 4) = 4$. One act, four type choices.
+Direct count: $\{(t) : t \in \{1,2,3,4\}\}$, $|\cdot| = 4$.
+\item $n = 2$: $T(2, 4) = 4 \cdot 5 = 20$. Compositions of $2$ are
+$(2)$ and $(1, 1)$. For composition $(2)$: $4$ labelings (one
+block, one type each). For composition $(1, 1)$: $4 \times 4 =
+16$ labelings (two independent block types). Total $4 + 16 = 20$.
+\item $n = 3$: $T(3, 4) = 4 \cdot 25 = 100$. Compositions of $3$
+are $(3)$, $(2, 1)$, $(1, 2)$, $(1, 1, 1)$; counts $4 + 16 + 16 +
+64 = 100$.
+\end{itemize}
+\end{example}
+
+\begin{example}[Scaling]
+\label{ex:scaling}
+For $d = 4$ and $n = 10$, the trajectory count is
+$T(10, 4) = 4 \cdot 5^9 = 7\,812\,500$. A process that requires
+$10^6$ distinguishable trajectories terminates at
+$n_{\mathrm{term}}(10^6) = 1 + \lceil \log_5(2.5 \times 10^5)
+\rceil = 1 + \lceil 7.72 \rceil = 9$ committed acts. The
+committed cost lower bound is $9 \floor$---linear in $9$,
+logarithmic in $10^6$.
+\end{example}
+
+% =====================================================================
+\section{The Forced Structure in Detail}
+\label{sec:detail}
+% =====================================================================
+
+We restate the main result as a structural recipe, making explicit
+what $\OpStr_\Agent$ looks like once $(\Agent, \Graph)$ is fixed.
+
+\subsection{The structure recipe}
+
+Given $(\Agent, \Graph)$ satisfying \cref{ax:agent} and
+\cref{ax:graph}, together with a path-choice policy for the agent:
+\begin{enumerate}[label=(R\arabic*),leftmargin=2.6em,nosep]
+\item\label{R:floor} Compute $\floor = \min \{w(e) : e \in \Edg,\,
+w(e) > 0\}$. This is the graph-level floor.
+\item\label{R:cat} Enumerate the agent's realised
+distinguishability acts on $\Graph$; together with the identity on
+each vertex, these are the morphisms of
+$\mathbf{C}_{\Agent,\Graph}$.
+\item\label{R:residue} For each morphism $f$, compute the residue
+$\Res(f)$ as the path-measure sum.
+\item\label{R:preorder} Order the morphisms by residue:
+$f \preceq g$ iff $\Res(f) \leq \Res(g)$. Quotient by
+residue-equivalence $\equiv_\Res$ to obtain a partial order on
+$\widetilde{\mathbf{C}}_{\Agent,\Graph}$.
+\item\label{R:classify} Classify each morphism by effect tuple
+(\cref{def:effect_tuple}) into one of the four types
+\ref{T:alg}--\ref{T:int}.
+\item\label{R:budget} Mark each morphism as realised or not,
+subject to the budget constraint $\sum c(f) \leq C_\Agent$.
+\end{enumerate}
+
+\begin{proposition}[The recipe is well-defined and terminates]
+\label{prop:recipe}
+The recipe \ref{R:floor}--\ref{R:budget} is well-defined and
+terminates in finite time for any $(\Agent, \Graph)$ satisfying
+the two premises.
+\end{proposition}
+
+\begin{proof}
+\ref{R:floor} is a minimum over a finite non-empty set of positive
+reals: well-defined, computable in $O(|\Edg|)$ time.
+\ref{R:cat} enumerates a finite morphism set bounded by
+$|\Vrt| + |S_\Agent|^2$, terminating in finite time.
+\ref{R:residue} sums finitely many non-negative reals per morphism.
+\ref{R:preorder} is a comparison on a finite totally ordered set
+($\R_{\geq 0}$); residue-equivalence quotienting is a finite
+partition.
+\ref{R:classify} is a case distinction over four cases per
+morphism.
+\ref{R:budget} is a finite sum compared to a finite bound.
+Each step terminates; the recipe terminates. $\qed$
+\end{proof}
+
+\subsection{What the structure looks like}
+
+\begin{proposition}[Structural shape]
+\label{prop:shape}
+The operational structure $\OpStr_\Agent$ has the following shape:
+\begin{enumerate}[nosep,leftmargin=*]
+\item It is a small category (\cref{thm:category}) with finite
+object set and finite morphism set, and with partial composition
+constrained by the agent's budget.
+\item Its non-identity morphisms have residues bounded below by
+$\floor > 0$ (\cref{thm:floor}).
+\item It carries a residue preorder, with identity morphisms at
+residue $0$; on the residue quotient
+$\widetilde{\mathbf{C}}_{\Agent,\Graph}$ the preorder descends to a
+partial order.
+\item Its morphisms decompose into four canonical types
+(\cref{thm:three_types}): algebraic, dynamical, computational,
+internal.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Each clause is a restatement of an earlier result. The shape is
+the conjunction of those results. $\qed$
+\end{proof}
+
+\subsection{Why the structure is operational rather than only
+combinatorial}
+
+The structure $\OpStr_\Agent$ is called \emph{operational} because
+each morphism represents an act the agent can perform, with a
+quantifiable cost (residue) and a quantifiable order (residue
+preorder). It differs from a purely combinatorial structure---a
+small category considered abstractly---in two ways:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Each element is associated with a concrete act on the graph,
+not merely an abstract symbol.
+\item Composition is realised, not merely defined: composing two
+acts produces a third act the agent can perform, with predictable
+residue deposited on the graph.
+\end{enumerate}
+The operational character is essential to the result: we are not
+classifying the agent's grammar but its realisable acts on a
+concrete finite system. The two coincide only because the premises
+force the agent's grammar to track its acts; in richer settings
+the two diverge.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_05_partiality.png}
+    \caption{\textbf{Partiality of Composition is Forced by Non-Completability, Not by Budget Exhaustion.}
+    (\textbf{A})~Composable pair count on the linear $y$-axis (up to $\sim 3{,}000$) versus refinement stage $n$ on the linear $x$-axis ($2$ to $8$). Steelblue bars: composable pairs $(a,b),(b,c)$ for which the composite $(a,c)$ is realised. Crimson bars: composable pairs for which the composite is \emph{not} realised. At every stage tested, the unrealised count is substantial; the gap is not asymptotically closed by increasing $n$. Empirical content of Theorem~\ref{thm:partiality_forced}: composition in $\mathbf{C}_{\mathcal{A},\mathcal{G}}$ is genuinely partial.
+    (\textbf{B})~Budget spent fraction on a log $y$-axis ($10^{-17}$ to $10^{1}$) versus stage $n$ on the linear $x$-axis ($2$ to $8$). Steelblue circles trace the agent's spent fraction; the crimson dashed reference at $1.0$ marks budget exhaustion. The measured spent fraction at every stage is $\sim 10^{-16}$ of budget---essentially nothing. Partiality is therefore \emph{not} an artefact of budget exhaustion; the agent's budget is virtually unconsumed at every stage. This is the decisive empirical content distinguishing Theorem~\ref{thm:partiality_forced} from the budget-exhaustion contingency.
+    (\textbf{C})~Unrealised composable fraction on the linear $y$-axis ($0$ to $1$) versus stage $n$ on the linear $x$-axis ($2$ to $8$). Steelblue circles cluster around $0.5$; the neutral horizontal reference at $0.5$ is included for orientation. Roughly half of all composable pairs at every stage have unrealised composites, despite the budget being effectively unused---structural partiality.
+    (\textbf{D})~Three-dimensional composability gap by stage: stage $n$ on the linear $x$-axis ($2$ to $8$), composite status (realised at $y=0$, unrealised at $y=1$) on the linear $y$-axis, count on the vertical axis. Steelblue ribbons mark realised composites; crimson ribbons mark unrealised composites. Both grow with $n$ in lockstep, confirming that partiality scales with the size of the agent's record without ever closing. Geometric realisation of Theorem~\ref{thm:partiality_forced}: the gap between the realised category and its composition closure is a non-empty sub-lattice at every finite stage.}
+    \label{fig:panel-partiality}
+\end{figure*}
+
+
+
+% =====================================================================
+\section{Falsifiability}
+\label{sec:falsifiability}
+% =====================================================================
+
+\subsection{Where the argument can fail}
+
+The main theorem (\cref{thm:opstructure}) is a conditional claim
+under \cref{ax:graph} and \cref{ax:agent}. It can be falsified only
+by:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Showing the two premises jointly imply a contradiction (they
+do not, by inspection: a finite graph and a finite agent obviously
+coexist; we are reading this on one).
+\item Showing some step in the derivation does not follow from the
+premises (a mathematical refutation of one of the proved lemmas).
+\item Showing the premises do not apply to a particular case (which
+is honest: the framework declines to address that case).
+\end{enumerate}
+
+The substantive falsification target is (2): exhibiting a finite
+agent realising distinguishability with zero floor on a finite
+graph. We close this case in the next subsection.
+
+\subsection{Zero-floor distinguishability is structurally impossible}
+
+\begin{theorem}[Zero-floor impossibility]
+\label{thm:zero_floor}
+Under \cref{ax:graph} and \cref{ax:agent}, there is no agent--graph
+pair $(\Agent, \Graph)$ admitting a realised distinguishability
+act of residue $< \floor$, where $\floor = \min\{w(e) : e \in \Edg,
+w(e) > 0\}$ is the graph-level floor of \cref{thm:floor}.
+\end{theorem}
+
+\begin{proof}
+Suppose for contradiction such a pair exists, with a realised act
+$u \not\sim v$ of residue $\Res(u, v) < \floor$. The residue is the
+sum of edge measures along the agent's path. Each edge of the path
+has measure $0$ or $\geq \floor$ (by the definition of $\floor$ as
+the minimum positive edge measure in $\Graph$). Hence the sum is
+$0$ or $\geq \floor$.
+
+If the sum is $0$, every edge on the path has measure $0$. The
+agent's descriptive scheme has no measure differential to record
+the distinction (\cref{F:fin_descr}, see the realised-path argument
+in the proof of \cref{thm:floor}), so the act is not realised in
+the agent's record. The assumed realised act does not exist.
+
+If the sum is $\geq \floor$, the residue is $\geq \floor$,
+contradicting the assumption $\Res(u, v) < \floor$.
+
+Either case contradicts the assumption. $\qed$
+\end{proof}
+
+\begin{corollary}[The main theorem is irrefutable from within the
+premises]
+\label{cor:irrefutable}
+\Cref{thm:opstructure} cannot be refuted by an example satisfying
+\cref{ax:graph} and \cref{ax:agent}. Refutation requires either
+denying one of the premises or finding an error in a constituent
+lemma; no example produced under the premises is a counterexample.
+\end{corollary}
+
+\begin{proof}
+Refutation by example requires a $(\Agent, \Graph)$ satisfying the
+premises in which the theorem fails. By the construction of
+$\OpStr_\Agent$ from $(\Agent, \Graph)$ in the theorem's proof, and
+the zero-floor impossibility (\cref{thm:zero_floor}), no such
+example exists. $\qed$
+\end{proof}
+
+\subsection{Honest scope}
+
+\begin{remark}[The argument is silent outside its premises]
+\label{rem:silent}
+We make no claim about agents that fail \cref{ax:agent} (putative
+infinite agents, oracles, perfect observers), systems that fail
+\cref{ax:graph} (continuous fields without finite discretisation,
+infinite combinatorial structures), or wholes that fail
+\cref{ax:noncompletable} (completable finite wholes that admit a
+terminal stage). The argument has nothing to say about those cases.
+This silence is intended: the framework is deliberately narrow,
+sharp where the premises hold, mute elsewhere. This is the right
+shape for a conditional architectural claim. It allows the result
+to be definite without overreaching.
+\end{remark}
+
+\subsection{The Master Theorem}
+
+We now show that the three premises are not merely sufficient for
+the operational structure; they are equivalent to it, jointly. The
+operational structure exists if and only if the conjunction of the
+three premises holds; failure of any one premise dissolves at
+least one structural feature.
+
+\begin{theorem}[Operational Structure Master Theorem]
+\label{thm:master}
+Let an agent $\Agent$ engage a system modelled by a graph $\Graph$
+within an ambient whole $\mathcal{M}$. The following are
+equivalent:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item There exists a realisable distinguishability act
+$u \not\sim v$ by $\Agent$ on $\Graph$ within $\mathcal{M}$.
+\item \Cref{ax:graph}, \cref{ax:agent}, and
+\cref{ax:noncompletable} all hold.
+\item The full operational structure $\OpStr_\Agent$ of
+\cref{def:opstr} is forced: a small category
+$\mathbf{C}_{\Agent,\Graph}$ with strictly positive floor $\floor$
+on non-identity residues, partial composition (forced by
+\cref{thm:partiality_forced}), residue cells as the natural unit
+(\cref{thm:residue_cells}), and the four-type taxonomy as scale
+homomorphism (\cref{thm:scale_homomorphism}).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+$(\mathrm{i}) \Rightarrow (\mathrm{ii})$: A realised act
+$u \not\sim v$ requires $u$ and $v$ to be distinguishable vertices
+of $\Graph$, hence $\Graph$ must be a graph (\cref{ax:graph}) and
+$\Agent$ must record the distinction (\cref{ax:agent}). The act's
+residue is bounded below by \cref{thm:floor_from_infinitude}, which
+itself uses \cref{ax:noncompletable}: were $\mathcal{M}$
+completable, the comparison of $u$ against the rest could finish
+and the residue could vanish, so realisability with positive cost
+implies \cref{ax:noncompletable}.
+
+$(\mathrm{ii}) \Rightarrow (\mathrm{iii})$: This is the body of the
+paper. The Floor from Infinitude
+(\cref{thm:floor_from_infinitude}) and \cref{thm:floor} give the
+floor; \cref{thm:residue_additive,cor:res_accumulate} give the
+residue; \cref{thm:category} gives the small-category structure;
+\cref{thm:partiality_forced} gives the partial composition;
+\cref{thm:residue_cells} gives the residue-cell quotient as the
+natural object; \cref{thm:scale_homomorphism} gives the four-type
+taxonomy. The Operational Structure Theorem
+(\cref{thm:opstructure}) packages these into the quintuple
+$\OpStr_\Agent$.
+
+$(\mathrm{iii}) \Rightarrow (\mathrm{i})$: The small category
+$\mathbf{C}_{\Agent,\Graph}$ has at least the identity morphisms;
+under the floor $\floor > 0$ and the realisability marker, any
+hom-set $\mathrm{Hom}(u, v)$ with $u \neq v$ that is non-empty
+exhibits a realised non-identity morphism, i.e. a realisable
+distinguishability act.
+
+The cycle is closed. $\qed$
+\end{proof}
+
+\begin{corollary}[Identifiability is the operational structure]
+\label{cor:identifiability_is_structure}
+The bare fact that the agent can distinguish any one part of the
+system from any other in the ambient whole is sufficient to force
+the entire operational structure. Conversely, dissolving the
+structure (no floor, total composition, antisymmetric residue
+order, or fewer than four operation types) requires denying the
+agent any single act of distinguishing parts.
+\end{corollary}
+
+\begin{proof}
+The forward direction is the cycle of \cref{thm:master}: (i) forces
+(ii) forces (iii). The contrapositive is the corollary's second
+clause: failure of any clause of (iii) propagates back to failure
+of the conjunction in (ii) and thence to absence of any realisable
+distinguishing act in (i). $\qed$
+\end{proof}
+
+
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_09_master.png}
+    \caption{\textbf{Master Theorem: Identifiability and Operational Structure are Equivalent.}
+    (\textbf{A})~Realised acts on the linear $y$-axis ($\sim 170$ to $\sim 215$) versus floor $\beta$ on a log $x$-axis ($10^{-3}$ to $10^{1}$). Four viridis-coloured curves correspond to four fixed graph topologies of edge density $p \in \{0.15, 0.30, 0.45, 0.65\}$, with $\beta$ swept as a uniform edge-weight scale factor. Each curve is constant in $\beta$ across five decades: the realised-act count is a structural property of the graph, independent of the floor. This is the empirical content of Corollary~\ref{cor:identifiability_is_structure}: identifiability is a property of $(\mathcal{A}, \mathcal{G})$, while $\beta$ controls only the cost of realising it.
+    (\textbf{B})~Mean realised acts (averaged over $12$ random replicas per $\beta$) on the linear $y$-axis ($0$ to $\sim 90$) versus uniform floor $\beta$ on the linear $x$-axis ($0$ to $1.0$). Steelblue circles trace the mean; the crimson dashed reference at $\beta = 0$ marks the phase boundary. The mean drops abruptly from $\sim 80$ at $\beta > 0$ to exactly $0$ at $\beta = 0$. Empirical content of the contrapositive of Theorem~\ref{thm:master}: setting $\beta = 0$ (denying non-completability, by Corollary~\ref{cor:floor_trace}) dissolves identifiability; no realisable distinguishability act exists.
+    (\textbf{C})~Cumulative residue on a log $y$-axis ($10^{-1}$ to $10^{2}$) versus $\beta$ on a log $x$-axis ($10^{-3}$ to $10^{1}$) for the fixed-topology sweep. Steelblue circles trace the measured cumulative residue $\sum\rho_i$; the crimson dashed reference line $\sum\rho_i \propto \beta$ has slope $1$ in log-log coordinates. Measured and theoretical curves coincide across five decades, confirming that cumulative residue scales linearly with the floor and the realised-act count is structural.
+    (\textbf{D})~Three-dimensional identifiability phase curve: $\log_{10}\beta$ on the linear $x$-axis ($-3$ to $1$), realised acts on the linear $y$-axis ($\sim 200$ to $\sim 220$), $\log_{10}\sum\rho_i$ on the vertical axis ($-1$ to $4$), viridis colourmap by $\log_{10}\beta$, viewing angle elevation $30^{\circ}$ azimuth $-60^{\circ}$. The curve is monotone in $\log\beta$ and $\log\sum\rho_i$ while flat in realised-act count: the structure is invariant in the agent-graph topology, and the cost surface rises linearly with the floor. Geometric realisation of the three-way equivalence (i) $\Leftrightarrow$ (ii) $\Leftrightarrow$ (iii) of Theorem~\ref{thm:master}.}
+    \label{fig:panel-master}
+\end{figure*}
+
+% =====================================================================
+\section{Implications}
+\label{sec:implications}
+% =====================================================================
+
+We draw three implications of the main theorem for engineering
+practice. Each is a direct consequence of \cref{thm:opstructure} or
+its corollaries.
+
+\subsection{Software architecture under the conditional}
+
+The conjunction of \cref{ax:graph} and \cref{ax:agent} covers all
+realised software systems: any program with finite memory and
+finite execution is a finite agent, and any data structure it
+manipulates is a finite graph. By \cref{thm:opstructure}, the
+program's operational structure is forced by its data structure and
+its agency: it is not chosen.
+
+In practice this means: arguments about which operations a program
+``should'' admit reduce to arguments about $(\Agent, \Graph)$.
+Two architectures disagreeing about the operational interface are
+disagreeing about one of: which finite data structure the system is
+modelled as; which finite agent the program is. Once those are
+agreed, the operations are determined.
+
+\subsection{Database query algebras}
+
+A finite database is a finite graph in the sense of
+\cref{def:graph}: the schema gives the vertices (tables, attributes,
+values), the foreign-key relations give the edges, and the
+cardinalities give the edge measures. A finite query engine is a
+finite agent in the sense of \cref{def:agent}: bounded internal
+state, finite query plan space, finite cost budget per query.
+
+By \cref{thm:opstructure}, the query algebra is forced. The choice
+between relational algebra, calculus, and CRUD is the choice of
+which subset of the forced algebra to expose; it is not the choice
+of which algebra to invent. The minimal operational floor is the
+smallest positive edge weight in the schema graph (typically a unit
+cardinality), and every realisable query has residue $\geq$ this
+floor.
+
+\subsection{Knowledge graphs and reasoning}
+
+A finite knowledge graph---ontology, RDF triple store, labelled
+property graph---is a finite graph in the sense of \cref{def:graph}.
+A finite reasoner---SPARQL engine, description-logic prover, graph
+neural network---is a finite agent in the sense of \cref{def:agent}.
+By \cref{thm:opstructure}, the reasoner's operational structure is
+forced by the graph it queries and the resources it has.
+
+The implication is that the apparent diversity of reasoning systems
+collapses, under the conditional, to relabelling. Two reasoners
+with the same $(\Agent, \Graph)$ admit the same operations up to
+naming; their differences are presentational, not structural.
+Cross-system calibration (translation of one query language into
+another) is guaranteed to exist whenever $(\Agent, \Graph)$ is
+shared.
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+\subsection{What we have established}
+
+We have shown that under two finiteness premises---finite engaging
+agent (\cref{ax:agent}), finite engaged graph-structured system
+(\cref{ax:graph})---the system necessarily admits an operational
+structure $\OpStr_\Agent$ that is forced by the premises and unique
+given the pair $(\Agent, \Graph)$ together with the agent's
+path-choice policy. The structure is a small category with partial
+composition, a residue function with a strictly positive floor on
+non-identity morphisms, a residue preorder that descends to a
+partial order on the residue quotient, a budget-bounded
+realisability marker, and a four-type classification (algebraic,
+dynamical, computational, internal) that exhausts the realisable
+operations.
+
+The result is a conditional architectural claim. It does not
+address what reality is in itself; it addresses what structure
+follows when the two conditions hold. Where they hold---which is
+the case in essentially all realised engineering systems---the
+operational structure is determined.
+
+\subsection{What we have not claimed}
+
+We have not claimed that:
+\begin{enumerate}[nosep,leftmargin=*]
+\item Reality is fundamentally finite. The premises restrict the
+agent and the system the agent engages, not the world.
+\item All systems are graphs. The premises identify the conditions
+under which the result holds; systems failing the conditions are
+not addressed.
+\item Operational structures are the only structures of interest.
+Other structures (continuous dynamics, categorical limits, infinite
+processes) may coexist with operational structure; we have not
+spoken to them.
+\end{enumerate}
+
+\subsection{The narrowness of the result is the point}
+
+A conditional result is sharp because it is narrow. The framework
+established here speaks definitively about a specific class of
+situations and is silent about others. This is exactly the right
+shape for an architectural claim: scope is a feature, and the scope
+of \cref{thm:opstructure} is the scope of finite agency engaging
+finite graph-structured systems. Within that scope, the operational
+structure is forced. Outside it, the framework declines to address
+the case.
+
+\subsection{What this enables}
+
+The main practical consequence is that engineering decisions over
+$(\Agent, \Graph)$ become discovery tasks rather than invention
+tasks. To design a finite system's operational structure is to
+identify the unique $\OpStr_\Agent$ that the agent--graph pair
+determines. To compare two designs is to ask whether they realise
+the same $(\Agent, \Graph)$. To extend a system is to ask how the
+extension changes $(\Agent, \Graph)$ and re-derive the structure.
+
+The framework converts what is currently treated as a matter of
+architectural taste into a matter of formal derivation. Whether
+this is a useful conversion in practice depends on whether the cost
+of formalising $(\Agent, \Graph)$ for a given system is less than
+the cost of debating its operational structure informally. We
+expect this to be true at scale---for large systems with many
+stakeholders and long lifetimes---and false at small scale, where
+the informal debate is cheap.
+
+\subsection{Closing}
+
+The structure of operations on a finite graph engaged by a finite
+agent is, in its uniquely-determined part, not a design problem. It
+is a derivation from the two finiteness premises. The derivation
+produces an answer unique up to labelling and path-choice: a small
+category with a positive floor, a residue preorder, partial
+composition under a budget constraint, and a four-type
+classification of effects. That is what the conditional
+architecture says, and that is all it says.
+
+% =====================================================================
+\begin{thebibliography}{9}
+
+\bibitem[Bollob\'as(1998)]{bollobas1998} B\'ela Bollob\'as.
+\emph{Modern Graph Theory}.
+Graduate Texts in Mathematics 184, Springer, 1998.
+
+\bibitem[Davey and Priestley(2002)]{daveypriestley2002}
+B.~A. Davey and H.~A. Priestley.
+\emph{Introduction to Lattices and Order}, 2nd edition.
+Cambridge University Press, 2002.
+
+\bibitem[Diestel(2017)]{diestel2017} Reinhard Diestel.
+\emph{Graph Theory}, 5th edition.
+Graduate Texts in Mathematics 173, Springer, 2017.
+
+\bibitem[Halmos(1950)]{halmos1950} Paul R. Halmos.
+\emph{Measure Theory}.
+Van Nostrand, 1950.
+
+\bibitem[Hopcroft, Motwani and Ullman(2007)]{hopcroft2007}
+John E. Hopcroft, Rajeev Motwani, and Jeffrey D. Ullman.
+\emph{Introduction to Automata Theory, Languages, and Computation},
+3rd edition. Addison-Wesley, 2007.
+
+\bibitem[Howie(1995)]{howie1995} John M. Howie.
+\emph{Fundamentals of Semigroup Theory}.
+London Mathematical Society Monographs 12, Oxford University Press,
+1995.
+
+\bibitem[Mac Lane(1998)]{maclane1998} Saunders Mac Lane.
+\emph{Categories for the Working Mathematician}, 2nd edition.
+Graduate Texts in Mathematics 5, Springer, 1998.
+
+\end{thebibliography}
+
+\end{document}

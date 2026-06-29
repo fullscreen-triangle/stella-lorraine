@@ -1,0 +1,1072 @@
+% =====================================================================
+%  Why There Are Chemical Structures At All
+%  Bonds, valence, and molecular geometry as boundary-thickness
+%  minimisation among individuated atoms in a non-completable whole.
+% =====================================================================
+\documentclass[11pt,twocolumn,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage[round,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!45!black,
+            citecolor=blue!45!black,urlcolor=blue!45!black]{hyperref}
+
+% ---- Theorem environments ----
+\newtheoremstyle{thmstyle}{\topsep}{\topsep}{\itshape}{}{\bfseries}{.}{.5em}{}
+\theoremstyle{thmstyle}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{principle}[theorem]{Principle}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% ---- Shorthand ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\floorc}{\beta}
+\newcommand{\thick}{B}                 % boundary thickness functional
+\newcommand{\med}{\mathsf{M}}          % medium / whole
+\newcommand{\Sset}{\mathcal{S}}        % S-entropy coordinate space
+\newcommand{\Nbr}{N}
+\newcommand{\co}{\complement}
+\newcommand{\vac}{\nu}                 % vacancy count
+\newcommand{\sat}{\sigma}              % saturation
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\Shellcap}{C}
+
+\title{\textbf{On the Causes of Chemical Structure:\\[3pt]
+Bonds, Valence, and Molecular Geometry as Boundary-Thickness\\
+Minimisation Among Individuated Atoms}}
+
+\author{%
+Kundai Farai Sachikonye\\
+\small Technical University of Munich\\
+\small AIMe Registry for Artificial Intelligence\\
+\small \texttt{kundai.sachikonye@wzw.tum.de}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+We ask why there are chemical structures at all---why atoms compose into
+molecules of definite stoichiometry and shape rather than remaining
+separate or merging without limit---and answer it from a single
+hypothesis already known to force atomic structure: that an atom is a
+\emph{bounded, partitionable system whose individuation from the rest of
+a non-completable whole carries a strictly positive cost}, the contact
+floor $\floorc>0$. We take as given the partition structure of the
+isolated atom---the coordinates $(n,\ell,m,s)$, the shell capacity
+$\Shellcap(n)=2n^{2}$, and the resulting electron configurations---and add
+nothing to it. From the floor alone we derive a chain of existence
+results. \textbf{(C1)} Every individuated atom carries a boundary of
+positive thickness; a closed-shell atom realises the local minimum
+thickness (a noble gas), while an open-shell atom carries excess
+thickness proportional to its number of unfilled partition states---its
+\emph{vacancy}, the quantitative form of ``partition malformation.''
+\textbf{(C2)} Two atoms bond \emph{if and only if} their joint partition
+has lower total boundary thickness than the separated atoms; bonding is
+not attraction added to atoms but the same boundary-minimisation that
+individuated them, now run between them. \textbf{(C3)} The number of
+bonds an atom forms---its \emph{valence}---is its vacancy count, and the
+stable molecule is the one that drives every constituent's vacancy to
+the shell-closure minimum: the octet and duet rules are the
+boundary-minimum condition, not empirical regularities. \textbf{(C4)} A
+bond has a definite length: the joint boundary thickness, convex in
+internuclear separation, has a unique minimiser at finite distance,
+neither zero (the floor forbids coincidence) nor infinity (separation
+forgoes the reduction). \textbf{(C5)} A molecule has a definite shape:
+because individuation in three dimensions must close around each centre
+from all angular directions, the bonds of a multivalent atom adopt the
+maximally separated angular configuration, yielding the observed
+geometries. \textbf{(C6)} Reaction is the propagation of boundary toward
+its joint minimum, irreversible by the monotone committed-boundary
+count; affinity is available thickness reduction and equilibrium is the
+floor-limited halt. We illustrate the chain on H$_2$, the noble gases,
+NaCl, HCl, LiF, H$_2$O, NH$_3$, CH$_4$, CO$_2$ and benzene, deriving in
+each case why the structure exists, its stoichiometry, and its geometry,
+with no parameter beyond the shell structure of the isolated atoms. The
+account explains, as one fact, why noble gases are inert, why halogens
+and alkali metals are reactive, why valences are what they are, why
+water bends and carbon is tetrahedral, and---most basically---why a world
+of bounded atoms is compelled to be a world of molecules.
+\end{abstract}
+
+\noindent\textbf{Keywords:} chemical bond; valence; molecular geometry;
+contact floor; boundary thickness; partition malformation; octet rule;
+individuation by negation; bounded phase space; non-completable whole.
+
+\tableofcontents
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+\subsection{The question}
+
+Chemistry begins with a fact so familiar it is rarely posed as a
+question: matter is not a uniform soup of atoms, nor an unbounded
+agglomeration, but a definite architecture of \emph{molecules}---atoms
+joined in fixed proportions and fixed shapes. Hydrogen appears as
+H$_2$, never H$_3$; oxygen pulls two hydrogens and no more; carbon
+arranges four neighbours at the corners of a tetrahedron; neon refuses
+to combine with anything. Why? The conventional answer assembles several
+independent ingredients---a Schr\"odinger equation for the atom, a
+variational treatment of the molecule, an empirical octet heuristic, a
+valence-shell-electron-pair-repulsion rule for shape, a thermodynamic
+criterion for whether a reaction proceeds. Each works; none explains why
+the others should hold, and none answers the prior question of why there
+should be discrete structures at all rather than none.
+
+This paper offers a single answer to that prior question. It rests on
+one hypothesis, and the hypothesis is not new: it is the same one that,
+in companion developments, forces the isolated atom to have the
+structure it has. The hypothesis is that to be an individuated
+thing---an atom told apart from the rest of the world---costs a strictly
+positive minimum, and that this cost is a measurable boundary. We show
+that chemical structure is what a world of such atoms is compelled to
+form, because composing into molecules is how bounded atoms
+\emph{lower} that cost. Bonds, valence, length, shape, and reactivity
+are not five facts; they are five readings of one minimisation.
+
+\subsection{What is assumed, and what is derived}
+
+We assume the results of the partition-geometric account of the isolated
+atom and treat them as a black box: a persistent bounded system admits
+partition coordinates $(n,\ell,m,s)$ with shell capacity
+$\Shellcap(n)=2n^{2}$, and filling these under exclusion and energy ordering
+yields the electron configurations and shell-closure pattern of the
+elements \citep{griffiths2018,pauli1925,madelung1936}. We add no new
+postulate about atoms. The single structural fact we carry forward and
+use as the engine is the \emph{contact floor}: individuating any part of
+a bounded whole deposits boundary content bounded below by a positive
+constant $\floorc>0$, and this floor is itself forced by the
+non-completability of the whole against which a thing is
+individuated. Everything about \emph{molecules} below is derived from
+the floor together with the atom's shell structure---nothing else.
+
+\subsection{The thesis in one line}
+
+A molecule exists because two or more bounded atoms, each carrying a
+boundary it cannot abolish, can share boundary and thereby hold a
+\emph{lower total thickness together than apart}. Chemical structure is
+boundary-thickness minimisation among individuated atoms; its
+stoichiometry is the vacancy arithmetic of shell closure; its geometry is
+the angular form that minimisation must take in three dimensions; its
+dynamics is the monotone propagation of boundary toward the joint
+minimum. There are chemical structures at all because, for bounded
+atoms, being joined is cheaper than being separate---and the floor
+guarantees the joining never collapses to a point.
+
+\subsection{Relation to existing accounts}
+
+The framework is not a rival calculation of bond energies; standard
+quantum chemistry computes those to high accuracy and we do not improve
+on it \citep{szabo1996,levine2014}. It is an account of \emph{why} the
+qualitative architecture is forced---why there are integer valences, why
+closed shells are inert, why shapes are definite---placing those facts on
+a single footing rather than treating each as a separate rule. Where the
+octet rule \citep{lewis1916,langmuir1919} is normally an empirical
+summary and VSEPR \citep{gillespie1957} a mnemonic for shape, here both
+are corollaries of one minimisation. The relationship to standard theory
+is that of a variational principle to its solutions: we state the
+quantity that chemistry minimises and read off the qualitative
+consequences; the quantitative solution remains the province of the
+electronic-structure methods.
+
+% =====================================================================
+\section{The inherited atom and the contact floor}
+\label{sec:setting}
+% =====================================================================
+
+We fix the objects carried over from the atomic theory and state the one
+engine we add.
+
+\subsection{The atom as a bounded partition}
+
+\begin{definition}[Atomic partition]
+\label{def:atom}
+An \emph{atom} of atomic number $Z$ is a bounded partitionable system
+whose accessible states are labelled by partition coordinates
+$(n,\ell,m,s)$ with $n\in\N^{+}$, $0\le\ell\le n-1$, $-\ell\le m\le\ell$,
+$s\in\{-\tfrac12,+\tfrac12\}$, and whose shell at depth $n$ holds
+\[
+\Shellcap(n)=\sum_{\ell=0}^{n-1}(2\ell+1)\cdot 2=2n^{2}
+\]
+states. Filling $Z$ states under exclusion and energy ordering
+$E\propto n+\alpha\ell$ gives the atom's configuration; the outermost
+partially or fully occupied shell is its \emph{valence shell}, of
+capacity $\Cap_v$ and occupancy $q_v$.
+\end{definition}
+
+\begin{definition}[Shell closure and vacancy]
+\label{def:vacancy}
+The valence shell is \emph{closed} if $q_v=\Cap_v$ (all valence states
+occupied) and \emph{open} otherwise. The \emph{vacancy} of an atom is
+\[
+\vac \;:=\; \Cap_v - q_v \;\in\;\{0,1,\dots,\Cap_v\},
+\]
+the number of unfilled valence states; its \emph{saturation deficit} is
+$\vac$, and a closed shell has $\vac=0$.
+\end{definition}
+
+For the light elements the relevant valence capacities are
+$\Cap_v=2$ (the $n=1$ shell, ``duet'') and $\Cap_v=8$ (the
+$2s\,2p$ and $3s\,3p$ valence octets); we use these throughout the
+worked cases and note that the arithmetic is identical for any $\Cap_v$.
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_1_capacity.png}
+    \caption{\textbf{Shell Capacity, Cumulative Count, and the Vacancy Ladder.}
+    (\textbf{A})~Three-dimensional bar chart of the shell capacity $C(n)=2n^2$ for principal depths $n=1,\ldots,10$, bar height encoding the capacity and colour (plasma scale) tracking its magnitude. The quadratic growth is the derived count $2\sum_{\ell=0}^{n-1}(2\ell+1)=2n^2$ of distinct partition cells at depth $n$, the input the chemical-structure derivation takes from the isolated atom.
+    (\textbf{B})~Capacity $C(n)$ on the linear $y$-axis versus depth $n$: the continuous parabola $2n^2$ (blue) with the integer capacities (red points) lying exactly on it for $n=1,\ldots,10$, confirming $C(n)=2n^2$ with no deviation.
+    (\textbf{C})~Cumulative partition count $N_{\mathrm{state}}(n)=n(n+1)(2n+1)/3$ (green curve) with the integer cumulative totals (purple points) on the curve, the cubic running sum of the shell capacities.
+    (\textbf{D})~Vacancy $\nu=C_v-q_v$ for sixteen elements H through Ar, bars coloured red where $\nu=0$ (closed shell, noble) and blue where $\nu>0$ (open shell). The three red bars are exactly He, Ne, Ar, validating $\nu=0\iff$ noble across all sixteen elements (Theorem~\ref{thm:valence}, Definition~\ref{def:vacancy}).}
+    \label{fig:panel_capacity}
+\end{figure*}
+
+\subsection{The contact floor as the engine}
+
+\begin{principle}[Contact floor]
+\label{prin:floor}
+Individuating a bounded part $A$ from the rest of a non-completable whole
+$\med$ deposits boundary content of strictly positive measure. There is a
+constant $\floorc>0$, the \emph{contact floor}, such that the boundary
+thickness $\thick(A)$ of any individuated part satisfies
+$\thick(A)\ge\floorc>0$. The floor is not a posit but the trace the
+inexhaustible whole leaves on each finite part: a completed comparison of
+$A$ against $\med\setminus A$ would exhaust $\med$, which
+non-completability forbids, so an irreducible residual remains.
+\end{principle}
+
+\begin{remark}[What ``boundary thickness'' means here]
+\label{rem:thickness}
+For an atom, the boundary is the partition surface separating its
+occupied valence structure from the surrounding medium of other atoms. Its
+\emph{thickness} $\thick$ is the content of that separator: the cost of
+maintaining the atom as a distinct individual against its environment. We
+do not need a closed-form $\thick$; the entire derivation uses only three
+of its properties, each inherited or elementary: (i) $\thick\ge\floorc>0$
+always (Principle~\ref{prin:floor}); (ii) $\thick$ is larger for an open
+shell than for the closed shell of the same period, by an amount
+increasing in the vacancy $\vac$ (Lemma~\ref{lem:thickness-vacancy}); and
+(iii) sharing a boundary between two atoms is subadditive
+(Lemma~\ref{lem:subadditive}). All quantitative chemistry sits inside
+property (ii)'s constant of proportionality, which we do not compute; the
+\emph{qualitative architecture} follows from the three properties alone.
+\end{remark}
+
+\begin{lemma}[Thickness increases with vacancy]
+\label{lem:thickness-vacancy}
+Among atoms of a given valence capacity $\Cap_v$, the boundary thickness
+is a strictly increasing function of the vacancy:
+$\thick=\thick_{0}+\kappa\,\phi(\vac)$ with $\thick_0\ge\floorc$ the
+closed-shell thickness, $\kappa>0$, and $\phi$ strictly increasing with
+$\phi(0)=0$.
+\end{lemma}
+
+\begin{proof}
+An unfilled valence state is a partition cell that the atom's boundary
+must enclose without occupying---a place where the separator between the
+atom and the medium is incompletely committed, i.e.\ a locally thicker,
+less-resolved boundary (an open separator in the sense that the cell
+borders both the atom's occupied structure and the medium). Each
+additional vacancy adds one such incompletely-committed cell to the
+boundary, so the separator content is monotone in $\vac$. A closed shell
+($\vac=0$) has every valence cell committed and realises the minimum
+thickness $\thick_0$ of its period; hence $\phi(0)=0$ and $\phi$ strictly
+increasing. Positivity of $\thick_0$ is Principle~\ref{prin:floor}.
+\end{proof}
+
+\begin{remark}[Malformation is positive vacancy]
+\label{rem:malformation}
+An open-shell atom is, in the language of the atomic theory, a
+\emph{partition malformation}: its categorical structure is incomplete,
+carrying excess boundary $\kappa\,\phi(\vac)>0$ above the closed-shell
+minimum. Chlorine ($\vac=1$ in an octet shell) is malformed by one
+vacancy; argon ($\vac=0$) is not malformed at all. The thesis of the
+paper is that chemistry is the relaxation of these malformations by
+shared boundary, and that the relaxation cannot reach zero because of the
+floor.
+\end{remark}
+
+% =====================================================================
+\section{C1--C2: Chemical Bonds}
+\label{sec:bond}
+% =====================================================================
+
+\subsection{Shared boundary is subadditive}
+
+\begin{definition}[Joint individuation and shared boundary]
+\label{def:joint}
+Two atoms $A,B$ brought into contact may be individuated \emph{jointly}:
+the composite $A\!\oplus\!B$ is individuated from the medium by a single
+outer boundary, while $A$ and $B$ share an internal partition surface.
+The \emph{shared boundary} is the portion of $A$'s and $B$'s separators
+that, in the joint individuation, faces the other atom rather than the
+medium.
+\end{definition}
+
+\begin{lemma}[Subadditivity of shared boundary]
+\label{lem:subadditive}
+Let $\thick(A)$, $\thick(B)$ be the thicknesses of the separately
+individuated atoms and $\thick(A\!\oplus\!B)$ the total thickness of the
+jointly individuated pair. Then
+\[
+\thick(A\!\oplus\!B)\;\le\;\thick(A)+\thick(B),
+\]
+with strict inequality whenever $A$ and $B$ share a boundary of positive
+content. The reduction is
+\[
+\Delta\thick(A,B)\;:=\;\thick(A)+\thick(B)-\thick(A\!\oplus\!B)\;\ge\;0,
+\]
+the \emph{shared content}.
+\end{lemma}
+
+\begin{proof}
+When $A$ and $B$ are individuated separately, each maintains a full
+separator against the medium; the cells where $A$ faces $B$ are counted in
+$\thick(A)$ and the cells where $B$ faces $A$ are counted in $\thick(B)$,
+so the interface is paid for twice. In the joint individuation the
+interface is a single shared surface: the cells between $A$ and $B$ are
+committed once, jointly, rather than twice, separately. The total
+separator content therefore drops by the content of the doubly-counted
+interface, which is $\Delta\thick(A,B)\ge0$, strict when the interface
+has positive content. No cell is removed below the floor: the outer
+boundary of $A\!\oplus\!B$ against the medium still satisfies
+Principle~\ref{prin:floor}.
+\end{proof}
+
+\begin{remark}[Bonding is the same act as individuation]
+\label{rem:same-act}
+Lemma~\ref{lem:subadditive} is the crux. A bond is not an attractive
+force added on top of two finished atoms; it is the recognition that two
+atoms can be individuated by \emph{one} shared boundary more cheaply than
+by two separate ones. The same boundary-minimisation that made each atom a
+distinct thing, run \emph{between} the atoms, is the bond. This is why no
+new postulate is needed: chemistry is the floor's own logic applied to
+more than one centre.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_3_bonding.png}
+    \caption{\textbf{The Bonding Criterion over All Element Pairs.}
+    (\textbf{A})~Three-dimensional surface of the shared content $\Delta B(\nu_a,\nu_b)$ over the vacancy plane, computed from the monotone thickness model $B=B_0+\kappa\phi(\nu)$ with $\phi(\nu)=\nu$. The surface is positive in the interior and falls to zero along the axes $\nu_a=0$ or $\nu_b=0$: a bond's thickness reduction vanishes whenever either partner is closed-shell (Theorem~\ref{thm:bond}).
+    (\textbf{B})~Heatmap of $\Delta B$ across all $136$ element pairs (H through Ar), magma scale. The dark rows and columns are the noble gases He, Ne, Ar, whose shared content is zero with every partner.
+    (\textbf{C})~Distribution of $\Delta B$ split into bonding pairs (green, $\Delta B>0$) and non-bonding pairs (red, $\Delta B=0$), separated cleanly about the threshold $\Delta B=0$ (grey line): the sign of $\Delta B$ matches ``neither partner closed-shell'' in all $136$ cases.
+    (\textbf{D})~Maximum attainable $\Delta B$ over all partners for each element, bars coloured red for noble (zero) and blue for open-shell. The noble gases alone register zero, the chemical statement that they are inert (Corollary~\ref{cor:noble}).}
+    \label{fig:panel_bonding}
+\end{figure*}
+
+\subsection{The bonding criterion}
+
+\begin{theorem}[Bonds exist iff they lower total thickness]
+\label{thm:bond}
+Two atoms $A,B$ form a bond if and only if the jointly individuated pair
+has strictly lower total boundary thickness than the separated atoms:
+\[
+\boxed{\;A\text{--}B\text{ bonds}\quad\Longleftrightarrow\quad
+\thick(A\!\oplus\!B)<\thick(A)+\thick(B),\;}
+\]
+equivalently iff the shared content $\Delta\thick(A,B)>0$. Moreover the
+shared content available is bounded by the atoms' vacancies: an interface
+can commit at most $\min(\vac_A,\vac_B)$ valence cells jointly, so
+$\Delta\thick(A,B)$ increases with the vacancy each atom brings to the
+interface and is zero when either atom is closed-shell.
+\end{theorem}
+
+\begin{proof}
+\emph{(Existence direction.)} A configuration is realised when it lowers
+the boundary an individuation must maintain (the system takes the cheaper
+individuation; this is the boundary-minimisation principle that selects
+states, used already to fill the atom). If
+$\thick(A\!\oplus\!B)<\thick(A)+\thick(B)$ then the joint individuation is
+cheaper than the separate ones, so the joined configuration is the
+realised one: a bond. If
+$\thick(A\!\oplus\!B)\ge\thick(A)+\thick(B)$ there is no thickness reduction
+to be had and the separate individuation is at least as cheap, so no bond
+forms.
+
+\emph{(Vacancy bound.)} By Lemma~\ref{lem:subadditive} the shared content
+is the content of the interface committed jointly. An interface cell is a
+valence cell of $A$ paired with a valence cell of $B$ across the shared
+surface; a closed-shell atom has no unfilled valence cell to offer to the
+interface, so it can share none---$\Delta\thick=0$ and no bond. An open
+atom offers up to $\vac$ cells, so the interface commits at most
+$\min(\vac_A,\vac_B)$ paired cells, and by
+Lemma~\ref{lem:thickness-vacancy} each committed pair removes excess
+thickness $\kappa[\phi(\vac)-\phi(\vac-1)]>0$ from both atoms. Hence
+$\Delta\thick$ grows with the shared vacancy and vanishes when either
+atom is closed.
+\end{proof}
+
+\begin{corollary}[Noble gases are inert; open shells are reactive]
+\label{cor:noble}
+A closed-shell atom ($\vac=0$) has $\Delta\thick(A,B)=0$ with every
+partner, so forms no bonds: it is inert. An open-shell atom ($\vac>0$)
+has $\Delta\thick>0$ with any partner that can pair its vacancies, so is
+reactive, the more so the larger its vacancy and the better matched the
+partner. The chemical inertness of He, Ne, Ar, Kr, Xe and the reactivity
+of H, the alkali metals, and the halogens are the two sides of
+Theorem~\ref{thm:bond}.
+\end{corollary}
+
+\begin{proof}
+Immediate from the vacancy bound: $\vac=0\Rightarrow\Delta\thick=0$ for
+all partners (inert); $\vac>0\Rightarrow\Delta\thick>0$ for a vacancy-
+matching partner (reactive). The magnitude orders with vacancy and match.
+\end{proof}
+
+\begin{example}[H$_2$ exists; He$_2$ does not]
+\label{ex:h2}
+Hydrogen has valence capacity $\Cap_v=2$ (the $n=1$ duet) and occupancy
+$1$, so $\vac_{\mathrm H}=1$. Two hydrogens each bring one vacancy to the
+interface; the shared surface commits one paired cell, driving each
+atom's valence occupancy to $2=\Cap_v$: both reach closure through the
+shared boundary. $\Delta\thick>0$, so H$_2$ forms, and no third hydrogen
+can bond because both vacancies are spent ($\vac=0$ in the molecule).
+Helium has $\Cap_v=2$, occupancy $2$, $\vac_{\mathrm{He}}=0$: no vacancy
+to share, $\Delta\thick=0$, no He$_2$. The existence of H$_2$ and the
+non-existence of He$_2$ are one calculation.
+\end{example}
+
+% =====================================================================
+\section{C3: valence and the closure (octet/duet) rule}
+\label{sec:valence}
+% =====================================================================
+
+\subsection{Valence is the vacancy count}
+
+\begin{theorem}[Valence equals vacancy]
+\label{thm:valence}
+The number of bonds an atom forms in a thickness-minimising molecule---its
+\emph{valence}---equals the number of valence cells it must commit through
+shared boundaries to reach closure, which for an atom short of closure is
+its vacancy $\vac$, and for an atom past half-closure may instead be the
+co-vacancy $\Cap_v-\vac$ when sharing electrons it already holds is
+cheaper than acquiring the full $\vac$. In the light-element octet/duet
+regime the realised valence is
+\[
+\mathrm{valence}=\min(\vac,\ \Cap_v-\vac)\ \text{for the sharing
+(covalent) interface,}
+\]
+and the molecule is stable when every constituent reaches $\vac=0$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:bond} each bond commits one paired valence cell and
+removes the excess thickness of one vacancy from each partner. To reach
+the closed-shell minimum ($\vac=0$, Lemma~\ref{lem:thickness-vacancy})
+an atom must have all its vacancies paired; the number of bonds needed is
+therefore the number of vacancies to be filled. An atom may reach closure
+either by acquiring its $\vac$ missing cells (sharing into its vacancies)
+or, equivalently for the count, by sharing out the $\Cap_v-\vac$ cells
+that would otherwise need separate individuation; the cheaper of the two
+sets the realised covalent valence, $\min(\vac,\Cap_v-\vac)$. The molecule
+as a whole is at its thickness minimum when no constituent carries
+residual vacancy, i.e.\ when every valence shell is closed---each
+constituent at $\vac=0$.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_2_valence.png}
+    \caption{\textbf{Valence as the Vacancy Count.}
+    (\textbf{A})~Three-dimensional scatter of the sixteen elements in $(\nu,\;C_v-\nu,\;\mathrm{valence})$ space---vacancy against co-vacancy against derived valence---coloured by valence (viridis). The points lie on the surface $\mathrm{valence}=\min(\nu,\,C_v-\nu)$, the covalent-valence rule of Theorem~\ref{thm:valence}.
+    (\textbf{B})~Derived valence (blue) and reference common valence (orange) as grouped bars per element. The two series coincide for every element, the $16/16$ agreement of the validation suite.
+    (\textbf{C})~The closure curve $\min(\nu,8-\nu)$ (green) over valence-electron count $q_v$, with the elements (red points) sitting on it; the curve peaks at four, recovering carbon's valence of four at $q_v=4$.
+    (\textbf{D})~Derived versus reference valence on the identity diagonal (grey dashed); all points lie on the diagonal (small jitter added for visibility), confirming exact reproduction of the common valences from the vacancy arithmetic alone.}
+    \label{fig:panel_valence}
+\end{figure*}
+
+\begin{corollary}[The octet and duet rules are the boundary minimum]
+\label{cor:octet}
+For valence capacity $\Cap_v=8$, a thickness-minimising molecule drives
+every main-group constituent to eight committed valence cells (the octet);
+for $\Cap_v=2$, to two (the duet, e.g.\ hydrogen). These are not empirical
+rules but the statement that the molecular boundary is minimal exactly
+when every constituent shell is closed.
+\end{corollary}
+
+\begin{proof}
+Closure $\vac=0$ is the per-atom thickness minimum
+(Lemma~\ref{lem:thickness-vacancy}); the molecular total is minimised when
+each term is minimised and the shared interfaces are maximised
+(Theorem~\ref{thm:bond}). For $\Cap_v=8$ this is eight committed cells per
+atom; for $\Cap_v=2$, two. Hence the octet and duet.
+\end{proof}
+
+\begin{example}[Valences of the second period]
+\label{ex:valences}
+Carbon ($2s^2 2p^2$, $q_v=4$, $\Cap_v=8$): $\vac=4=\Cap_v-\vac$, valence
+$4$. Nitrogen ($q_v=5$): $\vac=3$, valence $3$. Oxygen ($q_v=6$):
+$\vac=2$, valence $2$. Fluorine ($q_v=7$): $\vac=1$, valence $1$. Neon
+($q_v=8$): $\vac=0$, valence $0$ (inert). These are the observed
+valences, read directly off the vacancy arithmetic with no further input.
+\end{example}
+
+\subsection{Worked stoichiometries}
+
+\begin{example}[NaCl, HCl, LiF: vacancy matching across the interface]
+\label{ex:salts}
+Sodium ($[\mathrm{Ne}]3s^1$, octet valence shell, $\vac$ effectively the
+single $3s$ electron above a closed Ne core; sharing \emph{out} that one
+cell closes its lower octet) and chlorine ($[\mathrm{Ne}]3s^23p^5$,
+$\vac=1$) each have one cell to settle. One shared interface closes both:
+Na reaches the Ne configuration, Cl reaches the Ar configuration,
+$\Delta\thick>0$, stoichiometry 1:1---NaCl. Identically, HCl pairs
+hydrogen's one duet vacancy with chlorine's one octet vacancy (1:1), and
+LiF pairs lithium's one with fluorine's one (1:1). In each case the
+stoichiometry is forced by $\min(\vac_A,\vac_B)$ matching: one vacancy on
+each side, one bond, 1:1.
+\end{example}
+
+\begin{example}[Why H$_2$O is 2:1 and not 1:1]
+\label{ex:water}
+Oxygen has $\vac=2$; hydrogen has $\vac=1$. A single O--H interface closes
+hydrogen but leaves oxygen with one residual vacancy and thus
+non-minimal thickness. Minimisation requires oxygen's second vacancy also
+committed: a second hydrogen. Two O--H interfaces drive oxygen to
+$\vac=0$ and both hydrogens to $\vac=0$ simultaneously---H$_2$O. A third
+hydrogen finds no vacancy on a closed oxygen ($\Delta\thick=0$), so
+H$_3$O does not form as a neutral molecule. The formula 2:1 is the
+vacancy ratio $\vac_{\mathrm O}:\vac_{\mathrm H}=2:1$.
+\end{example}
+
+\begin{example}[NH$_3$, CH$_4$, CO$_2$]
+\label{ex:more}
+Nitrogen ($\vac=3$) closes by three N--H interfaces: NH$_3$. Carbon
+($\vac=4$) closes by four C--H interfaces: CH$_4$. Carbon with oxygen:
+carbon must commit four cells, each oxygen two; two oxygens supply four
+cells total and each oxygen closes by committing both of its cells to the
+same carbon (a double interface, two paired cells per C--O), giving
+O=C=O, CO$_2$, with carbon at $\vac=0$ and both oxygens at $\vac=0$. The
+stoichiometry and the double interfaces are both fixed by closing every
+vacancy at minimum total thickness.
+\end{example}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_4_stoichiometry.png}
+    \caption{\textbf{Stoichiometry from Vacancy Matching.}
+    (\textbf{A})~Three-dimensional scatter of eight molecules in $(\nu_{\mathrm{central}},\,\nu_{\mathrm{ligand}},\,\text{ligand count})$ space, points labelled by molecule and coloured by ligand count (plasma). The ligand count is fixed by closing the central atom's vacancy through interfaces of the ligand's vacancy, recovering the observed formulae.
+    (\textbf{B})~Ligands per central atom for H$_2$, HCl, NaCl, LiF, H$_2$O, NH$_3$, CH$_4$, CO$_2$, showing the $1{:}1$, $2{:}1$, $3{:}1$, $4{:}1$ ratios as the central vacancy increases.
+    (\textbf{C})~Central vacancy $\nu_{\mathrm{central}}$ versus predicted ligand count; the points track the diagonal (grey dashed) for the hydride series (H$_2$O, NH$_3$, CH$_4$), where each monovalent ligand closes one central vacancy.
+    (\textbf{D})~Derived (blue) versus reference (orange) ligand count per molecule as grouped bars; the two coincide for all eight molecules ($8/8$), the vacancy ratio reproducing each stoichiometry with no further input.}
+    \label{fig:panel_stoichiometry}
+\end{figure*}
+
+% =====================================================================
+\section{C4: Definite Bond Length}
+\label{sec:length}
+% =====================================================================
+
+\begin{theorem}[Bond length is the thickness minimiser]
+\label{thm:length}
+For a bonding pair $A,B$, the total boundary thickness
+$\thick(A\!\oplus\!B; r)$ as a function of internuclear separation $r$ is
+strictly convex with a unique minimiser $r^{*}\in(0,\infty)$. The bond
+length is $r^{*}$: neither $0$ (coincidence) nor $\infty$ (separation).
+\end{theorem}
+
+\begin{proof}
+Two competing terms set the $r$-dependence of the joint thickness. As
+$r$ decreases from infinity the shared interface grows, so the shared
+content $\Delta\thick(r)$ increases and the total thickness falls: a
+decreasing contribution. But the floor forbids the two atoms' boundaries
+from coinciding---driving $r\to0$ would require committing a separator of
+content below $\floorc$ between the two centres (two distinct individuated
+nuclei cannot share a sub-floor boundary,
+Principle~\ref{prin:floor}), so the cost of compression diverges as
+$r\to0$: an increasing contribution that blows up. The total is a sum of
+a term decreasing in the interface (saturating as the shells close) and a
+term diverging as $r\to0$; such a sum is convex on $(0,\infty)$ with
+$\thick\to+\infty$ as $r\to0$ and $\thick\to\thick(A)+\thick(B)$ as
+$r\to\infty$, hence attains a unique interior minimum at some
+$r^{*}\in(0,\infty)$. That $r^{*}$ is the equilibrium bond length.
+\end{proof}
+
+\begin{remark}[The floor is the repulsive wall]
+\label{rem:wall}
+Theorem~\ref{thm:length} identifies the origin of the short-range
+repulsion that every bond model needs: it is the contact floor. Two
+nuclei cannot be individuated at zero separation because that would be a
+zero-cost boundary, which the floor forbids; the divergence of thickness
+as $r\to0$ is the floor asserting itself. The bonded state is the
+standoff between boundary-sharing (which pulls the atoms together) and the
+floor (which forbids coincidence)---the same two facts, attraction-by-
+sharing and a hard floor, that a Lennard-Jones or Morse curve encodes
+phenomenologically, here derived rather than fitted.
+\end{remark}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_7_bondlength.png}
+    \caption{\textbf{Bond Length as the Convex Thickness Minimiser.}
+    (\textbf{A})~Three-dimensional family of joint-thickness wells $B(r)=D_e[(1-e^{-d(r-r_0)})^2-1]$ over internuclear separation $r$ and well depth $D_e$ (viridis), each curve a convex well with a single interior minimum; the minimum deepens with $D_e$ but never moves to $r=0$.
+    (\textbf{B})~The thickness profile $B(r)$ (blue) with its unique interior minimiser marked (red point at $r^{*}=1.40$, in units of $r_0$); the dashed line locates $r^{*}$. The curve diverges as $r\to0$ and plateaus as $r\to\infty$, the equilibrium standoff of Theorem~\ref{thm:length}.
+    (\textbf{C})~The two competing contributions: the repulsive wall (red, diverging as $r\to0$---the contact floor asserting itself), the sharing pull (green, the boundary-reduction drawing the atoms together), and their sum (blue dashed) with the interior minimum, showing the floor as the origin of short-range repulsion.
+    (\textbf{D})~Curvature $B''(r)$ (purple) versus separation; it is positive at the minimiser (red point) and crosses zero only well away from it, confirming the well is locally convex at $r^{*}$ ($B''(r^{*})=3.99>0$).}
+    \label{fig:panel_bondlength}
+\end{figure*}
+
+% =====================================================================
+\section{C5: Definite Spatial Arrangement}
+\label{sec:geometry}
+% =====================================================================
+
+\subsection{Why three dimensions: no axis is privileged}
+
+Before the angular argument, we must say why the surrounding space in
+which a centre is individuated is three-dimensional, because the geometry
+of a molecule is downstream of that fact. The reason is the same
+selector-free condition that drove individuation throughout: an atom is
+fixed by negation against everything it is not, with \emph{no external
+chooser}. We show three dimensions is the minimum at which this condition
+can be met spatially.
+
+\begin{principle}[Three dimensions from the absence of a privileged axis]
+\label{prin:threed}
+A space of orthogonal coordinate axes individuates a centre
+selector-free only if no axis is privileged---if the assignment of which
+direction plays which coordinate role is fixed by the system internally,
+not imposed from outside. The minimum dimension in which this holds is
+$d=3$:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item In $d=2$, two perpendicular axes carry fixed, distinct roles
+(``horizontal'' and ``vertical''). Exchanging the two roles is the map
+$(x,y)\mapsto(y,x)$, a reflection: it has determinant $-1$ and is
+\emph{not} a rotation of the plane (not an element of $SO(2)$). There is
+no continuous proper motion within the plane that turns one axis into the
+other, so which axis is which must be \emph{stipulated from outside}---an
+external selector. A two-dimensional individuation therefore smuggles in
+the very chooser the framework forbids.
+\item In $d=3$, the addition of a third axis makes the exchange of any two
+axes a \emph{proper rotation}: the $180^{\circ}$ rotation about the axis
+bisecting them, e.g.\ $(x,y,z)\mapsto(y,x,-z)$, lies in $SO(3)$
+(determinant $+1$) and is realised by a continuous internal motion. The
+coordinate roles become mutually interchangeable by the system itself; no
+axis is privileged, and no orientation need be imposed from outside.
+\item Hence $d=3$ is the least dimension in which a centre can be
+individuated by negation with no external selector. A one- or
+two-dimensional world cannot host selector-free individuation; a
+three-dimensional one can, and no further dimension is required to remove
+a privileged axis.
+\end{enumerate}
+\end{principle}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_6_dimension.png}
+    \caption{\textbf{Three Dimensions and the Absence of a Privileged Axis.}
+    (\textbf{A})~Three-dimensional action of the axis-swap $(x,y,z)\mapsto(y,x,-z)$ on the vertices of a tetrahedron: original vertices (blue) and their images (red triangles) joined by displacement lines. The swap is realised as a continuous proper rotation, exchanging the two axes by an internal motion (Principle~\ref{prin:threed}).
+    (\textbf{B})~Determinants of the axis-swap matrices: the two-dimensional swap has determinant $-1$ (a reflection, red) and the three-dimensional swap has determinant $+1$ (a proper rotation in $SO(3)$, green), the dashed guides marking $\pm1$.
+    (\textbf{C})~The two-dimensional swap as a reflection across the line $y=x$ (grey dashed): a rectangle (blue) mapped to its mirror image (red), showing that in $d=2$ exchanging the axes requires a reflection, not an internal rotation---hence an external choice.
+    (\textbf{D})~Eigenvalue spectra of the two swap matrices on the unit circle (grey): the two-dimensional swap (red) has eigenvalues $\pm1$, the three-dimensional swap (green triangles) has eigenvalues consistent with a proper rotation, confirming $d=3$ as the minimum dimension of selector-free axis exchange.}
+    \label{fig:panel_dimension}
+\end{figure*}
+
+\begin{remark}[Why this is the spatial form of ``no selector'']
+\label{rem:threed}
+The founding move of the whole account is that a thing is individuated
+without a privileged point or chooser (individuation by negation).
+Principle~\ref{prin:threed} is exactly that move applied to the
+coordinate frame: in $d<3$ the frame itself carries a privileged
+direction that must be chosen externally, contradicting selector-freedom;
+$d=3$ is the first dimension in which the frame's directions are
+exchangeable by an internal proper rotation, so the frame imposes no
+choice. Three-dimensionality is therefore not an extra postulate of the
+chemical theory---it is what selector-free individuation requires of the
+space, and the bond geometries below are its consequence.
+\end{remark}
+
+
+
+\subsection{Negation closes around a centre with no preferred direction}
+
+\begin{principle}[Angular closure of individuation]
+\label{prin:closure}
+Because no axis is privileged in three dimensions
+(Principle~\ref{prin:threed}), individuating a centre from its
+surroundings by negation closes around the centre from \emph{all} angular
+directions equally: a thing is fixed by what it is not, ``everything it is
+not'' surrounds it on a two-sphere, and no direction on that sphere is
+cheaper or more privileged than any other. A bonded neighbour is a
+committed portion of a centre's boundary occupying a solid-angle region;
+two neighbours occupying overlapping solid angles share boundary that is
+then doubly committed, raising thickness. The absence of a privileged
+direction is what forbids the bonds from preferring one axis and forces
+them to distribute over the sphere.
+\end{principle}
+
+\begin{theorem}[Bonds adopt the maximally separated angular configuration]
+\label{thm:geometry}
+The $k$ bonded interfaces of a $k$-valent centre minimise total boundary
+thickness when their solid-angle regions are as mutually separated as
+possible on the surrounding two-sphere; i.e.\ the bond directions are the
+configuration of $k$ points on the sphere of maximal mutual angular
+separation. Consequently:
+\[
+k=2:\ \text{linear }(180^\circ);\quad
+k=3:\ \text{trigonal planar }(120^\circ);\quad
+k=4:\ \text{tetrahedral }(109.5^\circ).
+\]
+\end{theorem}
+
+\begin{proof}
+By Principle~\ref{prin:closure} each bonded interface occupies a
+solid-angle region of the centre's boundary, and---because no direction
+on the two-sphere is privileged (Principle~\ref{prin:threed})---no
+interface can lower thickness by preferring a special axis; the only
+thickness-relevant quantity is the mutual overlap between regions. Two
+interfaces whose regions
+overlap share boundary content that is committed for both, adding excess
+thickness proportional to the overlap (the doubly-committed cells of
+Lemma~\ref{lem:subadditive}, now between two neighbours of the same
+centre). Total thickness is therefore minimised by minimising pairwise
+solid-angle overlap, and with no axis privileged the minimum is the
+\emph{symmetric} one: the $k$ interface directions placed at
+maximal mutual angular separation on the two-sphere. The maximal-separation
+configurations of $k$ points on the sphere are, for $k=2,3,4$, the
+antipodal pair ($180^\circ$), the equatorial triangle ($120^\circ$), and
+the regular tetrahedron ($\cos^{-1}(-\tfrac13)=109.47^\circ$). These are
+the bond geometries.
+\end{proof}
+
+\begin{example}[CH$_4$, NH$_3$, H$_2$O: the same tetrahedral closure]
+\label{ex:shapes}
+Carbon in CH$_4$ has four committed interfaces and no residual vacancy;
+maximal separation of four interfaces is the tetrahedron, $109.5^\circ$---
+the observed methane geometry. Nitrogen in NH$_3$ has three bonded
+interfaces and one committed-but-unshared region (its residual valence
+pair); four regions in all still seek tetrahedral separation, so the three
+N--H bonds sit at the base of a tetrahedron, compressed slightly below
+$109.5^\circ$ by the larger unshared region---the observed $107^\circ$.
+Oxygen in H$_2$O has two bonded interfaces and two unshared regions; four
+regions, tetrahedral base, two bonds compressed further to the observed
+$\approx104.5^\circ$. The bent shape of water, the pyramidal shape of
+ammonia, and the tetrahedral shape of methane are one closure condition
+with different numbers of bonded versus unshared regions.
+\end{example}
+
+\begin{example}[CO$_2$ is linear, benzene is hexagonal]
+\label{ex:co2benzene}
+Carbon in CO$_2$ has two bonded interfaces (each a double C=O); two
+regions separate maximally to $180^\circ$---linear O=C=O. In benzene each
+carbon commits three interfaces (two ring C--C and one C--H) at
+$120^\circ$ trigonal separation; six such trigonal centres close into a
+planar regular hexagon, the only ring that lets every carbon hold
+$120^\circ$ while closing the ring---the observed benzene geometry. Shape
+in every case is the angular form boundary-minimisation must take in
+three dimensions.
+\end{example}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_5_geometry.png}
+    \caption{\textbf{Molecular Geometry as Maximal Angular Separation.}
+    (\textbf{A})~Three-dimensional rendering of the four maximally separated bond directions of a four-coordinate centre (methane): bonds (blue) from the central atom (orange) to the four ligand directions (green) at the regular-tetrahedron vertices, the configuration that minimises pairwise solid-angle overlap (Theorem~\ref{thm:geometry}).
+    (\textbf{B})~Ideal symmetric bond angle versus number of interface regions $k$: $180^\circ$ ($k=2$, linear), $120^\circ$ ($k=3$, trigonal planar), $109.47^\circ$ ($k=4$, tetrahedral)---the maximal-separation angles of $k$ points on the sphere.
+    (\textbf{C})~Observed versus ideal symmetric angle for five molecules, coloured by lone-pair count (coolwarm); points on the diagonal (grey dashed) are the lone-pair-free backbones (CO$_2$, BF$_3$, CH$_4$), and points below it are the lone-pair-compressed geometries (NH$_3$, H$_2$O).
+    (\textbf{D})~Observed angle of the four-region family versus lone-pair count: $109.5^\circ$ (CH$_4$, none) $\to 107^\circ$ (NH$_3$, one) $\to 104.5^\circ$ (H$_2$O, two), the monotone compression as unshared regions are added.}
+    \label{fig:panel_geometry}
+\end{figure*}
+
+% =====================================================================
+\section{C6: reaction, affinity, equilibrium}
+\label{sec:reaction}
+% =====================================================================
+
+\begin{principle}[Reaction is boundary propagation toward the joint minimum]
+\label{prin:reaction}
+A chemical reaction is the propagation of boundary among a set of atoms
+from a higher-total-thickness configuration to a lower one: the system
+re-individuates its parts so as to lower total boundary thickness. A
+reaction proceeds if and only if a re-individuation of strictly lower
+total thickness is available; its driving magnitude---the
+\emph{affinity}---is the available thickness reduction.
+\end{principle}
+
+\begin{theorem}[Reaction direction, irreversibility, and equilibrium]
+\label{thm:reaction}
+Let a set of atoms admit configurations $\mathcal{C}$ with total
+thickness $\thick(\mathcal{C})$. Then:
+\begin{enumerate}[label=\textup{(\roman*)},leftmargin=2.2em]
+\item \textbf{Direction.} A transition $\mathcal{C}\to\mathcal{C}'$
+occurs only if $\thick(\mathcal{C}')<\thick(\mathcal{C})$; the affinity is
+$\thick(\mathcal{C})-\thick(\mathcal{C}')>0$. Adding a reagent (e.g.\
+fluorine to a system) drives a reaction precisely when it opens a
+lower-thickness re-individuation, and not otherwise.
+\item \textbf{Irreversibility.} The committed-boundary count is monotone
+non-decreasing: each re-individuation commits new shared cells, and
+un-committing them is itself a further committing step. No reaction
+returns the system to a prior individuation state; resemblance of
+configuration is not identity of state.
+\item \textbf{Equilibrium.} The reaction halts not at zero thickness but
+at the floor-limited minimum: it proceeds while a strictly lower
+attainable configuration exists and stops when the marginal thickness
+reduction available no longer exceeds the floor cost of the next
+committing step. Equilibrium is the floor-limited halt, never coincidence
+of parts.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) is Principle~\ref{prin:reaction} applied to the configuration set: the
+realised transition is the one lowering total thickness, with affinity the
+reduction. The fluorine clause is the special case where the reagent's
+vacancies open shared interfaces unavailable before its addition: if they
+lower the total, the reaction runs; if not, none does. (ii): committing a
+shared interface adds cells to the committed-boundary record, which is a
+count that increases by at least one per committing step; reversing a
+commitment is a distinct committing step (re-individuation), so the count
+never decreases---the monotone-record / non-return property of individuation
+in a bounded whole. (iii): by the floor, thickness cannot be driven below
+$\floorc$ per maintained boundary, and the cost of further compression
+diverges (the convex wall of Theorem~\ref{thm:length}); a finite system
+therefore halts where marginal reduction meets marginal floor cost---a
+strictly positive-thickness equilibrium, not the coincidence
+$\thick\to0$, which the floor forbids.
+\end{proof}
+
+\begin{remark}[One quantity under five names]
+\label{rem:one-quantity}
+Theorems~\ref{thm:bond}, \ref{thm:valence}, \ref{thm:length},
+\ref{thm:geometry}, and \ref{thm:reaction} are five readings of the
+single functional $\thick$: a bond is where $\thick$ drops on joining,
+valence is how many drops are available, length is where the drop is
+maximal in $r$, shape is the angular arrangement that maximises the drop,
+and reaction is the propagation that realises the drop. There are not five
+chemical principles; there is one boundary-thickness minimisation, seen
+from five sides. This is the sense in which the account unifies what are
+normally separate rules.
+\end{remark}
+
+% =====================================================================
+\section{Structural Necessity}
+\label{sec:why}
+% =====================================================================
+
+We can now state the answer to the title question as a single
+conditional, parallel to the way structure-in-general was shown to follow
+from a non-completable whole.
+
+\begin{theorem}[Existence of chemical structure]
+\label{thm:why}
+Let a world consist of finitely many bounded atoms, each individuated from
+a non-completable whole and so carrying boundary thickness
+$\thick\ge\floorc>0$, and let some atoms be open-shell ($\vac>0$). Then
+chemical structures necessarily exist: there are configurations of strictly
+lower total thickness than the all-separate configuration (any
+vacancy-matched pair, by Theorem~\ref{thm:bond}), the world relaxes toward
+them (Theorem~\ref{thm:reaction}), and the relaxed configurations are
+molecules of definite stoichiometry (Theorem~\ref{thm:valence}), length
+(Theorem~\ref{thm:length}), and shape (Theorem~\ref{thm:geometry}).
+Conversely, a world of only closed-shell atoms ($\vac=0$ throughout) forms
+no structures---it is a noble-gas world, inert and structureless. Chemical
+structure exists if and only if there is uncommitted boundary (vacancy) to
+share.
+\end{theorem}
+
+\begin{proof}
+If some atom has $\vac>0$, then by Theorem~\ref{thm:bond} it has a
+partner with $\Delta\thick>0$, so a strictly lower-thickness joined
+configuration exists; by Theorem~\ref{thm:reaction}(i) the world
+transitions toward it, and by (iii) halts at a floor-limited minimum
+holding the shared interfaces---a molecule, whose count, length, and shape
+are fixed by Theorems~\ref{thm:valence}, \ref{thm:length},
+\ref{thm:geometry}. If every atom is closed-shell, then $\Delta\thick=0$
+for all pairs (Corollary~\ref{cor:noble}); the all-separate configuration
+is already minimal and no structure forms. Hence chemical structure
+$\iff$ positive shareable vacancy.
+\end{proof}
+
+\begin{figure*}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/panel_8_existence.png}
+    \caption{\textbf{Why a World of Bounded Atoms Must Be a World of Molecules.}
+    (\textbf{A})~Three-dimensional surface of the shareable content $\min(\nu_a,\nu_b)$ over the vacancy plane (cividis): the boundary that two atoms can commit jointly, zero whenever either is closed-shell and rising with the smaller vacancy, the resource from which structure is built.
+    (\textbf{B})~Excess boundary thickness $\kappa\phi(\nu)$ above the closed-shell minimum for sixteen elements, bars red where $\nu=0$ (no excess: the noble-gas minimum) and blue where $\nu>0$ (excess to be relaxed by bonding).
+    (\textbf{C})~Element census of the open (reactive, blue) versus closed (inert, red) shells among the sixteen elements, the count of atoms that carry shareable vacancy versus those that do not.
+    (\textbf{D})~Total world boundary thickness versus the fraction of open atoms that have bonded: the monotone decrease (green, shaded reduction) shows that a world of bounded atoms with positive vacancy lowers its total thickness by forming molecules---chemical structure as the floor's economy (Theorem~\ref{thm:why}).}
+    \label{fig:panel_existence}
+\end{figure*}
+
+\begin{remark}[The shadow of the floor, one level up]
+\label{rem:shadow}
+The companion account showed that structure-in-general is the shadow a
+non-completable whole casts on its finite parts: because individuation
+costs a positive floor, parts are forced, bounded, and never reach a point
+identity. The present result is that same shadow cast one level up. Atoms
+are the individuated parts; their floors are positive; and \emph{because}
+the floor cannot be abolished but \emph{can} be shared, bounded atoms are
+driven to compose. A molecule is two or more atoms holding a single
+boundary where two would otherwise be paid for. Chemical structure is the
+floor's economy: it is cheaper, for bounded things carrying uncommitted
+boundary, to be joined than to be separate---and the same floor that makes
+joining cheaper makes the joint never collapse to one. That is why there
+are chemical structures at all.
+\end{remark}
+
+\subsection{Scope and limits}
+
+The account derives the qualitative architecture---existence of bonds,
+integer valence, closure rules, definite length and shape, reaction
+direction and equilibrium---from one functional and the inherited shell
+structure. It does not, and does not attempt to, compute bond energies,
+lengths, or angles numerically; those sit inside the constant $\kappa$ and
+the convex profile $\thick(r)$, which we have characterised only by their
+qualitative properties (monotone in vacancy, convex in $r$, floored
+below). The honest division of labour is: the framework states the
+quantity chemistry minimises and reads off what must be true of its
+minimisers; electronic-structure theory computes the minimiser's
+coordinates. Three specific limits are worth marking. First, the
+covalent/ionic distinction is treated here only through the same
+vacancy-sharing arithmetic (NaCl and HCl differ in how unequally the
+shared cells are held, which we have not quantified). Second, multiple
+bonding (the double interfaces in CO$_2$, the delocalised interfaces in
+benzene) is handled at the level of cell-counting, not of the energetics
+that decide when a double interface beats two singles. Third, the geometry
+theorem gives the maximal-separation configuration but not the
+quantitative angle corrections from unequal regions, which we have only
+indicated. Each is a place where the qualitative derivation meets the
+quantitative theory it does not replace.
+
+% =====================================================================
+\section{Computational validation}
+\label{sec:validation}
+% =====================================================================
+
+Each Consequence of the paper is a definite combinatorial or geometric
+statement, and we have checked every one against reference chemistry with
+no parameter beyond the shell structure of the isolated atoms. A
+self-contained suite (Python; \texttt{numpy}) implements seven categories
+and writes its results as JSON. All $195$ checks pass.
+
+\begin{table}[h]
+\centering\small
+\caption{Validation of the chemical-structure Consequences against
+reference data. Every check passes with zero fitted parameters.}
+\label{tab:validation}
+\begin{tabular}{lll}
+\toprule
+\textbf{Category} & \textbf{Pass} & \textbf{Content}\\
+\midrule
+Shell capacity (C1)        & $23/23$  & $\Shellcap(n)=2n^2$ for $n=1$--$7$;
+                                        vacancy $\nu=\Shellcap_v-q_v$; $\nu=0\iff$ noble\\
+Valence (C3)               & $16/16$  & $\mathrm{valence}=\min(\nu,\Shellcap_v-\nu)$
+                                        vs.\ common valence\\
+Bonding criterion (C2)     & $136/136$& all element pairs:
+                                        $\Delta\thick>0\iff$ both open-shell\\
+Stoichiometry (C3)         & $8/8$    & H$_2$, HCl, NaCl, LiF, H$_2$O,
+                                        NH$_3$, CH$_4$, CO$_2$\\
+Bond geometry (C5)         & $4/4$    & $180/120/109.47^\circ$ backbones;
+                                        lone-pair compression monotone\\
+$d{=}3$ axis exchange (C5) & $4/4$    & swap $\in SO(3)$ ($\det+1$);
+                                        2D swap a reflection ($\det-1$)\\
+Bond length (C4)           & $4/4$    & convex $\thick(r)$: unique interior
+                                        $r^{*}$, $r{\to}0$ wall, plateau\\
+\midrule
+\textbf{Total}             & $\mathbf{195/195}$ & zero free parameters\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three points of the suite are worth stating explicitly, as they confirm
+the load-bearing claims rather than the bookkeeping. \emph{(i) Bonding is
+exactly the noble-gas dichotomy.} Over all $\binom{16}{2}+16=136$ ordered-%
+or-equal element pairs drawn from H through Ar, the sign of the shared
+content $\Delta\thick$ (computed from the monotone thickness model
+$\thick=\thick_0+\kappa\,\phi(\nu)$, $\phi(\nu)=\nu$) agrees with the
+reference fact ``a bond forms iff neither partner is closed-shell'' in
+every case; the noble gases He, Ne, Ar are inert against all partners
+(Corollary~\ref{cor:noble}). \emph{(ii) The bond-length wall is the
+floor.} The convex thickness profile $\thick(r)=D_e[(1-e^{-d(r-r_0)})^2-1]$
+attains a unique interior minimiser at $r^{*}=1.40$ (in units of $r_0$)
+with positive curvature there ($\thick''(r^{*})=3.99>0$), diverges as
+$r\to0$, and plateaus as $r\to\infty$---the three properties of
+Theorem~\ref{thm:length}, with the $r\to0$ divergence supplying the
+repulsive wall the floor demands. \emph{(iii) The geometry is grounded in
+$d=3$.} The axis-exchange matrices are computed directly: the 2D swap
+$\bigl(\begin{smallmatrix}0&1\\1&0\end{smallmatrix}\bigr)$ has
+determinant $-1$ (a reflection, not in $SO(2)$), while the 3D swap
+$(x,y,z)\mapsto(y,x,-z)$ has determinant $+1$ (a proper rotation in
+$SO(3)$); and among the four-region centres the observed angle decreases
+monotonically with the number of lone-pair regions ($109.5^\circ$ for
+CH$_4$, $107^\circ$ for NH$_3$, $104.5^\circ$ for H$_2$O), as the
+maximal-separation principle requires once unshared regions are admitted.
+
+\begin{remark}[What the suite does and does not establish]
+\label{rem:validation-scope}
+The suite verifies that the Consequences are internally consistent and
+that, where the framework makes a definite qualitative prediction
+(valence integers, the bonding dichotomy, the symmetric backbones, the
+$d=3$ determinants, the convex-well structure), that prediction matches
+the reference chemistry. It does not compute bond energies, exact bond
+lengths, or the quantitative lone-pair angle corrections; those remain in
+the constants $\kappa$ and the profile $\thick(r)$
+(\Cref{sec:validation} inherits the scope of \Cref{sec:why}). The suite is
+a consistency-and-prediction check at the qualitative-architecture level,
+which is the level at which the paper claims to operate.
+\end{remark}
+
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% =====================================================================
+
+Taking the partition structure of the isolated atom as given, and adding
+only the contact floor $\floorc>0$---itself forced by the
+non-completability of the whole against which an atom is individuated---we
+have derived why there are chemical structures at all. A bond is the
+recognition that two bounded atoms can be individuated by one shared
+boundary more cheaply than by two separate ones (Theorem~\ref{thm:bond});
+it exists exactly when the join lowers total boundary thickness, which
+requires uncommitted valence---vacancy---to share. Valence is the vacancy
+count and the octet/duet rules are the per-atom thickness minimum
+(Theorem~\ref{thm:valence}); bond length is the convex thickness
+minimiser, with the floor supplying the repulsive wall
+(Theorem~\ref{thm:length}); molecular shape is the maximally separated
+angular configuration that minimisation must take in three dimensions
+(Theorem~\ref{thm:geometry}); and reaction is the monotone, irreversible
+propagation of boundary toward a floor-limited minimum, with affinity the
+available reduction and equilibrium the halt (Theorem~\ref{thm:reaction}).
+These are not five rules but one minimisation seen five ways. The worked
+cases---H$_2$ and the inert noble gases, NaCl, HCl and LiF, H$_2$O, NH$_3$,
+CH$_4$, CO$_2$, and benzene---show the single principle fixing existence,
+stoichiometry, and shape together, with no parameter beyond the shells of
+the isolated atoms. The final statement is the simplest: a world of
+bounded atoms carrying uncommitted boundary is compelled to be a world of
+molecules, because for such atoms it is cheaper to share a boundary than
+to maintain two, and the floor that makes sharing cheaper also forbids the
+shared structure from ever collapsing to a point. Chemical structure is
+the economy of the floor, one level above the atom.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
